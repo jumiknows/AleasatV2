@@ -17,7 +17,11 @@
 /******************************************************************************/
 
 // OBC
-#include "obc_error.h"
+#include "obc_gpio_err.h"
+#include "obc_featuredefs.h"
+
+// Hardware Drivers
+#include "gpio_pcal6416a.h"
 
 // HAL
 #include "reg_gio.h"
@@ -44,7 +48,7 @@
 
 /**
  * @brief Macro to specify a GPIO Expander port for the obc_gpio_read/obc_gpio_write functions
- * @param _port One of the gpio_expand_port_t enum values (GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1)
+ * @param _port One of the pcal6416a_port_t enum values (GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1)
  */
 #define EXP_PORT(_port) (gpio_port_t){.type = GPIO_PORT_EXP, .reg = {.exp = (_port)}}
 
@@ -58,16 +62,10 @@
 typedef enum {
     GPIO_PORT_GIO,
     GPIO_PORT_CAN,
+#if GPIO_EXPANDER_EN
     GPIO_PORT_EXP
+#endif // GPIO_EXPANDER_EN
 } gpio_port_type_t;
-
-/**
- * @brief Enumeration of GPIO expander ports
- */
-typedef enum {
-    GPIO_EXP_PORT_0 = 0,
-    GPIO_EXP_PORT_1 = 1,
-} gpio_expand_port_t;
 
 /**
  * @brief Wrapper for GIO notification information.
@@ -90,7 +88,9 @@ typedef const struct {
     const union {
         gioPORT_t* const gio;
         canBASE_t* const can;
-        const gpio_expand_port_t exp;
+#if GPIO_EXPANDER_EN
+        const pcal6416a_port_t exp;
+#endif // GPIO_EXPANDER_EN
     } reg;
 } gpio_port_t;
 

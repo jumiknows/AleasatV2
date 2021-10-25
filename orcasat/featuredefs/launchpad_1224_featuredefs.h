@@ -54,6 +54,14 @@
 #define GPIO_EXPANDER_EN 0
 
 /**
+ * @brief IMU 2 ENABLE
+ * 
+ * 1: IMU 2 is present on the hardware
+ * 0: IMU 2 is not present on the hardware and cannot be used
+ */
+#define IMU_2_EN 0
+
+/**
  * @brief RTI and RTOS have vPortPreemptiveTick.
  * In order to not have multiple declarations, RTI vPortPreemptiveTick needs to be commented out
  *

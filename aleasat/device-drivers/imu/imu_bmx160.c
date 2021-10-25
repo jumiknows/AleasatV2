@@ -14,6 +14,7 @@
 #include "obc_gpio.h"
 #include "logger.h"
 #include "obc_hardwaredefs.h"
+#include "obc_featuredefs.h"
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -39,6 +40,7 @@ bmx160_t bmx160_imu_1 = {
 
 };
 
+#if IMU_2_EN
 bmx160_t bmx160_imu_2 = {
 
 	.addr = IMU2_I2C_ADDR,
@@ -50,6 +52,7 @@ bmx160_t bmx160_imu_2 = {
 	.is_active = FALSE
 
 };
+#endif // IMU_2_EN
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */

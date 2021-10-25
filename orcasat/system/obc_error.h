@@ -18,32 +18,6 @@
 #include "lfs.h"
 
 /**
- * @brief Return value for GPIO functions, indicating if any IO errors occurred when the GPIO
- * expander is used.
- *
- * GPIO_FAILURE indicates problems with the GPIO expander.
- * TMS570 pins always report GPIO_SUCCESS.
- */
-typedef enum gpio_err {
-    /**
-     * @brief Indicates that the function performed correctly without IO errors.
-     */
-    GPIO_SUCCESS = 0,
-
-    /**
-     * @brief Generic failure case returned from GPIO API, typically occurs when IO errors bubble up
-     * from the GPIO expander driver.
-     */
-    GPIO_FAILURE = -1,
-
-    /**
-     * @brief Returned by GPIO expander driver when operations encounter IO errors bubbling up from
-     * I2C handlers.
-     */
-    GPIO_I2C_ERR = -2
-} gpio_err_t;
-
-/**
  * @brief Return values for I2C functions.
  */
 typedef enum i2c_err {

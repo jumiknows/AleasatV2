@@ -32,6 +32,7 @@
 #include "obc_gpio.h"
 
 // OBC
+#include "obc_gpio_err.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
 #include "obc_task_info.h"
@@ -40,7 +41,7 @@
 #include "tms_can.h"
 
 #if GPIO_EXPANDER_EN == 1
-#include "gpio-expander/gpio_pcal6416a.h"
+#include "gpio_pcal6416a.h"
 #endif
 
 // Logging
@@ -135,28 +136,28 @@ void gpio_create_infra(void) {
 void gpio_expander_init(void) {
 #if GPIO_EXPANDER_EN == 1
     /* Initialize the expander with reset values */
-    if (init_gpio_expander() != GPIO_SUCCESS) {
+    if (pcal6416a_init() != GPIO_SUCCESS) {
         log_str(ERROR, GPIO_EXPAND_LOG, true, "Expander init failed");
     }
 
     /* Configure the desired pins */
-    if (configure_output(EXPANDER_BLINKY_PORT.reg.exp, EXPANDER_BLINKY_PIN, 1, PULLUP) != GPIO_SUCCESS) {
+    if (pcal6416a_configure_output(EXPANDER_BLINKY_PORT.reg.exp, EXPANDER_BLINKY_PIN, 1, PULLUP) != GPIO_SUCCESS) {
         log_str(ERROR, GPIO_LOG, true, "Expander blink init failed");
     }
 
 #ifdef PLATFORM_ORCA_V1
     /* Configure the example input GPIO expander interrupt */
-    if (configure_input_interrupt(OBC_EXPAND_IN_TEST_PORT, OBC_EXPAND_IN_TEST_PIN, 1, PULLUP, &default_expander_callback) != GPIO_SUCCESS) {
+    if (pcal6416a_configure_interrupt(OBC_EXPAND_IN_TEST_PORT, OBC_EXPAND_IN_TEST_PIN, 1, PULLUP, &default_expander_callback) != GPIO_SUCCESS) {
         log_str(ERROR, GPIO_LOG, true, "Expander irq init failed");
     }
 #endif // PLATFORM_ORCA_V1
 
-    /* MODIFY HERE: add further configure_output(), configure_input(), configure_input_interrupt()
+    /* MODIFY HERE: add further pcal6416a_configure_output(), pcal6416a_configure_input(), pcal6416a_configure_interrupt()
      * calls */
 
     /* END MODIFIABLE REGION */
 
-    if (verify_gpio_expander() != GPIO_SUCCESS) {
+    if (pcal6416a_validate_regs() != GPIO_SUCCESS) {
         log_str(ERROR, GPIO_LOG, true, "Expander verify failed.");
     }
 #endif
@@ -167,7 +168,7 @@ void gpio_expander_init(void) {
  */
 void gpio_expander_reset(void) {
 #if GPIO_EXPANDER_EN == 1
-    reset_gpio_expander();
+    pcal6416a_reset();
 #endif
 }
 
@@ -230,7 +231,7 @@ gpio_err_t obc_gpio_write(gpio_port_t port, uint32_t pin, uint32_t value) {
             break;
 #if GPIO_EXPANDER_EN == 1
         case GPIO_PORT_EXP:
-            err = set_output(port.reg.exp, pin, value);
+            err = pcal6416a_gpio_write(port.reg.exp, pin, value);
             break;
 #endif
         default:
@@ -248,7 +249,7 @@ gpio_err_t obc_gpio_write(gpio_port_t port, uint32_t pin, uint32_t value) {
  *
  * @param[in]  port  GPIO port to use (use GIO_PORT, EXP_PORT or CAN_PORT macros)
  * @param[in]  pin   The pin on the respective port.
- * @param[out] value 0 or 1, indicating LOW or HIGH state on the pin.
+ * @param[out] value Provide a uint32_t to store the read value (0 = LOW, 1 = HIGH)
  * @return GPIO_SUCCESS for all internal GPIO reads, and if the expander read did not experience
  * any IO errors. GPIO_FAILURE if the port type was invalid or I2C communication with the expander failed.
  */
@@ -266,7 +267,7 @@ gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t* value) {
             break;
 #if GPIO_EXPANDER_EN == 1
         case GPIO_PORT_EXP:
-            err = get_input(port.reg.exp, pin, value);
+            err = pcal6416a_gpio_read(port.reg.exp, pin, value);
             break;
 #endif
         default:
@@ -305,7 +306,7 @@ static void vGPIOServiceTask(void* pvParameters) {
 /* Handle pins on the GPIO expander if it exists */
 #if GPIO_EXPANDER_EN == 1
             if ((irq_info.port == OBC_EXPAND_IRQ_N_PORT) && (irq_info.pin == OBC_EXPAND_IRQ_N_PIN)) {
-                check_expander_interrupts();
+                pcal6416a_handle_interrupts();
             }
 
 /* MODIFY HERE: handle other GPIO expander pins */

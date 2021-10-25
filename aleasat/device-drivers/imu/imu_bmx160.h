@@ -15,6 +15,7 @@
 #include "obc_task_info.h"
 #include "logger.h"
 #include "obc_gpio.h"
+#include "obc_featuredefs.h"
 
 //FreeRTOS
 #include "i2c_freertos.h"
@@ -183,7 +184,9 @@ typedef struct{
 /******************************************************************************/
 
 extern bmx160_t bmx160_imu_1;
+#if IMU_2_EN
 extern bmx160_t bmx160_imu_2;
+#endif // IMU_2_EN
 
 
 /******************************************************************************/

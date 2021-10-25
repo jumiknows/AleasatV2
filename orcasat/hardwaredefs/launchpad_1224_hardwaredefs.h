@@ -210,7 +210,5 @@
 */
 #define IMU_1_EN_PIN 8
 #define IMU_1_EN_PORT GIO_PORT(hetPORT1)
-#define IMU_2_EN_PIN 7
-#define IMU_2_EN_PORT EXP_PORT(GPIO_EXP_PORT_0)
 
 #endif /* LAUNCHPAD_1224_HARDWAREDEFS_H_ */
