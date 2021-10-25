@@ -20,7 +20,7 @@
 #include "obc_uart.h"
 #include "obc_gps.h"
 #include "obc_mibspi.h"
-#include "obc_base_mibspi.h"
+#include "tms_mibspi.h"
 #include "obc_startup.h"
 #include "obc_flash.h"
 #include "obc_watchdog.h"

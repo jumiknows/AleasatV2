@@ -9,7 +9,7 @@
 #define OBC_MIBSPI_H_
 
 #include "sys_common.h"
-#include "obc_base_mibspi.h"
+#include "tms_mibspi.h"
 #include "FreeRTOS.h"
 #include "rtos_event_groups.h"
 #include "rtos_semphr.h"

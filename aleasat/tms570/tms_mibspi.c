@@ -1,5 +1,5 @@
 /**
- * @file obc_mibspi.c
+ * @file tms_mibspi.c
  * @brief Low-level Generic MIBSPI driver wrapper.
  * @author Andrada Zoltan, Julian Mentasti
  * @date March 3, 2021
@@ -19,7 +19,7 @@
  * and using a GIO pin as the slave select.
  */
 
-#include "obc_base_mibspi.h"
+#include "tms_mibspi.h"
 #include "gio.h"
 #include "obc_misra.h"
 #include "obc_hardwaredefs.h"
@@ -47,7 +47,7 @@ void mibspi_init_hw(void) {
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t mibspi_base_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout) {
+mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout) {
     EventBits_t uxBits;
     const TickType_t xTicksToWait = pdMS_TO_TICKS(timeout);
 
@@ -102,12 +102,12 @@ mibspi_err_t mibspi_base_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle,
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t mibspi_base_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout) {
+mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout) {
     uint16_t empty_data[16] = {0x0000};
     uint16_t* data_ptr = empty_data;
     // Transmit empty data, set the clock and slave select to allow the
     // slave to simultaneously send data.
-    mibspi_err_t err = mibspi_base_tx(tg, eg_handle, data_ptr, timeout);
+    mibspi_err_t err = tms_mibspi_tx(tg, eg_handle, data_ptr, timeout);
     if (err != MIBSPI_NO_ERR) {
         return err;
     }
@@ -137,9 +137,9 @@ mibspi_err_t mibspi_base_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle,
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t mibspi_base_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
+mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
     // Transmit data
-    mibspi_err_t err = mibspi_base_tx(tg, eg_handle, tx_buffer, timeout);
+    mibspi_err_t err = tms_mibspi_tx(tg, eg_handle, tx_buffer, timeout);
     if (err != MIBSPI_NO_ERR) {
         return err;
     }

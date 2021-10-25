@@ -1,12 +1,12 @@
 /**
- * @file obc_mibspi.c
+ * @file tms_mibspi.h
  * @brief Low-level Generic MIBSPI driver wrapper.
  * @author Andrada Zoltan, Julian Mentasti
  * @date March 3, 2021
  */
 
-#ifndef OBC_BASE_MIBSPI_H_
-#define OBC_BASE_MIBSPI_H_
+#ifndef TMS_MIBSPI_H_
+#define TMS_MIBSPI_H_
 
 #include "sys_common.h"
 #include "mibspi.h"
@@ -45,8 +45,8 @@ typedef struct {
 void mibspi_init_hw(void);
 
 /* User API */
-mibspi_err_t mibspi_base_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout);
-mibspi_err_t mibspi_base_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout);
-mibspi_err_t mibspi_base_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout);
 
-#endif /* OBC_BASE_MIBSPI_H_ */
+#endif /* TMS_MIBSPI_H_ */

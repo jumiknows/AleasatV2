@@ -73,7 +73,7 @@ void mibspi_init_irq(void) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t mibspi_transmit(mibspi_tg_t tg, uint16_t* tx_buffer) {
-    return mibspi_base_tx(&tg, xMibspiEventGroupHandle, tx_buffer, SPI_TIMEOUT_MS);
+    return tms_mibspi_tx(&tg, xMibspiEventGroupHandle, tx_buffer, SPI_TIMEOUT_MS);
 }
 
 /**
@@ -91,5 +91,5 @@ mibspi_err_t mibspi_transmit(mibspi_tg_t tg, uint16_t* tx_buffer) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t mibspi_transmit_receive(mibspi_tg_t tg, uint16_t* tx_buffer, uint16_t* rx_buffer) {
-    return mibspi_base_tx_rx(&tg, xMibspiEventGroupHandle, tx_buffer, rx_buffer, SPI_TIMEOUT_MS);
+    return tms_mibspi_tx_rx(&tg, xMibspiEventGroupHandle, tx_buffer, rx_buffer, SPI_TIMEOUT_MS);
 }

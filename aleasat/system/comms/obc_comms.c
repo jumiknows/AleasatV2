@@ -62,7 +62,7 @@ void comms_mibspi_init_irq(void) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_mibspi_tx(uint16_t* tx_buffer) {
-    return mibspi_base_tx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, SPI_TIMEOUT_MS);
+    return tms_mibspi_tx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, SPI_TIMEOUT_MS);
 }
 
 /**
@@ -79,7 +79,7 @@ mibspi_err_t comms_mibspi_tx(uint16_t* tx_buffer) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_mibspi_rx(uint16_t* rx_buffer) {
-    return mibspi_base_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, rx_buffer, SPI_TIMEOUT_MS);
+    return tms_mibspi_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, rx_buffer, SPI_TIMEOUT_MS);
 }
 
 /**
@@ -100,7 +100,7 @@ mibspi_err_t comms_mibspi_rx(uint16_t* rx_buffer) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_mibspi_tx_and_rx(uint16_t* tx_buffer, uint16_t* rx_buffer) {
-    return mibspi_base_tx_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, rx_buffer, SPI_TIMEOUT_MS);
+    return tms_mibspi_tx_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, rx_buffer, SPI_TIMEOUT_MS);
 }
 
 /**
@@ -119,7 +119,7 @@ mibspi_err_t comms_mibspi_tx_and_rx(uint16_t* tx_buffer, uint16_t* rx_buffer) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_to_mibspi_tx(uint16_t* tx_buffer, uint32_t timeout) {
-    return mibspi_base_tx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, timeout);
+    return tms_mibspi_tx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, timeout);
 }
 
 /**
@@ -137,7 +137,7 @@ mibspi_err_t comms_to_mibspi_tx(uint16_t* tx_buffer, uint32_t timeout) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_to_mibspi_rx(uint16_t* rx_buffer, uint32_t timeout) {
-    return mibspi_base_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, rx_buffer, timeout);
+    return tms_mibspi_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, rx_buffer, timeout);
 }
 
 /**
@@ -159,5 +159,5 @@ mibspi_err_t comms_to_mibspi_rx(uint16_t* rx_buffer, uint32_t timeout) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_to_mibspi_tx_and_rx(uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
-    return mibspi_base_tx_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, rx_buffer, timeout);
+    return tms_mibspi_tx_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, rx_buffer, timeout);
 }
