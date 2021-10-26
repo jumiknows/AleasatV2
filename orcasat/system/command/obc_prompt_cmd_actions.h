@@ -73,9 +73,6 @@ void cmd_i2c_write(uint32_t arg_len, void* arg);
 void cmd_get_period(uint32_t arg_len, void* arg);
 void cmd_set_period(uint32_t arg_len, void* arg);
 
-// ADCS commands
-void cmd_adcs_tcm(uint32_t arg_len, void* arg);
-
 // Settings commands
 void cmd_get_setting(uint32_t arg_len, void* arg);
 void cmd_set_setting(uint32_t arg_len, void* arg);

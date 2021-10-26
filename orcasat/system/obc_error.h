@@ -645,31 +645,6 @@ typedef enum {
 } gps_req_err_t;
 
 /**
- * @brief Return values for ADCS CubeComputer
- */
-typedef enum {
-    /**
-     * @brief No detected errors
-     */
-    ADCS_SUCCESS = 0,
-
-    /**
-     * @brief I2C error detected
-     */
-    ADCS_I2C_ERR = -1,
-
-    /**
-     * @brief Unrecognized ADCS frame request
-     */
-    ADCS_INVALID_REQ = -2,
-
-    /**
-     * @brief CubeADCS library error
-     */
-    ADCS_CUBE_LIB_ERR = -3,
-} adcs_err_t;
-
-/**
  * @brief Errors for settings.
  */
 typedef enum {

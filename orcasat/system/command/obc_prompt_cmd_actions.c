@@ -38,7 +38,6 @@
 #include "obc_task_info.h"
 #include "i2c_freertos.h"
 #include "printf.h"
-#include "obc_adcs.h"
 #include "obc_gpio.h"
 #include "nvct.h"
 #include "obc_settings.h"
@@ -671,78 +670,6 @@ void cmd_set_period(uint32_t arg_len, void* arg) {
         prompt_cmd_response(ERROR, RTC_LOG, true, "Usage: set_period [action ID] [new interval]");
     }
 }
-
-/**
- * @brief Send individual TCM frame to ADCS CubeComputer
- *            Arg 0 - TCM frame ID #
- *            Arg 1 - Number of parameter bytes
- *            Arg 2 - Parameter byte sequence (specified as hex number i.e. "11ab")
- *            (Arg 1+2 are optional, in which case no parameter bytes are sent with the command ID)
- *            (Parameter sequence currently limited to 10 bytes based on ARGUMENT_SIZE maximum of 20)
- */
-void cmd_adcs_tcm(uint32_t arg_len, void* arg) {
-    static uint8_t tcm_frame[CUBE_COMPUTER_MAX_PAYLOAD_SIZE];
-
-    const uint8_t arg_count = num_args(arg_len);
-    uint16_t num_param_bytes;
-    if (arg_count == 1) {
-        num_param_bytes = 0;
-    } else if (arg_count == 3) {
-        num_param_bytes = cseq_to_num((char*)arg + ARGUMENT_SIZE);
-    } else {
-        prompt_cmd_response(ERROR, ADCS_LOG, true, "adcs_tcm: num args err");
-        return;
-    }
-    const uint8_t tcm_id = cseq_to_num((char*)arg);
-
-    // Parse the byte sequence from the number string
-    if (num_param_bytes > 0) {
-        char* byte_seq_str_begin = (char*)arg + (ARGUMENT_SIZE * 2);
-        uint16_t num_chars       = strlen(byte_seq_str_begin);
-        char* byte_seq_str_end   = (byte_seq_str_begin + num_chars) - 1;
-
-        // Ensure byte sequence matches expected number of bytes
-        if ((num_param_bytes * 2) != num_chars) {
-            prompt_cmd_response(ERROR, ADCS_LOG, true, "adcs_tcm: len/param mismatch");
-            return;
-        }
-
-        char* conv_ptr    = NULL;
-        char digit_str[3] = {0};
-        uint16_t i        = 0;
-        for (i = 0; i < num_param_bytes; ++i) {
-            digit_str[0] = *(byte_seq_str_end - (i * 2) - 1);
-            digit_str[1] = *(byte_seq_str_end - (i * 2));
-            digit_str[2] = 0;
-
-            tcm_frame[i] = strtoul(digit_str, &conv_ptr, 16);
-            if ((tcm_frame[i] == 0) && (digit_str == conv_ptr)) {
-                prompt_cmd_response(ERROR, ADCS_LOG, true, "adcs_tcm: invalid param str", digit_str);
-                return;
-            }
-        }
-    }
-
-    log_str(DEBUG, ADCS_LOG, false, "RELAYING TCM %d", tcm_id);
-    if (num_param_bytes > 0) {
-        log_str(DEBUG, ADCS_LOG, false, "Parameter bytes:");
-        uint16_t i = 0;
-        for (i = 0; i < num_param_bytes; ++i) {
-            log_str(DEBUG, ADCS_LOG, false, "%02x", tcm_frame[i]);
-        }
-    } else {
-        log_str(DEBUG, ADCS_LOG, false, "No param bytes");
-    }
-
-    const adcs_err_t err = adcs_tcm(tcm_id, tcm_frame, num_param_bytes);
-
-    if (err == ADCS_SUCCESS) {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "SENT TCM %d", tcm_id);
-    } else {
-        prompt_cmd_response(ERROR, ADCS_LOG, true, "ERR %d", err);
-    }
-}
-
 
 // ---------------------------- NVCT and Settings -----------------------
 

@@ -25,7 +25,6 @@
 #include "cfdp.h"
 #include "obc_utils.h"
 #include "obc_cmd.h"
-#include "obc_adcs.h"
 
 // ------------------------ RTOS LONG COMMAND IMPLEMENTATION ------------------------
 
@@ -220,129 +219,6 @@ void cmd_gps_cmd(uint32_t arg_len, void* arg) {
         log_str(INFO, GPS_LOG, true, "Resp: %s", resp_msg);
     } else {
         log_str(ERROR, GPS_LOG, true, "GPS req. err: %d", err);
-    }
-}
-
-// ------------------------ ADCS LONG COMMAND IMPLEMENTATION ------------------------
-/**
- * @brief Request and receive individual TLM frame from ADCS CubeComputer
- *            Arg 0 - TLM frame ID #
- */
-void cmd_adcs_tlm(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
-        uint8_t tlm_id = cseq_to_num((char*)arg);
-
-        static uint8_t tlm_frame[CUBE_COMPUTER_MAX_PAYLOAD_SIZE];
-        uint16_t tlm_frame_size = 0;
-
-        log_str(DEBUG, ADCS_LOG, false, "REQ TLM %d", tlm_id);
-        // Send telemetry request to CubeComputer and store returned frame
-        const adcs_err_t err = adcs_tlm(tlm_id, tlm_frame, &tlm_frame_size);
-
-        if (err == ADCS_SUCCESS) {
-            log_str(INFO, ADCS_LOG, true, "TLM %d", tlm_id);
-            log_str(DEBUG, ADCS_LOG, false, "TLM size %d", tlm_frame_size);
-
-            // Send back the raw TLM frame in segments
-            uint16_t seg_size;
-            uint8_t* seg_pos         = tlm_frame;
-            const uint8_t* frame_end = tlm_frame + tlm_frame_size;
-            while (seg_pos < frame_end) {
-                seg_size = frame_end - seg_pos;
-                if (seg_size > MAX_PAYLOAD_SIZE) {
-                    seg_size = MAX_PAYLOAD_SIZE;
-                }
-
-                // TLM frame segment
-                log_data(INFO, ADCS_LOG, true, seg_size, seg_pos);
-
-                // Display segment bytes for debug purposes
-                uint8_t i = 0;
-                for (; i < seg_size; ++i) {
-                    log_str(DEBUG, ADCS_LOG, false, "%02x", *(seg_pos + i));
-                }
-
-                seg_pos += seg_size;
-            }
-        } else {
-            log_str(ERROR, ADCS_LOG, true, "adcs_tlm ERR %d", err);
-        }
-
-    } else {
-        log_str(ERROR, ADCS_LOG, true, "adcs_tlm: num args err");
-    }
-}
-
-/**
- * @brief Request and receive batches of TLM frames from ADCS CubeComputer
- *            Arg 0 - TLM frame ID #1
- *            Arg 1 - TLM frame ID #2
- *            ...
- */
-void cmd_adcs_tlms(uint32_t arg_len, void* arg) {
-    const uint8_t arg_count = num_args(arg_len);
-    if (arg_count < 1) {
-        log_str(ERROR, ADCS_LOG, true, "adcs_tlms: no args err");
-        return;
-    }
-
-    uint8_t i = 0;
-    for (; i < arg_count; ++i) {
-        cmd_adcs_tlm(ARGUMENT_SIZE, (uint8_t*)arg + (i * ARGUMENT_SIZE));
-    }
-}
-
-/**
- * @brief Request command acknowledgement frame from ADCS CubeComputer
- *
- * This command accepts a first argument as a flag specifying human-readable output
- * - Output TLM frame as human-readable strings when argument present
- * - Missing argument will return the raw frame bytes
- */
-void cmd_adcs_ack(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) > 0) {
-        cube_tcm_ack_t ack   = {};
-        const adcs_err_t err = adcs_ack(&ack);
-
-        if (err == ADCS_SUCCESS) {
-            log_str(INFO, ADCS_LOG, true, "TCM-ACK status:");
-
-            log_str(INFO, ADCS_LOG, true, "Last TCM: %d", ack.last_tcm_id);
-            log_str(INFO, ADCS_LOG, true, "TCM proc: %d", ack.tcm_processed);
-            log_str(INFO, ADCS_LOG, true, "TCM err code: %d", ack.tcm_err);
-            log_str(INFO, ADCS_LOG, true, "TCM err idx: %d", ack.tcm_err_idx);
-        } else {
-            log_str(ERROR, ADCS_LOG, true, "adcs_ack err: %d", err);
-        }
-    } else {
-        cmd_adcs_tlm(ARGUMENT_SIZE, "240");
-    }
-}
-
-/**
- * @brief Request comms status frame from ADCS CubeComputer
- *
- *  This command accepts a first argument as a flag specifying human-readable output
- * - Output TLM frame as human-readable strings when argument present
- * - Missing argument will return the raw frame bytes
- */
-void cmd_adcs_comms(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) > 0) {
-        cube_comms_status_t comms = {};
-        const adcs_err_t err      = adcs_comms(&comms);
-
-        if (err == ADCS_SUCCESS) {
-            log_str(INFO, ADCS_LOG, true, "COMMS status:");
-
-            log_str(INFO, ADCS_LOG, true, "TCM rcv: %d", comms.tcm_count);
-            log_str(INFO, ADCS_LOG, true, "TLM req rcv: %d", comms.tlm_count);
-            log_str(INFO, ADCS_LOG, true, "I2C TLM err: %d", comms.i2c_tlm_err);
-            log_str(INFO, ADCS_LOG, true, "I2C buff err: %d", comms.i2c_buff_err);
-        } else {
-            log_str(ERROR, ADCS_LOG, true, "acds_comms err: %d", err);
-        }
-    } else {
-        cmd_adcs_tlm(ARGUMENT_SIZE, "144");
     }
 }
 

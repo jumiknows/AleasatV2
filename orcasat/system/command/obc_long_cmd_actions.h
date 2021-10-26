@@ -31,12 +31,6 @@ void cmd_gps_time(uint32_t arg_len, void* arg);
 void cmd_gps_xyz(uint32_t arg_len, void* arg);
 void cmd_gps_cmd(uint32_t arg_len, void* arg);
 
-// ADCS commands
-void cmd_adcs_tlm(uint32_t arg_len, void* arg);
-void cmd_adcs_tlms(uint32_t arg_len, void* arg);
-void cmd_adcs_ack(uint32_t arg_len, void* arg);
-void cmd_adcs_comms(uint32_t arg_len, void* arg);
-
 // Testing
 void cmd_test_temperature(uint32_t arg_len, void* arg);
 void cmd_cfdp_pdu_demo(uint32_t arg_len, void* arg);

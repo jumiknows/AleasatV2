@@ -17,14 +17,13 @@
 #include "obc_rtos.h"
 #include "obc_watchdog.h"
 #include "logger.h"
-#include "cube_util.h"
 
 /**
  * @brief  Max number of bytes for I2C write operations.
  * Value is based on the assumption that ADCS CubeComputer commands represent the largest
  * operations on the I2C bus.
  */
-#define MAX_I2C_WRITE_DATA_SIZE (CUBE_COMPUTER_MAX_PAYLOAD_SIZE + 1) // Max CubeComputer paylod + Command ID
+#define MAX_I2C_WRITE_DATA_SIZE (464 + 1) // Max CubeComputer paylod + Command ID
 
 /**
  * @brief The time to wait for space on the command queue to free up.
