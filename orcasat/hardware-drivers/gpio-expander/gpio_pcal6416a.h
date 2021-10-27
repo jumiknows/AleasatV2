@@ -10,24 +10,23 @@
  *      Datasheet: https://www.nxp.com/docs/en/data-sheet/PCAL6416A.pdf
  *
  *      USAGE:
- *      		- Use EXPANDER_PORT0, EXPANDER_PORT1 as the port handle in obc_gpio functions
- *      		- In obc_gpio.c/obc_gpio_init(), configure the IO pins using @ref
- *configure_output(),
- *@ref configure_input(), @ref configure_input_interrupt() calls.
- *      		- Read or write the pin values using obc_gpio.c
+ *          - Use EXP_PORT(GPIO_EXP_PORT_x) as the port handle in obc_gpio functions
+ *          - In obc_gpio.c/obc_gpio_init(), configure the IO pins using @ref configure_output(),
+ *            @ref configure_input(), @ref configure_input_interrupt() calls.
+ *          - Read or write the pin values using obc_gpio.c
  *
- *		INTERRUPT Configuration:
- *			- Increase NUM_INTERRUPT_PINS defined below.
- *			- NUM_INTERRUPT_PINS must match the number of configured input interrupt pins, or bad
- *things will happen.
- *			- Configure the pin in obc_gpio.c/obc_gpio_init() with @ref configure_input_interrupt().
- *				- This function accepts a callback that will be provided with the pin's value
- *(uint32_t) when an interrupt is raised from the GPIO expander.
+ *      INTERRUPT Configuration:
+ *          - Increase NUM_INTERRUPT_PINS defined below.
+ *          - NUM_INTERRUPT_PINS must match the number of configured input interrupt pins, or bad
+ *            things will happen.
+ *          - Configure the pin in obc_gpio.c/obc_gpio_init() with @ref configure_input_interrupt().
+ *              - This function accepts a callback that will be provided with the pin's value
+ *                (uint32_t) when an interrupt is raised from the GPIO expander.
  *
- *		NOTES:
- *			- Outputs are all configured to push-pull as opposed to open drain.
- *			- Output drive strength is configured to the maximum of about 10 mA (datasheet is
- *unclear about the actual maximum value).
+ *      NOTES:
+ *          - Outputs are all configured to push-pull as opposed to open drain.
+ *          - Output drive strength is configured to the maximum of about 10 mA (datasheet is
+ *            unclear about the actual maximum value).
  *
  */
 
@@ -42,11 +41,7 @@
 
 #if GPIO_EXPANDER_EN
 
-/**
- * @brief number of enabled interrupt pins, these must be configured with callbacks using @ref
- * configure_input().
- */
-#define NUM_INTERRUPT_PINS 1
+typedef void (*gpio_expand_irq_callback_t)(uint32_t input_val);
 
 /**
  * @brief GPIO register structure, representing an 8-bit reg value and its address in the device.
@@ -114,16 +109,16 @@ void reset_gpio_expander(void);        // Reset I2C state machine of the expande
 gpio_err_t verify_gpio_expander(void); // Prints any mismatches between actual and desired configuration
 
 /* Pin Setup Functions */
-gpio_err_t configure_output(gioPORT_t* port, uint8_t pin, bool default_val,
+gpio_err_t configure_output(gpio_expand_port_t port, uint8_t pin, bool default_val,
                             pull_cfg_t pull_sel); // Set port, pin to an output
-gpio_err_t configure_input(gioPORT_t* port, uint8_t pin,
+gpio_err_t configure_input(gpio_expand_port_t port, uint8_t pin,
                            pull_cfg_t pull_sel); // Set port, pin to an input
-gpio_err_t configure_input_interrupt(gioPORT_t* port, uint8_t pin, bool latch, pull_cfg_t pull_sel,
+gpio_err_t configure_input_interrupt(gpio_expand_port_t port, uint8_t pin, bool latch, pull_cfg_t pull_sel,
                                      void (*callback)(uint32_t input_val)); // Set port, pin to an input with interrupt callback
 
 /* GPIO Functionality */
-gpio_err_t set_output(gioPORT_t* port, uint8_t pin, bool val);     // Set the output value 1/0
-gpio_err_t get_input(gioPORT_t* port, uint8_t pin, uint32_t* val); // Read the input pin
+gpio_err_t set_output(gpio_expand_port_t port, uint8_t pin, bool val);     // Set the output value 1/0
+gpio_err_t get_input(gpio_expand_port_t port, uint8_t pin, uint32_t* val); // Read the input pin
 void check_expander_interrupts(void);                              // Check interrupt pin status
 
 /* GPIO Expander Interrupt Default Callback */

@@ -9,7 +9,6 @@
 #include "gpio-expander/gpio_pcal6416a_defs.h"
 #include "i2c_freertos.h"
 #include "sys_common.h"
-#include "reg_gio.h"
 #include "obc_hardwaredefs.h"
 #include "FreeRTOS.h"
 #include "obc_task_info.h"
@@ -17,9 +16,19 @@
 #include "assert.h"
 #include "obc_misra.h"
 #include "obc_featuredefs.h"
-#include "gio.h"
 
 #if GPIO_EXPANDER_EN
+
+/**
+ * @brief Number of ports on the GPIO expander
+ */
+#define NUM_PORTS 2
+
+/**
+ * @brief Number of pins on each port of the GPIO expander
+ */
+#define NUM_PINS  8
+
 /**
  * @brief Timeout for I2C transactions before errors will be raised and transactions abandoned.
  */
@@ -70,23 +79,13 @@ gpio_expand_ro_t expander_ro_regs = {.input_value      = {{.val = 0x00, .addr = 
  * @brief Mapping between interrupt port/pin and the callback function to execute when the interrupt
  * fires.
  */
-typedef struct irq_callback {
-    gioPORT_t* port;
-    uint8_t pin;
-    void (*callback)(uint32_t input_val);
-} irq_pin_t;
-
-/**
- * @brief Container for all interrupt callbacks registered with @ref configure_input_interrupt().
- *
- * Each time the expander's IRQ line is deasserted (it's active low), firmware runs through all
- * registered callbacks and executes them, if the configured port/pin combination is the one that
- * registered an interrupt.
- */
-irq_pin_t interrupt_pins[NUM_INTERRUPT_PINS];
+gpio_expand_irq_callback_t interrupt_callbacks[NUM_PORTS][NUM_PINS] = {
+    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+};
 
 // Private API
-static gpio_err_t configure_pull_regs(gioPORT_t* port, uint8_t pin,
+static gpio_err_t configure_pull_regs(gpio_expand_port_t port, uint8_t pin,
                                       pull_cfg_t pull_sel); // Configure - updates the GPIO expander
 static gpio_err_t configure_bit(uint8_t pin, gpio_reg_t* reg,
                                 bool val); // Configure - updates the GPIO expander
@@ -98,9 +97,6 @@ static gpio_err_t issue_i2c_submission(const i2c_command_t* command); // Issue I
 static bool register_mismatch(gpio_reg_t* predicted,
                               uint8_t actual);  // Compare register structures, typically expected
                                                 // (internal) vs. values on the chip
-static uint8_t handle_to_port(gioPORT_t* port); // Convert gioPort_t* to port 0 or port 1 based on settings in obc_gpio.h
-static uint8_t port_to_idx(uint8_t port,
-                           uint8_t pin); // Converts a port/pin into an index between 0-15
 
 /**
  * @brief Initializes the GPIO expander with the values in @ref expander, which are the default
@@ -182,17 +178,15 @@ gpio_err_t verify_gpio_expander(void) {
  *
  * @pre @ref obc_i2c_init from @ref orcasat/interfaces/i2c_freertos.h has been called.
  *
- * @param  port: EXPANDER_PORT_0 or EXPANDER_PORT_1
+ * @param  port: GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1
  * @param pin: 0-7
  * @param default_val: 0 or 1, corresponding to LOW or HIGH output when the pin is configured
  * @param pull_sel: @ref pull_cfg_t PULLUP, PULLDOWN, NONE (floating)
  * @return GPIO_SUCCESS indicating that configuration had no IO errors, or GPIO_I2C_ERR indicating
  * an IO error when communicating with the expander over I2C.
  */
-gpio_err_t configure_output(gioPORT_t* port, uint8_t pin, bool default_val, pull_cfg_t pull_sel) {
-    uint8_t port_num = handle_to_port(port);
-
-    if (configure_bit(pin, &expander.output_val[port_num], default_val) != GPIO_SUCCESS) { // Set the default high/low output state
+gpio_err_t configure_output(gpio_expand_port_t port, uint8_t pin, bool default_val, pull_cfg_t pull_sel) {
+    if (configure_bit(pin, &expander.output_val[port], default_val) != GPIO_SUCCESS) { // Set the default high/low output state
         return GPIO_I2C_ERR;
     }
 
@@ -200,7 +194,7 @@ gpio_err_t configure_output(gioPORT_t* port, uint8_t pin, bool default_val, pull
         return GPIO_I2C_ERR;
     }
 
-    return configure_bit(pin, &expander.input[port_num], 0); // 0: output
+    return configure_bit(pin, &expander.input[port], 0); // 0: output
 }
 
 /**
@@ -212,17 +206,15 @@ gpio_err_t configure_output(gioPORT_t* port, uint8_t pin, bool default_val, pull
  * @warning Latching capability is turned off, so reading the pin will always return the current
  * value seen at the pin.
  *
- * @param  port: EXPANDER_PORT_0 or EXPANDER_PORT_1
+ * @param  port: GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1
  * @param pin: 0-7
  * @param default_val: 0 or 1, corresponding to LOW or HIGH output when the pin is configured
  * @param pull_sel: @ref pull_cfg_t PULLUP, PULLDOWN, NONE (floating)
  * @return GPIO_SUCCESS indicating that configuration had no IO errors, or GPIO_I2C_ERR indicating
  * an IO error when communicating with the expander over I2C.
  */
-gpio_err_t configure_input(gioPORT_t* port, uint8_t pin, pull_cfg_t pull_sel) {
-    uint8_t port_num = handle_to_port(port);
-
-    if (configure_bit(pin, &expander.output_val[port_num], 0) != GPIO_SUCCESS) { // Set the output value to 0 for good measure
+gpio_err_t configure_input(gpio_expand_port_t port, uint8_t pin, pull_cfg_t pull_sel) {
+    if (configure_bit(pin, &expander.output_val[port], 0) != GPIO_SUCCESS) { // Set the output value to 0 for good measure
         return GPIO_I2C_ERR;
     }
 
@@ -230,11 +222,11 @@ gpio_err_t configure_input(gioPORT_t* port, uint8_t pin, pull_cfg_t pull_sel) {
         return GPIO_I2C_ERR;
     }
 
-    if (configure_bit(pin, &expander.input_latch[port_num], 0) != GPIO_SUCCESS) { // 0: input reg always matches pin state (no latching)
+    if (configure_bit(pin, &expander.input_latch[port], 0) != GPIO_SUCCESS) { // 0: input reg always matches pin state (no latching)
         return GPIO_I2C_ERR;
     }
 
-    return configure_bit(pin, &expander.input[port_num], 1); // 1: input
+    return configure_bit(pin, &expander.input[port], 1); // 1: input
 }
 
 /**
@@ -249,26 +241,18 @@ gpio_err_t configure_input(gioPORT_t* port, uint8_t pin, pull_cfg_t pull_sel) {
  * changing pin's value that triggered the interrupt may not be accurately known when FW gets around
  * to checking the interrupt pin.
  * @warning Interrupts are generated on rising and falling edges of pins.
- * @param  port: EXPANDER_PORT_0 or EXPANDER_PORT_1
- * @param pin: 0-7
- * @param default_val: 0 or 1, corresponding to LOW or HIGH output when the pin is configured
- * @param pull_sel: @ref pull_cfg_t PULLUP, PULLDOWN, NONE (floating)
- * @param callback: pointer to a void function that will be called when the expander raises an
- * interrupt on the pin.
+ * @param[in] port     GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1
+ * @param[in] pin      0-7
+ * @param[in] latch    if true the pin value when the interrupt fires will be latched by the expander,
+ *                     otherwise the interrupt will be cleared if the pin value changes again
+ * @param[in] pull_sel @ref pull_cfg_t PULLUP, PULLDOWN, NONE (floating)
+ * @param[in] callback Function pointer (see gpio_expand_irq_callback_t) that will be called when the
+ *                     expander raises an interrupt on the pin.
  * @return GPIO_SUCCESS indicating that configuration had no IO errors, or GPIO_I2C_ERR indicating
- * an IO error when communicating with the expander over I2C.
+ *         an IO error when communicating with the expander over I2C.
  */
-gpio_err_t configure_input_interrupt(gioPORT_t* port, uint8_t pin, bool latch, pull_cfg_t pull_sel, void (*callback)(uint32_t input_val)) {
-    uint8_t port_num                                  = handle_to_port(port);
-    static uint8_t num_callbacks_registered           = 0;
-    interrupt_pins[num_callbacks_registered].port     = port;
-    interrupt_pins[num_callbacks_registered].pin      = pin;
-    interrupt_pins[num_callbacks_registered].callback = callback;
-
-    num_callbacks_registered++;
-    assert(num_callbacks_registered <= NUM_INTERRUPT_PINS); // Ensure that the callback array is large enough
-
-    if (configure_bit(pin, &expander.output_val[port_num], 0) != GPIO_SUCCESS) {
+gpio_err_t configure_input_interrupt(gpio_expand_port_t port, uint8_t pin, bool latch, pull_cfg_t pull_sel, gpio_expand_irq_callback_t callback) {
+    if (configure_bit(pin, &expander.output_val[port], 0) != GPIO_SUCCESS) {
         return GPIO_I2C_ERR;
     }
 
@@ -276,30 +260,35 @@ gpio_err_t configure_input_interrupt(gioPORT_t* port, uint8_t pin, bool latch, p
         return GPIO_I2C_ERR;
     }
 
-    if (configure_bit(pin, &expander.input[port_num], 1) != GPIO_SUCCESS) {
+    if (configure_bit(pin, &expander.input[port], 1) != GPIO_SUCCESS) {
         return GPIO_I2C_ERR;
     }
 
-    if (configure_bit(pin, &expander.input_latch[port_num], latch) != GPIO_SUCCESS) {
+    if (configure_bit(pin, &expander.input_latch[port], latch) != GPIO_SUCCESS) {
         return GPIO_I2C_ERR;
     }
 
-    return configure_bit(pin, &expander.interrupt_mask[port_num], 0);
+    // Setting interrupt mask to 0 enables the interrupt on that pin
+    if (configure_bit(pin, &expander.interrupt_mask[port], 0) != GPIO_SUCCESS) {
+        return GPIO_I2C_ERR;
+    }
+
+    interrupt_callbacks[port][pin] = callback;
+    return GPIO_SUCCESS;
 }
 
 /**
  * @brief Write a value to a previously-configured output pin.
  * @pre @ref obc_i2c_init from @ref orcasat/interfaces/i2c_freertos.h has been called.
  * @pre configure_output() has been called
- * @param  port: EXPANDER_PORT_0 or EXPANDER_PORT_1
+ * @param  port: GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1
  * @param pin: 0-7
  * @param val: 0 = LOW, 1 = HIGH
  * @return GPIO_SUCCESS indicating that set had no IO errors, or GPIO_I2C_ERR indicating an IO error
  * when communicating with the expander over I2C.
  */
-gpio_err_t set_output(gioPORT_t* port, uint8_t pin, bool val) {
-    uint8_t port_num = handle_to_port(port);
-    return configure_bit(pin, &expander.output_val[port_num], val);
+gpio_err_t set_output(gpio_expand_port_t port, uint8_t pin, bool val) {
+    return configure_bit(pin, &expander.output_val[port], val);
 }
 
 /**
@@ -310,18 +299,17 @@ gpio_err_t set_output(gioPORT_t* port, uint8_t pin, bool val) {
  * @pre @ref obc_i2c_init() from @ref orcasat/interfaces/i2c_freertos.h has been called.
  * @pre Pin is configured with @ref configure_input() or else garbage will be read.
  *
- * @param  port: EXPANDER_PORT_0 or EXPANDER_PORT_1
+ * @param  port: GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1
  * @param  pin: 0-7
  * @param[out] val 0 provide a uint32_t to take the return value of  0 or 1, indicating the
  * requested port/pin is LOW or HIGH
  * @return GPIO_SUCCESS indicating @ref val is valid, or GPIO_I2C_ERR indicating an IO error when
  * reading from the expander over I2C
  */
-gpio_err_t get_input(gioPORT_t* port, uint8_t pin, uint32_t* val) {
+gpio_err_t get_input(gpio_expand_port_t port, uint8_t pin, uint32_t* val) {
     uint8_t rx_data[1] = {0x00};
-    uint8_t port_num   = handle_to_port(port);
 
-    if (i2c_read_reg(&expander_ro_regs.input_value[port_num], rx_data) != GPIO_SUCCESS) {
+    if (i2c_read_reg(&expander_ro_regs.input_value[port], rx_data) != GPIO_SUCCESS) {
         return GPIO_I2C_ERR;
     }
 
@@ -350,7 +338,7 @@ void reset_gpio_expander(void) {
 void check_expander_interrupts(void) {
     uint8_t interrupt_status[2] = {0x00, 0x00};
 
-    /* Read the interrupt status reg on each port */
+    // Check interrupt status on each port
     if (i2c_read_reg(&expander_ro_regs.interrupt_status[0], &interrupt_status[0]) != GPIO_SUCCESS) {
         log_str(ERROR, GPIO_EXPAND_LOG, true, "Expander irq check fail");
     }
@@ -359,36 +347,30 @@ void check_expander_interrupts(void) {
         log_str(ERROR, GPIO_EXPAND_LOG, true, "Expander irq check fail");
     }
 
-    uint16_t interrupt_bits = (uint16_t)((uint16_t)interrupt_status[1] << 8) | interrupt_status[0]; /* Stick the registers beside each other: port 1 | port 0, this lets us
-                                                                                                       easily shift through and check each bit */
-    uint8_t i          = 0;
-    uint8_t pin        = 0;
-    uint32_t input_val = 0;
+    // Iterate over the ports
+    uint8_t port;
+    for (port = 0; port < NUM_PORTS; port++) {
+        uint8_t status = interrupt_status[port];
 
-    /* Check all registered interrupt-capable pins */
-    for (i = 0; i < NUM_INTERRUPT_PINS; i++) {
-        uint8_t port_num = handle_to_port(interrupt_pins[i].port);
-
-        /* Waiving warning for 12.2 - value of expression shall be the same under any order of
-         * evaluation (RA) */
-        OBC_MISRA_CHECK_OFF
-        pin = port_to_idx(port_num, interrupt_pins[i].pin);
-        OBC_MISRA_CHECK_ON
-
-        if ((interrupt_bits >> pin) == 1) {
-            log_str(INFO, GPIO_EXPAND_LOG, false, "Expander IRQ port: %d pin: %d", port_num, interrupt_pins[i].pin);
-
-            /* Read the value of the input pin, which clears the interrupt on the expander */
-            /* Waiving warning for 12.2 - value of expression shall be the same under any order of
-             * evaluation (RA) */
-            OBC_MISRA_CHECK_OFF
-            if (obc_gpio_read(interrupt_pins[i].port, interrupt_pins[i].pin, &input_val) != GPIO_SUCCESS) {
-                log_str(ERROR, GPIO_EXPAND_LOG, false, "Read failed from IRQ handler");
+        // Iterate over the bits (i.e. pins), aborting if status is/becomes 0
+        uint8_t pin;
+        for (pin = 0; ((pin < NUM_PINS) && (status > 0)); pin++) {
+            if (((status & 1U) == 1U)) {
+                // Interrupt is set --> read the pin value to clear the interrupt
+                uint32_t input_val = 0;
+                if (obc_gpio_read(EXP_PORT((gpio_expand_port_t)port), pin, &input_val) == GPIO_SUCCESS) {
+                    gpio_expand_irq_callback_t callback = interrupt_callbacks[port][pin];
+                    if (callback != NULL) {
+                        callback(input_val);
+                    }
+                } else {
+                    // Don't call the callback if the read failed because we don't know
+                    // what input value to pass in
+                    log_str(ERROR, GPIO_EXPAND_LOG, false, "Read failed from IRQ handler");
+                }
             }
-            OBC_MISRA_CHECK_ON
 
-            /* Call the callback */
-            interrupt_pins[i].callback(input_val);
+            status >>= 1;
         }
     }
 }
@@ -443,20 +425,18 @@ static gpio_err_t configure_bit(uint8_t pin, gpio_reg_t* reg, bool val) {
  * expander.
  *
  * Pull type is set before the pull is enabled.
- * @param  port: EXPANDER_PORT_0 or EXPANDER_PORT_1
+ * @param  port: GPIO_EXP_PORT_0 or GPIO_EXP_PORT_1
  * @param pin: 0-7
  * @param pull_sel: PULLUP, PULLDOWN, NONE, see @ref pull_cfg_t
  * @return GPIO_SUCCESS indicating that no IO errors occurred, or GPIO_I2C_ERR indicating an IO
  * error when reading from the expander over I2C
  */
-static gpio_err_t configure_pull_regs(gioPORT_t* port, uint8_t pin, pull_cfg_t pull_sel) {
-    uint8_t port_num = handle_to_port(port);
-
-    if (configure_bit(pin, &expander.pull_select[port_num], (uint8_t)((pull_sel & 0x03) >> 1)) != GPIO_SUCCESS) {
+static gpio_err_t configure_pull_regs(gpio_expand_port_t port, uint8_t pin, pull_cfg_t pull_sel) {
+    if (configure_bit(pin, &expander.pull_select[port], (uint8_t)((pull_sel & 0x03) >> 1)) != GPIO_SUCCESS) {
         return GPIO_I2C_ERR;
     }
 
-    return configure_bit(pin, &expander.pull_enable[port_num], (uint8_t)(pull_sel & 0x01));
+    return configure_bit(pin, &expander.pull_enable[port], (uint8_t)(pull_sel & 0x01));
 }
 
 /**
@@ -535,53 +515,6 @@ static bool register_mismatch(gpio_reg_t* predicted, uint8_t actual) {
     }
 
     return mismatches;
-}
-
-/**
- * @brief convert a gioPORT_t type to integer port 0 or 1.
- *
- * To maintain API compatibility across GPIO expander ports and internal TMS570 GPIO ports,
- * EXPANDER_PORT_0 and EXPANDER_PORT_1 are defined in @ref obc_gpio.h. These fake pointers are odd
- * values - values that are impossible to conflict with an internal GPIO port, which will always be
- * word-aligned because they are memory mapped. By detecting the use of these fake pointers, the
- * GPIO handlers know to call GPIO expander port functions, and the two different values correspond
- * to ports 0 and 1 on the GPIO expander chip.
- *
- * @param port: EXPANDER_PORT_0 or EXPANDER_PORT_1
- * @return: 0 if EXPANDER_PORT_0 is provided, 1 if EXPANDER_PORT_1 is provided.
- */
-static uint8_t handle_to_port(gioPORT_t* port) {
-    /* RA: disabling because the handle_to_port assertion fails when nRST is pressed or entered by
-     * command, which causes the system to hang without completing the nRST. assert((port ==
-     * EXPANDER_PORT_0) || (port == EXPANDER_PORT_1));
-     *
-     * See issue: 63
-     */
-    if (port == EXPANDER_PORT_0) {
-        return 0;
-    } else {
-        return 1;
-    }
-}
-
-/**
- * @brief Convert a port (0 or 1) and a pin (0-7) into a number from 0-15.
- *
- * Values 0-7 correspond to pins on port 0, values 8-15 are pins on port 1.
- * @param port: 0 or 1
- * @param pin: 0-7, the pin on each port
- * @return 0-15
- */
-static uint8_t port_to_idx(uint8_t port, uint8_t pin) {
-    /* RA: disabling because the handle_to_port assertion fails when nRST is pressed or entered by
-    command, which causes the system to hang without completing the nRST. assert((port == 0) ||
-    (port == 1));
-
-    See issue: 63
-*/
-    assert(pin <= 7);
-
-    return ((uint8_t)(port * 8) + pin);
 }
 
 #endif /* GPIO_EXPANDER_EN true */

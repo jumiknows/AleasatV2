@@ -1,31 +1,47 @@
 /**
  * @file launchpad_1224_hardwaredefs.h
  * @brief Hardware definitions for launchpad platform.
- * @author Richard Arthurs
- * @date Oct 4, 2018
  *
- * 	PURPOSE
- *  Hardwaredefs files are used to map hardware peripheral names to common names used throughout our
- *code This allows different peripherals to be used on different boards, with the same codebase
- *  These files also allow hardware features to be disabled. This is useful if no RTC is connected,
- *for example
+ * PURPOSE
+ *   - Hardwaredefs files are used to map hardware peripheral names to common names used throughout our
+ *     code This allows different peripherals to be used on different boards, with the same codebase
+ *   - These files also allow hardware features to be disabled. This is useful if no RTC is connected,
+ *     for example
  *
- *	INSTRUCTIONS
- *	When developing software that requires a peripheral register pointer (such as GIOPORTA), define
- *your own descriptive name for it (BLINKY_GIO_PORT), and use that in your code.
- *		- Use a #define in the appropriate hwdefs file to map BLINKY_GIO_PORT to GIOPORTA
- *		- Assuming the hardware (GIO port A, in this case) is configured in HALCoGen, the mapping
- *should work.
- *		- Once verified, add the mapping to other platforms' hwdefs, and configure it for them in
- *HALCoGEN.
+ * INSTRUCTIONS
+ *   - When developing software that requires a peripheral register pointer (such as GIOPORTA), define
+ *     your own descriptive name for it (BLINKY_GIO_PORT), and use that in your code.
+ *       - Use a #define in the appropriate hwdefs file to map BLINKY_GIO_PORT to GIOPORTA
+ *       - Assuming the hardware (GIO port A, in this case) is configured in HALCoGen, the mapping
+ *         should work.
+ *       - Once verified, add the mapping to other platforms' hwdefs, and configure it for them in
+ *         HALCoGEN.
  */
 
 #ifndef LAUNCHPAD_1224_HARDWAREDEFS_H_
 #define LAUNCHPAD_1224_HARDWAREDEFS_H_
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// OBC
 #include "obc_gpio.h"
 #include "obc_featuredefs.h"
+
+// HAL
 #include "system.h"
+#include "reg_rti.h"
+#include "reg_sci.h"
+#include "reg_i2c.h"
+#include "reg_gio.h"
+#include "reg_het.h"
+#include "reg_mibspi.h"
+#include "het.h"
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
 
 /**
  * @brief General functionality: peripheral names and RTOS configuration.
@@ -38,7 +54,7 @@
 /**
  * @brief OBC Blinky LED port and pin
  */
-#define OBC_BLINKY_PORT gioPORTB
+#define OBC_BLINKY_PORT GIO_PORT(gioPORTB)
 #define OBC_BLINKY_PIN  1
 
 /**
@@ -168,7 +184,6 @@
 #define COMMS_INT_PORT hetPORT1
 #define COMMS_INT_PIN  31
 
-
 /**
  * @brief Magnetorquers
  */
@@ -184,18 +199,18 @@
 #define MAG3B_PWM_REG   pwm6 //HET_1[7]
 #define MAG3_SLEEP_PIN  22 //HET_1[22]
 
-#define MAG_PWR_EN_PORT hetPORT1
+#define MAG_PWR_EN_PORT GIO_PORT(hetPORT1)
 #define MAG_PWR_EN_PIN  14 //HET_1[14]
 
 #define MAG_HET hetRAM1
-#define MAG_SLEEP_PORT hetPORT1
+#define MAG_SLEEP_PORT GIO_PORT(hetPORT1)
 
 /**
  * @brief IMU enable interface
 */
 #define IMU_1_EN_PIN 8
-#define IMU_1_EN_PORT hetPORT1
+#define IMU_1_EN_PORT GIO_PORT(hetPORT1)
 #define IMU_2_EN_PIN 7
-#define IMU_2_EN_PORT EXPANDER_PORT_0
+#define IMU_2_EN_PORT EXP_PORT(GPIO_EXP_PORT_0)
 
 #endif /* LAUNCHPAD_1224_HARDWAREDEFS_H_ */

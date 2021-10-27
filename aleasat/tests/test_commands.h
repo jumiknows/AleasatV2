@@ -1,21 +1,37 @@
-/* @file test_commands.h
- * @date Mar 24, 2021
- * @author Julian Mentasti
+/**
+ * @file test_commands.h
+ * @brief Test commands not to be used in actual flight software
  */
 
 #ifndef TEST_COMMANDS_H_
 #define TEST_COMMANDS_H_
 
-void cmd_test_ack(uint32_t arg_len, void* arg);
-void cmd_test_comms_spi(uint32_t arg_len, void* arg);
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
 
+// Standard Library
+#include <stdint.h>
+
+/******************************************************************************/
+/*                             F U N C T I O N S                              */
+/******************************************************************************/
+
+// General
+void cmd_test_ack(uint32_t arg_len, void* arg);
+
+// COMMS
+void cmd_test_comms_spi(uint32_t arg_len, void* arg);
 
 // Magnetorquer test commands
 void cmd_test_mag(uint32_t arg_len, void* arg);
 void cmd_test_mag_all(uint32_t arg_len, void* arg);
 void cmd_test_mag_init(uint32_t arg_len, void* arg);
 
-/*IMU test loop*/
+// IMU
 void cmd_imu_test(uint32_t arg_len, void* arg);
 
-#endif /* TEST_COMMANDS_H_ */
+// CAN GPIO
+void cmd_test_can_gpio(uint32_t arg_len, void* arg);
+
+#endif // TEST_COMMANDS_H_

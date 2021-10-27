@@ -2,7 +2,7 @@
  * log_ids.h
  *
  *  Created on: Jun 19, 2019
- *  Re-generated: 10:30 PM on July 08, 2021
+ *  Re-generated: 02:56 AM on October 27, 2021
  * 
  *      Author: Richard
  *      
@@ -124,7 +124,7 @@
 
 #define TEST_COMMS_CMD 53 /* Comms Test */
 
-#define TEST_CAN_GPIO_OUT_CMD 54 /* CAN GPIO Output Test */
+#define TEST_CAN_GPIO_CMD 54 /* CAN GPIO Test */
 
 #define PWR_FLT_LOG 55 /* Power Fault Log */
 
@@ -135,6 +135,8 @@
 #define COMMS_ACK_CMD 58 /* COMMS ACK */
 
 #define ADCS_IMU_LOG 59 /* ADCS IMU Log */
+
+#define ADCS_GYRO_LOG 60 /* ADCS GYRO */
 
 
 // clang-format on

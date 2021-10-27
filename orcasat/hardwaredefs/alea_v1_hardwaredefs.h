@@ -1,29 +1,45 @@
 /**
  * @file alea_v1_hardwaredefs.h
  * @brief Hardware definitions for ALEASAT OBC v1 platform.
- * @author Noah Tajwar
- * @date Feb 6, 2021
  *
- * 	PURPOSE
- *  Hardwaredefs files are used to map hardware peripheral names to common names used throughout our code
- *  This allows different peripherals to be used on different boards, with the same codebase
- *  These files also allow hardware features to be disabled. This is useful if no RTC is connected, for example
+ * PURPOSE
+ *   - Hardwaredefs files are used to map hardware peripheral names to common names used throughout our code
+ *   - This allows different peripherals to be used on different boards, with the same codebase
+ *   - These files also allow hardware features to be disabled. This is useful if no RTC is connected, for example
  *
- *	INSTRUCTIONS
- *	When developing software that requires a peripheral register pointer (such as GIOPORTA), define your
- *	own descriptive name for it (BLINKY_GIO_PORT), and use that in your code.
- *		- Use a #define in the appropriate hwdefs file to map BLINKY_GIO_PORT to GIOPORTA
- *		- Assuming the hardware (GIO port A, in this case) is configured in HALCoGen, the mapping should work.
- *		- Once verified, add the mapping to other platforms' hwdefs, and configure it for them in HALCoGEN.
+ * INSTRUCTIONS
+ *   - When developing software that requires a peripheral register pointer (such as GIOPORTA), define your
+ *     own descriptive name for it (BLINKY_GIO_PORT), and use that in your code.
+ *        - Use a #define in the appropriate hwdefs file to map BLINKY_GIO_PORT to GIOPORTA
+ *        - Assuming the hardware (GIO port A, in this case) is configured in HALCoGen, the mapping should work.
+ *        - Once verified, add the mapping to other platforms' hwdefs, and configure it for them in HALCoGEN.
  */
 
 #ifndef ALEA_V1_HARDWAREDEFS_H_
 #define ALEA_V1_HARDWAREDEFS_H_
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// OBC
 #include "obc_gpio.h"
-#include "system.h"
 #include "obc_featuredefs.h"
 
+// HAL
+#include "system.h"
+#include "reg_rti.h"
+#include "reg_sci.h"
+#include "reg_i2c.h"
+#include "reg_gio.h"
+#include "reg_het.h"
+#include "reg_spi.h"
+#include "reg_mibspi.h"
+#include "reg_etpwm.h"
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
 
 /**
  * @brief OBC hardware type indicator.
@@ -46,12 +62,12 @@
 /**
  * @brief OBC Blinky LED port and pin
  */
-#define OBC_BLINKY_PORT gioPORTA
+#define	OBC_BLINKY_PORT GIO_PORT(gioPORTA)
 #define OBC_BLINKY_PIN  7
 
-/*****************************************************************************/
-/* GPIO Expander                                                             */
-/*****************************************************************************/
+// =============================================================================
+// GPIO Expander
+// =============================================================================
 
 /**
  * @brief GPIO expander chip configuration.
@@ -70,12 +86,12 @@
  *
  * Configurations for GPIO expander inputs/output pins, not pins on the TMS570 that interact with the expander.
  */
-#define EXPANDER_BLINKY_PORT EXPANDER_PORT_1 // Expander output connected to blinky LED.
+#define EXPANDER_BLINKY_PORT EXP_PORT(GPIO_EXP_PORT_1) // Expander output connected to blinky LED.
 #define EXPANDER_BLINKY_PIN  7
 
-/*****************************************************************************/
-/* Watchdog                                                                  */
-/*****************************************************************************/
+// =============================================================================
+// Watchdog
+// =============================================================================
 
 /**
  * @brief Watchdog pins and configuration.
@@ -98,9 +114,9 @@
 #define WDL_TYP_MS (WD_COEFF * WDU_TYP_MS)
 #define WDL_MAX_MS (WD_COEFF * WDU_MAX_MS)
 
-/*****************************************************************************/
-/* MIBSPI / SPI                                                              */
-/*****************************************************************************/
+// =============================================================================
+// MIBSPI / SPI
+// =============================================================================
 
 /**
  * @brief Pin numbers for when MIBSPI pins are used as GIOs
@@ -138,7 +154,9 @@
 #define SOLAR_CS_4B_PORT hetPORT1
 #define SOLAR_CS_4B_PIN  30
 
-#define SOLAR_PWR_EN_PORT canREG3 // TX pin
+#define SOLAR_PWR_EN_PORT CAN_PORT(canREG3)
+#define SOLAR_PWR_EN_PIN  CAN_PIN_TX
+
 #define GYRO_PWR_EN_PORT  hetPORT1
 #define GYRO_PWR_EN_PIN   16
 
@@ -187,7 +205,7 @@
 #define FLASH_CS0_PORT mibspiPORT5
 #define FLASH_CS0_PIN  MIBSPI_PIN_ENA
 
-#define FLASH_RESET_PORT gioPORTA
+#define FLASH_RESET_PORT GIO_PORT(gioPORTA)
 #define FLASH_RESET_PIN  1
 
 /*
@@ -210,16 +228,19 @@
 #define COMMS_TRANSFER_GROUP 0
 #define COMMS_DATA_FORMAT    0
 
-#define COMMS_RST_REG canREG1 // RX pin
-#define COMMS_WD_REG  canREG1 // TX pin
+#define COMMS_RST_PORT CAN_PORT(canREG1)
+#define COMMS_RST_PIN  CAN_PIN_RX
+
+#define COMMS_WD_PORT  CAN_PORT(canREG1)
+#define COMM_WD_PIN    CAN_PIN_TX
 
 #define COMMS_INT_REG  hetREG1
 #define COMMS_INT_PORT hetPORT1
 #define COMMS_INT_PIN  31
 
-#define COMMS_PWR_5V0_FLT_PORT EXPANDER_PORT_0
+#define COMMS_PWR_5V0_FLT_PORT EXP_PORT(GPIO_EXP_PORT_0)
 #define COMMS_PWR_5V0_FLT_PIN  1
-#define COMMS_PWR_3V3_FLT_PORT EXPANDER_PORT_0
+#define COMMS_PWR_3V3_FLT_PORT EXP_PORT(GPIO_EXP_PORT_0)
 #define COMMS_PWR_3V3_FLT_PIN  2
 
 /**
@@ -229,14 +250,14 @@
 #define CAMERA_CS_PORT    mibspiPORT1
 #define CAMERA_CS_PIN     MIBSPI_PIN_CS(0)
 
-#define CAMERA_PWR_EN_PORT  hetPORT1
+#define CAMERA_PWR_EN_PORT  GIO_PORT(hetPORT1)
 #define CAMERA_PWR_EN_PIN   1
-#define CAMERA_PWR_FLT_PORT EXPANDER_PORT_0
+#define CAMERA_PWR_FLT_PORT EXP_PORT(GPIO_EXP_PORT_0)
 #define CAMERA_PWR_FLT_PIN  5
 
-/*****************************************************************************/
-/* I2C                                                                       */
-/*****************************************************************************/
+// =============================================================================
+// I2C
+// =============================================================================
 
 /**
  * @brief Temperature sensor I2C and reset pin configuration.
@@ -244,7 +265,7 @@
 #define OBC_TEMP_RESET_PORT gioPORTA
 #define OBC_TEMP_RESET_PIN  0
 #define OBC_TEMP_ADDR       0x48
-#define OBC_TEMP_IRQ_PORT   EXPANDER_PORT_1
+#define OBC_TEMP_IRQ_PORT   EXP_PORT(GPIO_EXP_PORT_1)
 #define OBC_TEMP_IRQ_PIN    2
 
 #define OBC_TEMP_PWR_EN_PORT gioPORTA
@@ -253,30 +274,31 @@
 /**
  * @brief IMU
  */
-#define IMU_PWR_EN_PORT hetPORT1
+#define IMU_PWR_EN_PORT GIO_PORT(hetPORT1)
 #define IMU_PWR_EM_PIN  8
 
-/*****************************************************************************/
-/* GPS                                                                       */
-/*****************************************************************************/
+// =============================================================================
+// GPS
+// =============================================================================
 
 /**
  * @brief GPS pin configuration.
  */
-#define GPS_RESET_PORT canREG3 // RX pin
-#define GPS_P1PPS_PORT EXPANDER_PORT_0
+#define GPS_RST_PORT   CAN_PORT(canREG3)
+#define GPS_RST_PIN    CAN_PIN_RX
+#define GPS_P1PPS_PORT EXP_PORT(GPIO_EXP_PORT_0)
 #define GPS_P1PPS_PIN  3
-#define GPS_STS_PORT   EXPANDER_PORT_0
+#define GPS_STS_PORT   EXP_PORT(GPIO_EXP_PORT_0)
 #define GPS_STS_PIN    4
 
-#define GPS_PWR_EN_PORT  gioPORTB
+#define GPS_PWR_EN_PORT  GIO_PORT(gioPORTB)
 #define GPS_PWR_EN_PIN   1
-#define GPS_PWR_FLT_PORT EXPANDER_PORT_0
+#define GPS_PWR_FLT_PORT EXP_PORT(GPIO_EXP_PORT_0)
 #define GPS_PWR_FLT_PIN  0
 
-/*****************************************************************************/
-/* PWM                                                                       */
-/*****************************************************************************/
+// =============================================================================
+// PWM
+// =============================================================================
 
 /**
  * @brief Magnetorquers
@@ -293,40 +315,40 @@
 #define MAG3B_PWM_REG   pwm6 //HET_1[7]
 #define MAG3_SLEEP_PIN  22 //HET_1[22]
 
-#define MAG_PWR_EN_PORT hetPORT1
+#define MAG_PWR_EN_PORT GIO_PORT(hetPORT1)
 #define MAG_PWR_EN_PIN  14 //HET_1[14]
 
 #define MAG_HET hetRAM1
-#define MAG_SLEEP_PORT hetPORT1
+#define MAG_SLEEP_PORT GIO_PORT(hetPORT1)
 
 /**
  * @brief Centrifuge
  */
-#define RXN_PWM_REG     etpwmREG1 // output B
-#define RXN_BRAKE_PORT  hetPORT1
-#define RXN_BRAKE_PIN   25
-#define RX_FREQ_FB_PORT mibspiPORT5
-#define RX_FREQ_FB_PIN  MIBSPI_PIN_CS(0)
-#define RXN_LOCK_PORT   EXPANDER_PORT_1
-#define RXN_LOCK_PIN    1
-#define RXN_DIR_PORT    EXPANDER_PORT_1
-#define RXN_DIR_PIN     0
+#define RXN_PWM_REG      etpwmREG1 // output B
+#define RXN_BRAKE_PORT   GIO_PORT(hetPORT1)
+#define RXN_BRAKE_PIN    25
+#define RX_FREQ_FB_PORT  GIO_PORT(mibspiPORT5)
+#define RX_FREQ_FB_PIN   MIBSPI_PIN_CS(0)
+#define RXN_LOCK_PORT    EXP_PORT(GPIO_EXP_PORT_1)
+#define RXN_LOCK_PIN     1
+#define RXN_DIR_PORT     EXP_PORT(GPIO_EXP_PORT_1)
+#define RXN_DIR_PIN      0
 
-#define RXN_HALLA_PORT EXPANDER_PORT_1
-#define RXN_HALLA_PIN  6
-#define RXN_HALLB_PORT EXPANDER_PORT_1
-#define RXN_HALLB_PIN  5
-#define RXN_HALLC_PORT EXPANDER_PORT_1
-#define RXN_HALLC_PIN  3
+#define RXN_HALLA_PORT   EXP_PORT(GPIO_EXP_PORT_1)
+#define RXN_HALLA_PIN    6
+#define RXN_HALLB_PORT   EXP_PORT(GPIO_EXP_PORT_1)
+#define RXN_HALLB_PIN    5
+#define RXN_HALLC_PORT   EXP_PORT(GPIO_EXP_PORT_1)
+#define RXN_HALLC_PIN    3
 
-#define RXN_PWR_EN_PORT  hetPORT1
+#define RXN_PWR_EN_PORT  GIO_PORT(hetPORT1)
 #define RXN_PWR_EN_PIN   11
-#define RXN_PWR_FLT_PORT EXPANDER_PORT_0
+#define RXN_PWR_FLT_PORT EXP_PORT(GPIO_EXP_PORT_0)
 #define RXN_PWR_FLT_PIN  6
 
-/*****************************************************************************/
-/* ADC                                                                       */
-/*****************************************************************************/
+// =============================================================================
+// ADC
+// =============================================================================
 
 /*
  * @brief Defines corresponding channel numbers on ADC group 1
@@ -343,9 +365,9 @@
 #define ADC_CHANNEL_SOLAR_2_SUN        1
 #define ADC_CHANNEL_SOLAR_1_SUN        0
 
-/*****************************************************************************/
-/* RTI                                                                       */
-/*****************************************************************************/
+// =============================================================================
+// RTI
+// =============================================================================
 
 /**
  * @brief Configuration for backup epoch.
@@ -367,8 +389,8 @@
  * @brief IMU enable interface
 */
 #define IMU_1_EN_PIN 8
-#define IMU_1_EN_PORT hetPORT1
+#define IMU_1_EN_PORT GIO_PORT(hetPORT1)
 #define IMU_2_EN_PIN 7
-#define IMU_2_EN_PORT EXPANDER_PORT_0
+#define IMU_2_EN_PORT EXP_PORT(GPIO_EXP_PORT_0)
 
 #endif /* ALEA_V1_HARDWAREDEFS_H_ */

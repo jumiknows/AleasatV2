@@ -14,6 +14,7 @@
 #include "imu_bmx160_registers.h"
 #include "obc_task_info.h"
 #include "logger.h"
+#include "obc_gpio.h"
 
 //FreeRTOS
 #include "i2c_freertos.h"
@@ -152,7 +153,7 @@ typedef struct{
    * Device GPIO output port
    *
   */
-  gioPORT_t* en_port;
+  gpio_port_t en_port;
 
   /**
    * Device GPIO output pin

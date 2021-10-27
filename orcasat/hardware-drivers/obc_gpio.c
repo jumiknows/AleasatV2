@@ -1,8 +1,6 @@
 /**
  * @file obc_gpio.c
  * @brief OBC GPIO abstraction to handle GPIO expander and internal TMS570 GPIOs with the same API.
- * @author Richard A, Melvin M
- * @date August 29, 2019
  *
  * Generally, GIO refers only to the GIO ports/pins on the TMS570. GPIO is used as a more generic
  * term, to encompass GPIO expander pins or internal GIO pins.
@@ -13,38 +11,53 @@
  *
  * In this file, several things are set up. These features require user modification, follow the
  * instructions in comments tagged with "MODIFY HERE."
- * 	- GIO interrupts are turned on.
- * 	- GPIO expander pins are set up (input/output/interrupt).
- * 	- GIO interrupts are handled.
- *
+ *  - GIO interrupts are turned on.
+ *  - GPIO expander pins are set up (input/output/interrupt).
+ *  - GIO interrupts are handled.
  *
  * Turning on GIO interrupts:
- * 	- Insert calls to gioEnableNotification() in @ref obc_gpio_init().
+ *  - Insert calls to gioEnableNotification() in @ref obc_gpio_init().
  *
  * Setting up GPIO expander pins:
- * 	- See instructions in @ref gpio_expander_pins_init().
- * 	- Also see the GPIO expander header, especially if using interrupt capabilities.
+ *  - Also see the GPIO expander header, especially if using interrupt capabilities.
  *
  * Handling GIO interrupts:
- * 	- See instructions in @ref vGPIOServiceTask().
+ *  - See instructions in @ref vGPIOServiceTask().
  */
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
 #include "obc_gpio.h"
-#include "gio.h"
+
+// OBC
 #include "obc_hardwaredefs.h"
-#include "logger.h"
 #include "obc_featuredefs.h"
 #include "obc_task_info.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
-#include "rtos_queue.h"
 #include "obc_watchdog.h"
-#include "het.h"
 #include "obc_comms.h"
+#include "tms_can.h"
 
 #if GPIO_EXPANDER_EN == 1
 #include "gpio-expander/gpio_pcal6416a.h"
 #endif
+
+// Logging
+#include "logger.h"
+
+// FreeRTOS
+#include "FreeRTOS.h"
+#include "rtos_task.h"
+#include "rtos_queue.h"
+
+// HAL
+#include "gio.h"
+#include "het.h"
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
 
 /**
  * @brief Number of interrupt service requests for GPIOs to queue.
@@ -58,18 +71,22 @@
  */
 #define GIO_IRQ_Q_ITEM_SIZE sizeof(gpio_irq_t)
 
+/******************************************************************************/
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
+/******************************************************************************/
+
 // Setup for the queue that receives interrupt information
-QueueHandle_t gioInterruptQueue = NULL;
-uint8_t gio_irq_q_storage[GIO_IRQ_Q_NUM_ITEMS * GIO_IRQ_Q_ITEM_SIZE];
+static QueueHandle_t gioInterruptQueue = NULL;
 
-// Setup for the interrupt handler task
-TaskHandle_t xGPIOInterruptTaskHandle = NULL;
-StaticTask_t xGPIOInterruptTaskBuffer;
-StackType_t xGPIOInterruptStack[GPIO_IRQ_TASK_STACK_SIZE];
+/******************************************************************************/
+/*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
+/******************************************************************************/
 
-// Private Functions
-void gpio_expander_pins_init(void);
-void vGPIOServiceTask(void* pvParameters);
+static void vGPIOServiceTask(void* pvParameters);
+
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 /**
  * @brief Initialize internal and expander GPIO pins.
@@ -87,10 +104,6 @@ void gpio_init_hw(void) {
  * @brief Enable GPIO interrupts.
  */
 void gpio_init_irq(void) {
-/* Initialize interrupts
- * 	- For internal GIO interrupts, initialize with gioEnableNotification(PORT, PIN);
- * 	- For GPIO expander interrupts, initialize in gpio_expander_pins_init();
- */
 #if GPIO_EXPANDER_EN == 1
     gioEnableNotification(OBC_EXPAND_IRQ_N_PORT, OBC_EXPAND_IRQ_N_PIN);
 #endif
@@ -107,6 +120,8 @@ void gpio_init_irq(void) {
  */
 void gpio_create_infra(void) {
     static StaticQueue_t xIRQStaticQueue;
+    static uint8_t gio_irq_q_storage[GIO_IRQ_Q_NUM_ITEMS * GIO_IRQ_Q_ITEM_SIZE];
+
     gioInterruptQueue = xQueueCreateStatic(GIO_IRQ_Q_NUM_ITEMS, GIO_IRQ_Q_ITEM_SIZE, gio_irq_q_storage, &xIRQStaticQueue);
 }
 
@@ -125,7 +140,7 @@ void gpio_expander_init(void) {
     }
 
     /* Configure the desired pins */
-    if (configure_output(EXPANDER_BLINKY_PORT, EXPANDER_BLINKY_PIN, 1, PULLUP) != GPIO_SUCCESS) {
+    if (configure_output(EXPANDER_BLINKY_PORT.reg.exp, EXPANDER_BLINKY_PIN, 1, PULLUP) != GPIO_SUCCESS) {
         log_str(ERROR, GPIO_LOG, true, "Expander blink init failed");
     }
 
@@ -160,8 +175,110 @@ void gpio_expander_reset(void) {
  * @brief Starts the GPIO interrupt processing task.
  */
 void gpio_start_task(void) {
-    xGPIOInterruptTaskHandle = task_create_static(&vGPIOServiceTask, "gpio_irq", GPIO_IRQ_TASK_STACK_SIZE, NULL, GPIO_IRQ_SERVICE_PRIORITY, xGPIOInterruptStack, &xGPIOInterruptTaskBuffer);
+    static StaticTask_t xGPIOInterruptTaskBuffer;
+    static StackType_t xGPIOInterruptStack[GPIO_IRQ_TASK_STACK_SIZE];
+
+    task_create_static(&vGPIOServiceTask, "gpio_irq", GPIO_IRQ_TASK_STACK_SIZE, NULL, GPIO_IRQ_SERVICE_PRIORITY, xGPIOInterruptStack, &xGPIOInterruptTaskBuffer);
 }
+
+/**
+ * @brief GPIO IRQ queue submission task. Called when interrupts are detected on an
+ * interrupt-capable pin.
+ *
+ * Submits interrupt information on a queue so that it can be serviced by the GPIO interrupt task.
+ *
+ * @pre GPIO initialization has been performed, obc_i2c_init has been performed if using GPIO
+ * expander interrupts.
+ * @param irq_info: Port and pin information from the notification.
+ */
+void service_gpio_irq(gpio_irq_t irq_info) {
+    BaseType_t xHigherPriorityTaskWoken;
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    if (gioInterruptQueue != NULL) {
+        if ((xQueueSendToBackFromISR(gioInterruptQueue, (void*)&irq_info, 0)) == errQUEUE_FULL) {
+            log_str(ERROR, GPIO_LOG, true, "IRQ queue full");
+        }
+    }
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+/**
+ * @brief Write a value to a GPIO pin.
+ *
+ * Common function for writing GPIO pins, regardless of whether they are on the TMS570 or on the
+ * GPIO expander.
+ *
+ * @param[in] port  GPIO port to use (use GIO_PORT, EXP_PORT or CAN_PORT macros)
+ * @param[in] pin   The pin on the respective port.
+ * @param[in] value 0 or 1, the value to write to the pin.
+ * @return GPIO_SUCCESS for all internal GPIO writes, and if the expander write did not experience
+ * any IO errors. GPIO_FAILURE if the port type was invalid or I2C communication with the expander failed.
+ */
+gpio_err_t obc_gpio_write(gpio_port_t port, uint32_t pin, uint32_t value) {
+    gpio_err_t err;
+    switch(port.type)
+    {
+        case GPIO_PORT_GIO:
+            gioSetBit(port.reg.gio, pin, value);
+            err = GPIO_SUCCESS;
+            break;
+        case GPIO_PORT_CAN:
+            tms_can_gpio_write(port.reg.can, (can_pin_t)pin, value);
+            err = GPIO_SUCCESS;
+            break;
+#if GPIO_EXPANDER_EN == 1
+        case GPIO_PORT_EXP:
+            err = set_output(port.reg.exp, pin, value);
+            break;
+#endif
+        default:
+            err = GPIO_FAILURE;
+            break;
+    }
+    return err;
+}
+
+/**
+ * @brief Read a value from a GPIO pin.
+ *
+ * Common function for reading GPIO pins, regardless of whether they are on the TMS570 or on the
+ * GPIO expander.
+ *
+ * @param[in]  port  GPIO port to use (use GIO_PORT, EXP_PORT or CAN_PORT macros)
+ * @param[in]  pin   The pin on the respective port.
+ * @param[out] value 0 or 1, indicating LOW or HIGH state on the pin.
+ * @return GPIO_SUCCESS for all internal GPIO reads, and if the expander read did not experience
+ * any IO errors. GPIO_FAILURE if the port type was invalid or I2C communication with the expander failed.
+ */
+gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t* value) {
+    gpio_err_t err;
+    switch(port.type)
+    {
+        case GPIO_PORT_GIO:
+            *value = gioGetBit(port.reg.gio, pin);
+            err = GPIO_SUCCESS;
+            break;
+        case GPIO_PORT_CAN:
+            *value = tms_can_gpio_read(port.reg.can, (can_pin_t)pin);
+            err = GPIO_SUCCESS;
+            break;
+#if GPIO_EXPANDER_EN == 1
+        case GPIO_PORT_EXP:
+            err = get_input(port.reg.exp, pin, value);
+            break;
+#endif
+        default:
+            err = GPIO_FAILURE;
+            break;
+    }
+    return err;
+}
+
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
 
 /**
  * @brief GPIO interrupt handler task.
@@ -175,8 +292,7 @@ void gpio_start_task(void) {
  *
  * @param pvParameters: used implicitly for watchdog handling.
  */
-
-void vGPIOServiceTask(void* pvParameters) {
+static void vGPIOServiceTask(void* pvParameters) {
     task_id_t wd_task_id = WD_TASK_ID(pvParameters);
     gpio_irq_t irq_info  = {.port = NULL, .pin = 0};
 
@@ -215,78 +331,5 @@ void vGPIOServiceTask(void* pvParameters) {
             set_task_status(wd_task_id, task_alive);
             log_str(ERROR, GPIO_LOG, true, "IRQ queue receive failed.");
         }
-    }
-}
-
-/**
- * @brief GPIO IRQ queue submission task. Called when interrupts are detected on an
- * interrupt-capable pin.
- *
- * Submits interrupt information on a queue so that it can be serviced by the GPIO interrupt task.
- *
- * @pre GPIO initialization has been performed, obc_i2c_init has been performed if using GPIO
- * expander interrupts.
- * @param irq_info: Port and pin information from the notification.
- */
-void service_gpio_irq(gpio_irq_t irq_info) {
-    BaseType_t xHigherPriorityTaskWoken;
-    xHigherPriorityTaskWoken = pdFALSE;
-
-    if (gioInterruptQueue != NULL) {
-        if ((xQueueSendToBackFromISR(gioInterruptQueue, (void*)&irq_info, 0)) == errQUEUE_FULL) {
-            log_str(ERROR, GPIO_LOG, true, "IRQ queue full");
-        }
-    }
-
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-}
-
-/**
- * @brief Write a value to a GPIO pin.
- *
- * Common function for writing GPIO pins, regardless of whether they are on the TMS570 or on the
- * GPIO expander.
- *
- * @param port: gioPORTA, gioPORTB, EXPANDER_PORT_O, EXPANDER_PORT, 1
- * @param pin: 0-7, the pin on the respective port.
- * @param value: 0 or 1, the value to write to the pin.
- * @return: GPIO_SUCCESS for all internal GPIO writes, and if the expander write did not experience
- * any IO errors. GPIO_FAILURE if I2C communication with the expander failed.
- */
-gpio_err_t obc_gpio_write(gioPORT_t* port, uint32_t pin, uint32_t value) {
-    if ((port == EXPANDER_PORT_0) || (port == EXPANDER_PORT_1)) { // Use expander pins if the expander is present in the system
-#if GPIO_EXPANDER_EN == 1
-        return set_output(port, pin, value);
-#else
-        return GPIO_FAILURE;
-#endif
-    } else {
-        gioSetBit(port, pin, value); // Use TMS570 pins
-        return GPIO_SUCCESS;
-    }
-}
-
-/**
- * @brief Read a value from a GPIO pin.
- *
- * Common function for reading GPIO pins, regardless of whether they are on the TMS570 or on the
- * GPIO expander.
- *
- * @param port: gioPORTA, gioPORTB, EXPANDER_PORT_O, EXPANDER_PORT, 1
- * @param pin: 0-7, the pin on the respective port.
- * @param [out]: 0 or 1, indicating LOW or HIGH state on the pin.
- * @return: GPIO_SUCCESS for all internal GPIO reads, and if the expander read did not experience
- * any IO errors. GPIO_FAILURE if I2C communication with the expander failed.
- */
-gpio_err_t obc_gpio_read(gioPORT_t* port, uint32_t pin, uint32_t* value) {
-    if ((port == EXPANDER_PORT_0) || (port == EXPANDER_PORT_1)) {
-#if GPIO_EXPANDER_EN == 1
-        return get_input(port, pin, value);
-#else
-        return GPIO_FAILURE;
-#endif
-    } else {
-        *value = gioGetBit(port, pin);
-        return GPIO_SUCCESS;
     }
 }
