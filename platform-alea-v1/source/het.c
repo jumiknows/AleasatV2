@@ -384,7 +384,7 @@ static const hetINSTRUCTION_t het1PROGRAM[58U] =
         /* Program */
         0x00025440U,
         /* Control */
-        (0x00024007U | (uint32)((uint32)31U << 8U) | (uint32)((uint32)2U << 4U)),
+        (0x00024007U | (uint32)((uint32)31U << 8U) | (uint32)((uint32)1U << 4U)),
         /* Data */
         0x00000000U,
         /* Reserved */
@@ -2089,7 +2089,7 @@ void hetInit(void)
     /** @b initialize @b HET */
 
     /** - Set HET pins default output value */
-    hetREG1->DOUT = (uint32)((uint32)0U << 31U)
+    hetREG1->DOUT = (uint32)((uint32)1U << 31U)
                   | (uint32)((uint32)0U << 30U)
                   | (uint32)((uint32)0U << 29U)
                   | (uint32)((uint32)0U << 28U)
@@ -2225,7 +2225,7 @@ void hetInit(void)
                     | (uint32) 0x00000000U;
 
     /** - Set HET pins pullup/down select */
-    hetREG1->PSL = (uint32) 0x00000000U
+    hetREG1->PSL = (uint32) 0x80000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
