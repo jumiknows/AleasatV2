@@ -25,3 +25,6 @@ orcasat-testing/build/test
 .swp
 \.vscode/
 \.vs/
+
+# Eclipse
+org.eclipse.core.resources.prefs
