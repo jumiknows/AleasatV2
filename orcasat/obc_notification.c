@@ -46,10 +46,8 @@
  * @param pin: the pin on the port that triggered the interrupt
  */
 void gioNotification(gioPORT_t* port, uint32 bit) {
-#ifdef PLATFORM_ORCA_V1
     gpio_irq_t irq_info = {.port = port, .pin = bit};
     service_gpio_irq(irq_info);
-#endif
 }
 
 /**

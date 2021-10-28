@@ -40,10 +40,6 @@
 #include "logger.h"
 #include "rtc_state.h"
 #include "rtos_semphr.h"
-#ifdef PLATFORM_ORCA_V1
-#include "rtc_pca2129.h"
-#include "dual_rtc_pca2129.h"
-#endif
 
 /**
  * @brief Definition and storage for the RTC mutex.
@@ -78,10 +74,6 @@ void rtc_init(void) {
 
 #if RTC_MOCK_EN
         rtc_init_mock();
-#else
-#ifdef PLATFORM_ORCA_V1
-        init_both_rtc();
-#endif
 #endif
         xSemaphoreGiveRecursive(rtc_mutex);
     } else {
@@ -155,10 +147,6 @@ rtc_err_t rtc_get_current_time(real_time_t* curr_time) {
     if (xSemaphoreTakeRecursive(rtc_mutex, pdMS_TO_TICKS(RTC_MUTEX_TIMEOUT_MS))) {
 #if RTC_MOCK_EN
         err = rtc_get_current_time_mock(curr_time);
-#else
-#ifdef PLATFORM_ORCA_V1
-        err = get_dual_time(curr_time);
-#endif
 #endif
         rtc_latest_state = err;
         if (err == RTC_NO_ERR) {
@@ -211,14 +199,6 @@ rtc_err_t rtc_set_current_time(real_time_t* curr_time, active_rtc_t rtcs, bool u
 
 #if RTC_MOCK_EN
         err = rtc_set_current_time_mock(curr_time);
-#else
-#ifdef PLATFORM_ORCA_V1
-        err = set_dual_time(curr_time, rtcs);
-/**
- * TODO: rerun scheduler so that it can purge any actions that are no longer valid.
- * Actions that are invalid due to a changed time should be logged.
- */
-#endif
 #endif
         xSemaphoreGiveRecursive(rtc_mutex);
     } else {
@@ -257,10 +237,6 @@ rtc_err_t switch_active_rtc(active_rtc_t rtc) {
  */
 rtc_err_t rtc_set_relative_alarm(uint32_t seconds_to_alarm) {
     rtc_err_t err = RTC_NO_ERR;
-
-#ifdef PLATFORM_ORCA_V1
-    err = pca2129_setup_relative_alarm(&rtc_a, seconds_to_alarm);
-#endif
     return err;
 }
 
@@ -275,9 +251,6 @@ rtc_err_t rtc_set_relative_alarm(uint32_t seconds_to_alarm) {
  */
 rtc_err_t rtc_set_absolute_alarm(real_time_t alarm_time) {
     rtc_err_t err = RTC_NO_ERR;
-#ifdef PLATFORM_ORCA_V1
-    err = pca2129_setup_absolute_alarm(&rtc_a, alarm_time);
-#endif
     return err;
 }
 

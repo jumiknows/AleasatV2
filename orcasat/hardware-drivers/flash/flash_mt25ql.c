@@ -8,7 +8,7 @@
  * https://www.micron.com/-/media/client/global/documents/products/data-sheet/nor-flash/serial-nor/mt25q/die-rev-a/mt25q_qlhs_l_128_aba_0.pdf
  */
 
-#ifdef PLATFORM_ORCA_V1
+#ifdef PLATFORM_ORCA_V1 // TODO(ALEA-511): Kept this flag since this code might come in handy later.
 
 #include "flash_mt25ql.h"
 #include "flash_mt25ql_defs.h"

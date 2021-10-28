@@ -209,16 +209,6 @@ fs_err_t fs_init(void) {
     // Create the block erase mutex
     xBlockEraseMutex = xSemaphoreCreateMutexStatic(&xBlockEraseStaticMutex);
 
-#ifdef PLATFORM_ORCA_V1
-    // This is only temporary for development, remove for flight
-    flash_err_t flash_error = flash_erase(0x00, FULL_CHIP);
-
-    if (flash_error != FLASH_OK) {
-        log_str(ERROR, FS_LOG, true, "Flash erase fail: %d", flash_error);
-        return FS_ERASE_FAILURE_ERR;
-    }
-#endif
-
     int32_t err = lfs_mount(&m_lfs, &cfg);
 
     // This will occur on the first mount of the filesystem
@@ -1087,7 +1077,7 @@ static int32_t bd_prog(const struct lfs_config* cnfg, lfs_block_t block, lfs_off
 static int32_t bd_erase(const struct lfs_config* cnfg, lfs_block_t block) {
     if (!block_bit_set(block)) {
         set_block_bit(block); // Set to indicate that this block now has an erased state
-#ifdef PLATFORM_ORCA_V1 // TODO include PLATFORM_ALEA_V1 once flash driver is working (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/56)
+#ifdef PLATFORM_ORCA_V1 // TODO(ALEA-511): include PLATFORM_ALEA_V1 once flash driver is working (ALEA-174)
         return (int32_t)flash_erase(block * cnfg->block_size, SECTOR_4K);
 #else
         return (int32_t)flash_erase(block * cnfg->block_size, SECTOR_1K);

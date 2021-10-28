@@ -8,9 +8,6 @@
 #include "obc_hardwaredefs.h"
 #include "obc_mram.h"
 
-#ifdef PLATFORM_ORCA_V1
-#include "mr25h256.h"
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
 #include "mram_mock.h"
 #endif
@@ -24,9 +21,6 @@
  * @return whether or not the initialization was successful.
  */
 mram_err_t init_mram(void) {
-#ifdef PLATFORM_ORCA_V1
-    return mram_mr25h256_init();
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return init_mock_mram();
 #endif
@@ -44,9 +38,6 @@ mram_err_t init_mram(void) {
  * @return MRAM_OK or an error code.
  */
 mram_err_t write_mram(uint16_t addr, uint16_t size_bytes, const uint8_t* data) {
-#ifdef PLATFORM_ORCA_V1
-    return mram_mr25h256_write(addr, size_bytes, data);
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return write_mock_mram(addr, size_bytes, data);
 #endif
@@ -64,9 +55,6 @@ mram_err_t write_mram(uint16_t addr, uint16_t size_bytes, const uint8_t* data) {
  * @return MRAM_OK or an error code.
  */
 mram_err_t read_mram(uint16_t addr, uint16_t size_bytes, uint8_t* data) {
-#ifdef PLATFORM_ORCA_V1
-    return mram_mr25h256_read(addr, size_bytes, data);
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return read_mock_mram(addr, size_bytes, data);
 #endif
@@ -79,9 +67,6 @@ mram_err_t read_mram(uint16_t addr, uint16_t size_bytes, uint8_t* data) {
  * @brief Resets the MRAM by power cycling it if possible.
  */
 void reset_mram(void) {
-#ifdef PLATFORM_ORCA_V1
-    mram_mr25h256_reset();
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
 // Not applicable!
 #endif
@@ -95,9 +80,6 @@ void reset_mram(void) {
  * @return The size (bytes) of the MRAM.
  */
 uint32_t mram_size(void) {
-#ifdef PLATFORM_ORCA_V1
-    return MR25H256_MRAM_MAX_ADDRESS;
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return MOCK_MRAM_SIZE_BYTES;
 #endif
@@ -112,9 +94,6 @@ uint32_t mram_size(void) {
  * @return The lowest MRAM address that application code may use.
  */
 uint32_t application_image_base_mram_address(void) {
-#ifdef PLATFORM_ORCA_V1
-    return MR25H256_MRAM_APPLICATION_PARTITION_BASE;
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return 0;
 #endif

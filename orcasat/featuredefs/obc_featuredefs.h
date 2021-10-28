@@ -15,16 +15,6 @@
 
 /******************************************************************************
  *
- * SETTINGS FOR PLATFORM-ORCA-V1
- * 	- initial ORCASAT hardware
- *
- *****************************************************************************/
-#ifdef PLATFORM_ORCA_V1
-#include "orca_v1_featuredefs.h"
-#endif /* PLATFORM_ORCA_V1 */
-
-/******************************************************************************
- *
  * SETTINGS FOR LAUNCHPAD-1224
  * 	- TMS570LS1224-equipped launchpads acquired in 2018
  *

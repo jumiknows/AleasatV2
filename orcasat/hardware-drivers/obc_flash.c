@@ -6,9 +6,6 @@
  */
 
 #include "obc_flash.h"
-#ifdef PLATFORM_ORCA_V1
-#include "flash_mt25ql.h"
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
 #include "flash_mock.h"
 #endif
@@ -39,9 +36,6 @@ void flash_init(void) {
  * @return FLASH_OK if no error, error code otherwise
  */
 flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size) {
-#ifdef PLATFORM_ORCA_V1
-    return mt25ql_erase(addr, erase_size);
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return flash_erase_mock(addr, erase_size);
 #endif
@@ -59,9 +53,6 @@ flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size) {
  * @return: FLASH_OK if no error, error code otherwise
  */
 flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data) {
-#ifdef PLATFORM_ORCA_V1
-    return mt25ql_write(addr, size_bytes, data);
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return flash_write_mock(addr, size_bytes, data);
 #endif
@@ -79,9 +70,6 @@ flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data)
  * @return: FLASH_OK if no error, error code otherwise
  */
 flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data) {
-#ifdef PLATFORM_ORCA_V1
-    return mt25ql_read(addr, size_bytes, data);
-#endif
 #ifdef PLATFORM_LAUNCHPAD_1224
     return flash_read_mock(addr, size_bytes, data);
 #endif

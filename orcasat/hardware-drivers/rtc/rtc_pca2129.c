@@ -18,7 +18,7 @@
  *  				 - Fixed | vs || bug in alarm setting functions.
  */
 
-#ifdef PLATFORM_ORCA_V1
+#ifdef PLATFORM_ORCA_V1 // TODO(ALEA-511): left reference until ALEA-357 RTC Driver is completed
 
 #include "obc_time.h"
 #include "FreeRTOS.h"

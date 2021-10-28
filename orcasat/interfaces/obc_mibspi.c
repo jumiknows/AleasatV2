@@ -49,15 +49,6 @@ void mibspi_init_irq(void) {
     mibspiEnableGroupNotification(FLASH_MIBSPI_REG, FLASH_4_BYTE_GROUP, FLASH_DATA_FORMAT);
     mibspiEnableGroupNotification(FLASH_MIBSPI_REG, FLASH_20_BYTE_GROUP, FLASH_DATA_FORMAT);
 #endif // PLATFORM_ALEA_V1
-#if defined(PLATFORM_ORCA_V1)
-    mibspiEnableGroupNotification(MRAM_MIBSPI_REG, MRAM_1_BYTE_GROUP, MRAM_DATA_FORMAT);
-    mibspiEnableGroupNotification(MRAM_MIBSPI_REG, MRAM_2_BYTE_GROUP, MRAM_DATA_FORMAT);
-    mibspiEnableGroupNotification(MRAM_MIBSPI_REG, MRAM_4_BYTE_GROUP, MRAM_DATA_FORMAT);
-    mibspiEnableGroupNotification(ECC_FLASH_MIBSPI_REG, ECC_FLASH_1_BYTE_GROUP, ECC_FLASH_DATA_FORMAT);
-    mibspiEnableGroupNotification(ECC_FLASH_MIBSPI_REG, ECC_FLASH_2_BYTE_GROUP, ECC_FLASH_DATA_FORMAT);
-    mibspiEnableGroupNotification(ECC_FLASH_MIBSPI_REG, ECC_FLASH_5_BYTE_GROUP, ECC_FLASH_DATA_FORMAT);
-    mibspiEnableGroupNotification(ECC_FLASH_MIBSPI_REG, ECC_FLASH_22_BYTE_GROUP, ECC_FLASH_DATA_FORMAT);
-#endif
 }
 
 /**

@@ -30,16 +30,6 @@
 
 /******************************************************************************
  *
- * SETTINGS FOR PLATFORM-ORCA-V1
- * 	- initial ORCASAT hardware
- *
- *****************************************************************************/
-#ifdef PLATFORM_ORCA_V1
-#include "orca_v1_hardwaredefs.h"
-#endif /* PLATFORM_ORCA_V1 */
-
-/******************************************************************************
- *
  * SETTINGS FOR PLATFORM-ALEA-V1
  * 	- initial ALEA hardware
  *

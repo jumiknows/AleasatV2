@@ -13,6 +13,8 @@
 #include "gio.h"
 #include "obc_rtos.h"
 
+// TODO(ALEA-512): Rework driver
+
 #define LAUNCHPAD_MOCK_TEMP 20 // temperature sensor is not available on launchpad
 
 /**
@@ -22,10 +24,6 @@
  * @return temp_err_t: TEMP_SUCCESS if the temperature was read successfully, error code otherwise
  */
 temp_err_t read_temp(int16_t* temp) {
-#ifdef PLATFORM_ORCA_V1
-    return stts75_temp_get(temp);
-#endif /* PLATFORM_ORCA_V1 */
-
 #ifdef PLATFORM_LAUNCHPAD_1224
     *temp = LAUNCHPAD_MOCK_TEMP;
     return TEMP_SUCCESS;
@@ -38,10 +36,6 @@ temp_err_t read_temp(int16_t* temp) {
  * @return temp_err_t: TEMP_SUCCESS if the self-test passed
  */
 void self_test_temperature(void) {
-#ifdef PLATFORM_ORCA_V1
-    stts75_self_test();
-#endif /* PLATFORM_ORCA_V1 */
-
 #ifdef PLATFORM_LAUNCHPAD_1224
     log_str(ERROR, TEMP_LOG, true, "Mocked temp sensor check passed.");
 #endif /* PLATFORM_LAUNCHPAD_1224 */
@@ -53,10 +47,6 @@ void self_test_temperature(void) {
  * @return I2C module status: I2C_SUCCESS if device replied, error code otherwise.
  */
 i2c_err_t obc_temp_ping(void) {
-#ifdef PLATFORM_ORCA_V1
-    return stts75_ping();
-#endif /* PLATFORM_ORCA_V1 */
-
 #ifdef PLATFORM_LAUNCHPAD_1224
     return I2C_SUCCESS;
 #endif /* PLATFORM_LAUNCHPAD_1224 */
@@ -66,10 +56,7 @@ i2c_err_t obc_temp_ping(void) {
  * @brief Hard reset of temperature sensor
  */
 void reset_temp(void) {
-#ifdef PLATFORM_ORCA_V1
-    log_str(INFO, PRINT_GENERAL, false, "Resetting temperature sensor");
-    gioSetBit(OBC_TEMP_RESET_PORT, OBC_TEMP_RESET_PIN, 0);
-    vTaskDelay(pdMS_TO_TICKS(1));
-    gioSetBit(OBC_TEMP_RESET_PORT, OBC_TEMP_RESET_PIN, 1);
-#endif /* PLATFORM_ORCA_V1 */
+#ifdef PLATFORM_LAUNCHPAD_1224
+    return I2C_SUCCESS;
+#endif /* PLATFORM_LAUNCHPAD_1224 */
 }
