@@ -27,6 +27,7 @@ void clear_buffer(char* buf, uint32_t length); // Fill buffer with null characte
 
 /* Misc. */
 void busy_wait(uint32_t ticks_to_wait); // Quick n' dirty busy wait
+void obc_delay_us(uint32_t us); //1 us/tick delay function
 void restart_software(void);            // software reset
 
 /* Math */

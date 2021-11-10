@@ -7,6 +7,9 @@
 #include "obc_hardwaredefs.h"
 #include "gio.h"
 #include "reg_system.h"
+#include "FreeRTOS.h"
+#include "rtos_task.h"
+#include "rti.h"
 
 /* busy_wait
  * 	- simply loops for as long as you want doing nothing
@@ -17,6 +20,29 @@ void busy_wait(uint32_t ticks_to_wait) {
         i++;
     }
 }
+
+/**
+ * @brief Generic delay function with 1us/tick resolution
+ *
+ * @param us Number of us to delay
+ * @note The maximum allowed delay time for this function is 537 seconds
+*/
+void obc_delay_us(uint32_t us)
+{
+
+    uint32_t dt = 0;             // units of 0.125 us;
+    uint32_t init_time = rtiREG1->CNT[0U].FRCx;
+
+    /**
+     * RTI counter 0 has base tick rate of 125ns, therefore there are 8 rti ticks per us
+    */
+
+    while ((dt/8) < us) {
+        dt = (rtiREG1->CNT[0U].FRCx - init_time);
+    }
+
+}
+
 
 /* itoa2
  * 	- int32_t to ASCII

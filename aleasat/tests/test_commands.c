@@ -25,6 +25,7 @@
 #include "obc_gpio.h"
 #include "tms_can.h"
 #include "obc_utils.h"
+#include "tms_spi.h"
 
 // Logging
 #include "logger.h"

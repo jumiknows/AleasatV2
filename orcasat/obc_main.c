@@ -39,6 +39,7 @@
 #include "obc_mram.h"
 #include "obc_comms.h"
 #include "tms_can.h"
+#include "tms_spi.h"
 
 // Private Functions
 static void obc_main_task(void* pvParameters);
@@ -85,10 +86,12 @@ static void obc_main_task(void* pvParameters) {
                           // having enough infrastructure created to process them.
     mibspi_create_infra();
     comms_mibspi_create_infra();
+    tms_spi_create_infra();
     comms_mibspi_init_irq();
     hetInit();
     adc_init();
     tms_can_init();
+    tms_spi_init();
 
     // Every other task requires that the watchdog pet task (WDPT) be working, because all other
     // tasks use the watchdog check-in functionality.
