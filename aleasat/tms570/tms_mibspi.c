@@ -1,8 +1,6 @@
 /**
  * @file tms_mibspi.c
  * @brief Low-level Generic MIBSPI driver wrapper.
- * @author Andrada Zoltan, Julian Mentasti
- * @date March 3, 2021
  * 
  * Any MIBSPI driver must use this driver wrapper. 
  * That driver must have:
@@ -19,13 +17,28 @@
  * and using a GIO pin as the slave select.
  */
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
 #include "tms_mibspi.h"
-#include "gio.h"
+
+// OBC
 #include "obc_misra.h"
 #include "obc_hardwaredefs.h"
 
-/* Private Function Prototypes -----------------------------------------------*/
+// HAL
+#include "gio.h"
+
+/******************************************************************************/
+/*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
+/******************************************************************************/
+
 static mibspi_err_t mibspi_error_handler(uint32_t error_flags);
+
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 /**
  * @brief Initializes MIBSPI hardware.
@@ -151,6 +164,10 @@ mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
 
     return mibspi_error_handler(error_flags);
 }
+
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
 
 /**
  * @brief MIBSPI error handler. Parses the MibSPI error register to check

@@ -1,19 +1,30 @@
 /**
  * @file tms_mibspi.h
  * @brief Low-level Generic MIBSPI driver wrapper.
- * @author Andrada Zoltan, Julian Mentasti
- * @date March 3, 2021
  */
 
 #ifndef TMS_MIBSPI_H_
 #define TMS_MIBSPI_H_
 
-#include "sys_common.h"
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// OBC
+#include "obc_error.h"
+
+// HAL
 #include "mibspi.h"
+#include "sys_common.h"
+
+// FreeRtos
 #include "FreeRTOS.h"
 #include "rtos_event_groups.h"
 #include "rtos_semphr.h"
-#include "obc_error.h"
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
 
 /**
  * @brief Default timeout for SPI transactions.
@@ -28,6 +39,11 @@
  */
 #define MIBSPI_ERR_NOTIF ((EventBits_t)1U << 8)
 
+
+/******************************************************************************/
+/*                              T Y P E D E F S                               */
+/******************************************************************************/
+
 /**
  * @brief Wrapper for a MIBSPI transfer group.
  *
@@ -40,6 +56,10 @@ typedef struct {
     gioPORT_t* cs_port;
     uint32_t cs_pin;
 } mibspi_tg_t;
+
+/******************************************************************************/
+/*                             F U N C T I O N S                              */
+/******************************************************************************/
 
 /* Startup steps */
 void mibspi_init_hw(void);
