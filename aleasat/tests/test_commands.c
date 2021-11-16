@@ -20,6 +20,8 @@
 // OBC
 #include "obc_cmd.h"
 #include "obc_comms.h"
+#include "obc_hardwaredefs.h"
+#include "comms_cc1110.h"
 #include "obc_magnetorquer.h"
 #include "imu_bmx160.h"
 #include "obc_gpio.h"
@@ -53,17 +55,81 @@ void cmd_test_ack(uint32_t arg_len, void* arg) {
 }
 
 /**
- * @brief Will send the command arguments to the COMMS board.
+ * @brief Tests sending the command arguments via raw MIBSPI.
  */
-void cmd_test_comms_spi(uint32_t arg_len, void* arg) {
+void cmd_test_comms_raw(uint32_t arg_len, void* arg) {
     mibspi_err_t err;
-    uint16_t data[128] = {0x0000};
+    uint16_t data[COMMS_TG_SIZE_WORDS] = {0x0000};
+    memset(data, 0xAB, sizeof(data));
     memcpy(data, arg, arg_len);
-    if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MUTEX_TIMEOUT_MS))) {
-        err = comms_mibspi_tx(&data);
+    if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MIBSPI_MUTEX_TIMEOUT_MS))) {
+        err = comms_mibspi_tx(data);
         xSemaphoreGive(xMibspiCommsMutexHandle);
     }
+    prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "raw tx %d", err);
+}
+
+/**
+ * @brief Tests sending command, taking command line argument as params. Does not wait for response.
+ *
+ * If testing with Comms board, change comms_hwid
+ */
+void cmd_test_comms_tx_only(uint32_t arg_len, void* arg) {
+    comms_err_t err;
+    uint8_t arg_str_len = strlen(arg);
+
+    err = comms_send_cmd(comms_hwid, comms_system, COMMS_COMMON_MSG_ASCII, arg, arg_str_len, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+
     prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "tx %d", err);
+}
+
+/**
+ * @brief Tests sending commands and receiving the responses.
+ *
+ * If testing with Comms board, change comms_hwid
+ */
+void cmd_test_comms_tx_rx(uint32_t arg_len, void* arg) {
+    comms_err_t err;
+    comms_command_t resp = {0};
+
+    err = comms_send_recv_cmd(comms_hwid, comms_system, COMMS_RADIO_MSG_GET_TELEM, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+
+    prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "txrx %d resp %x", err, resp.header.command);
+}
+
+/**
+ * @brief Tests repeatedly sending and receiving the ack command.
+ *
+ * If testing with Comms board, change comms_hwid
+ */
+void cmd_test_comms_stress1(uint32_t arg_len, void* arg) {
+    comms_err_t err;
+    comms_command_t resp = {0};
+    uint32_t num_success = 0;
+    uint32_t num_fail = 0;
+    uint32_t i;
+
+    for (i = 0; i < 1000; ++i) {
+        memset(&resp, 0, sizeof(resp));
+        err = comms_send_recv_cmd(comms_hwid, comms_system, COMMS_COMMON_MSG_ACK, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+        if ((err != COMMS_SUCCESS) || (resp.header.command != COMMS_COMMON_MSG_ACK)) {
+            num_fail++;
+            if (num_fail >= 5) {
+                break;
+            }
+            vTaskDelay(pdMS_TO_TICKS(80));  // make it easier to see in logic analyzer waveform
+        }
+        else {
+            num_success++;
+        }
+    }
+
+    if (num_fail == 0) {
+        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "s1 all pass");
+    }
+    else {
+        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "s1 pass %d fail %d", num_success, num_fail);
+    }
 }
 
 /**

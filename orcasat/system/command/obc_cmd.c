@@ -115,7 +115,10 @@ const cmd_entry command_table[] = {{"get_heap", &cmd_get_heap},
 #endif
 #ifdef SYSTEM_TESTS
                                    {"test_ack", &cmd_test_ack},
-                                   {"comms_spi_test", &cmd_test_comms_spi},
+                                   {"comms_test_raw", &cmd_test_comms_raw},
+                                   {"comms_test_tx_only", &cmd_test_comms_tx_only},
+                                   {"comms_test_tx_rx", &cmd_test_comms_tx_rx},
+                                   {"comms_test_stress1", &cmd_test_comms_stress1},
                                    {"magnetorquer_test", &cmd_test_mag},
                                    {"magnetorquer_test_all", &cmd_test_mag_all},
                                    {"magnetorquer_test_init", &cmd_test_mag_init},

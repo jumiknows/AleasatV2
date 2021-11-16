@@ -178,11 +178,13 @@
 #define COMMS_CS_PORT        gioPORTA
 #define COMMS_CS_PIN         5
 #define COMMS_TRANSFER_GROUP 0
+#define COMMS_TG_SIZE_WORDS  128 // one word is 16 bits
 #define COMMS_DATA_FORMAT    0
 
 #define COMMS_INT_REG  hetREG1
 #define COMMS_INT_PORT hetPORT1
 #define COMMS_INT_PIN  31
+#define COMMS_INT_EDGE 0
 
 /**
  * @brief Magnetorquers

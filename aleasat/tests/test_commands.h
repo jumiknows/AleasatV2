@@ -20,8 +20,11 @@
 // General
 void cmd_test_ack(uint32_t arg_len, void* arg);
 
-// COMMS
-void cmd_test_comms_spi(uint32_t arg_len, void* arg);
+// Comms
+void cmd_test_comms_raw(uint32_t arg_len, void* arg);
+void cmd_test_comms_tx_only(uint32_t arg_len, void* arg);
+void cmd_test_comms_tx_rx(uint32_t arg_len, void* arg);
+void cmd_test_comms_stress1(uint32_t arg_len, void* arg);
 
 // Magnetorquer test commands
 void cmd_test_mag(uint32_t arg_len, void* arg);

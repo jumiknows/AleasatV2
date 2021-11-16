@@ -28,6 +28,7 @@
 #define WDPT_TASK_STACK_SIZE            (256)
 #define STATE_HANDLER_STACK_DEPTH       (128)
 #define HANG_TASK_STACK_SIZE            (128)
+#define COMMS_IRQ_TASK_STACK_SIZE       (400)
 
 /**
  * @brief Maximum priority that any task may have.
@@ -65,6 +66,11 @@
  * @brief GPIO interrupt handling priority.
  */
 #define GPIO_IRQ_SERVICE_PRIORITY 4
+
+/**
+ * @brief Comms interrupt handling priority.
+ */
+#define COMMS_IRQ_SERVICE_PRIORITY 3
 
 /**
  * @brief Priorities for the scheduler.

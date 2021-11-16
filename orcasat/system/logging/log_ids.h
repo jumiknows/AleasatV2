@@ -130,9 +130,9 @@
 
 #define TEST_PCMD_GATING_CMD 56 /* PCMD Power Gating Test */
 
-#define COMMS_OPENLST 57 /* COMMS Openlst */
+#define COMMS_LOG 57 /* Comms Log */
 
-#define COMMS_ACK_CMD 58 /* COMMS ACK */
+#define COMMS_ACK_CMD 58 /* Comms ACK */
 
 #define ADCS_IMU_LOG 59 /* ADCS IMU Log */
 

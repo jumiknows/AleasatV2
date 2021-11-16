@@ -39,6 +39,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/printf}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/tms570}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/comms}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/gpio}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/magnetorquer}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/imu}"/>
@@ -243,6 +244,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/printf}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/tms570}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/comms}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/gpio}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/magnetorquer}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/imu}"/>

@@ -64,10 +64,9 @@ void edgeNotification(hetBASE_t* hetREG, uint32 edge) {
     /* Edge notification example
      * 	- see examples/het_notification_example.c
      */
-    if ((hetREG == (hetBASE_t*)COMMS_INT_REG) && (edge == COMMS_INT_PIN)) {
-        // Received an Interrupt from COMMS
-        gpio_irq_t irq_info = {.port = COMMS_INT_PORT, .pin = COMMS_INT_PIN};
-        service_gpio_irq(irq_info);
+    if ((hetREG == COMMS_INT_REG) && (edge == COMMS_INT_EDGE)) {
+        // Notify Comms service task to read message from SPI
+        notify_comms_irq();
     }
 }
 

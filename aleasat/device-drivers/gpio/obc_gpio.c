@@ -37,7 +37,6 @@
 #include "obc_featuredefs.h"
 #include "obc_task_info.h"
 #include "obc_watchdog.h"
-#include "obc_comms.h"
 #include "tms_can.h"
 
 #if GPIO_EXPANDER_EN == 1
@@ -109,7 +108,6 @@ void gpio_init_irq(void) {
     gioEnableNotification(OBC_EXPAND_IRQ_N_PORT, OBC_EXPAND_IRQ_N_PIN);
 #endif
     /* MODIFY HERE: add further interrupt enable calls, if required */
-    edgeEnableNotification(COMMS_INT_REG, COMMS_INT_PIN);
 }
 
 /**
@@ -317,15 +315,6 @@ static void vGPIOServiceTask(void* pvParameters) {
             /* MODIFY HERE: handle other pins - check the port and pin and call appropriate
              * functions. Keep in mind the priority of this task. */
             // Your code here
-            if ((irq_info.port == COMMS_INT_PORT) && (irq_info.pin == COMMS_INT_PIN)) {
-                mibspi_err_t err;
-                uint16_t data[128] = {0x0000};
-                if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MUTEX_TIMEOUT_MS))) {
-                    err = comms_mibspi_rx(data);
-                    xSemaphoreGive(xMibspiCommsMutexHandle);
-                }
-                log_str(DEBUG, GPIO_LOG, true, "Recv Comms GIO Interrupt rx: %d", err);
-            }
             /* END MODIFIABLE REGION */
 
         } else {

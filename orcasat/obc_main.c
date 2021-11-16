@@ -85,9 +85,9 @@ static void obc_main_task(void* pvParameters) {
     mibspi_init_hw(); // OBC is master on MIBSPI, so no interrupts will occur without the OBC
                           // having enough infrastructure created to process them.
     mibspi_create_infra();
-    comms_mibspi_create_infra();
+    comms_create_infra();
     tms_spi_create_infra();
-    comms_mibspi_init_irq();
+    comms_init_irq();
     hetInit();
     adc_init();
     tms_can_init();
@@ -115,6 +115,7 @@ static void obc_main_task(void* pvParameters) {
     // interrupt processing requires that these tasks can run.
     uart_start_task();
     gpio_start_task();
+    comms_interrupt_start_task();
     i2c_start_task();
 
     // Start the GPIO blinky task. This is a useful indicator because if anything is really wrong

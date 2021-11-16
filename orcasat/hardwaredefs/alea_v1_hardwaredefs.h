@@ -226,6 +226,7 @@
 #define COMMS_CS_PORT        gioPORTA
 #define COMMS_CS_PIN         5
 #define COMMS_TRANSFER_GROUP 0
+#define COMMS_TG_SIZE_WORDS  128 // one word is 16 bits
 #define COMMS_DATA_FORMAT    0
 
 #define COMMS_RST_PORT CAN_PORT(canREG1)
@@ -237,6 +238,7 @@
 #define COMMS_INT_REG  hetREG1
 #define COMMS_INT_PORT hetPORT1
 #define COMMS_INT_PIN  31
+#define COMMS_INT_EDGE 0
 
 #define COMMS_PWR_5V0_FLT_PORT EXP_PORT(GPIO_EXP_PORT_0)
 #define COMMS_PWR_5V0_FLT_PIN  1

@@ -116,7 +116,7 @@ mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, 
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout) {
-    uint16_t empty_data[16] = {0x0000};
+    static uint16_t empty_data[128] = {0x0000};
     uint16_t* data_ptr = empty_data;
     // Transmit empty data, set the clock and slave select to allow the
     // slave to simultaneously send data.
