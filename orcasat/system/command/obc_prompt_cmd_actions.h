@@ -20,6 +20,7 @@ void cmd_get_sequence_num(uint32_t arg_len, void* arg);
 void cmd_last_response(uint32_t arg_len, void* arg);
 void cmd_temp_reset(uint32_t arg_len, void* arg);
 void cmd_expander_reset(uint32_t arg_len, void* arg);
+void cmd_i2c_reset(uint32_t arg_len, void* arg);
 
 // Time-related commands
 void cmd_get_time(uint32_t arg_len, void* arg);
@@ -63,11 +64,6 @@ void cmd_get_temperature(uint32_t arg_len, void* arg);
 void cmd_telem_obc_slow(uint32_t arg_len, void* arg);
 void cmd_telem_obc_fast(uint32_t arg_len, void* arg);
 void cmd_telem_eps_slow(uint32_t arg_len, void* arg);
-
-// I2C Commands
-void cmd_i2c_scan(uint32_t arg_len, void* arg);
-void cmd_i2c_read(uint32_t arg_len, void* arg);
-void cmd_i2c_write(uint32_t arg_len, void* arg);
 
 // Periodic Actions
 void cmd_get_period(uint32_t arg_len, void* arg);

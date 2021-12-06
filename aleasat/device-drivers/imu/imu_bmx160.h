@@ -17,9 +17,6 @@
 #include "obc_gpio.h"
 #include "obc_featuredefs.h"
 
-//FreeRTOS
-#include "i2c_freertos.h"
-
 //HAL
 #include "sys_common.h"
 

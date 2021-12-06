@@ -8,29 +8,19 @@
 #include "temp_stts75.h"
 #include "FreeRTOS.h"
 #include "rtos_semphr.h"
-#include "i2c_freertos.h"
-#include "obc_i2c.h"
+#include "tms_i2c.h"
 #include "logger.h"
 #include "obc_task_info.h"
 #include "obc_hardwaredefs.h"
 
-#define TEMP_SENSOR_TIMEOUT_MS 500
+/**
+ * @brief Maximum time to wait to acquire the I2C mutex in milliseconds
+ */
+#define I2C_MUTEX_TIMEOUT_MS 500
 
 static temp_err_t stts75_write_reg(uint8_t reg, uint8_t* data, uint8_t len);
-static temp_err_t stts75_issue_i2c_submission(const i2c_command_t* command);
 static int16_t convert_temp_bytes_to_c(uint8_t* temp_bytes);
 static uint8_t* convert_temp_c_to_bytes(int16_t temp_deg_c);
-
-/**
- * @brief Pings STT75 and checks for response.
- * CAUTION!! Function does not use FreeRTOS i2c, so use is considered less reliable
- *
- * @return I2C_SUCCESS if STSS75 replied, error otherwise (error comes from obc_i2c)
- */
-
-i2c_err_t stts75_ping(void) {
-    return i2c_ping_device(OBC_TEMP_ADDR);
-}
 
 /**
  * @brief Reads temperature from the temp sensor
@@ -280,8 +270,12 @@ temp_err_t stts75_overtemp_set(int16_t overtemp_deg_c) {
  */
 
 temp_err_t stts75_read_reg(uint8_t reg, uint8_t* data_rcv, uint8_t len) {
-    i2c_command_t command = {reg, TEMP_SENSOR_RECEIVE_QUEUE_ID, OBC_TEMP_ADDR, READ_DATA, len, data_rcv};
-    return stts75_issue_i2c_submission(&command);
+    i2c_err_t status = tms_i2c_read(OBC_TEMP_ADDR, 1, &reg, len, data_rcv, I2C_MUTEX_TIMEOUT_MS);
+    if (status != I2C_SUCCESS) {
+        log_str(ERROR, TEMP_LOG, true, "I2C read failure: %d", status);
+        return TEMP_I2C_ERR;
+    }
+    return TEMP_SUCCESS;
 }
 
 /**
@@ -295,30 +289,9 @@ temp_err_t stts75_read_reg(uint8_t reg, uint8_t* data_rcv, uint8_t len) {
  */
 
 static temp_err_t stts75_write_reg(uint8_t reg, uint8_t* data, uint8_t len) {
-    i2c_command_t command = {reg, TEMP_SENSOR_RECEIVE_QUEUE_ID, OBC_TEMP_ADDR, WRITE_DATA, len, data};
-    return stts75_issue_i2c_submission(&command);
-}
-
-/*
- * Issue I2C Submission for temp sensor (modelled after gpio_expander method)
- */
-/**
- * @brief Issue an I2C submission for the temp sensor
- *
- * @param command: the command to issue to the I2C task
- * @return TEMP_SUCCESS if successful, error code otherwise
- */
-
-static temp_err_t stts75_issue_i2c_submission(const i2c_command_t* command) {
-    result_t result = I2C_SUCCESS;
-
-    send_command_to_i2c_worker(command, I2C_WORKER_DEFAULT_PRIORITY);
-    if (xQueueReceive(temp_sensor_rx_q, (void*)&result, pdMS_TO_TICKS(TEMP_SENSOR_TIMEOUT_MS)) == pdFALSE) {
-        log_str(ERROR, TEMP_LOG, true, "I2C queue rx timeout");
-        return TEMP_I2C_ERR;
-    }
-    if (result != I2C_SUCCESS) {
-        log_str(ERROR, TEMP_LOG, true, "I2C failure: %d", result);
+    i2c_err_t status = tms_i2c_write(OBC_TEMP_ADDR, 1, &reg, len, data, I2C_MUTEX_TIMEOUT_MS);
+    if (status != I2C_SUCCESS) {
+        log_str(ERROR, TEMP_LOG, true, "I2C write failure: %d", status);
         return TEMP_I2C_ERR;
     }
     return TEMP_SUCCESS;

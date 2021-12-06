@@ -72,8 +72,6 @@ typedef enum {
     one_shot              = 2,
 } stts75_mode_t;
 
-i2c_err_t stts75_ping(void);
-
 temp_err_t stts75_temp_get(int16_t* val);
 temp_err_t stts75_mode_get(stts75_mode_t* val);
 temp_err_t stts75_mode_set(stts75_mode_t val);

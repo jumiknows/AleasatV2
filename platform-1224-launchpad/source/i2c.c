@@ -89,7 +89,7 @@ void i2cInit(void)
                    | (uint32)((uint32)1U <<10U)      /* Master/Slave mode                 */
                    | (uint32)((uint32)I2C_TRANSMITTER)     /* Transmitter/receiver              */
                    | (uint32)((uint32)I2C_7BIT_AMODE)      /* xpanded address                   */
-                   | (uint32)((uint32)1U << 7U)      /* repeat mode                       */
+                   | (uint32)((uint32)0U << 7U)      /* repeat mode                       */
                    | (uint32)((uint32)0U << 6U)     /* digital loop back                  */
                    | (uint32)((uint32)0U << 4U)     /* start byte - master only          */
                    | (uint32)((uint32)0U << 3U)           /* free data format                  */

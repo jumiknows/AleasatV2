@@ -10,11 +10,15 @@
 
 //OBC
 #include "imu_bmx160.h"
-#include "obc_i2c.h"
+#include "tms_i2c.h"
 #include "obc_gpio.h"
 #include "logger.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
+
+// FreeRTOS
+#include "FreeRTOS.h"
+#include "rtos_task.h"
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -22,7 +26,11 @@
 
 #define BMX160_POLL_TIMEOUT 100
 #define DATA_READ_BUF_SIZE 20
-#define IMU_I2C_TIMEOUT_MS 500
+
+/**
+ * @brief Maximum time to wait to acquire the I2C mutex in milliseconds
+ */
+#define I2C_MUTEX_TIMEOUT_MS 500
 
 /******************************************************************************/
 /*                P U B L I C  G L O B A L  V A R I A B L E S                 */
@@ -461,32 +469,14 @@ static float32 mag_comp_z(bmx160_t* imu, uint16_t rhall, int16_t raw){
  *
  */
 static imu_error_t bmx160_write_reg(bmx160_t* imu, uint8_t reg, uint8_t num_bytes, uint8_t* buff){
-	i2c_err_t i2c_status = I2C_SUCCESS;
-	result_t result = I2C_SUCCESS;
-
 	if ((!imu) || (!buff)){
 		return IMU_ERROR;
 	}
 
-	const i2c_command_t command = {
-		reg,
-		IMU_RECEIVE_QUEUE_ID,
-		(imu->addr),
-		WRITE_DATA,
-		num_bytes,
-		buff
-	};
+	i2c_err_t status = tms_i2c_write(imu->addr, 1, &reg, num_bytes, buff, I2C_MUTEX_TIMEOUT_MS);
 
-	i2c_status = send_command_to_i2c_worker(&command, I2C_WORKER_DEFAULT_PRIORITY);
-	if (i2c_status != I2C_SUCCESS) {
-		return IMU_ERROR;
-	}
-	if (xQueueReceive(imu_rx_q, (void*)&result, pdMS_TO_TICKS(IMU_I2C_TIMEOUT_MS)) == pdFALSE) {
-		log_str(ERROR, ADCS_IMU_LOG, true, "I2C queue rx timeout");
-		return IMU_ERROR;
-	}
-	if (result != I2C_SUCCESS) {
-		log_str(ERROR, ADCS_IMU_LOG, true, "I2C failure: %d", result);
+	if (status != I2C_SUCCESS) {
+		log_str(ERROR, ADCS_IMU_LOG, true, "I2C write failure: %d", status);
 		return IMU_ERROR;
 	}
 	return IMU_SUCCESS;
@@ -502,39 +492,17 @@ static imu_error_t bmx160_write_reg(bmx160_t* imu, uint8_t reg, uint8_t num_byte
  * @param[out] uint8_t *buff: pointer to read data buffer
  */
 static imu_error_t bmx160_read_reg(bmx160_t* imu, uint8_t reg, uint8_t num_bytes, uint8_t* buff){
-	i2c_err_t i2c_status = I2C_SUCCESS;
-		result_t result = I2C_SUCCESS;
-
 	if ((!imu) || (!buff)){
 		return IMU_ERROR;
 	}
 
-	i2c_command_t command = {
-	reg,
-	IMU_RECEIVE_QUEUE_ID,
-	(imu->addr),
-	READ_DATA,
-	num_bytes,
-	buff
-};
+	i2c_err_t status = tms_i2c_read(imu->addr, 1, &reg, num_bytes, buff, I2C_MUTEX_TIMEOUT_MS);
 
-	i2c_status = send_command_to_i2c_worker(&command, I2C_WORKER_DEFAULT_PRIORITY);
-
-	if (i2c_status != I2C_SUCCESS) {
-		log_str(ERROR, ADCS_IMU_LOG, true, "I2C failure: %d", i2c_status);
-	return IMU_ERROR;
-}
-	if (xQueueReceive(imu_rx_q, (void*)&result, pdMS_TO_TICKS(IMU_I2C_TIMEOUT_MS )) == pdFALSE) {
-	log_str(ERROR, ADCS_IMU_LOG, true, "I2C queue rx timeout");
+	if (status != I2C_SUCCESS) {
+		log_str(ERROR, ADCS_IMU_LOG, true, "I2C read failure: %d", status);
 		return IMU_ERROR;
 	}
-	if (result != I2C_SUCCESS) {
-		log_str(ERROR, ADCS_IMU_LOG, true, "I2C failure: %d", result);
-		return IMU_ERROR;
-	}
-
 	return IMU_SUCCESS;
-
 }
 
 /**

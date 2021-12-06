@@ -8,7 +8,7 @@
 #include "obc_temperature.h"
 #include "sys_common.h"
 #include "temp_stts75.h"
-#include "obc_i2c.h"
+#include "tms_i2c.h"
 #include "logger.h"
 #include "gio.h"
 #include "obc_rtos.h"
@@ -38,17 +38,6 @@ temp_err_t read_temp(int16_t* temp) {
 void self_test_temperature(void) {
 #ifdef PLATFORM_LAUNCHPAD_1224
     log_str(ERROR, TEMP_LOG, true, "Mocked temp sensor check passed.");
-#endif /* PLATFORM_LAUNCHPAD_1224 */
-}
-
-/**
- * @brief Test ping function to check if temperature sensor responds
- *
- * @return I2C module status: I2C_SUCCESS if device replied, error code otherwise.
- */
-i2c_err_t obc_temp_ping(void) {
-#ifdef PLATFORM_LAUNCHPAD_1224
-    return I2C_SUCCESS;
 #endif /* PLATFORM_LAUNCHPAD_1224 */
 }
 

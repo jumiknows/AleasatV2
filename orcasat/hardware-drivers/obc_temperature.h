@@ -13,7 +13,6 @@
 
 temp_err_t read_temp(int16_t* temp);
 void self_test_temperature(void);
-int8_t obc_temp_ping(void);
 void reset_temp(void);
 
 #endif /* OBC_TEMP_H_ */

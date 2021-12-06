@@ -11,17 +11,15 @@
 #include "gpio_pcal6416a_defs.h"
 
 // OBC
-#include "obc_gpio_err.h"
-#include "i2c_freertos.h"
-#include "obc_task_info.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
-
-// Logging
+#include "obc_gpio_err.h"
+#include "tms_i2c.h"
 #include "logger.h"
 
 // FreeRTOS
 #include "FreeRTOS.h"
+#include "rtos_task.h"
 
 // HAL
 #include "gio.h"
@@ -55,9 +53,9 @@
 #define DIRECTION_INPUT  1
 
 /**
- * @brief Timeout for I2C transactions before errors will be raised and transactions abandoned.
+ * @brief Maximum time to wait to acquire the I2C mutex in milliseconds
  */
-#define I2C_TIMEOUT_MS 500
+#define I2C_MUTEX_TIMEOUT_MS 500
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
@@ -168,7 +166,6 @@ static gpio_err_t configure_pull_regs(pcal6416a_port_t port, uint8_t pin, pcal64
 static gpio_err_t configure_bit(pcal6416a_reg_t* reg, uint8_t pin, bool val);
 static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg);
 static gpio_err_t i2c_read_reg(pcal6416a_reg_t* reg, uint8_t* rx_data);
-static gpio_err_t issue_i2c_submission(const i2c_command_t* command);
 static bool register_mismatch(pcal6416a_reg_t* predicted, uint8_t actual);
 
 /******************************************************************************/
@@ -515,8 +512,12 @@ static gpio_err_t configure_pull_regs(pcal6416a_port_t port, uint8_t pin, pcal64
  * error when reading from the expander over I2C
  */
 static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg) {
-    i2c_command_t command = {reg->addr, EXPANDER_RECEIVE_QUEUE_ID, EXPANDER_ADDR, WRITE_DATA, 1, &reg->val};
-    return issue_i2c_submission(&command);
+    i2c_err_t status = tms_i2c_write(EXPANDER_ADDR, 1, &reg->addr, 1, &reg->val, I2C_MUTEX_TIMEOUT_MS);
+    if (status != I2C_SUCCESS) {
+        log_str(ERROR, GPIO_EXPAND_LOG, true, "I2C write failure: %d", status);
+        return GPIO_I2C_ERR;
+    }
+    return GPIO_SUCCESS;
 }
 
 /**
@@ -529,35 +530,11 @@ static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg) {
  * reading from the expander over I2C
  */
 static gpio_err_t i2c_read_reg(pcal6416a_reg_t* reg, uint8_t* rx_data) {
-    i2c_command_t command = {reg->addr, EXPANDER_RECEIVE_QUEUE_ID, EXPANDER_ADDR, READ_DATA, 1, rx_data};
-    return issue_i2c_submission(&command);
-}
-
-/**
- * @brief Issue a read/write command to the I2C FreeRTOS subsystem that will handle the execution of
- * the command.
- * 
- * @param[in] command the read/write command to issue.
- * @return GPIO_SUCCESS if the i2c subsystem executed the command without error, or GPIO_FAILURE
- * indicating an IO error when reading from the expander over I2C
- */
-static gpio_err_t issue_i2c_submission(const i2c_command_t* command) {
-    result_t result = I2C_SUCCESS;
-
-    if (send_command_to_i2c_worker(command, I2C_WORKER_DEFAULT_PRIORITY) != I2C_SUCCESS) {
+    i2c_err_t status = tms_i2c_read(EXPANDER_ADDR, 1, &reg->addr, 1, rx_data, I2C_MUTEX_TIMEOUT_MS);
+    if (status != I2C_SUCCESS) {
+        log_str(ERROR, GPIO_EXPAND_LOG, true, "I2C read failure: %d", status);
         return GPIO_I2C_ERR;
     }
-
-    if (xQueueReceive(expander_rx_q, (void*)&result, pdMS_TO_TICKS(I2C_TIMEOUT_MS)) == pdFALSE) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "I2C queue rx timeout");
-        return GPIO_I2C_ERR;
-    }
-
-    if (result != I2C_SUCCESS) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "I2C failure: %d", result);
-        return GPIO_I2C_ERR;
-    }
-
     return GPIO_SUCCESS;
 }
 

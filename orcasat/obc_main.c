@@ -29,7 +29,6 @@
 #include "blinky.h"
 #include "unit_tests.h"
 #include "logger.h"
-#include "i2c_freertos.h"
 #include "scheduler.h"
 #include "filesystem.h"
 #include "orca_telem_logger.h"
@@ -40,6 +39,7 @@
 #include "obc_comms.h"
 #include "tms_can.h"
 #include "tms_spi.h"
+#include "tms_i2c.h"
 
 // Private Functions
 static void obc_main_task(void* pvParameters);
@@ -61,7 +61,7 @@ static void obc_main_task(void* pvParameters) {
     // None of this code relies on other application features.
     wd_create_infra();
     uart_create_infra();
-    i2c_create_infra();
+    tms_i2c_create_infra();
     gpio_create_infra();
     rtc_create_infra();
     scheduler_create_infra();
@@ -79,8 +79,7 @@ static void obc_main_task(void* pvParameters) {
     // interrupts have been created. Hardware features where interrupts are enabled during
     // init are tagged with "_irq" in the init function name.
     uart_init_hw();
-    i2c_init_irq_hw(); // OBC is master on I2C, so it is okay that we enable interrupts in this
-                       // function despite not having started the I2C task yet.
+    tms_i2c_init();
     gpio_init_hw();
     mibspi_init_hw(); // OBC is master on MIBSPI, so no interrupts will occur without the OBC
                           // having enough infrastructure created to process them.
@@ -116,7 +115,6 @@ static void obc_main_task(void* pvParameters) {
     uart_start_task();
     gpio_start_task();
     comms_interrupt_start_task();
-    i2c_start_task();
 
     // Start the GPIO blinky task. This is a useful indicator because if anything is really wrong
     // with startup, it might stop blinking.

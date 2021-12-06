@@ -182,7 +182,7 @@ typedef struct i2c_config_reg
                                  | (uint32)((uint32)1U <<10U) \
                                  | (uint32)((uint32)I2C_TRANSMITTER) \
                                  | (uint32)((uint32)I2C_7BIT_AMODE) \
-                                 | (uint32)((uint32)1U << 7U) \
+                                 | (uint32)((uint32)0U << 7U) \
                                  | (uint32)((uint32)0U) \
                                  | (uint32)((uint32)I2C_8_BIT) \
 								 | (uint32)I2C_RESET_OUT)

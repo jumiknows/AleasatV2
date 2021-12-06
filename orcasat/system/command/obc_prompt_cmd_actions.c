@@ -29,6 +29,7 @@
 #include "low_power.h"
 #include "obc_utils.h"
 #include "obc_temperature.h"
+#include "tms_i2c.h"
 #include "telem_obc.h"
 #if !defined(PLATFORM_ALEA_V1)
 #include "telem_eps.h"
@@ -36,7 +37,6 @@
 #include "obc_cmd.h"
 #include "obc_rtos.h"
 #include "obc_task_info.h"
-#include "i2c_freertos.h"
 #include "printf.h"
 #include "obc_gpio.h"
 #include "nvct.h"
@@ -170,6 +170,18 @@ void cmd_temp_reset(uint32_t arg_len, void* arg) {
 void cmd_expander_reset(uint32_t arg_len, void* arg) {
     gpio_expander_reset();
     prompt_cmd_response(INFO, PRINT_GENERAL, false, "Reset GPIO expander");
+}
+
+/**
+ * @brief Reset I2C bus
+ */
+void cmd_i2c_reset(uint32_t arg_len, void* arg) {
+    const i2c_err_t err = tms_i2c_reset(0, 500); // 0 retires, 500 ms mutex timeout
+    if (err == I2C_SUCCESS) {
+        prompt_cmd_response(INFO, I2C_LOG, false, "I2C bus reset");
+    } else {
+        prompt_cmd_response(INFO, I2C_LOG, false, "I2C reset failed: %d", err);
+    }
 }
 
 // ------------------------ TIME PROMPT COMMAND IMPLEMENTATION -----------------------
@@ -549,96 +561,6 @@ void cmd_telem_eps_slow(uint32_t arg_len, void* arg) {
     }
 }
 #endif // !defined(PLATFORM_ALEA_V1)
-
-/**
- * @brief Scans the I2C bus and prints the devices found on the bus
- *            Arg 0 - 'v' for verbose mode
- */
-void cmd_i2c_scan(uint32_t arg_len, void* arg) {
-    uint8_t i;
-    i2c_err_t status;
-    bool verbose = false;
-    i2c_command_t command = {0, DEBUG_CMD_RECEIVE_QUEUE_ID, 0, SCAN, 0, NULL};
-    if(strcmp((const char*)arg, "v") == 0) {
-        verbose = true;
-    }
-    log_str(INFO, I2C_LOG, false, "starting i2cscan\n");
-    // 0x00 is a reserved address, start at 0x01
-    for(i=1; i < 127; i++) {
-        command.destination = i;
-        send_command_to_i2c_worker(&command, I2C_WORKER_DEFAULT_PRIORITY);
-        xQueueReceive(debug_cmd_rx_q, (void*)&status, portMAX_DELAY);
-        if(verbose) {
-            log_str(INFO, I2C_LOG, false, "Scanned %02X, result: %d\n", i, status);
-        }
-        if(status == I2C_SUCCESS) {
-            log_str(INFO, I2C_LOG, false, "Device detected at %02X\n", i);
-        }
-    }
-    log_str(INFO, I2C_LOG, false, "finished i2cscan\n");
-}
-
-/**
- * @brief Read a value from an i2c device
- *            Arg 0 - 'XX' address of device to read from as two character hex
- *            Arg 1 - 'XX' address of register to read from as two character hex
- *
- */
-void cmd_i2c_read(uint32_t arg_len, void* arg) {
-    uint8_t dev_addr, reg_addr;
-    uint8_t buffer[1] = {0};
-    i2c_err_t status = I2C_QUEUE_FULL;
-    i2c_command_t command = {0, DEBUG_CMD_RECEIVE_QUEUE_ID, 0, READ_DATA, 1, buffer};
-    cmd_argument_t* args = (cmd_argument_t*)arg;
-    if (num_args(arg_len) != 2) {
-        log_str(DEBUG, I2C_LOG, false, "Usage: i2c_read ADDR REG\n");
-        return;
-    }
-    dev_addr = strtoul((const char*)args[0], NULL, 16);
-    reg_addr = strtoul((const char*)args[1], NULL, 16);
-    command.destination = dev_addr;
-    command.cmd = reg_addr;
-	log_str(DEBUG, I2C_LOG, false, "i2c_read %x %x\n", dev_addr, reg_addr);
-	send_command_to_i2c_worker(&command, I2C_WORKER_DEFAULT_PRIORITY);
-	xQueueReceive(debug_cmd_rx_q, (void*)&status, portMAX_DELAY);
-	if(status == I2C_SUCCESS) {
-		log_str(DEBUG, I2C_LOG, false, "Resp: %x\n", buffer[0]);
-	} else {
-		log_str(DEBUG, I2C_LOG, false, "Err: %d\n", status);
-	}
-}
-
-/**
- * @brief Write a value from an i2c device
- *            Arg 0 - 'XX' address of device to write to as two character hex
- *            Arg 1 - 'XX' address of register to write to as two character hex
- *            Arg 2 - 'XX' value to write as two character hex
- *
- */
-void cmd_i2c_write(uint32_t arg_len, void* arg) {
-    uint8_t dev_addr, reg_addr;
-    uint8_t buffer[1] = {0};
-    i2c_err_t status = I2C_QUEUE_FULL;
-    i2c_command_t command = {0, DEBUG_CMD_RECEIVE_QUEUE_ID, 0, WRITE_DATA, 1, buffer};
-    cmd_argument_t* args = (cmd_argument_t*)arg;
-    if (num_args(arg_len) != 3) {
-        log_str(DEBUG, I2C_LOG, false, "Usage: i2c_write ADDR REG VAL\n");
-        return;
-    }
-    dev_addr = strtoul((const char*)args[0], NULL, 16);
-    reg_addr = strtoul((const char*)args[1], NULL, 16);
-    buffer[0] = strtoul((const char*)args[2], NULL, 16);
-    command.destination = dev_addr;
-    command.cmd = reg_addr;
-	log_str(DEBUG, I2C_LOG, false, "i2c_write %X %X %X\n", dev_addr, reg_addr, buffer[0]);
-	send_command_to_i2c_worker(&command, I2C_WORKER_DEFAULT_PRIORITY);
-	xQueueReceive(debug_cmd_rx_q, (void*)&status, portMAX_DELAY);
-	if(status == I2C_SUCCESS) {
-		log_str(DEBUG, I2C_LOG, false, "Success\n");
-	} else {
-		log_str(DEBUG, I2C_LOG, false, "Err: %d\n", status);
-	}
-}
 
 // ---------------------------- Periodic Action -----------------------
 
