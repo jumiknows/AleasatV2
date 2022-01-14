@@ -28,6 +28,7 @@
 // OBC
 #include "obc_gpio.h"
 #include "obc_featuredefs.h"
+#include "tms_can.h"
 
 // HAL
 #include "system.h"
@@ -212,5 +213,24 @@
 */
 #define IMU_1_EN_PIN 8
 #define IMU_1_EN_PORT GIO_PORT(hetPORT1)
+
+/**
+ * @brief Solar panel gyro SPI
+ *
+*/
+#define PANEL0_CS_PORT GIO_PORT(hetPORT1)
+#define PANEL1_CS_PORT GIO_PORT(hetPORT1)
+#define PANEL2_CS_PORT GIO_PORT(gioPORTB)
+#define PANEL3_CS_PORT CAN_PORT(canREG2)
+
+#define PANEL0_CS_PIN 19
+#define PANEL1_CS_PIN 24
+#define PANEL2_CS_PIN 2
+#define PANEL3_CS_PIN CAN_PIN_RX //CAN_PIN_RX
+
+#define PANEL0_SPI_PORT spiREG4
+#define PANEL1_SPI_PORT spiREG4
+#define PANEL2_SPI_PORT spiREG4
+#define PANEL3_SPI_PORT spiREG4
 
 #endif /* LAUNCHPAD_1224_HARDWAREDEFS_H_ */

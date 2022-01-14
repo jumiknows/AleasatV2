@@ -126,7 +126,7 @@ void canInit(void)
                    | (uint32)((uint32)0U << 1U );
                    
     canREG2->RIOC =  (uint32)((uint32)1U  << 18U )    
-                   | (uint32)((uint32)1U  << 17U )  
+                   | (uint32)((uint32)0U  << 17U )  
                    | (uint32)((uint32)0U  << 16U )   
                    | (uint32)((uint32)0U  << 3U )  
                    | (uint32)((uint32)1U  << 2U )

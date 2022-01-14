@@ -119,6 +119,7 @@ const cmd_entry command_table[] = {{"get_heap", &cmd_get_heap},
                                    {"magnetorquer_test_init", &cmd_test_mag_init},
                                    {"imu_test", &cmd_imu_test},
                                    {"can_gpio_test", &cmd_test_can_gpio},
+                                   {"panel_gyro_test", &cmd_test_panel_gyro},
 #endif // SYSTEM_TESTS
                                    {"reset_temp", &cmd_temp_reset},
                                    {"reset_expander", &cmd_expander_reset},

@@ -30,6 +30,7 @@ void cmd_test_comms_stress1(uint32_t arg_len, void* arg);
 void cmd_test_mag(uint32_t arg_len, void* arg);
 void cmd_test_mag_all(uint32_t arg_len, void* arg);
 void cmd_test_mag_init(uint32_t arg_len, void* arg);
+void cmd_test_panel_gyro(uint32_t arg_len, void* arg);
 
 // IMU
 void cmd_imu_test(uint32_t arg_len, void* arg);

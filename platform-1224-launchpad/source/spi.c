@@ -137,7 +137,7 @@ void spiInit(void)
                   | (uint32)((uint32)0U << 22U)  /* parity enable */
                   | (uint32)((uint32)0U << 21U)  /* wait on enable */
                   | (uint32)((uint32)0U << 20U)  /* shift direction */
-                  | (uint32)((uint32)0U << 17U)  /* clock polarity */
+                  | (uint32)((uint32)1U << 17U)  /* clock polarity */
                   | (uint32)((uint32)0U << 16U)  /* clock phase */
                   | (uint32)((uint32)47U << 8U) /* baudrate prescale */
                   | (uint32)((uint32)16U << 0U);  /* data word length */
@@ -176,10 +176,10 @@ void spiInit(void)
                     | (uint32)((uint32)0U << 11U); /* SOMI */
 
     /** - SPI4 Port direction */
-    spiREG4->PC1  =   (uint32)((uint32)1U << 0U)  /* SCS[0] */
+    spiREG4->PC1  =   (uint32)((uint32)0U << 0U)  /* SCS[0] */
                     | (uint32)((uint32)0U << 8U)  /* ENA */
-                    | (uint32)((uint32)1U << 9U)  /* CLK */
-                    | (uint32)((uint32)1U << 10U)  /* SIMO */
+                    | (uint32)((uint32)0U << 9U)  /* CLK */
+                    | (uint32)((uint32)0U << 10U)  /* SIMO */
                     | (uint32)((uint32)0U << 11U); /* SOMI */
 
     /** - SPI4 Port open drain enable */
@@ -194,18 +194,18 @@ void spiInit(void)
                     | (uint32)((uint32)1U << 8U)  /* ENA */
                     | (uint32)((uint32)1U << 9U)  /* CLK */
                     | (uint32)((uint32)1U << 10U)  /* SIMO */
-                    | (uint32)((uint32)1U << 11U); /* SOMI */
+                    | (uint32)((uint32)0U << 11U); /* SOMI */
 
     /** - SPI4 Port pullup / pulldown enable*/
-    spiREG4->PC7  =   (uint32)((uint32)0U << 0U)  /* SCS[0] */
-                    | (uint32)((uint32)0U << 8U)  /* ENA */
-                    | (uint32)((uint32)0U << 9U)  /* CLK */
-                    | (uint32)((uint32)0U << 10U)  /* SIMO */
+    spiREG4->PC7  =   (uint32)((uint32)1U << 0U)  /* SCS[0] */
+                    | (uint32)((uint32)1U << 8U)  /* ENA */
+                    | (uint32)((uint32)1U << 9U)  /* CLK */
+                    | (uint32)((uint32)1U << 10U)  /* SIMO */
                     | (uint32)((uint32)0U << 11U); /* SOMI */
 
     /* SPI4 set all pins to functional */
-    spiREG4->PC0  =   (uint32)((uint32)1U << 0U)  /* SCS[0] */
-                    | (uint32)((uint32)1U << 8U)  /* ENA */
+    spiREG4->PC0  =   (uint32)((uint32)0U << 0U)  /* SCS[0] */
+                    | (uint32)((uint32)0U << 8U)  /* ENA */
                     | (uint32)((uint32)1U << 9U)  /* CLK */
                     | (uint32)((uint32)1U << 10U)  /* SIMO */
                     | (uint32)((uint32)1U << 11U); /* SOMI */

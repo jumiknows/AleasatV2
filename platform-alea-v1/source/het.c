@@ -2096,12 +2096,12 @@ void hetInit(void)
                   | (uint32)((uint32)0U << 27U)
                   | (uint32)((uint32)1U << 26U)
                   | (uint32)((uint32)0U << 25U)
-                  | (uint32)((uint32)0U << 24U)
+                  | (uint32)((uint32)1U << 24U)
                   | (uint32)((uint32)0U << 23U)
                   | (uint32)((uint32)0U << 22U)
                   | (uint32)((uint32)0U << 21U)
                   | (uint32)((uint32)0U << 20U)
-                  | (uint32)((uint32)0U << 19U)
+                  | (uint32)((uint32)1U << 19U)
                   | (uint32)((uint32)0U << 18U)
                   | (uint32)((uint32)0U << 17U)
                   | (uint32)((uint32)0U << 16U)
@@ -2130,12 +2130,12 @@ void hetInit(void)
                  | (uint32) 0x00000000U
                  | (uint32) 0x04000000U
                  | (uint32) 0x00000000U
-                 | (uint32) 0x00000000U
+                 | (uint32) 0x01000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00400000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00100000U
-                 | (uint32) 0x00000000U
+                 | (uint32) 0x00080000U
                  | (uint32) 0x00040000U
                  | (uint32) 0x00020000U
                  | (uint32) 0x00010000U
@@ -2232,12 +2232,12 @@ void hetInit(void)
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
+                 | (uint32) 0x01000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
-                 | (uint32) 0x00000000U
-                 | (uint32) 0x00000000U
+                 | (uint32) 0x00080000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U

@@ -24,6 +24,7 @@
 #include "comms_cc1110.h"
 #include "obc_magnetorquer.h"
 #include "imu_bmx160.h"
+#include "ADIS16260_gyro.h"
 #include "obc_gpio.h"
 #include "tms_can.h"
 #include "obc_utils.h"
@@ -43,7 +44,7 @@
 /******************************************************************************/
 
 static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...);
-
+static void run_panel_gyro_test(ADIS16260_t* gyro);
 
 /* Test Functions -------------------------------------------------------------*/
 
@@ -371,6 +372,28 @@ void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
     obc_gpio_write(CAN_PORTS[port_idx], pin, value);
 }
 
+/**
+ * @brief Run brief sanity test on specified gyro and report value
+ * @param[in] arg_len Size of argument array (number of arguments * ARGUMENT_SIZE)
+ * @param[in] arg     Arguments (gyro number)
+ */
+void cmd_test_panel_gyro(uint32_t arg_len, void* arg){
+
+    static ADIS16260_t* const GYROS[] = {&panel_gyro_0, &panel_gyro_1, &panel_gyro_2, &panel_gyro_3};
+
+    uint32_t gyro_idx = cseq_to_num((char*)arg);
+    if (gyro_idx > 3)
+    {
+        prompt_cmd_response(INFO, ADCS_LOG, true, "ERROR Unknown Param");
+        return;
+    }
+
+    prompt_cmd_response(INFO, ADCS_LOG, true, "Gyro %d Selected", gyro_idx);
+
+    run_panel_gyro_test(GYROS[gyro_idx]);
+}
+
+
 /******************************************************************************/
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/
@@ -395,4 +418,100 @@ static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write
     orca_vsnprintf(string, MAX_PAYLOAD_SIZE + 1, format, va);
     va_end(va);
     log_str(lvl, id, write_to_file, "%s", string);
+}
+
+/**
+ * @brief Runs testing routine on given panel gyro
+ *
+ * @param[in] ADIS16260_t* gyro: Gyro device test target
+*/
+static void run_panel_gyro_test(ADIS16260_t* gyro) {
+
+    ADIS16260_error_t result = ADIS16260_SUCCESS;
+
+        ADIS16260_ID_t whoami = {0};
+        ADIS16260_gdata_t gyro_data = {0};
+        ADIS16260_tdata_t temp_data = {0};
+
+    do
+    {
+        /* Initialize gyro */
+        result = ADIS16260_init(gyro);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+
+        /* Get gyro device ID */
+        result = ADIS16260_whoami(gyro, &whoami);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "ID is %d ", whoami.serial_num);
+
+        /* Read gyro data */
+        result = ADIS16260_read_gyro(gyro, &gyro_data);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Computed rate %f", gyro_data.data);
+
+        /* Put gyro to sleep for 500ms*/
+        result = ADIS16260_set_sleep(gyro, 1);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Sleeping...");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        /* Read on-board temperature sensor*/
+        result = ADIS16260_read_temp(gyro, &temp_data);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Temp is %f", temp_data.data_temp);
+
+        /* Set internal filter */
+        result = ADIS16260_set_filter(gyro, ADIS16260_RANGE_160, ADIS16260_BW_330, 2);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Set filter to 330hz, 2 taps");
+
+        /* Read data with new filter setting */
+        result = ADIS16260_read_gyro(gyro, &gyro_data);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Rate is %f", gyro_data.data);
+
+        /* Set filter settings back to default */
+        result = ADIS16260_set_filter(gyro, ADIS16260_RANGE_320, ADIS16260_BW_50, 2);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Set filter to default");
+
+        /* Read gyro rate one last time*/
+        result = ADIS16260_read_gyro(gyro, &gyro_data);
+        if (result != ADIS16260_SUCCESS)
+        {
+            break;
+        }
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Rate is %f", gyro_data.data);
+
+    } while(0);
+
+    /* If there was an error anywhere, report this to console */
+    if (result != ADIS16260_SUCCESS)
+    {
+        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "ERROR -> %d <-", result);
+    }
 }

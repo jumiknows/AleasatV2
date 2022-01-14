@@ -808,7 +808,7 @@ typedef struct can_config_reg
                                  |(uint32)((uint32)1U  << 2U ) \
                                  |(uint32)((uint32)0U << 1U ))
 #define CAN2_RIOC_CONFIGVALUE    ((uint32)((uint32)1U  << 18U ) \
-                                 |(uint32)((uint32)1U  << 17U ) \
+                                 |(uint32)((uint32)0U  << 17U ) \
 								 |(uint32)((uint32)0U  << 16U )\
                                  |(uint32)((uint32)0U  << 3U ) \
                                  |(uint32)((uint32)1U  << 2U ) \
