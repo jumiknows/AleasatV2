@@ -38,8 +38,6 @@ scheduler_err_t scheduler_schedule_action_start_now(action_id_t* id, scheduler_s
 scheduler_err_t scheduler_schedule_action(action_id_t* id, scheduler_submission_source_t source, real_time_t start_at, uint32_t interval, scheduler_action_t action, uint8_t argument_size,
                                           void* argument);
 
-void scheduler_invoke_action(scheduler_action_t action, uint8_t argument_size, void* argument);
-
 scheduler_err_t scheduler_remove_action(action_id_t id);
 scheduler_err_t scheduler_get_period(action_id_t id, uint32_t* period);
 scheduler_err_t scheduler_set_period(action_id_t id, uint32_t period);

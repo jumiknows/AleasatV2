@@ -1,23 +1,32 @@
 /** @file obc_long_cmd_actions.c
  *  @brief OBC long command function implementations.
- *  @author ORCASat C&DH team
- *  @date 2020-07-06
  *
  *  TODO(ALEA-574): Store long commands and have a command to get them back.
  */
 
-#include <string.h>
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// OBC
+#include "obc_cmd.h"
 #include "obc_long_cmd_actions.h"
-#include "logger.h"
-#include "obc_rtos.h"
-#include "filesystem.h"
-#include "rtc_state.h"
-#include "scheduler.h"
 #include "obc_task_info.h"
 #include "obc_gps.h"
 #include "obc_temperature.h"
 #include "obc_utils.h"
-#include "obc_cmd.h"
+#include "obc_rtos.h"
+#include "logger.h"
+#include "filesystem.h"
+#include "rtc_state.h"
+#include "scheduler.h"
+
+// Standard Library
+#include <string.h>
+
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 // ------------------------ RTOS LONG COMMAND IMPLEMENTATION ------------------------
 
@@ -101,8 +110,10 @@ void cmd_print_sched(uint32_t arg_len, void* arg) {
 void cmd_gps_time(uint32_t arg_len, void* arg) {
     gps_time_t ts = {0};
     gps_req_err_t err;
+    char* args[1] = {0};
+    uint8_t num_args    = obc_cmd_read_str_arguments(arg, 1, args);
 
-    if (num_args(arg_len) == 1) {
+    if (num_args == 1) {
         const uint16_t acq_timeout = cseq_to_num((char*)arg);
         err                        = gps_req_time(acq_timeout, &ts);
     } else {
@@ -127,8 +138,10 @@ void cmd_gps_time(uint32_t arg_len, void* arg) {
 void cmd_gps_xyz(uint32_t arg_len, void* arg) {
     gps_ecef_t ec = {0};
     gps_req_err_t err;
+    char* args[1] = {0};
+    uint8_t num_args    = obc_cmd_read_str_arguments(arg, 1, args);
 
-    if (num_args(arg_len) == 1) {
+    if (num_args == 1) {
         const uint16_t acq_timeout = cseq_to_num((char*)arg);
         err                        = gps_req_xyz(acq_timeout, &ec);
     } else {
@@ -171,8 +184,9 @@ void cmd_gps_xyz(uint32_t arg_len, void* arg) {
  * Missing arguments will return an error
  */
 void cmd_gps_cmd(uint32_t arg_len, void* arg) {
-    const uint8_t arg_count = num_args(arg_len);
-    if (arg_count == 0) {
+    char* arguments[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint8_t num_args    = obc_cmd_read_str_arguments(arg, 10, arguments);
+    if (num_args == 0) {
         log_str(DEBUG, GPS_LOG, false, "Usage: gps_cmd [WORD_0 ..]");
         return;
     }
@@ -180,12 +194,11 @@ void cmd_gps_cmd(uint32_t arg_len, void* arg) {
     // Form the arguments into a valid OEM7X command string
     char req_msg[64]                  = {0};
     char resp_msg[GPS_RX_BUFFER_SIZE] = {0};
-    uint8_t i;
-    for (i = 0; i < arg_count; ++i) {
+    for (uint8_t i = 0; i < num_args; ++i) {
         if (i != 0) {
             strcat(req_msg, " ");
         }
-        strcat(req_msg, (char*)arg + (ARGUMENT_SIZE * i));
+        strcat(req_msg, arguments[i]);
     }
 
     // Send the command and receive the response string

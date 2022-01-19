@@ -12,12 +12,12 @@
 /**
  * @brief Command to update the time on various sets of RTCs.
  */
-void command_update_rtc_time(const cmd_argument_t* cmd);
+void command_update_rtc_time(char** arguments);
 
 /**
  * @brief Command to update the active RTCs (the ones that will be communicated with).
  */
-void command_update_active_rtc(const cmd_argument_t* cmd);
+void command_update_active_rtc(char** arguments);
 
 /**
  * For testing only, bring out extract_rtc() so that we can run unit tests on it.
