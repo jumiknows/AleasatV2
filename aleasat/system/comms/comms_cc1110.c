@@ -57,8 +57,7 @@ static TickType_t prev_comms_msg_time;
  *
  * @warning This function is not re-entrant
  *
- * @param[in] hwid destination HWID
- * @param[in] system system ID
+ * @param[in] dest_hwid destination HWID
  * @param[in] cmd_num command ID
  * @param[in] cmd_data data to send as part of command, or set to NULL for no data
  * @param[in] cmd_data_len length of cmd_data
@@ -67,8 +66,7 @@ static TickType_t prev_comms_msg_time;
  * @return value indicating if error occured or not
  */
 comms_err_t comms_send_cmd(
-    comms_hwid_t hwid,
-    uint8_t system,
+    hwid_t dest_hwid,
     uint8_t cmd_num,
     uint8_t* cmd_data,
     uint8_t cmd_data_len,
@@ -78,7 +76,7 @@ comms_err_t comms_send_cmd(
     mibspi_err_t mibspi_ret = MIBSPI_UNKNOWN_ERR;
     comms_err_t err = COMMS_UNKNOWN_ERR;
 
-    err = comms_build_buffer(hwid, system, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
+    err = comms_build_buffer(dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
     if (err != COMMS_SUCCESS) {
         log_str(ERROR, COMMS_LOG, false, "Comms send arg err %d", err);
         return err;
@@ -122,8 +120,7 @@ comms_err_t comms_send_cmd(
  *
  * @warning This function is not re-entrant
  *
- * @param[in] hwid destination HWID
- * @param[in] system system ID
+ * @param[in] dest_hwid destination HWID
  * @param[in] cmd_num command ID
  * @param[in] cmd_data data to send as part of command, or set to NULL for no data
  * @param[in] cmd_data_len length of cmd_data
@@ -131,8 +128,7 @@ comms_err_t comms_send_cmd(
  * @param[in] timeout_ms time in milliseconds to wait before timeout of Comms MIBSPI mutex
  */
 comms_err_t comms_send_recv_cmd(
-    comms_hwid_t hwid,
-    uint8_t system,
+    hwid_t dest_hwid,
     uint8_t cmd_num,
     uint8_t* cmd_data,
     uint8_t cmd_data_len,
@@ -144,7 +140,7 @@ comms_err_t comms_send_recv_cmd(
     comms_err_t err = COMMS_UNKNOWN_ERR;
     EventBits_t uxBits;
 
-    err = comms_build_buffer(hwid, system, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
+    err = comms_build_buffer(dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
     if (err != COMMS_SUCCESS) {
         log_str(ERROR, COMMS_LOG, false, "Comms sdrc arg err %d", err);
         return err;
@@ -153,7 +149,8 @@ comms_err_t comms_send_recv_cmd(
     // wait to give comms time to process previous message, if any
     vTaskDelayUntil(&prev_comms_msg_time, pdMS_TO_TICKS(COMMS_NEXT_SEND_DELAY_MS));
 
-    err = comms_set_response_waiter(comms_seqnum, recv_cmd);
+    // src_hwid to match for response is what we specified as the destination when sending original msg
+    err = comms_set_response_waiter(comms_seqnum, dest_hwid, recv_cmd);
     if (err != COMMS_SUCCESS) {
         log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 1 %d", err);
         return err;

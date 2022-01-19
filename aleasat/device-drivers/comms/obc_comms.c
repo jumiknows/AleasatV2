@@ -23,6 +23,9 @@
 #include "FreeRTOS.h"
 #include "rtos_task.h"
 
+// HAL
+#include "het.h"
+
 // Standard Library
 #include <stdint.h>
 #include <stdbool.h>
@@ -167,14 +170,16 @@ mibspi_err_t comms_mibspi_rx(uint16_t* rx_buffer) {
 /**
  * @brief Sets flag indicating Comms response waiter is active with given parameters
  *
- * @param[in] seqnum sequence number to match to be considered response
+ * @param[in] match_seqnum sequence number to match to be considered response
+ * @param[in] match_src_hwid src hwid to match to be considered response
  * @param[in] cmd_ptr preallocated comms_command_t struct to fill with response
  * @return COMMS_SUCCESS on success, COMMS_RESPONSE_MUTEX_TIMEOUT if taking mutex timed out
  */
-comms_err_t comms_set_response_waiter(uint16_t seqnum, comms_command_t* cmd_ptr) {
+comms_err_t comms_set_response_waiter(uint16_t match_seqnum, hwid_t match_src_hwid, comms_command_t* cmd_ptr) {
     if (xSemaphoreTake(xCommsResponseMutexHandle, pdMS_TO_TICKS(COMMS_RESPONSE_MUTEX_TIMEOUT_MS)) == pdTRUE) {
         comms_response_params.waiter_present = true;
-        comms_response_params.seqnum = seqnum;
+        comms_response_params.match_seqnum = match_seqnum;
+        comms_response_params.match_src_hwid = match_src_hwid;
         comms_response_params.cmd_ptr = cmd_ptr;
         xSemaphoreGive(xCommsResponseMutexHandle);
         return COMMS_SUCCESS;
@@ -193,7 +198,8 @@ comms_err_t comms_set_response_waiter(uint16_t seqnum, comms_command_t* cmd_ptr)
 comms_err_t comms_clear_response_waiter(void) {
     if (xSemaphoreTake(xCommsResponseMutexHandle, pdMS_TO_TICKS(COMMS_RESPONSE_MUTEX_TIMEOUT_MS)) == pdTRUE) {
         comms_response_params.waiter_present = false;
-        comms_response_params.seqnum = 0;
+        comms_response_params.match_seqnum = 0;
+        comms_response_params.match_src_hwid = 0;
         comms_response_params.cmd_ptr = NULL;
         xSemaphoreGive(xCommsResponseMutexHandle);
         return COMMS_SUCCESS;
@@ -215,7 +221,9 @@ comms_err_t comms_clear_response_waiter(void) {
  */
 void vCommsInterruptServiceTask(void* pvParameters) {
     static uint16_t data[128] = {0x0000};
+    static uint16_t reply[128] = {0x0000};
     static comms_command_t comms_cmd_buf = {0};
+    static comms_command_t comms_reply_buf = {0};
     task_id_t wd_task_id = WD_TASK_ID(pvParameters);
     EventBits_t uxBits;
     mibspi_err_t mibspi_ret = MIBSPI_UNKNOWN_ERR;
@@ -255,7 +263,8 @@ void vCommsInterruptServiceTask(void* pvParameters) {
             // Try to take mutex to access shared variables
             if (xSemaphoreTake(xCommsResponseMutexHandle, pdMS_TO_TICKS(COMMS_RESPONSE_MUTEX_TIMEOUT_MS)) == pdTRUE) {
                 if (comms_response_params.waiter_present == true) {
-                    if ((comms_cmd_buf.header.seqnum == comms_response_params.seqnum)) {
+                    if ((comms_cmd_buf.header.seqnum == comms_response_params.match_seqnum) &&
+                        (comms_cmd_buf.header.src_hwid == comms_response_params.match_src_hwid)) {
                         memcpy(comms_response_params.cmd_ptr, &comms_cmd_buf, sizeof(comms_cmd_buf));
                         xEventGroupSetBits(xCommsResponseEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_RECEIVER_BIT);
                         processed = true;
@@ -269,11 +278,68 @@ void vCommsInterruptServiceTask(void* pvParameters) {
             }
 
 
-            // if no receiver wants this msg or we couldn't take the mutex, pass it to general handler
-            if (processed == false) {
-                log_str(INFO, COMMS_LOG, false, "Comms task process %x", comms_cmd_buf.header.seqnum);
-                // TODO: handle cmds addressed to OBC
+            if (processed == true) {
+                break;
             }
+            // if no receiver wants this msg or we couldn't take the mutex, pass it to general handler
+
+            if (comms_cmd_buf.header.dest_hwid != obc_hwid) {
+                // drop all packets not for OBC, should never happen as Comms filters them all out already
+                // TODO: revisit
+                break;
+            }
+
+            log_str(INFO, COMMS_LOG, false, "Comms prcs %x %x %x", comms_cmd_buf.header.seqnum, comms_cmd_buf.header.src_hwid, comms_cmd_buf.header.command);
+
+            // TODO: refactor reply handling into separate file(s)
+            memset(reply, 0, sizeof(reply));
+            memset(&comms_reply_buf, 0, sizeof(comms_reply_buf));
+
+            comms_reply_buf.header.seqnum = comms_cmd_buf.header.seqnum;
+            comms_reply_buf.header.dest_hwid = comms_cmd_buf.header.src_hwid;
+            comms_reply_buf.header.src_hwid = obc_hwid;
+
+            // Comms control handler
+            if (comms_cmd_buf.header.src_hwid == comms_hwid) {
+                // special commands that only Comms can send
+                if (comms_cmd_buf.header.command == COMMS_BOOTLOADER_MSG_START) {
+                    // TODO: Do nothing for now
+                    break;
+                }
+                if (comms_cmd_buf.header.command == COMMS_RADIO_MSG_START) {
+                    // TODO: Do nothing for now
+                    break;
+                }
+                else {
+                    break;  // comms never expects a reply for any messages it sends
+                }
+            }
+
+            // basic handler for generic commands
+            if (comms_cmd_buf.header.command == COMMS_COMMON_MSG_ACK) {
+                comms_reply_buf.header.command = COMMS_COMMON_MSG_ACK;
+            }
+            else {
+                // anything not handled from above will receive nack in response
+                comms_reply_buf.header.command = COMMS_COMMON_MSG_NACK;
+            }
+
+            comms_err = comms_cmd_struct_to_buffer(&comms_reply_buf, reply);
+            if (comms_err != COMMS_SUCCESS) {
+                log_str(ERROR, COMMS_LOG, false, "Comms gen reply err");
+                break;
+            }
+
+            if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MIBSPI_MUTEX_TIMEOUT_MS)) == pdFALSE) {
+                log_str(ERROR, COMMS_LOG, false, "Comms sdrc mtx t-out");
+                break;
+            }
+            mibspi_ret = comms_mibspi_tx(reply);
+            xSemaphoreGive(xMibspiCommsMutexHandle);
+            if (mibspi_ret != MIBSPI_NO_ERR) {
+                log_str(ERROR, COMMS_LOG, false, "Comms spi tx err %d", mibspi_ret);
+            }
+
         } while (0);
     }
 }

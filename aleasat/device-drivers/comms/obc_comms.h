@@ -56,7 +56,8 @@
  */
 typedef struct comms_response_params_struct {
     bool waiter_present;
-    uint16_t seqnum;
+    uint16_t match_seqnum;
+    hwid_t match_src_hwid;
     comms_command_t* cmd_ptr;
 } comms_response_params_t;
 
@@ -85,7 +86,7 @@ void comms_interrupt_start_task(void);
 mibspi_err_t comms_mibspi_tx(uint16_t* tx_buffer);
 mibspi_err_t comms_mibspi_rx(uint16_t* rx_buffer);
 
-comms_err_t comms_set_response_waiter(uint16_t seqnum, comms_command_t* cmd_ptr);
+comms_err_t comms_set_response_waiter(uint16_t match_seqnum, hwid_t match_src_hwid, comms_command_t* cmd_ptr);
 comms_err_t comms_clear_response_waiter(void);
 
 #endif /* OBC_COMMS_H_ */

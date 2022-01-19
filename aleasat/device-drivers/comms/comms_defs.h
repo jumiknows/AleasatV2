@@ -17,6 +17,7 @@
 /*                               D E F I N E S                                */
 /******************************************************************************/
 
+#define COMMS_ESP_NUM_BYTES 2
 #define COMMS_ESP_START_BYTE_0 0x22           /** First start byte  */
 #define COMMS_ESP_START_BYTE_1 0x69           /** Second start byte  */
 
@@ -25,18 +26,16 @@
  * @ref https://drive.google.com/file/d/1Az8ncSEAZElHQlV8OGT50WNs_bD_RgJ_/view?USP=sharing
  * @ref https://gitlab.com/alea-2020/communications/comms-firmware-openlst-1/-/blob/dev2/open-lst/common/commands.h
  */
-#define COMMS_MAX_MSG_SIZE_BYTES    254
-#define COMMS_MIN_MSG_SIZE_BYTES    9  // ESP(2) + len(1) + hwid(2) + seqnum(2) + system(1) + cmd(1)
-#define COMMS_MSG_HEADER_SIZE_BYTES 3  // ESP(2) + len(1)
+#define COMMS_MAX_PKT_SIZE_BYTES    236
+#define COMMS_MIN_PKT_SIZE_BYTES    10   // ESP(2) + len(1) + seqnum(2) + dest_hwid(2) + src_hwid(2) + cmd(1)
+#define COMMS_PKT_START_NUM_BYTES    3    // ESP(2) + len(1)
 
-// hwid(2) + seqnum(2) + system(1) + cmd(1)
-#define COMMS_PKT_HEADER_SIZE_BYTES    (COMMS_MIN_MSG_SIZE_BYTES - COMMS_MSG_HEADER_SIZE_BYTES)
+#define COMMS_MSG_HEADER_SIZE_BYTES    (COMMS_MIN_PKT_SIZE_BYTES - COMMS_PKT_START_NUM_BYTES)
 
-#define COMMS_MAX_PKT_LEN_VAL    (COMMS_MAX_MSG_SIZE_BYTES - COMMS_MSG_HEADER_SIZE_BYTES)
-#define COMMS_MIN_PKT_LEN_VAL    (COMMS_MIN_MSG_SIZE_BYTES - COMMS_MSG_HEADER_SIZE_BYTES)
+#define COMMS_MAX_PKT_LEN_VAL    (COMMS_MAX_PKT_SIZE_BYTES - COMMS_PKT_START_NUM_BYTES)
+#define COMMS_MIN_PKT_LEN_VAL    (COMMS_MIN_PKT_SIZE_BYTES - COMMS_PKT_START_NUM_BYTES)
 
-// cmd data can be from 0 to 245 bytes
-#define COMMS_MAX_CMD_DATA_SIZE_BYTES    (COMMS_MAX_MSG_SIZE_BYTES - COMMS_MIN_MSG_SIZE_BYTES)
+#define COMMS_MAX_CMD_DATA_NUM_BYTES    (COMMS_MAX_PKT_SIZE_BYTES - COMMS_MIN_PKT_SIZE_BYTES)
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
@@ -76,7 +75,7 @@ typedef enum comms_err_type {
     /**
      * @brief OpenLST message ESP bytes incorrect
      */
-    COMMS_MSG_ESP_MISMATCH_ERR = -6,
+    COMMS_PKT_ESP_MISMATCH_ERR = -6,
 
     /**
      * @brief OpenLST packet length byte out of range
@@ -89,19 +88,20 @@ typedef enum comms_err_type {
     COMMS_UNKNOWN_ERR = -8
 } comms_err_t;
 
-typedef uint16_t comms_hwid_t;
+typedef uint16_t hwid_t;
 
 typedef struct comms_command_header_struct {
-    comms_hwid_t hwid;
     uint16_t seqnum;
-    uint8_t system;
+    hwid_t dest_hwid;
+    hwid_t src_hwid;
     uint8_t command;
 } comms_command_header_t;
 
+// TODO: pack struct so it can be copied to array
 typedef struct comms_command_struct {
     comms_command_header_t header;
-    uint8_t data[COMMS_MAX_CMD_DATA_SIZE_BYTES];
-    uint8_t data_len;  // number of bytes in data
+    uint8_t data[COMMS_MAX_CMD_DATA_NUM_BYTES];
+    uint8_t data_len;  // number of bytes in data, actual length byte is calculated when converting to array for sending
 } comms_command_t;
 
 
@@ -122,7 +122,8 @@ typedef enum {
     COMMS_BOOTLOADER_MSG_ERASE       = 0x0c,
     COMMS_BOOTLOADER_MSG_WRITE_PAGE  = 0x02,
     COMMS_BOOTLOADER_MSG_ACK         = 0x01,
-    COMMS_BOOTLOADER_MSG_NACK        = 0x0f
+    COMMS_BOOTLOADER_MSG_NACK        = 0x0f,
+    COMMS_BOOTLOADER_MSG_START       = 0x0e
 } comms_bootloader_msg_no_t;
 
 
@@ -137,6 +138,7 @@ typedef enum {
     COMMS_RADIO_MSG_GET_CALLSIGN = 0x19,
     COMMS_RADIO_MSG_SET_CALLSIGN = 0x1a,
     COMMS_RADIO_MSG_CALLSIGN     = 0x1b,
+    COMMS_RADIO_MSG_START        = 0x1e,
     COMMS_ALEA_RADIO_MSG_GET_RADIOTELEM     = 0x21,
     COMMS_ALEA_RADIO_MSG_RADIOTELEM         = 0x22,
     COMMS_ALEA_RADIO_MSG_SET_RADIOTELEM     = 0x23,
@@ -147,14 +149,14 @@ typedef enum {
 /*                       G L O B A L  V A R I A B L E S                       */
 /******************************************************************************/
 
-extern comms_hwid_t comms_hwid;
-extern uint8_t comms_system;
+extern hwid_t comms_hwid;
+extern hwid_t obc_hwid;
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void set_comms_hwid(comms_hwid_t hwid);
-void set_comms_system(uint8_t system);
+void set_comms_hwid(hwid_t hwid);
+void set_obc_hwid(hwid_t hwid);
 
 #endif /* COMMS_DEFS_H_ */

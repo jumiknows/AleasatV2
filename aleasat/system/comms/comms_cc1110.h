@@ -25,8 +25,7 @@
 /******************************************************************************/
 
 comms_err_t comms_send_cmd(
-    comms_hwid_t hwid,
-    uint8_t system,
+    hwid_t dest_hwid,
     uint8_t cmd_num,
     uint8_t* cmd_data,
     uint8_t cmd_data_len,
@@ -34,8 +33,7 @@ comms_err_t comms_send_cmd(
 );
 
 comms_err_t comms_send_recv_cmd(
-    comms_hwid_t hwid,
-    uint8_t system,
+    hwid_t dest_hwid,
     uint8_t cmd_num,
     uint8_t* cmd_data,
     uint8_t cmd_data_len,

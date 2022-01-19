@@ -79,7 +79,7 @@ void cmd_test_comms_tx_only(uint32_t arg_len, void* arg) {
     comms_err_t err;
     uint8_t arg_str_len = strlen(arg);
 
-    err = comms_send_cmd(comms_hwid, comms_system, COMMS_COMMON_MSG_ASCII, arg, arg_str_len, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+    err = comms_send_cmd(comms_hwid, COMMS_COMMON_MSG_ASCII, arg, arg_str_len, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
 
     prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "tx %d", err);
 }
@@ -93,7 +93,7 @@ void cmd_test_comms_tx_rx(uint32_t arg_len, void* arg) {
     comms_err_t err;
     comms_command_t resp = {0};
 
-    err = comms_send_recv_cmd(comms_hwid, comms_system, COMMS_RADIO_MSG_GET_TELEM, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+    err = comms_send_recv_cmd(comms_hwid, COMMS_RADIO_MSG_GET_TELEM, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
 
     prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "txrx %d resp %x", err, resp.header.command);
 }
@@ -112,7 +112,7 @@ void cmd_test_comms_stress1(uint32_t arg_len, void* arg) {
 
     for (i = 0; i < 1000; ++i) {
         memset(&resp, 0, sizeof(resp));
-        err = comms_send_recv_cmd(comms_hwid, comms_system, COMMS_COMMON_MSG_ACK, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+        err = comms_send_recv_cmd(comms_hwid, COMMS_COMMON_MSG_ACK, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
         if ((err != COMMS_SUCCESS) || (resp.header.command != COMMS_COMMON_MSG_ACK)) {
             num_fail++;
             if (num_fail >= 5) {
