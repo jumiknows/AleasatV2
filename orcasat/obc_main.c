@@ -5,7 +5,6 @@
  * @author Richard Arthurs
  * @date April 18, 2020
  */
-#include "obc_cmd.h"
 #include "obc_main.h"
 #include "FreeRTOS.h"
 #include "rtos_task.h"
@@ -26,6 +25,7 @@
 #include "obc_flash.h"
 #include "obc_watchdog.h"
 #include "obc_gpio.h"
+#include "obc_cmd.h"
 #include "blinky.h"
 #include "unit_tests.h"
 #include "logger.h"

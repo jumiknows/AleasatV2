@@ -6,11 +6,11 @@
  *      UART (serial port) API functions.
  *
  */
-#include "obc_cmd.h"
 #include <stdlib.h>
 #include <string.h>
 #include "sys_common.h"
 #include "obc_uart.h"
+#include "obc_cmd.h"
 #include "obc_hardwaredefs.h"
 #include "obc_watchdog.h"
 #include "printf.h"

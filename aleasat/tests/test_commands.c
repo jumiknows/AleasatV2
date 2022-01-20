@@ -15,10 +15,10 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-#include "obc_cmd.h"
 #include "test_commands.h"
 
 // OBC
+#include "obc_cmd.h"
 #include "obc_comms.h"
 #include "obc_hardwaredefs.h"
 #include "comms_cc1110.h"
@@ -330,18 +330,18 @@ void cmd_imu_test(uint32_t arg_len, void* arg) {
 void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
     static gpio_port_t const CAN_PORTS[] = {CAN_PORT(canREG1), CAN_PORT(canREG2), CAN_PORT(canREG3)};
 
-    char* args[3] = {0, 0, 0};
-    uint8_t num_args    = obc_cmd_read_str_arguments(arg, 3, args);
-
     // Check number of arguments
-    if (num_args < 3) {
+    uint32_t arg_count = num_args(arg_len);
+    if (arg_count < 3) {
         prompt_cmd_response(INFO, TEST_CAN_GPIO_CMD, false,
             "Wrong # arguments: %d",
-			num_args
+            arg_count
         );
         return;
     }
 
+    // Parse arguments
+    cmd_argument_t* args = (cmd_argument_t*)arg;
     uint32_t port_idx = cseq_to_num(args[0]) - 1;
     uint32_t pin = cseq_to_num(args[1]);
     uint32_t value = cseq_to_num(args[2]);

@@ -1,21 +1,13 @@
 /** @file obc_critical_cmd_actions.c
  *  @brief OBC Command function implementations.
+ *  @author ORCASat C&DH team
+ *  @date 2020-07-06
  */
 
-/******************************************************************************/
-/*                              I N C L U D E S                               */
-/******************************************************************************/
-
+#include "FreeRTOS.h"
 #include "obc_critical_cmd_actions.h"
 #include "obc_heartbeat.h"
-
-// FreeRTOS
-#include "FreeRTOS.h"
 #include "rtos_mpu_wrappers.h"
-
-/******************************************************************************/
-/*                             F U N C T I O N S                              */
-/******************************************************************************/
 
 /**
  * @brief Resets the OBC.

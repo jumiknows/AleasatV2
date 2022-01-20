@@ -1,20 +1,13 @@
 /** @file obc_long_cmd_actions.h
  *  @brief OBC long command function implementations.
+ *  @author ORCASat C&DH team
+ *  @date 2020-07-06
  */
 
 #ifndef OBC_LONG_CMD_ACTIONS_H_
 #define OBC_LONG_CMD_ACTIONS_H_
 
-/******************************************************************************/
-/*                              I N C L U D E S                               */
-/******************************************************************************/
-
-// OBC
-#include <stdint.h>
-
-/******************************************************************************/
-/*                             F U N C T I O N S                              */
-/******************************************************************************/
+#include "sys_common.h"
 
 // RTOS commands
 void cmd_rtos_tasks(uint32_t arg_len, void* arg);

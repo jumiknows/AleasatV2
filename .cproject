@@ -46,7 +46,6 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/magnetorquer}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/imu}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/system}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/system/command}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/system/comms}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/tests}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/third-party/little_fs}"/>
@@ -74,6 +73,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/system/telemetry}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/system/logging}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/system/settings}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/system/command}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/utilities}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/examples}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat}"/>
@@ -255,7 +255,6 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/device-drivers/imu}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/system}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/system/comms}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/system/command}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/aleasat/tests}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/system/filesystem}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/third-party/little_fs}"/>
@@ -266,6 +265,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/rtos}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/hardwaredefs}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/hardware-drivers/mram}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/system/command}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/system/settings}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/featuredefs}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/orcasat/examples}"/>

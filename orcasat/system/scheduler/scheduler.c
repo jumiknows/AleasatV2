@@ -23,7 +23,6 @@
  *
  *******************************************************/
 
-#include "obc_cmd.h"
 #include "scheduler.h"
 #include "obc_task_info.h"
 #include "rtos_queue.h"
@@ -32,6 +31,7 @@
 #include "logger.h"
 #include "obc_watchdog.h"
 #include "obc_time.h"
+#include "obc_cmd.h"
 #include "sys_common.h"
 #include <string.h>
 #include <stdbool.h>
@@ -212,18 +212,11 @@ scheduler_err_t scheduler_start(void) {
  * @returns Scheduler return code of SCHEDULER_SUCCESS, otherwise an error.
  */
 scheduler_err_t scheduler_schedule_action_start_now(action_id_t* id, scheduler_submission_source_t source, uint32_t interval, scheduler_action_t action, uint8_t argument_size, void* argument) {
-	// invoke the action immediately by pushing it to the action-queue
-	    uint8_t action_call[ACTION_CALL_SIZE]    = {'\0'};
-	    action_call_header_t* action_call_header = (action_call_header_t*)action_call;
-	    action_call_header->action               = action;
-	    action_call_header->argument_size        = argument_size;
+    scheduler_invoke_action(action, argument_size, argument);
 
     if (interval == 0) {
         return SCHEDULER_SUCCESS;
     }
-
-    memcpy(action_call + sizeof(action_call_header_t), argument, argument_size);
-    xQueueSend(actions_queue, action_call, portMAX_DELAY);
 
     // find the next invocation time
     real_time_t start_at = orca_time_init;
@@ -234,6 +227,23 @@ scheduler_err_t scheduler_schedule_action_start_now(action_id_t* id, scheduler_s
         return TIME_FAILURE;
     }
     return scheduler_schedule_action(id, source, start_at, interval, action, argument_size, argument);
+}
+
+/**
+ * @brief immediately invokes an action.
+ *
+ *  @param[in] action A pointer to the action; a function pointer.
+ *  @param[in] argument_size The size of the action argument in bytes.
+ *  @param[in] argument A pointer to the action argument.
+ */
+void scheduler_invoke_action(scheduler_action_t action, uint8_t argument_size, void* argument) {
+    // invoke the action immediately by pushing it to the action-queue
+    uint8_t action_call[ACTION_CALL_SIZE]    = {'\0'};
+    action_call_header_t* action_call_header = (action_call_header_t*)action_call;
+    action_call_header->action               = action;
+    action_call_header->argument_size        = argument_size;
+    memcpy(action_call + sizeof(action_call_header_t), argument, argument_size);
+    xQueueSend(actions_queue, action_call, portMAX_DELAY);
 }
 
 /**
@@ -425,7 +435,7 @@ void print_schedule(void) {
 
         // Determine the opcode string. It will be "NONE" if the action slot is empty.
         const char* opcode_str = NULL;
-        obc_cmd_opcode_from_action(action_info_header->action, &opcode_str);
+        cmd_opcode_from_action(action_info_header->action, &opcode_str);
 
         // First line - command info: number, ID, state, opcode
         log_str(INFO, SCHED_LOG, false, "%d %d %s %s", i, action_info_header->id, action_state_strings[action_info_header->state], opcode_str);
