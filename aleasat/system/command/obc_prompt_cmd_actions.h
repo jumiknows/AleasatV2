@@ -1,13 +1,20 @@
 /** @file obc_prompt_cmd_actions.c
  *  @brief OBC prompt command function implementations.
- *  @author ORCASat C&DH team
- *  @date 2020-07-06
  */
 
 #ifndef OBC_PROMPT_CMD_ACTIONS_H_
 #define OBC_PROMPT_CMD_ACTIONS_H_
 
-#include "sys_common.h"
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// OBC
+#include <stdint.h>
+
+/******************************************************************************/
+/*                             F U N C T I O N S                              */
+/******************************************************************************/
 
 // System commands
 void cmd_ack(uint32_t arg_len, void* arg);

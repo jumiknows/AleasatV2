@@ -1,7 +1,5 @@
 /** @file obc_normal_cmd_actions.c
  *  @brief OBC prompt command function implementations.
- *  @author ORCASat C&DH team
- *  @date 2020-07-06
  *
  * Prompt commands must only ever return a single logger message, and the
  * formatting of the return message should be done in this file so it is
@@ -12,14 +10,16 @@
  * indicating the overall result here.
  */
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// OBC
 #include "obc_prompt_cmd_actions.h"
-#include <string.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include "logger.h"
 #include "obc_featuredefs.h"
 #include "obc_watchdog.h"
 #include "obc_time.h"
+#include "logger.h"
 #include "backup_epoch.h"
 #include "rtc_cmds.h"
 #include "rtc_state.h"
@@ -31,24 +31,28 @@
 #include "obc_temperature.h"
 #include "tms_i2c.h"
 #include "telem_obc.h"
+#include "obc_settings.h"
+#include "obc_hardwaredefs.h"
 #if !defined(PLATFORM_ALEA_V1)
 #include "telem_eps.h"
 #endif
 #include "obc_cmd.h"
 #include "obc_rtos.h"
 #include "obc_task_info.h"
-#include "printf.h"
 #include "obc_gpio.h"
 #include "nvct.h"
-#include "obc_settings.h"
-#include "obc_hardwaredefs.h"
 
-/**
- * @brief A counter that is incremented by the "count" command.
- * This is a general purpose utility that is useful for testing
- * and demonstration purposes.
- */
-static uint32_t demo_counter = 0;
+// Standard Library
+#include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
+
+// Third Part
+#include "printf.h"
+
+/******************************************************************************/
+/*                              T Y P E D E F S                               */
+/******************************************************************************/
 
 /**
  * @brief Stores the most recently called logging information,
@@ -59,33 +63,29 @@ struct Last_Logged {
     log_identifier_t log_id;
     char string[MAX_PAYLOAD_SIZE + 1]; // + 1 to contain the null terminator that is ignored by the logger but is inserted by string methods.
 };
+
+/******************************************************************************/
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
+/******************************************************************************/
+
+/**
+ * @brief A counter that is incremented by the "count" command.
+ * This is a general purpose utility that is useful for testing
+ * and demonstration purposes.
+ */
+static uint32_t demo_counter = 0;
+
 struct Last_Logged last_logged = {.log_lvl = INFO, .log_id = PRINT_GENERAL, .string = "first"};
 
-// Private Functions
+/******************************************************************************/
+/*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
+/******************************************************************************/
+
 static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...);
 
-// ------------------------ LAST RESPONSE PROMPT COMMAND -----------------------
-/**
- * @brief Logs the response to a prompt command. The details of the
- * response are saved so that they can be queried with the last_response
- * command.
- *
- * @param lvl The logging system level.
- * @param id The log ID.
- * @param write_to_file Whether or not to log the data to a file.
- * @param format Printf-style format string.
- */
-static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...) {
-    last_logged.log_lvl = lvl;
-    last_logged.log_id  = id;
-    va_list va;
-    OBC_MISRA_CHECK_OFF
-    va_start(va, format);
-    OBC_MISRA_CHECK_ON
-    orca_vsnprintf(last_logged.string, MAX_PAYLOAD_SIZE + 1, format, va);
-    va_end(va);
-    log_str(lvl, id, write_to_file, "%s", last_logged.string);
-}
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 // ------------------------ SYSTEM PROMPT COMMAND IMPLEMENTATION -----------------------
 
@@ -142,7 +142,7 @@ void cmd_watchdog_reset(uint32_t arg_len, void* arg) {
  * to the OBC, it is not the sequence number of this command.
  */
 void cmd_get_sequence_num(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, SEQ_NUM_CMD, false, "%d", next_seq_num());
+    prompt_cmd_response(INFO, SEQ_NUM_CMD, false, "%d", obc_cmd_next_seq_num());
 }
 
 /**
@@ -240,8 +240,10 @@ void cmd_get_backup_epoch(uint32_t arg_len, void* arg) {
  * @brief Set the time on RTCs.
  */
 void cmd_set_time(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 7) {
-        command_update_rtc_time(arg);
+    char* arguments[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    uint8_t num_args   = obc_cmd_read_str_arguments(arg, 7, arguments);
+    if (num_args == 7) {
+        command_update_rtc_time(arguments);
     } else {
         prompt_cmd_response(ERROR, RTC_LOG, true, "Too few args. Need rtc y m d h m s.");
     }
@@ -251,7 +253,9 @@ void cmd_set_time(uint32_t arg_len, void* arg) {
  * @brief Update which RTCs are active (used for timekeeping).
  */
 void cmd_set_rtc(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
+    char* arguments[1] = {NULL};
+    uint8_t num_args   = obc_cmd_read_str_arguments(arg, 1, arguments);
+    if (num_args == 1) {
         command_update_active_rtc(arg);
     } else {
         prompt_cmd_response(ERROR, RTC_LOG, true, "Too few args. Need rtc.");
@@ -267,7 +271,9 @@ void cmd_set_rtc(uint32_t arg_len, void* arg) {
  * rtc_ts 0 will disable timestamp mode
  */
 void cmd_rtc_ts(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
+    char* arguments[1] = {NULL};
+    uint8_t num_args   = obc_cmd_read_str_arguments(arg, 1, arguments);
+    if (num_args == 1) {
         uint8_t ts = cseq_to_num((char*)arg);
         if ((ts == 1) || (ts == 0)) {
             rtc_set_ts(ts);
@@ -321,10 +327,10 @@ void cmd_run_hang_task(uint32_t arg_len, void* arg) {
  * @brief Prints whatever data is provided as an argument.
  */
 void cmd_echo_to_log(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
-        char buf[ARGUMENT_SIZE + 1] = {'\0'};
-        memcpy(buf, arg, arg_len);
-        prompt_cmd_response(INFO, ECHO_CMD, true, (char*)buf);
+    char* arguments[1] = {NULL};
+    uint8_t num_args   = obc_cmd_read_str_arguments(arg, 1, arguments);
+    if (num_args == 1) {
+        prompt_cmd_response(INFO, ECHO_CMD, true, arguments[0]);
     } else {
         prompt_cmd_response(ERROR, ECHO_CMD, true, "Can only echo single word.");
     }
@@ -384,42 +390,43 @@ void cmd_rtos_resume(uint32_t arg_len, void* arg) {
  *
  * */
 void cmd_rtos_period(uint32_t arg_len, void* arg) {
-    const char delim[] = " ";
-    char* task_name    = strtok((char*)arg, delim);
-    if (task_name != NULL) {
-        uint8_t id = 0;
-        if (get_task_id_from_name(task_name, &id) == OBC_RTOS_OK) {
-            task_period_t period_ms = 0;
-            if (num_args(arg_len) == 1) { // only have task name in cmd. return current period
-                if (get_task_period_from_id(id, &period_ms) == OBC_RTOS_OK) {
-                    prompt_cmd_response(INFO, OBC_TASK, true, "Task %s per %d", task_name, period_ms);
-                }
-                // invalid ID logs error in get_task_period_from_id()
-            } else if (num_args(arg_len) == 2) { // cmd has task name and period arg
-                char* task_period = (char*)arg + ARGUMENT_SIZE;
-                if (task_period != NULL) {
-                    period_ms = cseq_to_num(task_period);                    // cseq will not handle negative integers
-                                                                             // or non integers correctly
-                    if (period_ms > 0) {                                     // check that period is greater than zero since it cannot
-                                                                             // be zero, that is reserved for aperiodic tasks
-                        if (set_task_period(id, period_ms) != OBC_RTOS_OK) { // changing task period of aperiodic tasks should return
-                                                                             // an err
-                            prompt_cmd_response(ERROR, OBC_TASK, true, "Task is not periodic");
-                        }
-                    } else {
-                        prompt_cmd_response(ERROR, OBC_TASK, true, "Task period not valid");
-                    }
-                } else {
-                    prompt_cmd_response(ERROR, OBC_TASK, true, "Task period not found");
-                }
-            } else {
-                prompt_cmd_response(ERROR, OBC_TASK, true, "1 or 2 arguments required");
-            }
-        } else {
-            prompt_cmd_response(ERROR, OBC_TASK, true, "Task ID %d not found", id);
-        }
-    } else {
+    char* arguments[3] = {NULL, NULL, NULL};
+    uint8_t num_args   = obc_cmd_read_str_arguments(arg, 3, arguments);
+
+    if (num_args == 0) {
         prompt_cmd_response(ERROR, OBC_TASK, true, "Task name not found");
+        return;
+    }
+    uint8_t id      = 0;
+    char* task_name = arguments[0];
+    if (get_task_id_from_name(task_name, &id) != OBC_RTOS_OK) {
+        prompt_cmd_response(ERROR, OBC_TASK, true, "Task ID %d not found", id);
+        return;
+    }
+    task_period_t period_ms = 0;
+    if (num_args == 1) { // only have task name in cmd. return current period
+        prompt_cmd_response(INFO, OBC_TASK, true, "Task %s per %d", task_name, period_ms);
+        return;
+    } else if (num_args != 2) {
+        prompt_cmd_response(ERROR, OBC_TASK, true, "1 or 2 arguments required");
+        return;
+    }
+    char* task_period = arguments[1];
+    if (task_period == NULL) {
+        prompt_cmd_response(ERROR, OBC_TASK, true, "Task period not found");
+        return;
+    }
+    period_ms = cseq_to_num(task_period);
+    if (period_ms <= 0) {
+        prompt_cmd_response(ERROR, OBC_TASK, true, "Task period not valid");
+        return;
+    }
+    // cseq will not handle negative integers or non integers correctly
+    // check that period is greater than zero since it cannot
+    // be zero, that is reserved for aperiodic tasks
+    // changing task period of aperiodic tasks should return an err
+    if (set_task_period(id, period_ms) != OBC_RTOS_OK) {
+        prompt_cmd_response(ERROR, OBC_TASK, true, "Task is not periodic");
     }
 }
 
@@ -537,7 +544,9 @@ void cmd_get_temperature(uint32_t arg_len, void* arg) {
  * @brief Log all OBC internal slow-rate telemetry.
  */
 void cmd_telem_obc_slow(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 0) {
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
+    if (num_args == 0) {
         obc_slow_telem_collect();
     }
 }
@@ -546,7 +555,9 @@ void cmd_telem_obc_slow(uint32_t arg_len, void* arg) {
  * @brief Log all OBC internal fast-rate telemetry.
  */
 void cmd_telem_obc_fast(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 0) {
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
+    if (num_args == 0) {
         obc_fast_telem_collect();
     }
 }
@@ -556,7 +567,9 @@ void cmd_telem_obc_fast(uint32_t arg_len, void* arg) {
  * @brief Log all EPS slow-rate telemetry.
  */
 void cmd_telem_eps_slow(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 0) {
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
+    if (num_args == 0) {
         eps_slow_telem_collect();
     }
 }
@@ -565,8 +578,10 @@ void cmd_telem_eps_slow(uint32_t arg_len, void* arg) {
 // ---------------------------- Periodic Action -----------------------
 
 void cmd_get_period(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
-        uint8_t action_id      = cseq_to_num((char*)arg);
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
+    if (num_args == 0) {
+        uint8_t action_id      = cseq_to_num(args[0]);
         uint32_t period        = 0;
         scheduler_err_t result = scheduler_get_period(action_id, &period);
         if (result == SCHEDULER_SUCCESS) {
@@ -580,9 +595,11 @@ void cmd_get_period(uint32_t arg_len, void* arg) {
 }
 
 void cmd_set_period(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 2) {
-        uint8_t action_id      = cseq_to_num((char*)arg);
-        uint32_t period        = cseq_to_num((char*)(arg) + ARGUMENT_SIZE);
+    char* args[2]    = {NULL, NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 2, args);
+    if (num_args == 2) {
+        uint8_t action_id      = cseq_to_num(args[0]);
+        uint32_t period        = cseq_to_num(args[1]);
         scheduler_err_t result = scheduler_set_period(action_id, period);
         if (result != SCHEDULER_SUCCESS) {
             prompt_cmd_response(INFO, PRINT_GENERAL, false, "Scheduler error: %d", result);
@@ -601,8 +618,10 @@ void cmd_set_period(uint32_t arg_len, void* arg) {
  * Expected usage: nvct_erase [table index]
  */
 void cmd_erase_nvct(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
-        uint32_t table_index = cseq_to_num((char*)arg);
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
+    if (num_args == 1) {
+        uint32_t table_index = cseq_to_num(args[0]);
         nvct_err_enum_t err  = erase_nvct_table(table_index);
         switch (err) {
             case NVCT_SUCCESS:
@@ -629,7 +648,9 @@ void cmd_erase_nvct(uint32_t arg_len, void* arg) {
  * Expected usage: nvct_provision [table index]
  */
 void cmd_provision_nvct(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
+    if (num_args == 1) {
         uint32_t table_index = cseq_to_num((char*)arg);
         setting_err_t err    = provision_new_settings_table(table_index);
         switch (err) {
@@ -657,7 +678,9 @@ void cmd_provision_nvct(uint32_t arg_len, void* arg) {
  * Expected usage: setting_get [setting name]
  */
 void cmd_get_setting(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 1) {
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
+    if (num_args == 1) {
         uint32_t val             = 0;
         setting_nvct_t nvct_info = NOT_NVCT;
         setting_err_t err        = get_uint32_from_command((const char*)arg, &val, &nvct_info);
@@ -684,9 +707,12 @@ void cmd_get_setting(uint32_t arg_len, void* arg) {
  * Expected usage: setting_get [setting name] [setting value]
  */
 void cmd_set_setting(uint32_t arg_len, void* arg) {
-    if (num_args(arg_len) == 2) {
-        uint32_t val      = cseq_to_num((char*)(arg) + ARGUMENT_SIZE);
-        setting_err_t err = set_uint32_from_command((char*)(arg), val);
+    char* args[1]    = {NULL};
+    uint8_t num_args = obc_cmd_read_str_arguments(arg, 2, args);
+    if (num_args == 2) {
+        const char* setting = args[0];
+        uint32_t val        = cseq_to_num(args[1]);
+        setting_err_t err   = set_uint32_from_command(setting, val);
 
         switch (err) {
             case SETTING_OK:
@@ -714,4 +740,31 @@ void cmd_set_setting(uint32_t arg_len, void* arg) {
     } else {
         prompt_cmd_response(ERROR, SETTINGS_LOG, false, "set_setting [name] [value]");
     }
+}
+
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
+
+// ------------------------ LAST RESPONSE PROMPT COMMAND -----------------------
+/**
+ * @brief Logs the response to a prompt command. The details of the
+ * response are saved so that they can be queried with the last_response
+ * command.
+ *
+ * @param lvl The logging system level.
+ * @param id The log ID.
+ * @param write_to_file Whether or not to log the data to a file.
+ * @param format Printf-style format string.
+ */
+static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...) {
+    last_logged.log_lvl = lvl;
+    last_logged.log_id  = id;
+    va_list va;
+    OBC_MISRA_CHECK_OFF
+    va_start(va, format);
+    OBC_MISRA_CHECK_ON
+    orca_vsnprintf(last_logged.string, MAX_PAYLOAD_SIZE + 1, format, va);
+    va_end(va);
+    log_str(lvl, id, write_to_file, "%s", last_logged.string);
 }

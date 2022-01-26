@@ -16,9 +16,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define RTC_ARG_MAX_LEN 8
+
 // Private function prototypes
-rtc_err_t extract_time(const cmd_argument_t* cmd, real_time_t* time);
-bool extract_rtc(const cmd_argument_t* cmd, active_rtc_t* rtc, bool* set_backup);
+rtc_err_t extract_time(char* arguments[7], real_time_t* time);
+bool extract_rtc(const char* argument, active_rtc_t* rtc, bool* set_backup);
 
 /**
  * @brief Updates the time on the desired RTCs after parsing the command arguments.
@@ -33,16 +35,16 @@ bool extract_rtc(const cmd_argument_t* cmd, active_rtc_t* rtc, bool* set_backup)
  *
  * @param[in] cmd: The command structure to parse.
  */
-void command_update_rtc_time(const cmd_argument_t* cmd) {
+void command_update_rtc_time(char** arguments) {
     // Determine which RTC should be updated
     active_rtc_t rtc_to_use = BACKUP;
     bool use_backup         = true;
-    bool ok                 = extract_rtc(&cmd[0], &rtc_to_use, &use_backup);
+    bool ok                 = extract_rtc(arguments[0], &rtc_to_use, &use_backup);
 
     // If that went well, proceed to try to set the time
     if (ok) {
         real_time_t set_time = orca_time_init;
-        rtc_err_t err        = extract_time(cmd, &set_time);
+        rtc_err_t err        = extract_time(arguments, &set_time);
         if (err != RTC_NO_ERR) {
             log_str_no_time(ERROR, RTC_LOG, true, "Invalid Time. RTC err: %d", err); // Indicates an error with the params
             return;
@@ -76,10 +78,10 @@ void command_update_rtc_time(const cmd_argument_t* cmd) {
  *
  * @param[in] cmd The command structure to parse.
  */
-void command_update_active_rtc(const cmd_argument_t* cmd) {
+void command_update_active_rtc(char** arguments) {
     active_rtc_t rtc_to_use = BACKUP;
     bool use_backup         = true;
-    bool ok                 = extract_rtc(cmd, &rtc_to_use, &use_backup);
+    bool ok                 = extract_rtc(arguments[0], &rtc_to_use, &use_backup);
 
     if (rtc_to_use == get_active_rtc()) {
         // Desired RTC matches already active, so don't bother adjusting anything.
@@ -120,7 +122,7 @@ void command_update_active_rtc(const cmd_argument_t* cmd) {
  * 	@returns True if there was no unexpected data in the argument string. False if an unexpected
  * value was passed in.
  */
-bool extract_rtc(const cmd_argument_t* cmd, active_rtc_t* rtc, bool* set_backup) {
+bool extract_rtc(const char* argument, active_rtc_t* rtc, bool* set_backup) {
     // Set default outputs
     *rtc        = BACKUP;
     *set_backup = false;
@@ -130,8 +132,8 @@ bool extract_rtc(const cmd_argument_t* cmd, active_rtc_t* rtc, bool* set_backup)
 
     // Strtok modifies the original string by inserting \0 where delimiters exist,
     // so operate on a copy of the first argument.
-    char buf[ARGUMENT_SIZE] = {'\0'};
-    strcpy((char*)&buf, (const char*)cmd[0]);
+    char buf[RTC_ARG_MAX_LEN] = {'\0'};
+    strcpy(buf, argument);
 
     // Tokenize the string
     token   = orca_strtok_r((char*)&buf, delim, &saveptr);
@@ -178,40 +180,40 @@ bool extract_rtc(const cmd_argument_t* cmd, active_rtc_t* rtc, bool* set_backup)
  * @param[out] time The time output.
  * @return RTC_REAL_TIME_INVALID if time is not valid, RTC_NO_ERR otherwise
  */
-rtc_err_t extract_time(const cmd_argument_t* cmd, real_time_t* time) {
+rtc_err_t extract_time(char* arguments[7], real_time_t* time) {
     // Waiving MISRA check "atoi should not be used" Richard A, March 8, 2020
     OBC_MISRA_CHECK_OFF
-    uint32_t val = atoi((const char*)cmd[1]);
+    uint32_t val = atoi(arguments[1]);
     if (!is_year_valid(val)) {
         return RTC_REAL_TIME_INVALID;
     }
     time->year = val;
 
-    val = atoi((const char*)cmd[2]);
+    val = atoi(arguments[2]);
     if (!is_month_valid(val)) {
         return RTC_REAL_TIME_INVALID;
     }
     time->month = val;
 
-    val = atoi((const char*)cmd[3]);
+    val = atoi(arguments[3]);
     if (!is_day_valid(time->year, time->month, val)) {
         return RTC_REAL_TIME_INVALID;
     }
     time->day = val;
 
-    val = atoi((const char*)cmd[4]);
+    val = atoi(arguments[4]);
     if (!is_hour_valid(val)) {
         return RTC_REAL_TIME_INVALID;
     }
     time->hour = val;
 
-    val = atoi((const char*)cmd[5]);
+    val = atoi(arguments[5]);
     if (!is_minute_valid(val)) {
         return RTC_REAL_TIME_INVALID;
     }
     time->minute = val;
 
-    val = atoi((const char*)cmd[6]);
+    val = atoi(arguments[6]);
     if (!is_second_valid(val)) {
         return RTC_REAL_TIME_INVALID;
     }

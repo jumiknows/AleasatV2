@@ -1,7 +1,5 @@
 /** @file obc_normal_cmd_actions.h
  *  @brief OBC Command function implementations.
- *  @author ORCASat C&DH team
- *  @date 2020-07-06
  *
  * Critical commands are executed immediately without using the scheduler,
  * and inside an RTOS critical section.
@@ -17,7 +15,16 @@
 #ifndef OBC_CRITICAL_CMD_ACTIONS_H_
 #define OBC_CRITICAL_CMD_ACTIONS_H_
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// Standard Library
 #include "sys_common.h"
+
+/******************************************************************************/
+/*                             F U N C T I O N S                              */
+/******************************************************************************/
 
 // Commands which have the potential to be critical (can also be scheduled)
 void cmd_nrst(uint32_t arg_len, void* arg);

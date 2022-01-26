@@ -435,7 +435,7 @@ void print_schedule(void) {
 
         // Determine the opcode string. It will be "NONE" if the action slot is empty.
         const char* opcode_str = NULL;
-        cmd_opcode_from_action(action_info_header->action, &opcode_str);
+        obc_cmd_opcode_from_action(action_info_header->action, &opcode_str);
 
         // First line - command info: number, ID, state, opcode
         log_str(INFO, SCHED_LOG, false, "%d %d %s %s", i, action_info_header->id, action_state_strings[action_info_header->state], opcode_str);
