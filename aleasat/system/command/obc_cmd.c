@@ -159,16 +159,16 @@ const cmd_entry command_table[] = {
 /* Tests */
 #ifdef SYSTEM_TESTS
     {"test_ack", &cmd_test_ack},
-    {"comms_test_raw", &cmd_test_comms_raw},
-    {"comms_test_tx_only", &cmd_test_comms_tx_only},
-    {"comms_test_tx_rx", &cmd_test_comms_tx_rx},
-    {"comms_test_stress1", &cmd_test_comms_stress1},
-    {"magnetorquer_test", &cmd_test_mag},
-    {"magnetorquer_test_all", &cmd_test_mag_all},
-    {"magnetorquer_test_init", &cmd_test_mag_init},
-    {"imu_test", &cmd_imu_test},
-    {"can_gpio_test", &cmd_test_can_gpio},
-    {"panel_gyro_test", &cmd_test_panel_gyro},
+    {"test_comms_raw", &cmd_test_comms_raw},
+    {"test_comms_tx_only", &cmd_test_comms_tx_only},
+    {"test_comms_tx_rx", &cmd_test_comms_tx_rx},
+    {"test_comms_stress1", &cmd_test_comms_stress1},
+    {"test_magnetorquer", &cmd_test_mag},
+    {"test_magnetorquer_all", &cmd_test_mag_all},
+    {"test_magnetorquer_init", &cmd_test_mag_init},
+    {"test_imu", &cmd_imu_test},
+    {"test_can_gpio", &cmd_test_can_gpio},
+    {"test_panel_gyro", &cmd_test_panel_gyro},
 #endif // SYSTEM_TESTS
 };
 
