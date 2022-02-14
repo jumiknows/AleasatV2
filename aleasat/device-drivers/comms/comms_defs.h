@@ -12,6 +12,7 @@
 
 // Standard Library
 #include <stdint.h>
+#include <stdbool.h>
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -27,7 +28,7 @@
  * @ref https://gitlab.com/alea-2020/communications/comms-firmware-openlst-1/-/blob/dev2/open-lst/common/commands.h
  */
 #define COMMS_MAX_PKT_SIZE_BYTES    236
-#define COMMS_MIN_PKT_SIZE_BYTES    10   // ESP(2) + len(1) + seqnum(2) + dest_hwid(2) + src_hwid(2) + cmd(1)
+#define COMMS_MIN_PKT_SIZE_BYTES    10   // ESP(2) + len(1) + seqnum and resp bit(2) + dest_hwid(2) + src_hwid(2) + cmd(1)
 #define COMMS_PKT_START_NUM_BYTES    3    // ESP(2) + len(1)
 
 #define COMMS_MSG_HEADER_SIZE_BYTES    (COMMS_MIN_PKT_SIZE_BYTES - COMMS_PKT_START_NUM_BYTES)
@@ -83,21 +84,31 @@ typedef enum comms_err_type {
     COMMS_PKT_LEN_ERR = -7,
 
     /**
+     * @brief OpenLST packet seqnum out of range
+     */
+    COMMS_BAD_SEQNUM_ERR = -8,
+
+    /**
+     * @brief is_response field of OpenLST packet struct out of range
+     */
+    COMMS_BAD_RESPONSE_BIT_FIELD_ERR = -9,
+
+    /**
      * @brief Comms unknown error
      */
-    COMMS_UNKNOWN_ERR = -8
+    COMMS_UNKNOWN_ERR = -127
 } comms_err_t;
 
 typedef uint16_t hwid_t;
 
 typedef struct comms_command_header_struct {
-    uint16_t seqnum;
+    uint16_t seqnum;  // only lower 15 bits is valid, do not use first bit
     hwid_t dest_hwid;
     hwid_t src_hwid;
     uint8_t command;
+    uint8_t is_response;  // only last bit is valid, do not use upper 7 bits
 } comms_command_header_t;
 
-// TODO: pack struct so it can be copied to array
 typedef struct comms_command_struct {
     comms_command_header_t header;
     uint8_t data[COMMS_MAX_CMD_DATA_NUM_BYTES];
@@ -139,6 +150,7 @@ typedef enum {
     COMMS_RADIO_MSG_SET_CALLSIGN = 0x1a,
     COMMS_RADIO_MSG_CALLSIGN     = 0x1b,
     COMMS_RADIO_MSG_START        = 0x1e,
+    COMMS_RADIO_MSG_REBOOTING    = 0x1f,
     COMMS_ALEA_RADIO_MSG_GET_RADIOTELEM     = 0x21,
     COMMS_ALEA_RADIO_MSG_RADIOTELEM         = 0x22,
     COMMS_ALEA_RADIO_MSG_SET_RADIOTELEM     = 0x23,

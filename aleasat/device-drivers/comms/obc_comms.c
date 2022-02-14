@@ -228,10 +228,8 @@ void vCommsInterruptServiceTask(void* pvParameters) {
     EventBits_t uxBits;
     mibspi_err_t mibspi_ret = MIBSPI_UNKNOWN_ERR;
     comms_err_t comms_err = COMMS_UNKNOWN_ERR;
-    bool processed = false;  // control variable only
 
     while (1) {
-        processed = false;
         set_task_status(wd_task_id, task_asleep);
         // Block until notified from ISR
         uxBits = xEventGroupWaitBits(xCommsResponseEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_INT_TASK_BIT, pdTRUE, pdTRUE, portMAX_DELAY);
@@ -260,34 +258,35 @@ void vCommsInterruptServiceTask(void* pvParameters) {
                 break;
             }
 
-            // Try to take mutex to access shared variables
-            if (xSemaphoreTake(xCommsResponseMutexHandle, pdMS_TO_TICKS(COMMS_RESPONSE_MUTEX_TIMEOUT_MS)) == pdTRUE) {
-                if (comms_response_params.waiter_present == true) {
-                    if ((comms_cmd_buf.header.seqnum == comms_response_params.match_seqnum) &&
-                        (comms_cmd_buf.header.src_hwid == comms_response_params.match_src_hwid)) {
-                        memcpy(comms_response_params.cmd_ptr, &comms_cmd_buf, sizeof(comms_cmd_buf));
-                        xEventGroupSetBits(xCommsResponseEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_RECEIVER_BIT);
-                        processed = true;
-                    }
-                }
-                xSemaphoreGive(xCommsResponseMutexHandle);
-            }
-            else {
-                log_str(ERROR, COMMS_LOG, false, "Comms resp mtx t-out");
-                // don't break here because we can still pass the received message to the general handler
-            }
-
-
-            if (processed == true) {
-                break;
-            }
-            // if no receiver wants this msg or we couldn't take the mutex, pass it to general handler
-
+            // drop all packets not for OBC, should never happen as Comms filters them all out already
             if (comms_cmd_buf.header.dest_hwid != obc_hwid) {
-                // drop all packets not for OBC, should never happen as Comms filters them all out already
                 // TODO: revisit
                 break;
             }
+
+            // If it's a response, try to match with comms_response_params
+            // If not a match, discard
+            if (comms_cmd_buf.header.is_response == 1) {
+                // Try to take mutex to access shared variables
+                if (xSemaphoreTake(xCommsResponseMutexHandle, pdMS_TO_TICKS(COMMS_RESPONSE_MUTEX_TIMEOUT_MS)) == pdTRUE) {
+                    if (comms_response_params.waiter_present == true) {
+                        if ((comms_cmd_buf.header.seqnum == comms_response_params.match_seqnum) &&
+                            (comms_cmd_buf.header.src_hwid == comms_response_params.match_src_hwid)) {
+                            memcpy(comms_response_params.cmd_ptr, &comms_cmd_buf, sizeof(comms_cmd_buf));
+                            xEventGroupSetBits(xCommsResponseEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_RECEIVER_BIT);
+                        }
+                    }
+                    xSemaphoreGive(xCommsResponseMutexHandle);
+                }
+                else {
+                    log_str(ERROR, COMMS_LOG, false, "Comms resp mtx t-out");
+                }
+                // We are done with this message either way
+                break;
+            }
+
+
+            // If it's not a response, handle it by passing it to general handler
 
             log_str(INFO, COMMS_LOG, false, "Comms prcs %x %x %x", comms_cmd_buf.header.seqnum, comms_cmd_buf.header.src_hwid, comms_cmd_buf.header.command);
 
@@ -306,7 +305,11 @@ void vCommsInterruptServiceTask(void* pvParameters) {
                     // TODO: Do nothing for now
                     break;
                 }
-                if (comms_cmd_buf.header.command == COMMS_RADIO_MSG_START) {
+                else if (comms_cmd_buf.header.command == COMMS_RADIO_MSG_START) {
+                    // TODO: Do nothing for now
+                    break;
+                }
+                else if (comms_cmd_buf.header.command == COMMS_RADIO_MSG_REBOOTING) {
                     // TODO: Do nothing for now
                     break;
                 }

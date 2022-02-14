@@ -42,7 +42,7 @@
 /**
  * @brief Sequence number of messages, a number is assigned to each message to indicate ordering.
  * Seqnum of received message equalling a sent message's seqnum indicates that message was a response.
- * Overflow back to 0 is expected.
+ * Use inc_seqnum() to incrememt.
  */
 static uint16_t comms_seqnum = 1;
 
@@ -76,7 +76,7 @@ comms_err_t comms_send_cmd(
     mibspi_err_t mibspi_ret = MIBSPI_UNKNOWN_ERR;
     comms_err_t err = COMMS_UNKNOWN_ERR;
 
-    err = comms_build_buffer(dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
+    err = comms_build_buffer(false, dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
     if (err != COMMS_SUCCESS) {
         log_str(ERROR, COMMS_LOG, false, "Comms send arg err %d", err);
         return err;
@@ -96,7 +96,7 @@ comms_err_t comms_send_cmd(
             err = COMMS_MIBSPI_ERR;
         }
         else {
-            ++comms_seqnum;
+            inc_seqnum(&comms_seqnum);
             err = COMMS_SUCCESS;
         }
     }
@@ -140,7 +140,7 @@ comms_err_t comms_send_recv_cmd(
     comms_err_t err = COMMS_UNKNOWN_ERR;
     EventBits_t uxBits;
 
-    err = comms_build_buffer(dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
+    err = comms_build_buffer(false, dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
     if (err != COMMS_SUCCESS) {
         log_str(ERROR, COMMS_LOG, false, "Comms sdrc arg err %d", err);
         return err;
@@ -166,7 +166,7 @@ comms_err_t comms_send_recv_cmd(
             err = COMMS_MIBSPI_ERR;
         }
         else {
-            ++comms_seqnum;
+            inc_seqnum(&comms_seqnum);
             err = COMMS_SUCCESS;
         }
         xSemaphoreGive(xMibspiCommsMutexHandle);
