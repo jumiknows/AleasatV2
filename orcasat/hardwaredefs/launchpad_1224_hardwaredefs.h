@@ -138,7 +138,7 @@
 #define BLOCK_COUNT 64
 
 /**
- * @brief Watchdog timing configuration
+ * @brief Watchdog pins and configuration.
  */
 #define WD_PET_PERIOD_MS 20000
 
@@ -182,10 +182,31 @@
 #define COMMS_TG_SIZE_WORDS  128 // one word is 16 bits
 #define COMMS_DATA_FORMAT    0
 
+#define COMMS_WD_PORT  CAN_PORT(canREG1)
+#define COMM_WD_PIN    CAN_PIN_TX
+
+#define COMMS_RST_PORT CAN_PORT(canREG1)
+#define COMMS_RST_PIN  CAN_PIN_RX
+
 #define COMMS_INT_REG  hetREG1
 #define COMMS_INT_PORT hetPORT1
 #define COMMS_INT_PIN  31
 #define COMMS_INT_EDGE 0
+
+/**
+ * @brief GPS pin configuration.
+ */
+#define GPS_RST_PORT   CAN_PORT(canREG3)
+#define GPS_RST_PIN    CAN_PIN_RX
+#define GPS_P1PPS_PORT GIO_PORT(gioPORTA)
+#define GPS_P1PPS_PIN  2
+#define GPS_STS_PORT   GIO_PORT(gioPORTA)
+#define GPS_STS_PIN    6
+
+#define GPS_PWR_EN_PORT  GIO_PORT(gioPORTB)
+#define GPS_PWR_EN_PIN   2
+#define GPS_PWR_FLT_PORT GIO_PORT(gioPORTA)
+#define GPS_PWR_FLT_PIN  7
 
 /**
  * @brief Magnetorquers
