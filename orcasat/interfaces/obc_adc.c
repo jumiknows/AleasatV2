@@ -29,8 +29,10 @@ SemaphoreHandle_t xADCMutex;
  * @brief HAL initialize ADC, create mutex for protection since we poll for completion
  */
 void adc_init(void) {
+    static StaticSemaphore_t xADCMutexBuffer;
+
     adcInit();
-    xADCMutex = xSemaphoreCreateMutex();
+    xADCMutex = xSemaphoreCreateMutexStatic(&xADCMutexBuffer);
 }
 
 /**
