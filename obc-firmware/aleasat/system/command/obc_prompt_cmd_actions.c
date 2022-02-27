@@ -274,7 +274,12 @@ void cmd_rtc_ts(uint32_t arg_len, void* arg) {
     char* arguments[1] = {NULL};
     uint8_t num_args   = obc_cmd_read_str_arguments(arg, 1, arguments);
     if (num_args == 1) {
-        uint8_t ts = cseq_to_num((char*)arg);
+        int8_t ts = (int8_t) cseq_to_num((char*)arg);
+        if (ts == -1) {
+            log_str(ERROR, RTC_LOG, true, "Invalid ts arg %s", (char*)arg);
+            return;
+        }
+
         if ((ts == 1) || (ts == 0)) {
             rtc_set_ts(ts);
             ts ? prompt_cmd_response(INFO, RTC_LOG, true, "RTC mode: ts") : prompt_cmd_response(INFO, RTC_LOG, false, "RTC mode: reg");
@@ -416,7 +421,13 @@ void cmd_rtos_period(uint32_t arg_len, void* arg) {
         prompt_cmd_response(ERROR, OBC_TASK, true, "Task period not found");
         return;
     }
+
     period_ms = cseq_to_num(task_period);
+    if (period_ms == -1) {
+    	log_str(ERROR, OBC_TASK, true, "Invalid period %s", (char*)arg);
+        return;
+    }
+
     if (period_ms <= 0) {
         prompt_cmd_response(ERROR, OBC_TASK, true, "Task period not valid");
         return;
@@ -581,8 +592,13 @@ void cmd_get_period(uint32_t arg_len, void* arg) {
     char* args[1]    = {NULL};
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
     if (num_args == 0) {
-        uint8_t action_id      = cseq_to_num(args[0]);
-        uint32_t period        = 0;
+        int8_t action_id      = (int8_t) cseq_to_num((char*)arg);
+        if (action_id == -1) {
+            log_str(ERROR, RTC_LOG, true, "Invalid action id: %s", (char*)arg);
+            return;
+       	}
+
+        uint32_t period            = 0;
         scheduler_err_t result = scheduler_get_period(action_id, &period);
         if (result == SCHEDULER_SUCCESS) {
             prompt_cmd_response(INFO, PRINT_GENERAL, false, "Task Period %d", period);
@@ -598,8 +614,18 @@ void cmd_set_period(uint32_t arg_len, void* arg) {
     char* args[2]    = {NULL, NULL};
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 2, args);
     if (num_args == 2) {
-        uint8_t action_id      = cseq_to_num(args[0]);
-        uint32_t period        = cseq_to_num(args[1]);
+    	int8_t action_id = cseq_to_num(args[0]);
+        if (action_id == -1) {
+            log_str(ERROR, RTC_LOG, true, "Invalid action id: %s", (char*)arg);
+            return;
+        }
+
+        int32_t period = cseq_to_num(args[1]);
+        if (period == -1) {
+            log_str(ERROR, RTC_LOG, true, "Invalid period: %s", (char*)arg);
+            return;
+        }
+
         scheduler_err_t result = scheduler_set_period(action_id, period);
         if (result != SCHEDULER_SUCCESS) {
             prompt_cmd_response(INFO, PRINT_GENERAL, false, "Scheduler error: %d", result);
@@ -621,7 +647,12 @@ void cmd_erase_nvct(uint32_t arg_len, void* arg) {
     char* args[1]    = {NULL};
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
     if (num_args == 1) {
-        uint32_t table_index = cseq_to_num(args[0]);
+    	int32_t table_index = cseq_to_num(args[0]);
+        if (table_index == -1) {
+            log_str(ERROR, SETTINGS_LOG, true, "Invalid table index: %s", (char*)arg);
+            return;
+        }
+
         nvct_err_enum_t err  = erase_nvct_table(table_index);
         switch (err) {
             case NVCT_SUCCESS:
@@ -651,8 +682,13 @@ void cmd_provision_nvct(uint32_t arg_len, void* arg) {
     char* args[1]    = {NULL};
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
     if (num_args == 1) {
-        uint32_t table_index = cseq_to_num((char*)arg);
-        setting_err_t err    = provision_new_settings_table(table_index);
+        int32_t table_index = cseq_to_num((char*)arg);
+        if (table_index == -1) {
+            log_str(ERROR, SETTINGS_LOG, true, "Invalid table index: %s", (char*)arg);
+            return;
+        }
+
+        setting_err_t err = provision_new_settings_table(table_index);
         switch (err) {
             case SETTING_OK:
                 prompt_cmd_response(INFO, SETTINGS_LOG, true, "Provision OK %d", table_index);
@@ -711,7 +747,12 @@ void cmd_set_setting(uint32_t arg_len, void* arg) {
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 2, args);
     if (num_args == 2) {
         const char* setting = args[0];
-        uint32_t val        = cseq_to_num(args[1]);
+        int32_t val        = cseq_to_num(args[1]);
+        if (val == -1) {
+            log_str(ERROR, SETTINGS_LOG, true, "Invalid val: %s", (char*)arg);
+            return;
+        }
+
         setting_err_t err   = set_uint32_from_command(setting, val);
 
         switch (err) {

@@ -66,7 +66,7 @@
 /**
  * @brief Task period type.
  */
-typedef uint32_t task_period_t;
+typedef int32_t task_period_t;
 
 /**
  * @brief OBC task parameter structure. This structure is passed to each task created using the OBC

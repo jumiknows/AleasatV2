@@ -343,9 +343,21 @@ void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
     }
 
     // Parse arguments
-    uint32_t port_idx = cseq_to_num(args[0]) - 1;
-    uint32_t pin = cseq_to_num(args[1]);
-    uint32_t value = cseq_to_num(args[2]);
+    int32_t port_idx = cseq_to_num(args[0]) - 1;
+    if (port_idx == -2) { // -2 because we're subtracting 1 from the output
+    	log_str(ERROR, TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[0]);
+        return;
+    }
+    int32_t pin = cseq_to_num(args[1]);
+    if (pin == -1) {
+    	log_str(ERROR, TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[1]);
+        return;
+    }
+    int32_t value = cseq_to_num(args[2]);
+    if (value == -1) {
+        log_str(ERROR, TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[2]);
+        return;
+    }
 
     // Validate arguments
     if (port_idx >= 3) {
@@ -381,8 +393,11 @@ void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
 void cmd_test_panel_gyro(uint32_t arg_len, void* arg){
 
     static ADIS16260_t* const GYROS[] = {&panel_gyro_0, &panel_gyro_1, &panel_gyro_2, &panel_gyro_3};
-
-    uint32_t gyro_idx = cseq_to_num((char*)arg);
+    int32_t gyro_idx = cseq_to_num((char*)arg);
+    if (gyro_idx == -1) {
+    	log_str(ERROR, ADCS_LOG, true, "Invalid arg %s", (char*)arg);
+    	return;
+    }
     if (gyro_idx > 3)
     {
         prompt_cmd_response(INFO, ADCS_LOG, true, "ERROR Unknown Param");

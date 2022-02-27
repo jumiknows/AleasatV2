@@ -116,7 +116,12 @@ void cmd_gps_time(uint32_t arg_len, void* arg) {
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
 
     if (num_args == 1) {
-        const uint16_t acq_timeout = cseq_to_num((char*)arg);
+        const int16_t acq_timeout = cseq_to_num((char*)arg);
+        if (acq_timeout == -1) {
+            log_str(ERROR, GPS_LOG, true, "Invalid timeout: %s", (char*)arg);
+            return;
+        }
+
         err                        = gps_req_time(acq_timeout, &ts);
     } else {
         err = gps_req_time(0, &ts);
@@ -145,7 +150,12 @@ void cmd_gps_xyz(uint32_t arg_len, void* arg) {
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
 
     if (num_args == 1) {
-        const uint16_t acq_timeout = cseq_to_num((char*)arg);
+        const int16_t acq_timeout = cseq_to_num((char*)arg);
+        if(acq_timeout == -1) {
+            log_str(ERROR, GPS_LOG, true, "Invalid timeout: %s", (char*)arg);
+            return;
+        }
+
         err                        = gps_req_xyz(acq_timeout, &ec);
     } else {
         err = gps_req_xyz(0, &ec);

@@ -32,6 +32,6 @@ void restart_software(void);            // software reset
 
 /* Math */
 uint32_t power(uint32_t b, uint32_t e);
-uint32_t cseq_to_num(char* seq);
+int32_t cseq_to_num(char* seq);
 
 #endif /* OBC_UTILS_H */

@@ -410,8 +410,8 @@ static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
 
     // Get and do a basic check on the sequence number.
     // Further checking is done after the opcode is known.
-    uint32_t sequence_num = cseq_to_num(token);
-    if (token == NULL) {
+    int32_t sequence_num = cseq_to_num(token);
+    if ((token == NULL) || (sequence_num == -1)) {
         return OBC_CMD_SYNTAX_ERROR;
     }
 
@@ -452,12 +452,12 @@ static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
         immediate     = true;
     } else {
         // It's a scheduled command, so assemble the start date and time.
-        uint32_t val = 0;
+        int32_t val = 0;
 
         // Year
         val   = cseq_to_num(token);
         token = orca_strtok_r(NULL, "-", &saveptr);
-        if ((!is_year_valid(val)) || (token == NULL)) {
+        if ((!is_year_valid(val)) || (token == NULL) || (val == -1)) {
             return OBC_CMD_SYNTAX_ERROR;
         }
         cmd->start_at.year = val;
@@ -465,7 +465,7 @@ static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
         // Month
         val   = cseq_to_num(token);
         token = orca_strtok_r(NULL, " ", &saveptr);
-        if ((!is_month_valid(val)) || (token == NULL)) {
+        if ((!is_month_valid(val)) || (token == NULL) || (val == -1)) {
             return OBC_CMD_SYNTAX_ERROR;
         }
         cmd->start_at.month = val;
@@ -473,7 +473,7 @@ static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
         // Day
         val   = cseq_to_num(token);
         token = orca_strtok_r(NULL, ":", &saveptr);
-        if ((!is_day_valid(cmd->start_at.year, cmd->start_at.month, val)) || (token == NULL)) {
+        if ((!is_day_valid(cmd->start_at.year, cmd->start_at.month, val)) || (token == NULL) || (val == -1)) {
             return OBC_CMD_SYNTAX_ERROR;
         }
         cmd->start_at.day = val;
@@ -481,7 +481,7 @@ static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
         // Hour
         val   = cseq_to_num(token);
         token = orca_strtok_r(NULL, ":", &saveptr);
-        if ((!is_hour_valid(val)) || (token == NULL)) {
+        if ((!is_hour_valid(val)) || (token == NULL) || (val == -1)) {
             return OBC_CMD_SYNTAX_ERROR;
         }
         cmd->start_at.hour = val;
@@ -489,17 +489,17 @@ static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
         // Minute
         val   = cseq_to_num(token);
         token = orca_strtok_r(NULL, " ", &saveptr);
-        if ((!is_minute_valid(val)) || (token == NULL)) {
+        if ((!is_minute_valid(val)) || (token == NULL) || (val == -1)) {
             return OBC_CMD_SYNTAX_ERROR;
         }
         cmd->start_at.minute = val;
 
         // Second
         val = cseq_to_num(token);
-        if (!is_second_valid(val)) {
+        if ((!is_second_valid(val)) || (val == -1)) {
             return OBC_CMD_SYNTAX_ERROR;
         }
-        cmd->start_at.second = cseq_to_num(token);
+        cmd->start_at.second = val;
     }
 
     // Extract the interval
@@ -507,7 +507,7 @@ static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
     if (token == NULL) {
         return OBC_CMD_NO_INTERVAL;
     }
-    cmd->interval = cseq_to_num(token);
+    cmd->interval = cseq_to_num(token); // TODO: this works, but we should probably rethink our validation strategy
 
     // Extract up to NUM_ARGUMENTS arguments
     token = orca_strtok_r(NULL, ".", &saveptr);
