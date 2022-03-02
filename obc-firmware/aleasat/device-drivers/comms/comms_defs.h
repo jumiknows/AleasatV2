@@ -64,14 +64,14 @@ typedef enum comms_err_type {
     COMMS_MIBSPI_MUTEX_TIMEOUT = -3,
 
     /**
-     * @brief Comms response parameters mutex timed out
+     * @brief Comms waiter parameters mutex timed out
      */
-    COMMS_RESPONSE_MUTEX_TIMEOUT = -4,
+    COMMS_WAITER_MUTEX_TIMEOUT = -4,
 
     /**
      * @brief Comms receiver waiting for response message timed out
      */
-    COMMS_RECEIVER_EVTGRP_TIMEOUT = -5,
+    COMMS_WAITER_EVTGRP_TIMEOUT = -5,
 
     /**
      * @brief OpenLST message ESP bytes incorrect
@@ -92,6 +92,11 @@ typedef enum comms_err_type {
      * @brief is_response field of OpenLST packet struct out of range
      */
     COMMS_BAD_RESPONSE_BIT_FIELD_ERR = -9,
+
+    /**
+     * @brief Flashing Comms failed and likely Comms is now in bootloader only
+     */
+    COMMS_FLASH_FAIL = -10,
 
     /**
      * @brief Comms unknown error

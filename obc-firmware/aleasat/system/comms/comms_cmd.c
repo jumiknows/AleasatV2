@@ -1,5 +1,5 @@
 /**
- * @file comms_cc1110.c
+ * @file comms_cmd.c
  * @brief High-level OBC to Comms driver
  *
  * @see https://gitlab.com/alea-2020/communications/comms-firmware-openlst-1
@@ -12,7 +12,7 @@
 #include "comms_defs.h"
 #include "comms_utils.h"
 #include "obc_comms.h"
-#include "comms_cc1110.h"
+#include "comms_cmd.h"
 
 // OBC
 #include "obc_hardwaredefs.h"
@@ -45,8 +45,6 @@
  * Use inc_seqnum() to incrememt.
  */
 static uint16_t comms_seqnum = 1;
-
-static TickType_t prev_comms_msg_time;
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -82,12 +80,8 @@ comms_err_t comms_send_cmd(
         return err;
     }
 
-    // wait to give comms time to process previous message, if any
-    vTaskDelayUntil(&prev_comms_msg_time, pdMS_TO_TICKS(COMMS_NEXT_SEND_DELAY_MS));
-
     if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(timeout_ms))) {
         mibspi_ret = comms_mibspi_tx(buf);
-        prev_comms_msg_time = xTaskGetTickCount();
         xSemaphoreGive(xMibspiCommsMutexHandle);
         if (mibspi_ret == MIBSPI_TIMEOUT) {
             err = COMMS_MIBSPI_TIMEOUT;
@@ -126,6 +120,8 @@ comms_err_t comms_send_cmd(
  * @param[in] cmd_data_len length of cmd_data
  * @param[out] recv_cmd preallocated comms_command_t struct to fill
  * @param[in] timeout_ms time in milliseconds to wait before timeout of Comms MIBSPI mutex
+ *
+ * @return value indicating if error occured or not
  */
 comms_err_t comms_send_recv_cmd(
     hwid_t dest_hwid,
@@ -138,6 +134,7 @@ comms_err_t comms_send_recv_cmd(
     uint16_t buf[COMMS_TG_SIZE_WORDS] = {0};
     mibspi_err_t mibspi_ret = MIBSPI_UNKNOWN_ERR;
     comms_err_t err = COMMS_UNKNOWN_ERR;
+    comms_err_t err2 = COMMS_UNKNOWN_ERR;
     EventBits_t uxBits;
 
     err = comms_build_buffer(false, dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
@@ -146,19 +143,34 @@ comms_err_t comms_send_recv_cmd(
         return err;
     }
 
-    // wait to give comms time to process previous message, if any
-    vTaskDelayUntil(&prev_comms_msg_time, pdMS_TO_TICKS(COMMS_NEXT_SEND_DELAY_MS));
-
     // src_hwid to match for response is what we specified as the destination when sending original msg
-    err = comms_set_response_waiter(comms_seqnum, dest_hwid, recv_cmd);
+    err = comms_set_waiter_match(
+        COMMS_MATCH_EQUAL,
+        1,
+        COMMS_MATCH_EQUAL,
+        comms_seqnum,
+        COMMS_MATCH_EQUAL,
+        dest_hwid,
+        COMMS_MATCH_ANY,
+        0,
+        recv_cmd
+    );
     if (err != COMMS_SUCCESS) {
         log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 1 %d", err);
         return err;
     }
 
-    if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(timeout_ms)) == pdTRUE) {
-        mibspi_ret = comms_mibspi_tx(buf);
-        prev_comms_msg_time = xTaskGetTickCount();
+    do {
+        if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(timeout_ms)) == pdTRUE) {
+            mibspi_ret = comms_mibspi_tx(buf);
+            xSemaphoreGive(xMibspiCommsMutexHandle);
+        }
+        else {
+            log_str(ERROR, COMMS_LOG, false, "Comms sdrc mtx t-out");
+            err = COMMS_MIBSPI_MUTEX_TIMEOUT;
+            break;
+        }
+
         if (mibspi_ret == MIBSPI_TIMEOUT) {
             err = COMMS_MIBSPI_TIMEOUT;
         }
@@ -169,34 +181,69 @@ comms_err_t comms_send_recv_cmd(
             inc_seqnum(&comms_seqnum);
             err = COMMS_SUCCESS;
         }
-        xSemaphoreGive(xMibspiCommsMutexHandle);
-    }
-    else {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc mtx t-out");
-        err = COMMS_MIBSPI_MUTEX_TIMEOUT;
-        return err;
+
+        // check comms_mibspi_tx result
+        if (err != COMMS_SUCCESS) {
+            log_str(ERROR, COMMS_LOG, false, "Comms sdrc tx err %d", mibspi_ret);
+            break;
+        }
+
+        uxBits = xEventGroupWaitBits(xCommsWaiterEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_WAITER_BIT, pdTRUE, pdTRUE, pdMS_TO_TICKS(timeout_ms));
+    } while (0);
+
+    // Always cleanup by removing ourself as waiter
+    err2 = comms_clear_waiter_match();
+    if (err2 != COMMS_SUCCESS) {
+        log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 2 %d", err2);
+        return err2;
     }
 
-    // check comms_mibspi_tx result
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc tx err %d", mibspi_ret);
         return err;
     }
 
+    if ((uxBits & COMMS_RX_EVENT_UNBLOCK_WAITER_BIT) == 0) {
+        log_str(ERROR, COMMS_LOG, false, "Comms sdrc evt t-out");
+        err = COMMS_WAITER_EVTGRP_TIMEOUT;
+        return err;
+    }
 
-    err = COMMS_UNKNOWN_ERR;
-    uxBits = xEventGroupWaitBits(xCommsResponseEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_RECEIVER_BIT, pdTRUE, pdTRUE, pdMS_TO_TICKS(timeout_ms));
-    prev_comms_msg_time = xTaskGetTickCount();
-    // Remove ourself as waiter in both cases of we get unblocked or we timeout
-    err = comms_clear_response_waiter();
+    return err;
+}
+
+/**
+ * @brief Wait to receive message from Comms that matches given parameters
+ *
+ * @param match_params Message parameters to match
+ * @param timeout_ms time in milliseconds to wait before timeout of Comms MIBSPI mutex
+ *
+ * @return value indicating if error occured or not
+ */
+comms_err_t comms_wait_for_cmd(
+    comms_waiter_match_params_t* match_params,
+    uint32_t timeout_ms
+) {
+    comms_err_t err = COMMS_UNKNOWN_ERR;
+    EventBits_t uxBits;
+
+    err = comms_set_waiter_match_struct(match_params);
+    if (err != COMMS_SUCCESS) {
+        log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 1 %d", err);
+        return err;
+    }
+
+    uxBits = xEventGroupWaitBits(xCommsWaiterEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_WAITER_BIT, pdTRUE, pdTRUE, pdMS_TO_TICKS(timeout_ms));
+
+    // Always cleanup by removing ourself as waiter
+    err = comms_clear_waiter_match();
     if (err != COMMS_SUCCESS) {
         log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 2 %d", err);
         return err;
     }
 
-    if ((uxBits & COMMS_RX_EVENT_UNBLOCK_RECEIVER_BIT) == 0) {
+    if ((uxBits & COMMS_RX_EVENT_UNBLOCK_WAITER_BIT) == 0) {
         log_str(ERROR, COMMS_LOG, false, "Comms sdrc evt t-out");
-        err = COMMS_RECEIVER_EVTGRP_TIMEOUT;
+        err = COMMS_WAITER_EVTGRP_TIMEOUT;
         return err;
     }
 

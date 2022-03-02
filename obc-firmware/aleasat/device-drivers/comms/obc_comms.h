@@ -36,30 +36,44 @@
 #define COMMS_MIBSPI_MUTEX_TIMEOUT_MS 100
 
 /**
- * @brief Comms receiver will wait on this bit, so if this is set, receiver will unblock
+ * @brief Comms message waiter will wait on this bit, so if this is set, waiter will unblock
  */
-#define COMMS_RX_EVENT_UNBLOCK_RECEIVER_BIT  (uint8_t)(1U << 1U)
+#define COMMS_RX_EVENT_UNBLOCK_WAITER_BIT  (uint8_t)(1U << 1U)
 
 /**
  * @brief Comms interrupt task will wait on this bit, so if this is set, it will unblock
  */
 #define COMMS_RX_EVENT_UNBLOCK_INT_TASK_BIT  (uint8_t)(1U << 2U)
 
-#define COMMS_RESPONSE_MUTEX_TIMEOUT_MS 20
+#define COMMS_WAITER_MUTEX_TIMEOUT_MS 40
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
 
 /**
- * @brief Struct representing parameters for how to handle a response message from Comms
+ * @brief Enum representing match spec for packet fields
  */
-typedef struct comms_response_params_struct {
+typedef enum {
+    COMMS_MATCH_ANY = 0,
+    COMMS_MATCH_EQUAL = 1
+} comms_match_spec_t;
+
+/**
+ * @brief Struct representing parameters to match a received packet for a waiter
+ */
+typedef struct comms_waiter_match_params_struct {
     bool waiter_present;
+    comms_match_spec_t match_is_response_spec;
+    uint8_t match_is_response;
+    comms_match_spec_t match_seqnum_spec;
     uint16_t match_seqnum;
+    comms_match_spec_t match_src_hwid_spec;
     hwid_t match_src_hwid;
+    comms_match_spec_t match_cmd_num_spec;
+    uint8_t match_cmd_num;
     comms_command_t* cmd_ptr;
-} comms_response_params_t;
+} comms_waiter_match_params_t;
 
 /******************************************************************************/
 /*                       G L O B A L  V A R I A B L E S                       */
@@ -71,7 +85,7 @@ typedef struct comms_response_params_struct {
 extern EventGroupHandle_t xMibspiCommsEventGroupHandle;
 extern SemaphoreHandle_t xMibspiCommsMutexHandle;
 
-extern EventGroupHandle_t xCommsResponseEventGroupHandle;
+extern EventGroupHandle_t xCommsWaiterEventGroupHandle;
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
@@ -86,7 +100,18 @@ void comms_interrupt_start_task(void);
 mibspi_err_t comms_mibspi_tx(uint16_t* tx_buffer);
 mibspi_err_t comms_mibspi_rx(uint16_t* rx_buffer);
 
-comms_err_t comms_set_response_waiter(uint16_t match_seqnum, hwid_t match_src_hwid, comms_command_t* cmd_ptr);
-comms_err_t comms_clear_response_waiter(void);
+comms_err_t comms_set_waiter_match(
+    comms_match_spec_t match_is_response_spec,
+    uint8_t match_is_response,
+    comms_match_spec_t match_seqnum_spec,
+    uint16_t match_seqnum,
+    comms_match_spec_t match_src_hwid_spec,
+    hwid_t match_src_hwid,
+    comms_match_spec_t match_cmd_num_spec,
+    uint8_t match_cmd_num,
+    comms_command_t* cmd_ptr
+);
+comms_err_t comms_set_waiter_match_struct(comms_waiter_match_params_t* match_params);
+comms_err_t comms_clear_waiter_match(void);
 
 #endif /* OBC_COMMS_H_ */

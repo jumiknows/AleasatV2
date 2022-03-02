@@ -163,6 +163,8 @@ const cmd_entry command_table[] = {
     {"test_comms_tx_only", &cmd_test_comms_tx_only},
     {"test_comms_tx_rx", &cmd_test_comms_tx_rx},
     {"test_comms_stress1", &cmd_test_comms_stress1},
+    {"test_comms_flash_app", &cmd_test_comms_flash_app},
+    {"test_comms_reboot", &cmd_test_comms_reboot},
     {"test_magnetorquer", &cmd_test_mag},
     {"test_magnetorquer_all", &cmd_test_mag_all},
     {"test_magnetorquer_init", &cmd_test_mag_init},

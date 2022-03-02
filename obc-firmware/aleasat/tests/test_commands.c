@@ -21,7 +21,9 @@
 #include "obc_cmd.h"
 #include "obc_comms.h"
 #include "obc_hardwaredefs.h"
-#include "comms_cc1110.h"
+#include "comms_cmd.h"
+#include "comms_flash.h"
+#include "comms_app_image.h"
 #include "obc_magnetorquer.h"
 #include "imu_bmx160.h"
 #include "ADIS16260_gyro.h"
@@ -131,6 +133,54 @@ void cmd_test_comms_stress1(uint32_t arg_len, void* arg) {
     else {
         prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "s1 pass %d fail %d", num_success, num_fail);
     }
+}
+
+/**
+ * @brief Tests flashing Comms with example app image in repo
+ *
+ * If testing with Comms board, change comms_hwid
+ */
+void cmd_test_comms_flash_app(uint32_t arg_len, void* arg) {
+    comms_err_t err;
+
+    err = comms_flash_image(comms_test_app_image_pages, comms_test_app_image_num_pages);
+    if (err == COMMS_SUCCESS) {
+        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "flash pass");
+    }
+    else {
+        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "flash fail");
+    }
+}
+
+/**
+ * @brief Test sending reboot command to Comms and waits for radio app start message
+ *
+ * Will fail if Comms doesn't have an app image loaded
+ *
+ * If testing with Comms board, change comms_hwid
+ */
+void cmd_test_comms_reboot(uint32_t arg_len, void* arg) {
+    comms_err_t err;
+    comms_command_t msg = {0};
+    comms_waiter_match_params_t app_start_match_spec = {
+        .match_cmd_num_spec = COMMS_MATCH_EQUAL,
+        .match_cmd_num = COMMS_RADIO_MSG_START,
+        .cmd_ptr = &msg
+    };
+
+    err = comms_send_cmd(comms_hwid, COMMS_RADIO_MSG_REBOOT, NULL, 0, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+    if (err != COMMS_SUCCESS) {
+        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "reboot fail 1");
+        return;
+    }
+
+    err = comms_wait_for_cmd(&app_start_match_spec, 2000);
+    if (err != COMMS_SUCCESS) {
+        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "reboot fail 2");
+        return;
+    }
+
+    prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "reboot pass");
 }
 
 /**

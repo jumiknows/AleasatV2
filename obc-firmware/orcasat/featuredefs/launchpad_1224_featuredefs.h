@@ -55,7 +55,7 @@
 
 /**
  * @brief IMU 2 ENABLE
- * 
+ *
  * 1: IMU 2 is present on the hardware
  * 0: IMU 2 is not present on the hardware and cannot be used
  */
@@ -69,6 +69,19 @@
  * 0: USE THIS! Comments out the RTI's vPortPreemptiveTick
  */
 #define USE_RTI_PREEMPTIVE_TICK 0
+
+/**
+ * @brief Include C source file of Comms test app image bytes in build.
+ * C file is large and only needed for specific purpose.
+ * If not included, cmd_test_comms_flash_app command will fail.
+ *
+ * 1: Include test app image bytes
+ * 0: Don't include test app image bytes
+ *
+ * @ref comms_app_image.c
+ *
+ */
+#define INCLUDE_COMMS_FIRMWARE_TEST_IMAGE 0
 
 /**
  * @brief The message to be used for reply of board type through the command system
