@@ -40,6 +40,7 @@ void cmd_gps_cmd(uint32_t arg_len, void* arg);
 
 // Testing
 void cmd_test_temperature(uint32_t arg_len, void* arg);
+void cmd_test_log_str(uint32_t arg_len, void* arg);
 void cmd_cfdp_pdu_demo(uint32_t arg_len, void* arg);
 
 #endif /* OBC_LONG_CMD_ACTIONS_H_ */

@@ -13,7 +13,7 @@
 #include "log_ids.h"
 #include "sys_common.h"
 
-#define MAX_PAYLOAD_SIZE 24 // bytes
+#define MAX_PAYLOAD_SIZE 245 // bytes
 
 typedef enum { DEBUG, WARNING, INFO, ERROR } log_level_t;
 

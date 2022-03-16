@@ -233,3 +233,15 @@ void cmd_gps_cmd(uint32_t arg_len, void* arg) {
 void cmd_test_temperature(uint32_t arg_len, void* arg) {
     self_test_temperature();
 }
+
+void cmd_test_log_str(uint32_t arg_len, void* arg) {
+    char test_payload[MAX_PAYLOAD_SIZE] = "";
+
+    log_str(DEBUG, PRINT_GENERAL, false, "A");
+
+    for (uint8_t i = 0; i < MAX_PAYLOAD_SIZE; i++) {
+        strcat(test_payload, "A");
+    }
+
+    log_str(DEBUG, PRINT_GENERAL, false, test_payload);
+}

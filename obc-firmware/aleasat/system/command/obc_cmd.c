@@ -171,6 +171,7 @@ const cmd_entry command_table[] = {
     {"test_imu", &cmd_imu_test},
     {"test_can_gpio", &cmd_test_can_gpio},
     {"test_panel_gyro", &cmd_test_panel_gyro},
+    {"test_log_str", &cmd_test_log_str},
 #endif // SYSTEM_TESTS
 };
 
