@@ -14,9 +14,7 @@
 #include "orca_telemetry_defs.h"
 #include "telem_snapshot.h"
 #include "logger.h"
-#include "FreeRTOS.h"
-#include "rtos_queue.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "obc_task_info.h"
 #include "telem_obc.h"
 #if !defined(PLATFORM_ALEA_V1)

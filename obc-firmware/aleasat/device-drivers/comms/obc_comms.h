@@ -17,9 +17,7 @@
 #include "obc_error.h"
 
 // FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_event_groups.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 
 // HAL
 #include "sys_common.h"

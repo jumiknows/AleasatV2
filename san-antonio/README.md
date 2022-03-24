@@ -11,15 +11,15 @@ This project uses [Pipenv](https://github.com/pypa/pipenv) to manage dependencie
     ```
     pip install --user pipenv
     ```
-2. Activate the Pipenv environment (from the `san_antonio` directory if using Python 3.7, or `python_3_8` folder if Python 3.8)
-
-    ```
-    pipenv shell
-    ```
-3. Install dependencies
+2. Install dependencies
 
     ```
     pipenv install
+    ```
+3. Activate the Pipenv environment
+
+    ```
+    pipenv shell
     ```
 
 **A couple notes about Pipenv**

@@ -6,9 +6,7 @@
  */
 
 #include "state.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "logger.h"
 #include "obc_task_info.h"
 

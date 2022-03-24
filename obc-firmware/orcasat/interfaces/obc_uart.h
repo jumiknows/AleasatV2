@@ -12,9 +12,7 @@
 #ifndef OBC_UART_H_
 #define OBC_UART_H_
 
-#include "FreeRTOS.h"
-#include "rtos_task.h"
-#include "rtos_queue.h"
+#include "rtos.h"
 #include "sci.h"
 #include "printf.h"
 #include "obc_error.h"

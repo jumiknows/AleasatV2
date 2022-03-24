@@ -21,8 +21,7 @@
 #ifdef PLATFORM_ORCA_V1 // TODO(ALEA-511): left reference until ALEA-357 RTC Driver is completed
 
 #include "obc_time.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "rtc_pca2129.h"
 #include "obc_hardwaredefs.h"
 #include "rtc_pca2129_defs.h"

@@ -9,9 +9,6 @@
 #ifndef OBC_MAIN_H_
 #define OBC_MAIN_H_
 
-#include "FreeRTOS.h"
-#include "rtos_task.h"
-
 void obc_main(void);
 
 #endif /* OBC_MAIN_H_ */

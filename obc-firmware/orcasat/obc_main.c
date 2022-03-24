@@ -6,8 +6,7 @@
  * @date April 18, 2020
  */
 #include "obc_main.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "sys_core.h"
 #include "rti.h"
 #include "het.h"
@@ -27,7 +26,6 @@
 #include "obc_gpio.h"
 #include "obc_cmd.h"
 #include "blinky.h"
-#include "unit_tests.h"
 #include "logger.h"
 #include "scheduler.h"
 #include "filesystem.h"
@@ -155,9 +153,10 @@ static void obc_main_task(void* pvParameters) {
     // Hardware is ready to go now. Print out some information about startup.
     log_str(INFO, PRINT_GENERAL, false, "ALEASAT Started");
     log_str(INFO, HW_TYPE, false, BOARD_TYPE_MSG);
-    print_startup_type();
-    log_PBIST_fails();
-    obc_startup_logs();
+    // TODO: Re-design startup
+    // print_startup_type();
+    // log_PBIST_fails();
+    // obc_startup_logs();
 
     // Create the internally scheduled actions
     obc_cmd_parse_and_invoke("0 count 20-01-01 0:0:10 5", INTERNAL);
@@ -210,8 +209,8 @@ void obc_main(void) {
      *
      * https://www.freertos.org/FreeRTOS-MPU-memory-protection-unit.html
      */
-    static StaticTask_t main_task_buf                        = {NULL};
-    static StackType_t main_task_stack[MAIN_TASK_STACK_SIZE] = {NULL};
+    static StaticTask_t main_task_buf                        = { 0 };
+    static StackType_t main_task_stack[MAIN_TASK_STACK_SIZE] = { 0 };
     xTaskCreateStatic(&obc_main_task, "main", MAIN_TASK_STACK_SIZE, NULL, portPRIVILEGE_BIT | MAIN_TASK_PRIORITY, main_task_stack, &main_task_buf);
 
     // Start the FreeRTOS scheduler
@@ -220,4 +219,13 @@ void obc_main(void) {
     while (1) {
         // Keep running the scheduler forever.
     }
+}
+
+/**
+ * @brief Overrides main function in sys_main.c
+ */
+int main(void)
+{
+    obc_main();
+    return 0;
 }

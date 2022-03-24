@@ -1,7 +1,7 @@
 #ifndef ORCASAT_HARDWARE_MOCK_MRAM_MOCK_H
 #define ORCASAT_HARDWARE_MOCK_MRAM_MOCK_H
 
-#include "FreeRTOS.h"
+#include "rtos.h"
 #include "obc_error.h"
 
 #define MOCK_MRAM_SIZE_BYTES 400U // number of addressable bytes

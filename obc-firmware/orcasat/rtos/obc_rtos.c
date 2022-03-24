@@ -9,9 +9,7 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "obc_rtos.h"
 #include "logger.h"
 #include "stdbool.h"
@@ -73,7 +71,6 @@ struct obc_rtos_errors rtos_errors = {.too_many_tasks = false, .rtos_task_create
 // Private Function Prototypes
 static TaskHandle_t _task_create_static(TaskFunction_t pxTaskCode, const char* const pcName, const uint32_t ulStackDepth, void* const pvParameters, UBaseType_t uxPriority,
                                         StackType_t* const puxStackBuffer, StaticTask_t* const pxTaskBuffer, uint32_t period_ms);
-static BaseType_t _task_create(TaskFunction_t pvTaskCode, const char* const pcName, uint16_t usStackDepth, void* pvParameters, UBaseType_t uxPriority, TaskHandle_t* pxCreatedTask, uint32_t period_ms);
 static task_params_t* set_task_params(uint8_t task_id, uint32_t period_ms, const char* const task_name, void* pvParameters);
 static bool ok_to_create_new_task(void);
 static uint8_t add_task(void);
@@ -435,32 +432,6 @@ TaskHandle_t task_create_periodic_static(TaskFunction_t pxTaskCode, const char* 
         return NULL;
     }
 }
-/**
- * @brief 	Wrapper for xTaskCreate, creates a task that has access to a period that can be changed
- * 			from outside the task itself.
- *
- *          If this function returns pdFALSE, there is not enough memory for FreeRTOS to create the
- * new task or MAX_NUM_TASKS needs to be increased.
- *
- * @param pvTaskCode: same as pvTaskCode parameter of xTaskCreate
- * @param pcName: same as pcName parameter of xTaskCreate. Cannot contain spaces.
- * @param usStackDepth: same as usStackDepth parameter of xTaskCreate
- * @param pvParameters: same as pvParameters parameter of xTaskCreate
- * @param uxPriority: same as uxPriority parameter of xTaskCreate
- * @param pxCreatedTask: same as pxCreatedTask parameter of xTaskCreate
- * @param period_ms: The period the task may use. Must be greater than zero.
- *
- * @return pdPASS if the task could be created. pdFAIL if the task could not be created or a period
- * of 0 was requested.
- */
-BaseType_t task_create_periodic(TaskFunction_t pvTaskCode, const char* const pcName, uint16_t usStackDepth, void* pvParameters, UBaseType_t uxPriority, TaskHandle_t* pxCreatedTask,
-                                uint32_t period_ms) {
-    if (period_ms > 0) {
-        return _task_create(pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask, period_ms);
-    } else {
-        return pdFAIL;
-    }
-}
 
 /**
  * @brief 	Wrapper for xTaskCreateStatic, adds the task to the list of tasks for watchdog to
@@ -481,65 +452,7 @@ TaskHandle_t task_create_static(TaskFunction_t pxTaskCode, const char* const pcN
     return _task_create_static(pxTaskCode, pcName, ulStackDepth, pvParameters, uxPriority, puxStackBuffer, pxTaskBuffer, 0);
 }
 
-/**
- * @brief 	Wrapper for xTaskCreate, adds the task to the list of tasks for watchdog to monitor.
- *          This function should be used for creating all tasks that are being monitored by the
- * watchdog.
- *
- * @param pvTaskCode: same as pvTaskCode parameter of xTaskCreate
- * @param pcName: same as pcName parameter of xTaskCreate. Cannot contain spaces.
- * @param usStackDepth: same as usStackDepth parameter of xTaskCreate
- * @param pvParameters: same as pvParameters parameter of xTaskCreate
- * @param uxPriority: same as uxPriority parameter of xTaskCreate
- * @param pxCreatedTask: same as pxCreatedTask parameter of xTaskCreate
- * @return pdPASS if the task could be created, otherwise pdFAIL.
- */
-BaseType_t task_create(TaskFunction_t pvTaskCode, const char* const pcName, uint16_t usStackDepth, void* pvParameters, UBaseType_t uxPriority, TaskHandle_t* pxCreatedTask) {
-    return _task_create(pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask, 0);
-}
-
 // ------------- Private Functions -------------
-
-/**
- * @brief 	Internal wrapper for FreeRTOS xTaskCreate, adds the task to the list of tasks for
- * watchdog to monitor.
- *
- *          If this function returns pdFALSE, there is not enough memory for FreeRTOS to create the
- * new task or MAX_NUM_TASKS needs to be increased.
- *
- * @param pvTaskCode: same as pvTaskCode parameter of xTaskCreate
- * @param pcName: same as pcName parameter of xTaskCreate
- * @param usStackDepth: same as usStackDepth parameter of xTaskCreate
- * @param pvParameters: same as pvParameters parameter of xTaskCreate
- * @param uxPriority: same as uxPriority parameter of xTaskCreate
- * @param pxCreatedTask: same as pxCreatedTask parameter of xTaskCreate
- * @param period_ms: The period the task may use.
- * @return pdPASS if the task could be created, otherwise pdFAIL.
- */
-static BaseType_t _task_create(TaskFunction_t pvTaskCode, const char* const pcName, uint16_t usStackDepth, void* pvParameters, UBaseType_t uxPriority, TaskHandle_t* pxCreatedTask,
-                               uint32_t period_ms) {
-    if (!ok_to_create_new_task()) {
-        return pdFALSE;
-    }
-
-    uint8_t task_id = number_of_tasks(); // Task ID is zero indexed, so the first-ever task ID will
-                                         // be 0 (the number of created tasks at this point)
-    task_params_t* params_full = set_task_params(task_id, period_ms, pcName, pvParameters);
-
-    BaseType_t result = pdFALSE;
-    if (xSemaphoreTake(xTaskArrayMutexHandle, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
-        result = xTaskCreate(pvTaskCode, pcName, usStackDepth, params_full, uxPriority, pxCreatedTask);
-        if (result == pdPASS) {
-            task_handles[task_id] = *pxCreatedTask;
-            add_task(); // Task created successfully, so increment the number of valid tasks.
-        } else {
-            rtos_errors.rtos_task_create_failed = true;
-        }
-
-        xSemaphoreGive(xTaskArrayMutexHandle);
-    }
-    return result;
-}
 
 /**
  * @brief 	Wrapper for xTaskCreateStatic, adds the task to the list of tasks for watchdog to

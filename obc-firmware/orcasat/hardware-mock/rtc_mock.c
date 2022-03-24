@@ -9,10 +9,9 @@
  * accessed through the obc_rtc API as if it were a dedicated RTC.
  */
 
-#include "FreeRTOS.h"
 #include "rtc_mock.h"
 #include "obc_task_info.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "obc_time.h"
 #include "logger.h"
 #include <string.h>
@@ -27,15 +26,12 @@ static void xStepMockRealTimeTask(void* pvParameters);
  * The RTC mock task increments @ref mock_real_time in the same pattern as the RTC hardware does.
  */
 void rtc_init_mock(void) {
+    static StaticTask_t step_mock_rtc_task_buf;
+    static StackType_t step_mock_rtc_task_stack[configMINIMAL_STACK_SIZE];
+
     rtc_set_current_time_mock(&orca_time_init);
 
-    BaseType_t err = xTaskCreate(&xStepMockRealTimeTask, "rtc_mock", configMINIMAL_STACK_SIZE, NULL, MAIN_TASK_PRIORITY, NULL);
-
-    if (err != pdPASS) {
-        log_str(ERROR, RTC_LOG, true, "RTC mock init failed.");
-    } else {
-        log_str(INFO, RTC_LOG, false, "RTC mock init OK");
-    }
+    xTaskCreateStatic(&xStepMockRealTimeTask, "rtc_mock", configMINIMAL_STACK_SIZE, NULL, MAIN_TASK_PRIORITY, step_mock_rtc_task_stack, &step_mock_rtc_task_buf);
 }
 
 /**

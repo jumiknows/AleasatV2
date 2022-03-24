@@ -7,12 +7,10 @@
  */
 
 #include "obc_watchdog.h"
-#include "FreeRTOS.h"
 #include "gio.h"
 #include "logger.h"
 #include "obc_hardwaredefs.h"
-#include "rtos_semphr.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "obc_rtos.h"
 #include "obc_task_info.h"
 

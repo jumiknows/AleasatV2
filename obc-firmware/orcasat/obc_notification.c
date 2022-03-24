@@ -17,15 +17,12 @@
  * @author Richard A
  * @date February 19, 2019
  */
-#include "orcasat_examples.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
-#include "unit_tests/unit_tests.h"
 #include "obc_mibspi.h"
 #include "obc_uart.h"
 #include "obc_featuredefs.h"
-#include "FreeRTOS.h"
-#include "rtos_event_groups.h"
+#include "rtos.h"
 #include "het.h"
 #include "logger.h"
 #include "obc_comms.h"

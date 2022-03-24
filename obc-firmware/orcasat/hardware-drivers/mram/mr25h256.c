@@ -12,10 +12,11 @@
 #include "obc_mibspi.h"
 #include "gio.h"
 #include "reg_het.h"
-#include "FreeRTOS.h"
 #include "obc_hardwaredefs.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "obc_error.h"
+
+#if FEATURE_MRAM
 
 // MRAM Commands
 #define MRAM_WREN  0x06
@@ -205,3 +206,5 @@ static mram_err_t mram_mr25h256_write_enable(bool enable) {
     err = mibspi_transmit(mram_1byte_tg, tx_buffer);
     return (err != MIBSPI_NO_ERR) ? MRAM_MIBSPI_ERR : MRAM_OK;
 }
+
+#endif // FEATURE_MRAM

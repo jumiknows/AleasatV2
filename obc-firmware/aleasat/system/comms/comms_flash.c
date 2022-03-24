@@ -41,7 +41,7 @@
 /******************************************************************************/
 
 comms_err_t comms_enter_bootloader_once(void);
-comms_err_t comms_attempt_flash(comms_app_image_page_t* pages, uint8_t num_pages);
+comms_err_t comms_attempt_flash(const comms_app_image_page_t* pages, uint8_t num_pages);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -55,7 +55,7 @@ comms_err_t comms_attempt_flash(comms_app_image_page_t* pages, uint8_t num_pages
  *
  * @return COMMS_SUCCESS or COMMS_FLASH_FAIL
  */
-comms_err_t comms_flash_image(comms_app_image_page_t* pages, uint8_t num_pages) {
+comms_err_t comms_flash_image(const comms_app_image_page_t* pages, uint8_t num_pages) {
     comms_err_t err;
     comms_command_t resp = {0};
     comms_waiter_match_params_t app_start_match_spec = {
@@ -132,7 +132,7 @@ comms_err_t comms_enter_bootloader_once(void) {
  *
  * @return COMMS_SUCCESS or COMMS_FLASH_FAIL
  */
-comms_err_t comms_attempt_flash(comms_app_image_page_t* pages, uint8_t num_pages) {
+comms_err_t comms_attempt_flash(const comms_app_image_page_t* pages, uint8_t num_pages) {
     comms_err_t cmd_ret = COMMS_UNKNOWN_ERR;
     comms_command_t resp = {0};
     uint8_t i;

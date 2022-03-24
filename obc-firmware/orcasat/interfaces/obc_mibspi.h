@@ -10,9 +10,7 @@
 
 #include "sys_common.h"
 #include "tms_mibspi.h"
-#include "FreeRTOS.h"
-#include "rtos_event_groups.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "obc_error.h"
 
 /**

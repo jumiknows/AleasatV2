@@ -7,8 +7,7 @@
 
 #include "obc_watchdog.h"
 #include "obc_gpio.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "blinky.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"

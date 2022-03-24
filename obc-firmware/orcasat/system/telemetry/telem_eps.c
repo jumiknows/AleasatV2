@@ -16,6 +16,8 @@
 #include "obc_hardwaredefs.h"
 #include "obc_adc.h"
 
+#if FEATURE_TELEM_EPS
+
 // Private functions
 static void eps_telem_check(void);
 
@@ -49,3 +51,5 @@ void eps_slow_telem_collect(void) {
  */
 static void eps_telem_check(void) {
 }
+
+#endif // FEATURE_TELEM_EPS

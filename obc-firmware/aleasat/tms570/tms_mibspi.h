@@ -18,9 +18,7 @@
 #include "sys_common.h"
 
 // FreeRtos
-#include "FreeRTOS.h"
-#include "rtos_event_groups.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 
 /******************************************************************************/
 /*                               D E F I N E S                                */

@@ -1,5 +1,5 @@
 #include "mram_mock.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 
 static uint8_t MRAM[MOCK_MRAM_SIZE_BYTES] = {0};
 

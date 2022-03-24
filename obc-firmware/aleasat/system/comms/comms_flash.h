@@ -36,6 +36,6 @@ typedef struct comms_app_image_page_struct {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-comms_err_t comms_flash_image(comms_app_image_page_t* pages, uint8_t num_pages);
+comms_err_t comms_flash_image(const comms_app_image_page_t* pages, uint8_t num_pages);
 
 #endif /* COMMS_FLASH_H_ */

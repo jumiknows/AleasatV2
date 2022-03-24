@@ -1,0 +1,25 @@
+.build:
+  stage: build
+  image:
+    name: registry.gitlab.com/alea-2020/command-data-handling/obc2-firmware/obc-fw-build-tools:latest
+    entrypoint: [""]
+  before_script:
+    - cd obc-firmware
+  only:
+    - merge_requests
+    - web
+  artifacts:
+      when: always
+      paths:
+          - "obc-firmware/build/_bin/*.elf"
+      expire_in: 1 month
+
+build-launchpad:
+  extends: .build
+  script:
+    - ./cmake_wrapper.sh launchpad
+
+build-alea-v1:
+  extends: .build
+  script:
+    - ./cmake_wrapper.sh alea-v1

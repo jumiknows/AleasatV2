@@ -10,9 +10,10 @@
 
 //OBC
 #include "obc_hardwaredefs.h"
+#include "obc_misra.h"
 
 //FreeRTOS
-#include "FreeRTOS.h"
+#include "rtos.h"
 #include "logger.h"
 
 #include "ADIS16260_gyro.h"
@@ -441,7 +442,7 @@ static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t* gyro, uint8_t addr, uin
     };
 
     /* Setup spi bus config packet */
-    const spi_config_t spi_config = {
+    spi_config_t spi_config = {
         SPI_FMT_3,
         false,
         false,
@@ -494,7 +495,7 @@ static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t* gyro, uint8_t addr, ui
     };
 
     /* Setup spi bus config packet */
-    const spi_config_t spi_config = {
+    spi_config_t spi_config = {
         SPI_FMT_3,
         false,
         false,

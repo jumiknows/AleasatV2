@@ -18,8 +18,7 @@
 #include "logger.h"
 
 // FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 
 // HAL
 #include "gio.h"
@@ -27,6 +26,8 @@
 // Standard Library
 #include <stdint.h>
 #include "assert.h"
+
+#if FEATURE_GPIO_EXPANDER
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -165,7 +166,7 @@ pcal6416a_irq_callback_t irq_callbacks[NUM_PORTS][NUM_PINS] = {
 static gpio_err_t configure_pull_regs(pcal6416a_port_t port, uint8_t pin, pcal6416a_pull_cfg_t pull_sel);
 static gpio_err_t configure_bit(pcal6416a_reg_t* reg, uint8_t pin, bool val);
 static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg);
-static gpio_err_t i2c_read_reg(pcal6416a_reg_t* reg, uint8_t* rx_data);
+static gpio_err_t i2c_read_reg(const pcal6416a_reg_t* reg, uint8_t* rx_data);
 static bool register_mismatch(pcal6416a_reg_t* predicted, uint8_t actual);
 
 /******************************************************************************/
@@ -529,7 +530,7 @@ static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg) {
  * @return GPIO_SUCCESS if the data in rx_data is valid, or GPIO_FAILURE indicating an IO error when
  * reading from the expander over I2C
  */
-static gpio_err_t i2c_read_reg(pcal6416a_reg_t* reg, uint8_t* rx_data) {
+static gpio_err_t i2c_read_reg(const pcal6416a_reg_t* reg, uint8_t* rx_data) {
     i2c_err_t status = tms_i2c_read(EXPANDER_ADDR, 1, &reg->addr, 1, rx_data, I2C_MUTEX_TIMEOUT_MS);
     if (status != I2C_SUCCESS) {
         log_str(ERROR, GPIO_EXPAND_LOG, true, "I2C read failure: %d", status);
@@ -557,3 +558,5 @@ static bool register_mismatch(pcal6416a_reg_t* predicted, uint8_t actual) {
 
     return mismatches;
 }
+
+#endif // FEATURE_GPIO_EXPANDER

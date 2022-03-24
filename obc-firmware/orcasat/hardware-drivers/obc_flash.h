@@ -10,8 +10,7 @@
 
 #include "obc_hardwaredefs.h"
 #include "obc_error.h"
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "sys_common.h"
 
 /**

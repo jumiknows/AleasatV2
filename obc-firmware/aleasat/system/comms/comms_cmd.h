@@ -28,7 +28,7 @@
 comms_err_t comms_send_cmd(
     hwid_t dest_hwid,
     uint8_t cmd_num,
-    uint8_t* cmd_data,
+    const uint8_t* cmd_data,
     uint8_t cmd_data_len,
     uint32_t timeout_ms
 );
@@ -36,7 +36,7 @@ comms_err_t comms_send_cmd(
 comms_err_t comms_send_recv_cmd(
     hwid_t dest_hwid,
     uint8_t cmd_num,
-    uint8_t* cmd_data,
+    const uint8_t* cmd_data,
     uint8_t cmd_data_len,
     comms_command_t* recv_cmd,
     uint32_t timeout_ms

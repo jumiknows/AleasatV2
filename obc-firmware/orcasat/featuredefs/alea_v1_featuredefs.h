@@ -47,7 +47,7 @@
  * 1: GPIO expander is present on the hardware
  * 0: no GPIO expander is present and GPIO expander functions will not be used.
  */
-#define GPIO_EXPANDER_EN 1
+#define FEATURE_GPIO_EXPANDER 1
 
 /**
  * @brief IMU 2 ENABLE

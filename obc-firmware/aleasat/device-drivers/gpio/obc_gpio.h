@@ -62,9 +62,9 @@
 typedef enum {
     GPIO_PORT_GIO,
     GPIO_PORT_CAN,
-#if GPIO_EXPANDER_EN
+#if FEATURE_GPIO_EXPANDER
     GPIO_PORT_EXP
-#endif // GPIO_EXPANDER_EN
+#endif // FEATURE_GPIO_EXPANDER
 } gpio_port_type_t;
 
 /**
@@ -88,9 +88,9 @@ typedef const struct {
     const union {
         gioPORT_t* const gio;
         canBASE_t* const can;
-#if GPIO_EXPANDER_EN
+#if FEATURE_GPIO_EXPANDER
         const pcal6416a_port_t exp;
-#endif // GPIO_EXPANDER_EN
+#endif // FEATURE_GPIO_EXPANDER
     } reg;
 } gpio_port_t;
 

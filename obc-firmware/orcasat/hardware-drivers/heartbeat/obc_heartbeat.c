@@ -17,6 +17,8 @@
 #include "obc_hardwaredefs.h"
 #include "het.h"
 
+#if FEATURE_HEARTBEAT
+
 /**
  * @brief Enables the heartbeat by starting PWM generation.
  *
@@ -39,3 +41,5 @@ void start_heartbeat(void) {
 void suspend_heartbeat(void) {
     pwmStop(OBC_HEARTBEAT_HET, OBC_HEARTBEAT_PWM);
 }
+
+#endif // FEATURE_HEARTBEAT

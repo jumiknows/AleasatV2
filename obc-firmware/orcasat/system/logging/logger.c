@@ -14,7 +14,7 @@
 #include "obc_rtc.h"
 #include "printf.h"
 #include "filesystem.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 
 #define HEADER_SIZE             7 // bytes
 #define MAX_STRING_LENGTH       MAX_PAYLOAD_SIZE + 1

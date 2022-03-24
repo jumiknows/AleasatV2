@@ -39,7 +39,7 @@
 #include "filesystem.h"
 #include "logger.h"
 #include "rtc_state.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 
 /**
  * @brief Definition and storage for the RTC mutex.

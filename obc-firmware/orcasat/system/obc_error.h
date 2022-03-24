@@ -15,7 +15,11 @@
 #ifndef ORCASAT_SYSTEM_OBC_ERROR_H_
 #define ORCASAT_SYSTEM_OBC_ERROR_H_
 
+#include "obc_misra.h"
+
+OBC_MISRA_CHECK_OFF
 #include "lfs.h"
+OBC_MISRA_CHECK_ON
 
 /**
  * @brief Return value for flash functions, indicating any errors.

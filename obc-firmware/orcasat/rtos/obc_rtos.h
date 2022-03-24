@@ -38,8 +38,7 @@
 
 #include <stdbool.h>
 #include "obc_error.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 
 /**
  * @brief The maximum number of tasks that can be created with the obc_rtos API.
@@ -196,16 +195,5 @@ TaskHandle_t task_create_static(TaskFunction_t pxTaskCode, const char* const pcN
  */
 TaskHandle_t task_create_periodic_static(TaskFunction_t pxTaskCode, const char* const pcName, const uint32_t ulStackDepth, void* const pvParameters, UBaseType_t uxPriority,
                                          StackType_t* const puxStackBuffer, StaticTask_t* const pxTaskBuffer, uint32_t period_ms);
-
-/**
- * @brief Creates a periodic task.
- */
-BaseType_t task_create_periodic(TaskFunction_t pvTaskCode, const char* const pcName, uint16_t usStackDepth, void* pvParameters, UBaseType_t uxPriority, TaskHandle_t* pxCreatedTask,
-                                uint32_t period_ms);
-
-/**
- * @brief Creates an aperiodic task.
- */
-BaseType_t task_create(TaskFunction_t pvTaskCode, const char* const pcName, uint16_t usStackDepth, void* pvParameters, UBaseType_t uxPriority, TaskHandle_t* pxCreatedTask);
 
 #endif /* ORCASAT_TASKS_OBC_RTOS_H_ */

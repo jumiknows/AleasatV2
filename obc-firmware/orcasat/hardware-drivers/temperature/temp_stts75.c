@@ -6,8 +6,7 @@
  */
 
 #include "temp_stts75.h"
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "tms_i2c.h"
 #include "logger.h"
 #include "obc_task_info.h"

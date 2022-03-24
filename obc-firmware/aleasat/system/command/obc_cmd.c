@@ -75,10 +75,6 @@ static void increment_seq_num(void);
  * absolutely every command function.
  */
 const cmd_entry command_table[] = {
-    /* Random OBC stats */
-    {"get_heap", &cmd_get_heap},
-    {"get_minheap", &cmd_get_minheap},
-
     /* RTC Commands */
     {"rtc_stats", &cmd_rtc_stats},
     {"rtc_info", &cmd_rtc_info},

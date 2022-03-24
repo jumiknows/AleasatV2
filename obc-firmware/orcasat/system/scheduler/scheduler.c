@@ -25,9 +25,7 @@
 
 #include "scheduler.h"
 #include "obc_task_info.h"
-#include "rtos_queue.h"
-#include "rtos_semphr.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "logger.h"
 #include "obc_watchdog.h"
 #include "obc_time.h"

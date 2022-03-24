@@ -8,8 +8,7 @@
 
 #include "filesystem.h"
 #include "obc_flash.h"
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include <string.h>
 #include "obc_rtc.h"
 #include "obc_time.h"
@@ -20,6 +19,10 @@
 #include "obc_task_info.h"
 #include "obc_misra.h"
 #include "obc_featuredefs.h"
+
+OBC_MISRA_CHECK_OFF
+#include "lfs.h"
+OBC_MISRA_CHECK_ON
 
 /**
  * @brief Minimum number of cfg.block_size-sized blocks remaining in the

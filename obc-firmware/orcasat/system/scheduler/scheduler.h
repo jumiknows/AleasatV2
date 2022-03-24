@@ -9,7 +9,7 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-#include "FreeRTOS.h"
+#include "rtos.h"
 #include "obc_rtc.h"
 #include "obc_error.h"
 

@@ -12,6 +12,8 @@
 #include "obc_mibspi.h"
 #include "gio.h"
 
+#if FEATURE_ECC_FLASH
+
 /**
  * Questions related to desired functionality:
  * 1. Do we want reset ability? (standby mode might affect current draw...)
@@ -495,3 +497,5 @@ static flash_err_t ecc_flash_write_enable(bool enable) {
 
     return (err != MIBSPI_NO_ERR) ? FLASH_MIBSPI_ERR : FLASH_OK;
 }
+
+#endif // FEATURE_ECC_FLASH

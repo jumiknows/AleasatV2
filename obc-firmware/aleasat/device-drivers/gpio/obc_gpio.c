@@ -39,17 +39,13 @@
 #include "obc_watchdog.h"
 #include "tms_can.h"
 
-#if GPIO_EXPANDER_EN == 1
 #include "gpio_pcal6416a.h"
-#endif
 
 // Logging
 #include "logger.h"
 
 // FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_task.h"
-#include "rtos_queue.h"
+#include "rtos.h"
 
 // HAL
 #include "gio.h"
@@ -104,7 +100,7 @@ void gpio_init_hw(void) {
  * @brief Enable GPIO interrupts.
  */
 void gpio_init_irq(void) {
-#if GPIO_EXPANDER_EN == 1
+#if FEATURE_GPIO_EXPANDER
     gioEnableNotification(OBC_EXPAND_IRQ_N_PORT, OBC_EXPAND_IRQ_N_PIN);
 #endif
     /* MODIFY HERE: add further interrupt enable calls, if required */
@@ -132,7 +128,7 @@ void gpio_create_infra(void) {
  * Use the blinky pin as an example, and @ref gpio_pcal6416a.h functions.
  */
 void gpio_expander_init(void) {
-#if GPIO_EXPANDER_EN == 1
+#if FEATURE_GPIO_EXPANDER
     /* Initialize the expander with reset values */
     if (pcal6416a_init() != GPIO_SUCCESS) {
         log_str(ERROR, GPIO_EXPAND_LOG, true, "Expander init failed");
@@ -165,7 +161,7 @@ void gpio_expander_init(void) {
  * @brief Reset of GPIO expander
  */
 void gpio_expander_reset(void) {
-#if GPIO_EXPANDER_EN == 1
+#if FEATURE_GPIO_EXPANDER
     pcal6416a_reset();
 #endif
 }
@@ -227,7 +223,7 @@ gpio_err_t obc_gpio_write(gpio_port_t port, uint32_t pin, uint32_t value) {
             tms_can_gpio_write(port.reg.can, (can_pin_t)pin, value);
             err = GPIO_SUCCESS;
             break;
-#if GPIO_EXPANDER_EN == 1
+#if FEATURE_GPIO_EXPANDER
         case GPIO_PORT_EXP:
             err = pcal6416a_gpio_write(port.reg.exp, pin, value);
             break;
@@ -263,7 +259,7 @@ gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t* value) {
             *value = tms_can_gpio_read(port.reg.can, (can_pin_t)pin);
             err = GPIO_SUCCESS;
             break;
-#if GPIO_EXPANDER_EN == 1
+#if FEATURE_GPIO_EXPANDER
         case GPIO_PORT_EXP:
             err = pcal6416a_gpio_read(port.reg.exp, pin, value);
             break;
@@ -302,7 +298,7 @@ static void vGPIOServiceTask(void* pvParameters) {
             set_task_status(wd_task_id, task_alive);
 
 /* Handle pins on the GPIO expander if it exists */
-#if GPIO_EXPANDER_EN == 1
+#if FEATURE_GPIO_EXPANDER
             if ((irq_info.port == OBC_EXPAND_IRQ_N_PORT) && (irq_info.pin == OBC_EXPAND_IRQ_N_PIN)) {
                 pcal6416a_handle_interrupts();
             }

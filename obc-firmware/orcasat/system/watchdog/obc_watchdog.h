@@ -8,8 +8,7 @@
 #ifndef OBC_WATCHDOG_PET_H_
 #define OBC_WATCHDOG_PET_H_
 
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "obc_rtos.h"
 #include "stdbool.h"
 

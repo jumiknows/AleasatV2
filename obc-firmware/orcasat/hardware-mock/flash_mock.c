@@ -13,8 +13,7 @@
 #include "obc_utils.h"
 #include "obc_watchdog.h"
 #include "obc_misra.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include <string.h>
 #include "sys_common.h"
 #include "system.h"

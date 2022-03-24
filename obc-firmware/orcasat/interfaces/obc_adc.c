@@ -17,9 +17,7 @@
 #include "obc_uart.h"
 #include "sys_common.h"
 #include "adc.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "logger.h"
 
 adcData_t adc_data[ADC_MAX_CHANNELS];

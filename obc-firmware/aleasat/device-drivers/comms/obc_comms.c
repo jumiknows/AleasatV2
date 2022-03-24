@@ -20,8 +20,7 @@
 #include "logger.h"
 
 // FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 
 // HAL
 #include "het.h"

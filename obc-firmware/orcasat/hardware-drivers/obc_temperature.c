@@ -27,6 +27,8 @@ temp_err_t read_temp(int16_t* temp) {
 #ifdef PLATFORM_LAUNCHPAD_1224
     *temp = LAUNCHPAD_MOCK_TEMP;
     return TEMP_SUCCESS;
+#else
+    return TEMP_FAILURE;
 #endif /* PLATFORM_LAUNCHPAD_1224 */
 }
 
@@ -45,7 +47,4 @@ void self_test_temperature(void) {
  * @brief Hard reset of temperature sensor
  */
 void reset_temp(void) {
-#ifdef PLATFORM_LAUNCHPAD_1224
-    return I2C_SUCCESS;
-#endif /* PLATFORM_LAUNCHPAD_1224 */
 }

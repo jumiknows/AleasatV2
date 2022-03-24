@@ -14,9 +14,7 @@
 #include "obc_utils.h"
 
 // FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
-#include "rtos_task.h"
+#include "rtos.h"
 
 // Standard Library
 #include <stdbool.h>

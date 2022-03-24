@@ -23,7 +23,6 @@
 #include "backup_epoch.h"
 #include "rtc_cmds.h"
 #include "rtc_state.h"
-#include "unit_tests.h"
 #include "hang.h"
 #include "filesystem.h"
 #include "low_power.h"
@@ -103,22 +102,6 @@ void cmd_ack(uint32_t arg_len, void* arg) {
 void cmd_ping(uint32_t arg_len, void* arg) {
     // NOTE: tests assume that this command does not log to the filesystem.
     prompt_cmd_response(INFO, PING_CMD, false, "Ping");
-}
-
-/**
- * @brief Current amount of free RTOS heap.
- */
-void cmd_get_heap(uint32_t arg_len, void* arg) {
-    size_t heap_size = xPortGetFreeHeapSize();
-    prompt_cmd_response(INFO, GET_HEAP_CMD, true, "Heap: %d bytes", heap_size);
-}
-
-/**
- * @brief Minimum amount of free RTOS heap since boot.
- */
-void cmd_get_minheap(uint32_t arg_len, void* arg) {
-    size_t heap_size = xPortGetMinimumEverFreeHeapSize();
-    prompt_cmd_response(INFO, GET_MINHEAP_CMD, true, "Minheap: %d bytes", heap_size);
 }
 
 /**
@@ -297,7 +280,7 @@ void cmd_rtc_ts(uint32_t arg_len, void* arg) {
  * @brief Initiates file-system test.
  */
 void cmd_exec_fs_test(uint32_t arg_len, void* arg) {
-    test_filesystem();
+    // TODO
 }
 
 /** @brief Count command, increments a counter. This can be
@@ -578,11 +561,13 @@ void cmd_telem_obc_fast(uint32_t arg_len, void* arg) {
  * @brief Log all EPS slow-rate telemetry.
  */
 void cmd_telem_eps_slow(uint32_t arg_len, void* arg) {
+#if FEATURE_TELEM_EPS
     char* args[1]    = {NULL};
     uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
     if (num_args == 0) {
         eps_slow_telem_collect();
     }
+#endif // FEATURE_TELEM_EPS
 }
 #endif // !defined(PLATFORM_ALEA_V1)
 

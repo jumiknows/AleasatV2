@@ -13,8 +13,7 @@
 #ifndef RTC_PCA2129_H_
 #define RTC_PCA2129_H_
 
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "gio.h"
 #include "obc_rtc.h"
 #include "logger.h"

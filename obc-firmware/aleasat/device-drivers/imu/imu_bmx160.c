@@ -15,10 +15,10 @@
 #include "logger.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
+#include "obc_misra.h"
 
 // FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 
 /******************************************************************************/
 /*                               D E F I N E S                                */

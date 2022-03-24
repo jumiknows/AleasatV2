@@ -16,8 +16,7 @@
 #include "obc_uart.h"
 #include "obc_misra.h"
 #include "logger.h"
-#include "rtos_timer.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "assert.h"
 
 #define GPS_ACQUISITION_POLL_INTERVAL_MS 1000

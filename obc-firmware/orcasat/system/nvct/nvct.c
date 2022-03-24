@@ -5,8 +5,7 @@
  */
 
 #include "nvct.h"
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "stdbool.h"
 #include "obc_mram.h"
 #include "lfs_util.h"

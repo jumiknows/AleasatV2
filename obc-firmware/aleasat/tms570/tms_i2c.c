@@ -23,9 +23,7 @@
 #include "log_ids.h"
 
 // FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
-#include "rtos_task.h"
+#include "rtos.h"
 
 // HAL
 #include "i2c.h"

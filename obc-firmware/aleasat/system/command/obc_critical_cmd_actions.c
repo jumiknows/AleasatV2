@@ -6,10 +6,6 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-// FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_mpu_wrappers.h"
-
 // OBC
 #include "obc_critical_cmd_actions.h"
 #include "obc_heartbeat.h"
@@ -19,10 +15,15 @@
 /******************************************************************************/
 
 /**
+ * @brief See application_defined_privileged_functions.h
+ */
+void vPrivilegedCPUReset(void);
+
+/**
  * @brief Resets the OBC.
  */
 void cmd_nrst(uint32_t arg_len, void* arg) {
-    tms570_nrst();
+    vPrivilegedCPUReset();
 }
 
 #ifndef PLATFORM_ALEA_V1 // TODO use COMMS_WD signal for heartbeat (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/60)

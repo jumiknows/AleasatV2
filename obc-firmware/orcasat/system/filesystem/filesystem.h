@@ -11,8 +11,7 @@
 #include "sys_common.h"
 #include "obc_error.h"
 #include "obc_rtc.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 
 /**
  * @brief Holds the names of all the files that will be generated

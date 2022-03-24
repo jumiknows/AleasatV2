@@ -28,7 +28,6 @@ static void obc_telem_check_fast(void);
 
 static uint16_t ramoccur_1_obc_telem(void);
 static uint16_t ramoccur_2_obc_telem(void);
-static uint32_t rtos_minheap_obc_telem(void);
 
 /**
  * @brief OBC telemetry collection function (slow rate).
@@ -37,7 +36,6 @@ static uint32_t rtos_minheap_obc_telem(void);
  * while also performing the internal OBC telemetry logging.
  */
 void obc_slow_telem_collect(void) {
-    OBC_SLOW.minheap    = rtos_minheap_obc_telem();
     OBC_SLOW.ramoccur_1 = ramoccur_1_obc_telem();
     OBC_SLOW.ramoccur_2 = ramoccur_2_obc_telem();
     // TODO: other slow telemetry
@@ -119,13 +117,4 @@ static uint16_t ramoccur_1_obc_telem(void) {
  */
 static uint16_t ramoccur_2_obc_telem(void) {
     return tcram2REG->RAMOCCUR;
-}
-
-/**
- * @brief Gets the minimum heap available to the RTOS during the lifecycle of the application (time
- * since boot).
- * @return Minimum free heap (bytes).
- */
-static uint32_t rtos_minheap_obc_telem(void) {
-    return xPortGetMinimumEverFreeHeapSize();
 }

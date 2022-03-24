@@ -8,8 +8,7 @@
 #include "obc_settings.h"
 #include <string.h>
 #include "settings.h"
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 #include "logger.h"
 #include "nvct.h"
 

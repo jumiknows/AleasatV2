@@ -27,8 +27,7 @@
 #include "obc_error.h"
 #include "obc_time.h"
 #include "rtc_state.h"
-#include "FreeRTOS.h"
-#include "rtos_semphr.h"
+#include "rtos.h"
 
 /**
  * @brief Recursive mutex to protect access to the RTC.

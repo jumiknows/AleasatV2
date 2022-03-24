@@ -31,7 +31,7 @@ comms_err_t comms_build_buffer(
     hwid_t dest_hwid,
     uint16_t seqnum,
     uint8_t cmd_num,
-    uint8_t* cmd_data,
+    const uint8_t* cmd_data,
     uint8_t cmd_data_len,
     uint16_t* buf
 );

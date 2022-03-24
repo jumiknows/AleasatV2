@@ -7,8 +7,7 @@
 
 #include "obc_watchdog.h"
 #include "obc_gpio.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "blinky.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
@@ -40,7 +39,7 @@ void blinky_start_task(void) {
  * This will only create the task on platforms that have a GPIO expander.
  */
 void expander_blinky_start_task(void) {
-#if GPIO_EXPANDER_EN
+#if FEATURE_GPIO_EXPANDER
     static StaticTask_t blinky_task_buf                                   = {NULL};
     static StackType_t blinky_task_stack[EXPANDER_BLINKY_TASK_STACK_SIZE] = {NULL};
     xExpanderBlinkyTaskHandle =
@@ -71,7 +70,7 @@ void hercules_blinky(void* pvParameters) {
  * @brief Blinks an LED using a GPIO expander pin at 5 Hz.
  */
 void expander_blinky(void* pvParameters) {
-#if GPIO_EXPANDER_EN == 1
+#if FEATURE_GPIO_EXPANDER
 
     uint32_t blink       = 0;
     task_id_t wd_task_id = WD_TASK_ID(pvParameters);

@@ -17,8 +17,7 @@
 #include "obc_gpio.h"
 
 //FreeRTOS
-#include "FreeRTOS.h"
-#include "rtos_timer.h"
+#include "rtos.h"
 
 
 /******************************************************************************/

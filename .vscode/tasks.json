@@ -1,0 +1,64 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Firmware",
+            "type": "shell",
+            "command": "./fw_build.sh ${input:platform}",
+            "options": {
+                "cwd": "${workspaceFolder}/obc-firmware"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/obc-firmware"
+                ],
+                "pattern": {
+                    "regexp": "\"/usr/local/src/repo/obc-firmware(.*)\", line (\\d+): (info|warning|(?:|fatal |catastrophic )error): (\\((.*)\\) )?(.*)",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "code": 5,
+                    "message": 6
+                }
+            }
+        },
+        {
+            "label": "San Antonio (Windows)",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "powershell.exe",
+                    "args": [
+                        "-NoProfile",
+                        "-ExecutionPolicy",
+                        "Bypass",
+                        "-Command"
+                    ]
+                }
+            },
+            "command": "cd san-antonio; pipenv install; pipenv run python src/main.py",
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "platform",
+            "type": "pickString",
+            "description": "Select a hardware platform",
+            "options": [
+                "launchpad",
+                "alea-v1"
+            ],
+            "default": "launchpad"
+        }
+    ]
+}

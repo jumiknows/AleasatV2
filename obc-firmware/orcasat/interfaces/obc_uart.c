@@ -18,7 +18,7 @@
 #include "obc_misra.h"
 #include "obc_utils.h"
 #include "obc_task_info.h"
-#include "rtos_timer.h"
+#include "rtos.h"
 
 /**
  * @brief The maximum length of a command.
@@ -107,9 +107,17 @@ static void gps_uart_timer_callback(TimerHandle_t timer_handle) {
 void uart_create_infra(void) {
     static StaticTimer_t xUartRecvTimerBuffer;
 
+    // Debug Serial
+    static StaticQueue_t xDebugSerialRXStaticQueue;
+    static uint8_t debug_serial_rx_queue_buffer[MAX_CMD_LEN_BYTES * DEBUG_RX_QUEUE_DEPTH];
+
+    // GPS Serial
+    static StaticQueue_t xGpsSerialRXStaticQueue;
+    static uint8_t gps_serial_rx_queue_buffer[GPS_RX_QUEUE_DEPTH];
+
     debug_uart_mutex    = xSemaphoreCreateMutexStatic(&debug_uart_mutex_buffer);
-    xDebugSerialRXQueue = xQueueCreate((MAX_CMD_LEN_BYTES * DEBUG_RX_QUEUE_DEPTH), sizeof(portCHAR));
-    xGpsSerialRXQueue   = xQueueCreate(GPS_RX_QUEUE_DEPTH, sizeof(portCHAR));
+    xDebugSerialRXQueue = xQueueCreateStatic((MAX_CMD_LEN_BYTES * DEBUG_RX_QUEUE_DEPTH), sizeof(portCHAR), debug_serial_rx_queue_buffer, &xDebugSerialRXStaticQueue);
+    xGpsSerialRXQueue   = xQueueCreateStatic(GPS_RX_QUEUE_DEPTH, sizeof(portCHAR), gps_serial_rx_queue_buffer, &xGpsSerialRXStaticQueue);
     xUartRecvTimer      = xTimerCreateStatic("GPS UART recv timer", pdMS_TO_TICKS(GPS_UART_RX_TIMEOUT_MS), pdFALSE, NULL, &gps_uart_timer_callback, &xUartRecvTimerBuffer);
 }
 

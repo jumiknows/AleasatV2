@@ -12,8 +12,7 @@
 #include "rtc_pca2129.h"
 #include "dual_rtc_pca2129.h"
 #include "rtc_state.h"
-#include "FreeRTOS.h"
-#include "rtos_task.h"
+#include "rtos.h"
 #include "obc_rtc.h"
 
 // Private function prototypes

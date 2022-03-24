@@ -9,7 +9,7 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
-#include "FreeRTOS.h"
+#include "rtos.h"
 #include "log_ids.h"
 #include "sys_common.h"
 
