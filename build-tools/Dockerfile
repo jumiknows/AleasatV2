@@ -8,7 +8,13 @@ RUN apt-get update \
         ca-certificates \
         cmake \
         make \
-        git
+        git \
+        python3 \
+        python3-pip
+
+# Install necessary python modules
+RUN pip3 install \
+        jinja2
 
 # Download and install the TI ARM Code Generation Tools (i.e. compiler toochain)
 ARG COMPILER_VERSION="20.2.6.LTS"

@@ -69,6 +69,15 @@ add_subdirectory(lib/littlefs-2.4.2)
 
 # Generated Files
 configure_file(template/firmware_info.h.in firmware_info.h)
+add_custom_command(
+    OUTPUT              generated/log_ids.h
+    WORKING_DIRECTORY   ${CMAKE_CURRENT_LIST_DIR}
+    COMMAND             python3 tools/logging/log_ids_h_gen.py
+                            -i ${CMAKE_CURRENT_SOURCE_DIR}/tools/logging/log_ids.json
+                            -t ${CMAKE_CURRENT_SOURCE_DIR}/tools/logging/log_ids_template.h
+                            -o ${CMAKE_CURRENT_BINARY_DIR}/generated/log_ids.h
+    DEPENDS             ./tools/logging/log_ids.json    ./tools/logging/log_ids_template.h
+)
 
 ################################################################################
 # GLOB FILES
@@ -96,7 +105,10 @@ endforeach()
 ################################################################################
 
 # Executable
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME}
+    ${SRC_FILES}
+    generated/log_ids.h # Generated log id file
+)
 
 # Link Libraries
 # target_link_libraries(${PROJECT_NAME} printf)
@@ -114,6 +126,7 @@ target_link_libraries(${PROJECT_NAME} platform)
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${SRC_DIRS_ALEASAT}
     ${SRC_DIRS_ORCASAT}
+    ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
 # Defines
