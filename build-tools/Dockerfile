@@ -25,5 +25,3 @@ ENV OBC_FIRMWARE_DOCKER=1
 ENV TI_CGT_ARM_DIR="/opt/ti/ti-cgt-arm_${COMPILER_VERSION}"
 
 WORKDIR /
-
-ENTRYPOINT [ "/bin/bash", "-l", "-c"]

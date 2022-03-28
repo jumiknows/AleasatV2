@@ -16,4 +16,4 @@ docker run --rm -it                  \
     -v ${PWD}/..:${MOUNT_DIR}        \
     --workdir ${MOUNT_DIR}/${FW_DIR} \
     obc-fw-build-tools:latest        \
-    "${CMD}"
+    ${CMD}
