@@ -115,13 +115,6 @@ const cmd_entry command_table[] = {
     {"last_response", &cmd_last_response},
     {"print_sched", &cmd_print_sched},
 
-    /* Telemetry Commands */
-    {"obc_slow", &cmd_telem_obc_slow},
-    {"obc_fast", &cmd_telem_obc_fast},
-#if !defined(PLATFORM_ALEA_V1)
-    {"eps_slow", &cmd_telem_eps_slow},
-#endif // !defined(PLATFORM_ALEA_V1)
-
     /* GPS Commands */
     {"gps_time", &cmd_gps_time},
     {"gps_xyz", &cmd_gps_xyz},

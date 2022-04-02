@@ -24,25 +24,41 @@
 #include "obc_rtos.h"
 #include "scheduler.h"
 #include "filesystem.h"
+#include "filenames.h"
 #include <string.h>
 
 // Telemetry logging queue setup
 #define QUEUE_LENGTH \
-    (5) // Number of outstanding telemetry requests. This should be greater than the greatest number \
+    (8) // Number of outstanding telemetry requests. This should be greater than the greatest number \
         // of data bins with identical collection rates.
 #define TIMEOUT_MS \
-    (2000)                             // Time to wait for the telemetry logging queue to have free space before abandoning the \
+    (2000) // Time to wait for the telemetry logging queue to have free space before abandoning the \
                                        // telemetry log request.
+
+#define TELEM_FAST_RATE 30000 // Telemetry collection rate (in ms)
+
+// Telemetry collection periods
+#define TELEM_CONDN_PERIOD  2
+#define TELEM_NORMAL_PERIOD 3
+#define TELEM_SLOW_PERIOD   4
+
+#define MAX_INDEX 240
+
 #define ITEM_SIZE (sizeof(data_bin_t)) // Size of items in the telemetry logging queue
 uint8_t telem_queue_storage[QUEUE_LENGTH * ITEM_SIZE];
 QueueHandle_t telem_queue = NULL;
 
 // Static logging task setup
+StaticTask_t telem_collect_task_buf;
+StackType_t telem_collect_stack[TELEM_TASK_STACK_SIZE];
+
 StaticTask_t telem_task_buf;
 StackType_t telem_stack[TELEM_TASK_STACK_SIZE];
 
 // Private Function Declarations
 static void log_file(data_bin_t data_bin, const char* filename, const void* data, uint32_t size);
+
+static void vTelemCollect(void* pvParameters);
 static void vTelemLoggerTask(void* pvParameters);
 
 /**
@@ -60,7 +76,8 @@ void telem_create_infra(void) {
  * data from the snapshot and save it to files.
  */
 void telem_start_task(void) {
-    TaskHandle_t xTelemTaskHandle = task_create_static(&vTelemLoggerTask, "telem_log", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_stack, &telem_task_buf);
+    TaskHandle_t xTelemCollectTaskHandle = task_create_static(&vTelemCollect, "telem_collect", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_collect_stack, &telem_collect_task_buf);
+    TaskHandle_t xTelemTaskHandle        = task_create_static(&vTelemLoggerTask, "telem_log", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_stack, &telem_task_buf);
 }
 
 /**
@@ -85,6 +102,43 @@ void log_telem(data_bin_t bin) {
 
 //-------- Private Functions -----------
 
+static void vTelemCollect(void* pvParameters) {
+    static uint32_t collectIndex = 0;
+    task_id_t wd_task_id         = WD_TASK_ID(pvParameters);
+
+    /* Initialize Tick Count Variable With the Current Time. */
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+
+    while (1) {
+        /* Set task status to alive. */
+        set_task_status(wd_task_id, task_alive);
+
+        obc_fast_telem_collect();
+        eps_fast_telem_collect();
+
+        if (collectIndex % TELEM_SLOW_PERIOD == 0) {
+            obc_slow_telem_collect();
+            eps_slow_telem_collect();
+        }
+
+        if (collectIndex % TELEM_CONDN_PERIOD == 0) {
+            eps_condn_telem_collect();
+        }
+
+        if (collectIndex % TELEM_NORMAL_PERIOD == 0) {
+            eps_normal_telem_collect();
+        }
+
+        collectIndex = (++collectIndex % MAX_INDEX);
+
+        /* Telemetry is Collected At Fast Rate. */
+        set_task_status(wd_task_id, task_asleep);
+        vTaskDelayUntil(&xLastWakeTime,                // Time At Which Task Was Last Unblocked
+                        pdMS_TO_TICKS(TELEM_FAST_RATE) // Fast Telemetry Rate
+        );
+    }
+}
+
 /**
  * @brief Task that wakes up when items are pushed into the telemetry logging queue.
  *
@@ -105,14 +159,23 @@ static void vTelemLoggerTask(void* pvParameters) {
 
             // Log the appropriate data based on the request type
             switch (bin) {
-                case OBC_SLOW_TELEM:
-                    log_file(bin, "obc_slow", (const void*)&snapshot.obc_slow, sizeof(snapshot.obc_slow));
-                    break;
                 case OBC_FAST_TELEM:
-                    log_file(bin, "obc_fast", (const void*)&snapshot.obc_fast, sizeof(snapshot.obc_fast));
+                    log_file(bin, OBC_FAST_FILENAME, (const void*)&snapshot.obc_fast, sizeof(snapshot.obc_fast));
+                    break;
+                case OBC_SLOW_TELEM:
+                    log_file(bin, OBC_SLOW_FILENAME, (const void*)&snapshot.obc_slow, sizeof(snapshot.obc_slow));
+                    break;
+                case EPS_NORMAL_TELEM:
+                    log_file(bin, EPS_NORMAL_FILENAME, (const void*)&snapshot.eps_normal, sizeof(snapshot.eps_normal));
+                    break;
+                case EPS_FAST_TELEM:
+                    log_file(bin, EPS_FAST_FILENAME, (const void*)&snapshot.eps_fast, sizeof(snapshot.eps_fast));
                     break;
                 case EPS_SLOW_TELEM:
-                    log_file(bin, "eps_slow", (const void*)&snapshot.eps_slow, sizeof(snapshot.eps_slow));
+                    log_file(bin, EPS_SLOW_FILENAME, (const void*)&snapshot.eps_slow, sizeof(snapshot.eps_slow));
+                    break;
+                case EPS_CONDN_TELEM:
+                    log_file(bin, EPS_CONDN_FILENAME, (const void*)&snapshot.eps_condn, sizeof(snapshot.eps_condn));
                     break;
                 default:
                     log_str(ERROR, TELEM_INFRA, true, "Invalid telem request bin of %d", bin);

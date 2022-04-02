@@ -67,11 +67,6 @@ void cmd_fs_size(uint32_t arg_len, void* arg);
 // Misc. OBC telemetry
 void cmd_get_temperature(uint32_t arg_len, void* arg);
 
-// Telemetry collection
-void cmd_telem_obc_slow(uint32_t arg_len, void* arg);
-void cmd_telem_obc_fast(uint32_t arg_len, void* arg);
-void cmd_telem_eps_slow(uint32_t arg_len, void* arg);
-
 // Periodic Actions
 void cmd_get_period(uint32_t arg_len, void* arg);
 void cmd_set_period(uint32_t arg_len, void* arg);

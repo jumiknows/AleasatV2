@@ -7,6 +7,7 @@
  */
 
 #include "filesystem.h"
+#include "filenames.h"
 #include "obc_flash.h"
 #include "rtos.h"
 #include <string.h>
@@ -62,7 +63,7 @@ OBC_MISRA_CHECK_ON
  * visible alphanumeric characters, because FILE_NAME_SIZE includes
  * the null terminator.
  */
-const char* files[MAX_FILES] = {"sys_log", "err_log", "obc_fast", "obc_slow", "eps_slow"};
+const char* files[MAX_FILES] = {SYS_LOG_FILENAME, ERR_LOG_FILENAME, OBC_FAST_FILENAME, OBC_SLOW_FILENAME, EPS_NORMAL_FILENAME, EPS_FAST_FILENAME, EPS_SLOW_FILENAME, EPS_CONDN_FILENAME};
 
 char curr_dir[DIR_NAME_SIZE] = "";
 
@@ -1080,7 +1081,7 @@ static int32_t bd_prog(const struct lfs_config* cnfg, lfs_block_t block, lfs_off
 static int32_t bd_erase(const struct lfs_config* cnfg, lfs_block_t block) {
     if (!block_bit_set(block)) {
         set_block_bit(block); // Set to indicate that this block now has an erased state
-#ifdef PLATFORM_ORCA_V1 // TODO(ALEA-511): include PLATFORM_ALEA_V1 once flash driver is working (ALEA-174)
+#ifdef PLATFORM_ORCA_V1       // TODO(ALEA-511): include PLATFORM_ALEA_V1 once flash driver is working (ALEA-174)
         return (int32_t)flash_erase(block * cnfg->block_size, SECTOR_4K);
 #else
         return (int32_t)flash_erase(block * cnfg->block_size, SECTOR_1K);

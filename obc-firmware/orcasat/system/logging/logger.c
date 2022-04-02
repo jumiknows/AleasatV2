@@ -14,6 +14,7 @@
 #include "obc_rtc.h"
 #include "printf.h"
 #include "filesystem.h"
+#include "filenames.h"
 #include "rtos.h"
 
 #define HEADER_SIZE             7 // bytes
@@ -323,9 +324,9 @@ static void log_to_file(log_level_t lvl, uint8_t* data, uint32_t size) {
 
     char file_path[LFS_NAME_MAX] = {};
     if (lvl == ERROR) {
-        make_file_path("err_log", file_path);
+        make_file_path(ERR_LOG_FILENAME, file_path);
     } else if (lvl == INFO) {
-        make_file_path("sys_log", file_path);
+        make_file_path(SYS_LOG_FILENAME, file_path);
     } else {
         return;
     }

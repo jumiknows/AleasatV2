@@ -18,7 +18,7 @@
  * every day using the FileSystemLifecycleTask. No other files besides
  * these will exist.
  */
-#define MAX_FILES 5
+#define MAX_FILES 8
 extern const char* files[MAX_FILES];
 
 /**

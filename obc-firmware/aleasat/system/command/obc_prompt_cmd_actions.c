@@ -532,45 +532,6 @@ void cmd_get_temperature(uint32_t arg_len, void* arg) {
     }
 }
 
-// ------------------------ TELEMETRY COLLECTION PROMPT COMMAND IMPLEMENTATION -----------------------
-
-/**
- * @brief Log all OBC internal slow-rate telemetry.
- */
-void cmd_telem_obc_slow(uint32_t arg_len, void* arg) {
-    char* args[1]    = {NULL};
-    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
-    if (num_args == 0) {
-        obc_slow_telem_collect();
-    }
-}
-
-/**
- * @brief Log all OBC internal fast-rate telemetry.
- */
-void cmd_telem_obc_fast(uint32_t arg_len, void* arg) {
-    char* args[1]    = {NULL};
-    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
-    if (num_args == 0) {
-        obc_fast_telem_collect();
-    }
-}
-
-#if !defined(PLATFORM_ALEA_V1)
-/**
- * @brief Log all EPS slow-rate telemetry.
- */
-void cmd_telem_eps_slow(uint32_t arg_len, void* arg) {
-#if FEATURE_TELEM_EPS
-    char* args[1]    = {NULL};
-    uint8_t num_args = obc_cmd_read_str_arguments(arg, 1, args);
-    if (num_args == 0) {
-        eps_slow_telem_collect();
-    }
-#endif // FEATURE_TELEM_EPS
-}
-#endif // !defined(PLATFORM_ALEA_V1)
-
 // ---------------------------- Periodic Action -----------------------
 
 void cmd_get_period(uint32_t arg_len, void* arg) {

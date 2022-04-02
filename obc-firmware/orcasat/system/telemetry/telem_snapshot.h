@@ -28,7 +28,10 @@
 typedef struct {
     obc_fast_telem_wrapper_t obc_fast;
     obc_slow_telem_wrapper_t obc_slow;
+    eps_normal_telem_wrapper_t eps_normal;
+    eps_fast_telem_wrapper_t eps_fast;
     eps_slow_telem_wrapper_t eps_slow;
+    eps_condn_telem_wrapper_t eps_condn;
 } telem_snapshot_t;
 
 extern telem_snapshot_t snapshot;
@@ -39,15 +42,21 @@ extern telem_snapshot_t snapshot;
  * For example, to access the .obc_temperature_c member of @ref obc_fast_telem,
  * use OBC_FAST.obc_temperature_c.
  */
-#define OBC_FAST snapshot.obc_fast.telem
-#define OBC_SLOW snapshot.obc_slow.telem
-#define EPS_SLOW snapshot.eps_slow.telem
+#define OBC_FAST   snapshot.obc_fast.telem
+#define OBC_SLOW   snapshot.obc_slow.telem
+#define EPS_NORMAL snapshot.eps_normal.telem
+#define EPS_FAST   snapshot.eps_fast.telem
+#define EPS_SLOW   snapshot.eps_slow.telem
+#define EPS_CONDN  snapshot.eps_condn.telem
 
 /**
  * @brief Definitions for accessing telemetry snapshot timestamp fields in a concise way.
  */
-#define OBC_FAST_TS snapshot.obc_fast.timestamp
-#define OBC_SLOW_TS snapshot.obc_slow.timestamp
-#define EPS_SLOW_TS snapshot.eps_slow.timestamp
+#define OBC_FAST_TS   snapshot.obc_fast.timestamp
+#define OBC_SLOW_TS   snapshot.obc_slow.timestamp
+#define EPS_NORMAL_TS snapshot.eps_normal.timestamp
+#define EPS_FAST_TS   snapshot.eps_fast.timestamp
+#define EPS_SLOW_TS   snapshot.eps_slow.timestamp
+#define EPS_CONDN_TS  snapshot.eps_condn.timestamp
 
 #endif /* TELEM_SNAPSHOT_H_ */
