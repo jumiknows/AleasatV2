@@ -17,7 +17,6 @@
 
 typedef enum { DEBUG, WARNING, INFO, ERROR } log_level_t;
 
-typedef uint16_t log_identifier_t;
 typedef uint8_t log_payload_size_t;
 
 extern uint32_t num_logged_debug;

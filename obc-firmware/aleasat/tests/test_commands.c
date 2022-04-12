@@ -54,7 +54,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro);
  * @brief Acknowledges with a single logger message.
  */
 void cmd_test_ack(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, TEST_ACK_CMD, true, "Test Ack!");
+    prompt_cmd_response(INFO, LOG_TEST_ACK_CMD, true, "Test Ack!");
 }
 
 /**
@@ -69,7 +69,7 @@ void cmd_test_comms_raw(uint32_t arg_len, void* arg) {
         err = comms_mibspi_tx(data);
         xSemaphoreGive(xMibspiCommsMutexHandle);
     }
-    prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "raw tx %d", err);
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "raw tx %d", err);
 }
 
 /**
@@ -83,7 +83,7 @@ void cmd_test_comms_tx_only(uint32_t arg_len, void* arg) {
 
     err = comms_send_cmd(comms_hwid, COMMS_COMMON_MSG_ASCII, arg, arg_str_len, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
 
-    prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "tx %d", err);
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "tx %d", err);
 }
 
 /**
@@ -97,7 +97,7 @@ void cmd_test_comms_tx_rx(uint32_t arg_len, void* arg) {
 
     err = comms_send_recv_cmd(comms_hwid, COMMS_RADIO_MSG_GET_TELEM, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
 
-    prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "txrx %d resp %x", err, resp.header.command);
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "txrx %d resp %x", err, resp.header.command);
 }
 
 /**
@@ -128,10 +128,10 @@ void cmd_test_comms_stress1(uint32_t arg_len, void* arg) {
     }
 
     if (num_fail == 0) {
-        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "s1 all pass");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "s1 all pass");
     }
     else {
-        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "s1 pass %d fail %d", num_success, num_fail);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "s1 pass %d fail %d", num_success, num_fail);
     }
 }
 
@@ -145,10 +145,10 @@ void cmd_test_comms_flash_app(uint32_t arg_len, void* arg) {
 
     err = comms_flash_image(comms_test_app_image_pages, comms_test_app_image_num_pages);
     if (err == COMMS_SUCCESS) {
-        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "flash pass");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "flash pass");
     }
     else {
-        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "flash fail");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "flash fail");
     }
 }
 
@@ -170,17 +170,17 @@ void cmd_test_comms_reboot(uint32_t arg_len, void* arg) {
 
     err = comms_send_cmd(comms_hwid, COMMS_RADIO_MSG_REBOOT, NULL, 0, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
     if (err != COMMS_SUCCESS) {
-        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "reboot fail 1");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "reboot fail 1");
         return;
     }
 
     err = comms_wait_for_cmd(&app_start_match_spec, 2000);
     if (err != COMMS_SUCCESS) {
-        prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "reboot fail 2");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "reboot fail 2");
         return;
     }
 
-    prompt_cmd_response(INFO, TEST_COMMS_CMD, false, "reboot pass");
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "reboot pass");
 }
 
 /**
@@ -199,27 +199,27 @@ void cmd_test_mag(uint32_t arg_len, void* arg) {
     mag_t mag_selected;
 
     if (arg_len == 0) {
-       prompt_cmd_response(INFO, ADCS_LOG, true, "Error Provide Arguments");
+       prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Error Provide Arguments");
     } else {
         if(strcmp((char*)arg, "1") == 0) {
             mag_selected = magnetorquer_1;
-            prompt_cmd_response(INFO, ADCS_LOG, true, "Magnetorquer 1 Selected");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer 1 Selected");
         } else if(strcmp((char*)arg, "2") == 0) {
             mag_selected = magnetorquer_2;
-            prompt_cmd_response(INFO, ADCS_LOG, true, "Magnetorquer 1 Selected");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer 1 Selected");
         } else if(strcmp((char*)arg, "3") == 0) {
             mag_selected = magnetorquer_3;
-            prompt_cmd_response(INFO, ADCS_LOG, true, "Magnetorquer 1 Selected");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer 1 Selected");
         } else {
-            prompt_cmd_response(INFO, ADCS_LOG, true, "Unknown Param");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Unknown Param");
             return;
         }
 
-        prompt_cmd_response(INFO, ADCS_LOG, true, "Magnetorquer Test Starting");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Test Starting");
 
         vTaskDelay(100);
 
-        prompt_cmd_response(INFO, ADCS_LOG, true, "Magnetorquer Starting");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Starting");
         
         mag_set_dir(&mag_selected, FORWARD);
         mag_start(&mag_selected);
@@ -232,14 +232,14 @@ void cmd_test_mag(uint32_t arg_len, void* arg) {
         mag_set_duty(&mag_selected, 0); //set magnetorquer duty to 0
         mag_stop(&mag_selected);
 
-        prompt_cmd_response(INFO, ADCS_LOG, true, "Magnetorquer Stopped");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Stopped");
 
         mag_set_dir(&mag_selected, BACKWARD);
 
         vTaskDelay(100);
 
         mag_start(&mag_selected);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "Magnetorquer Started in Reverse");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Started in Reverse");
 
         for (i=0; i < 100; i++) {
             mag_set_duty(&mag_selected, i); //set magnetorquer duty
@@ -248,7 +248,7 @@ void cmd_test_mag(uint32_t arg_len, void* arg) {
 
         mag_stop(&mag_selected);
 
-        prompt_cmd_response(INFO, ADCS_LOG, true, "Test Completed");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Test Completed");
     }
 }
 
@@ -323,24 +323,24 @@ void cmd_imu_test(uint32_t arg_len, void* arg) {
     bmx160_data_t datap;
 
     if (bmx160_enable_imu(&bmx160_imu_1) == IMU_SUCCESS) {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "IMU initialized!");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "IMU initialized!");
     }
 
     vTaskDelay(pdMS_TO_TICKS(100));
 
     if (bmx160_get_data(&bmx160_imu_1, &datap) ==  IMU_SUCCESS) {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "mag_x: %f ",datap.mag.x_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "mag_y: %f ",datap.mag.y_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "mag_z: %f ",datap.mag.z_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "accel_x: %f ",datap.accel.x_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "accel_y: %f ",datap.accel.y_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "accel_z: %f ",datap.accel.z_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "gyro_x: %f ",datap.gyro.x_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "gyro_y: %f ",datap.gyro.y_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "gyro_z: %f ",datap.gyro.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_x: %f ",datap.mag.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_y: %f ",datap.mag.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_z: %f ",datap.mag.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_x: %f ",datap.accel.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_y: %f ",datap.accel.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_z: %f ",datap.accel.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_x: %f ",datap.gyro.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_y: %f ",datap.gyro.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_z: %f ",datap.gyro.z_proc);
 
     } else {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "first data packet query failed");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "first data packet query failed");
     }
 
     bmx160_set_low_power(&bmx160_imu_1);
@@ -348,25 +348,25 @@ void cmd_imu_test(uint32_t arg_len, void* arg) {
     bmx160_wake_up(&bmx160_imu_1);
 
     vTaskDelay(pdMS_TO_TICKS(100));
-    prompt_cmd_response(INFO, ADCS_LOG, true, "AFTER POWER DOWN");
+    prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "AFTER POWER DOWN");
 
     if (bmx160_get_data(&bmx160_imu_1, &datap) ==  IMU_SUCCESS) {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "mag_x: %f ",datap.mag.x_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "mag_y: %f ",datap.mag.y_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "mag_z: %f ",datap.mag.z_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "accel_x: %f ",datap.accel.x_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "accel_y: %f ",datap.accel.y_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "accel_z: %f ",datap.accel.z_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "gyro_x: %f ",datap.gyro.x_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "gyro_y: %f ",datap.gyro.y_proc);
-        prompt_cmd_response(INFO, ADCS_LOG, true, "gyro_z: %f ",datap.gyro.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_x: %f ",datap.mag.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_y: %f ",datap.mag.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_z: %f ",datap.mag.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_x: %f ",datap.accel.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_y: %f ",datap.accel.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_z: %f ",datap.accel.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_x: %f ",datap.gyro.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_y: %f ",datap.gyro.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_z: %f ",datap.gyro.z_proc);
 
     } else {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "second data packet query failed");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "second data packet query failed");
     }
     
     if (bmx160_disable_imu(&bmx160_imu_1) == IMU_SUCCESS) {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "IMU disabled");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "IMU disabled");
     }
 }
 
@@ -385,7 +385,7 @@ void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
 
     // Check number of arguments
     if (num_args < 3) {
-        prompt_cmd_response(INFO, TEST_CAN_GPIO_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
             "Wrong # arguments: %d",
 			num_args
         );
@@ -395,37 +395,37 @@ void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
     // Parse arguments
     int32_t port_idx = cseq_to_num(args[0]) - 1;
     if (port_idx == -2) { // -2 because we're subtracting 1 from the output
-    	log_str(ERROR, TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[0]);
+    	log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[0]);
         return;
     }
     int32_t pin = cseq_to_num(args[1]);
     if (pin == -1) {
-    	log_str(ERROR, TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[1]);
+    	log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[1]);
         return;
     }
     int32_t value = cseq_to_num(args[2]);
     if (value == -1) {
-        log_str(ERROR, TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[2]);
+        log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[2]);
         return;
     }
 
     // Validate arguments
     if (port_idx >= 3) {
-        prompt_cmd_response(INFO, TEST_CAN_GPIO_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
             "Invalid Port: %d",
             (port_idx + 1)
         );
         return;
     }
     if ((pin != CAN_PIN_RX) && (pin != CAN_PIN_TX)) {
-        prompt_cmd_response(INFO, TEST_CAN_GPIO_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
             "Invalid Pin: %d",
             pin
         );
         return;
     }
 
-    prompt_cmd_response(INFO, TEST_CAN_GPIO_CMD, false,
+    prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
         "Writing %d to CAN%d %s",
         (bool)value,
         (port_idx + 1),
@@ -445,16 +445,16 @@ void cmd_test_panel_gyro(uint32_t arg_len, void* arg){
     static ADIS16260_t* const GYROS[] = {&panel_gyro_0, &panel_gyro_1, &panel_gyro_2, &panel_gyro_3};
     int32_t gyro_idx = cseq_to_num((char*)arg);
     if (gyro_idx == -1) {
-    	log_str(ERROR, ADCS_LOG, true, "Invalid arg %s", (char*)arg);
+    	log_str(ERROR, LOG_ADCS_GENERAL, true, "Invalid arg %s", (char*)arg);
     	return;
     }
     if (gyro_idx > 3)
     {
-        prompt_cmd_response(INFO, ADCS_LOG, true, "ERROR Unknown Param");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "ERROR Unknown Param");
         return;
     }
 
-    prompt_cmd_response(INFO, ADCS_LOG, true, "Gyro %d Selected", gyro_idx);
+    prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Gyro %d Selected", gyro_idx);
 
     run_panel_gyro_test(GYROS[gyro_idx]);
 }
@@ -514,7 +514,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "ID is %d ", whoami.serial_num);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "ID is %d ", whoami.serial_num);
 
         /* Read gyro data */
         result = ADIS16260_read_gyro(gyro, &gyro_data);
@@ -522,7 +522,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Computed rate %f", gyro_data.data);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Computed rate %f", gyro_data.data);
 
         /* Put gyro to sleep for 500ms*/
         result = ADIS16260_set_sleep(gyro, 1);
@@ -530,7 +530,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Sleeping...");
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Sleeping...");
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         /* Read on-board temperature sensor*/
@@ -539,7 +539,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Temp is %f", temp_data.data_temp);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Temp is %f", temp_data.data_temp);
 
         /* Set internal filter */
         result = ADIS16260_set_filter(gyro, ADIS16260_RANGE_160, ADIS16260_BW_330, 2);
@@ -547,7 +547,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Set filter to 330hz, 2 taps");
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Set filter to 330hz, 2 taps");
 
         /* Read data with new filter setting */
         result = ADIS16260_read_gyro(gyro, &gyro_data);
@@ -555,7 +555,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Rate is %f", gyro_data.data);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Rate is %f", gyro_data.data);
 
         /* Set filter settings back to default */
         result = ADIS16260_set_filter(gyro, ADIS16260_RANGE_320, ADIS16260_BW_50, 2);
@@ -563,7 +563,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Set filter to default");
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Set filter to default");
 
         /* Read gyro rate one last time*/
         result = ADIS16260_read_gyro(gyro, &gyro_data);
@@ -571,13 +571,13 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "Rate is %f", gyro_data.data);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Rate is %f", gyro_data.data);
 
     } while(0);
 
     /* If there was an error anywhere, report this to console */
     if (result != ADIS16260_SUCCESS)
     {
-        prompt_cmd_response(INFO, ADCS_GYRO_LOG, true, "ERROR -> %d <-", result);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "ERROR -> %d <-", result);
     }
 }

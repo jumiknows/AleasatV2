@@ -131,18 +131,18 @@ void gpio_expander_init(void) {
 #if FEATURE_GPIO_EXPANDER
     /* Initialize the expander with reset values */
     if (pcal6416a_init() != GPIO_SUCCESS) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "Expander init failed");
+        log_str(ERROR, LOG_GPIO_EXPAND, true, "Expander init failed");
     }
 
     /* Configure the desired pins */
     if (pcal6416a_configure_output(EXPANDER_BLINKY_PORT.reg.exp, EXPANDER_BLINKY_PIN, 1, PULLUP) != GPIO_SUCCESS) {
-        log_str(ERROR, GPIO_LOG, true, "Expander blink init failed");
+        log_str(ERROR, LOG_GPIO, true, "Expander blink init failed");
     }
 
 #ifdef PLATFORM_ORCA_V1
     /* Configure the example input GPIO expander interrupt */
     if (pcal6416a_configure_interrupt(OBC_EXPAND_IN_TEST_PORT, OBC_EXPAND_IN_TEST_PIN, 1, PULLUP, &default_expander_callback) != GPIO_SUCCESS) {
-        log_str(ERROR, GPIO_LOG, true, "Expander irq init failed");
+        log_str(ERROR, LOG_GPIO, true, "Expander irq init failed");
     }
 #endif // PLATFORM_ORCA_V1
 
@@ -152,7 +152,7 @@ void gpio_expander_init(void) {
     /* END MODIFIABLE REGION */
 
     if (pcal6416a_validate_regs() != GPIO_SUCCESS) {
-        log_str(ERROR, GPIO_LOG, true, "Expander verify failed.");
+        log_str(ERROR, LOG_GPIO, true, "Expander verify failed.");
     }
 #endif
 }
@@ -192,7 +192,7 @@ void service_gpio_irq(gpio_irq_t irq_info) {
 
     if (gioInterruptQueue != NULL) {
         if ((xQueueSendToBackFromISR(gioInterruptQueue, (void*)&irq_info, 0)) == errQUEUE_FULL) {
-            log_str(ERROR, GPIO_LOG, true, "IRQ queue full");
+            log_str(ERROR, LOG_GPIO, true, "IRQ queue full");
         }
     }
 
@@ -315,7 +315,7 @@ static void vGPIOServiceTask(void* pvParameters) {
 
         } else {
             set_task_status(wd_task_id, task_alive);
-            log_str(ERROR, GPIO_LOG, true, "IRQ queue receive failed.");
+            log_str(ERROR, LOG_GPIO, true, "IRQ queue receive failed.");
         }
     }
 }

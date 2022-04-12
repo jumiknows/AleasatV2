@@ -219,13 +219,13 @@ fs_err_t fs_init(void) {
     if (err) {
         err = lfs_format(&m_lfs, &cfg);
         if (err) {
-            log_str(ERROR, FS_LOG, true, "FS Error: %d", err);
+            log_str(ERROR, LOG_FS_GENERAL, true, "FS Error: %d", err);
             return (fs_err_t)err;
         }
 
         err = lfs_mount(&m_lfs, &cfg);
         if (err) {
-            log_str(ERROR, FS_LOG, true, "FS Error: %d", err);
+            log_str(ERROR, LOG_FS_GENERAL, true, "FS Error: %d", err);
             return (fs_err_t)err;
         }
     }
@@ -233,7 +233,7 @@ fs_err_t fs_init(void) {
     // Initialize directory list
     err = update_dir_list();
     if (err) {
-        log_str(ERROR, FS_LOG, true, "FS Error: %d", err);
+        log_str(ERROR, LOG_FS_GENERAL, true, "FS Error: %d", err);
         return (fs_err_t)err;
     }
 
@@ -630,7 +630,7 @@ static void vFileSystemMasterTask(void* pvParameters) {
                 OBC_MISRA_CHECK_ON
                 break;
             default:
-                log_str(ERROR, FS_LOG, true, "Unknown Request: %d", req.type);
+                log_str(ERROR, LOG_FS_GENERAL, true, "Unknown Request: %d", req.type);
                 *(req.err) = FS_UNKNOWN_REQUEST_ERR;
                 break;
         }
@@ -672,7 +672,7 @@ static void vFileSystemLifecycleTask(void* pvParameters) {
 
         err = fs_mkdir(dir_path);
         if (err) {
-            log_str(ERROR, FS_LOG, true, "FS Error: %d", err);
+            log_str(ERROR, LOG_FS_GENERAL, true, "FS Error: %d", err);
         } else {
             // Update the directory list and current directory
             memcpy(dir_list[next_dir], dir_path, sizeof(char) * DIR_NAME_SIZE);
@@ -686,7 +686,7 @@ static void vFileSystemLifecycleTask(void* pvParameters) {
                 make_file_path(files[i], new_file_path);
                 err = fs_create(new_file_path);
                 if (err) {
-                    log_str(ERROR, FS_LOG, true, "Could not create file %i. FS Error: %d", files[i], err);
+                    log_str(ERROR, LOG_FS_GENERAL, true, "Could not create file %i. FS Error: %d", files[i], err);
                     break;
                 }
             }
@@ -1117,7 +1117,7 @@ static void rtc_get_date_to_string(char buf[DIR_NAME_SIZE]) {
     // Get the current time
     rtc_err_t err = get_current_time(&curr_time);
     if (err != RTC_NO_ERR) {
-        log_str(ERROR, RTC_LOG, true, "RTC ERROR: %d", err);
+        log_str(ERROR, LOG_RTC_GENERAL, true, "RTC ERROR: %d", err);
     }
 
     time_to_ymd_string(&curr_time, buf);

@@ -273,20 +273,20 @@ obc_cmd_err_t obc_cmd_parse_and_invoke(char* buff, scheduler_submission_source_t
         switch (invoke_err) {
             case OBC_IMMEDIATE_SUCCESS:
                 if ((strcmp(parsed_opcode, "nrst") != 0) && (source == EXTERNAL)) { // no logging for nrst command because the response is often cut off by the reset
-                    log_str_no_time(INFO, CMD_GENERAL, false, "> %s immediate", parsed_opcode);
+                    log_str_no_time(INFO, LOG_CMD_GENERAL, false, "> %s immediate", parsed_opcode);
                 }
                 break;
             case OBC_SCHEDULED_SUCCESS:
                 if (source == EXTERNAL) {
-                    log_str_no_time(INFO, CMD_GENERAL, false, "> %s scheduled %d", parsed_opcode, action_id);
+                    log_str_no_time(INFO, LOG_CMD_GENERAL, false, "> %s scheduled %d", parsed_opcode, action_id);
                 }
                 break;
             case OBC_CMD_FAILED_TO_SCHEDULE:
-                log_str(ERROR, CMD_GENERAL, false, "> %s sched err", parsed_opcode);
+                log_str(ERROR, LOG_CMD_GENERAL, false, "> %s sched err", parsed_opcode);
                 break;
             default:
                 // Should never get here.
-                log_str(ERROR, CMD_GENERAL, false, "> %s unknown err", parsed_opcode);
+                log_str(ERROR, LOG_CMD_GENERAL, false, "> %s unknown err", parsed_opcode);
                 break;
         }
         return invoke_err;
@@ -294,23 +294,23 @@ obc_cmd_err_t obc_cmd_parse_and_invoke(char* buff, scheduler_submission_source_t
         // There were issues parsing the command, so it was not invoked.
         switch (err) {
             case OBC_CMD_SYNTAX_ERROR:
-                log_str(ERROR, CMD_GENERAL, true, "> %s invalid time fmt", parsed_opcode);
+                log_str(ERROR, LOG_CMD_GENERAL, true, "> %s invalid time fmt", parsed_opcode);
                 break;
             case OBC_CMD_NO_MATCHING_CMD_NAME:
-                log_str(ERROR, CMD_GENERAL, true, "> %s invalid cmd name", parsed_opcode);
+                log_str(ERROR, LOG_CMD_GENERAL, true, "> %s invalid cmd name", parsed_opcode);
                 break;
             case OBC_CMD_NO_INTERVAL:
-                log_str(ERROR, CMD_GENERAL, true, "> %s no interval", parsed_opcode);
+                log_str(ERROR, LOG_CMD_GENERAL, true, "> %s no interval", parsed_opcode);
                 break;
             case OBC_CMD_TIME_ERR:
-                log_str(ERROR, CMD_GENERAL, true, "> %s invalid epoch", parsed_opcode);
+                log_str(ERROR, LOG_CMD_GENERAL, true, "> %s invalid epoch", parsed_opcode);
                 break;
             case OBC_SEQ_NUM_INVALID:
-                log_str(ERROR, CMD_GENERAL, true, "> %s invalid seq num", parsed_opcode);
+                log_str(ERROR, LOG_CMD_GENERAL, true, "> %s invalid seq num", parsed_opcode);
                 break;
             default:
                 // Should never get here.
-                log_str(ERROR, CMD_GENERAL, true, "> %s parse err %d", parsed_opcode, err);
+                log_str(ERROR, LOG_CMD_GENERAL, true, "> %s parse err %d", parsed_opcode, err);
                 break;
         }
         return err;

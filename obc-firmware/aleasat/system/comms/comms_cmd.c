@@ -76,7 +76,7 @@ comms_err_t comms_send_cmd(
 
     err = comms_build_buffer(false, dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms send arg err %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms send arg err %d", err);
         return err;
     }
 
@@ -95,14 +95,14 @@ comms_err_t comms_send_cmd(
         }
     }
     else {
-        log_str(ERROR, COMMS_LOG, false, "Comms send mtx t-out");
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms send mtx t-out");
         err = COMMS_MIBSPI_MUTEX_TIMEOUT;
         return err;
     }
 
     // check comms_mibspi_tx result
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms send tx err %d", mibspi_ret);
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms send tx err %d", mibspi_ret);
         return err;
     }
 
@@ -139,7 +139,7 @@ comms_err_t comms_send_recv_cmd(
 
     err = comms_build_buffer(false, dest_hwid, comms_seqnum, cmd_num, cmd_data, cmd_data_len, buf);
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc arg err %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc arg err %d", err);
         return err;
     }
 
@@ -156,7 +156,7 @@ comms_err_t comms_send_recv_cmd(
         recv_cmd
     );
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 1 %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc parm err 1 %d", err);
         return err;
     }
 
@@ -166,7 +166,7 @@ comms_err_t comms_send_recv_cmd(
             xSemaphoreGive(xMibspiCommsMutexHandle);
         }
         else {
-            log_str(ERROR, COMMS_LOG, false, "Comms sdrc mtx t-out");
+            log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc mtx t-out");
             err = COMMS_MIBSPI_MUTEX_TIMEOUT;
             break;
         }
@@ -184,7 +184,7 @@ comms_err_t comms_send_recv_cmd(
 
         // check comms_mibspi_tx result
         if (err != COMMS_SUCCESS) {
-            log_str(ERROR, COMMS_LOG, false, "Comms sdrc tx err %d", mibspi_ret);
+            log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc tx err %d", mibspi_ret);
             break;
         }
 
@@ -194,7 +194,7 @@ comms_err_t comms_send_recv_cmd(
     // Always cleanup by removing ourself as waiter
     err2 = comms_clear_waiter_match();
     if (err2 != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 2 %d", err2);
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc parm err 2 %d", err2);
         return err2;
     }
 
@@ -203,7 +203,7 @@ comms_err_t comms_send_recv_cmd(
     }
 
     if ((uxBits & COMMS_RX_EVENT_UNBLOCK_WAITER_BIT) == 0) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc evt t-out");
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc evt t-out");
         err = COMMS_WAITER_EVTGRP_TIMEOUT;
         return err;
     }
@@ -228,7 +228,7 @@ comms_err_t comms_wait_for_cmd(
 
     err = comms_set_waiter_match_struct(match_params);
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 1 %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc parm err 1 %d", err);
         return err;
     }
 
@@ -237,12 +237,12 @@ comms_err_t comms_wait_for_cmd(
     // Always cleanup by removing ourself as waiter
     err = comms_clear_waiter_match();
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc parm err 2 %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc parm err 2 %d", err);
         return err;
     }
 
     if ((uxBits & COMMS_RX_EVENT_UNBLOCK_WAITER_BIT) == 0) {
-        log_str(ERROR, COMMS_LOG, false, "Comms sdrc evt t-out");
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc evt t-out");
         err = COMMS_WAITER_EVTGRP_TIMEOUT;
         return err;
     }

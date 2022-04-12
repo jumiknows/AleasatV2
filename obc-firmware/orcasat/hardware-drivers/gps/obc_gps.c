@@ -119,11 +119,11 @@ static gps_req_err_t gps_request_and_receive(uint16_t timeout_s, const char* req
     // If waiting for an accurate result, then start the acquisition timeout
     if (timeout_s) {
         if (xTimerChangePeriod(xGpsAcqTimer, pdMS_TO_TICKS(timeout_s * 1000), 0) == pdFAIL) {
-            log_str(ERROR, GPS_LOG, true, "GPS ACQ timer set period fail");
+            log_str(ERROR, LOG_GPS_GENERAL, true, "GPS ACQ timer set period fail");
             return GPS_ACQ_TIMEOUT;
         }
         if (xTimerStart(xGpsAcqTimer, 0) == pdFAIL) {
-            log_str(ERROR, GPS_LOG, true, "GPS ACQ timer init fail");
+            log_str(ERROR, LOG_GPS_GENERAL, true, "GPS ACQ timer init fail");
             return GPS_ACQ_TIMEOUT;
         }
         // Verify that the timer has actually been started by the scheduler before proceeding..
@@ -136,7 +136,7 @@ static gps_req_err_t gps_request_and_receive(uint16_t timeout_s, const char* req
     while (1) {
         const uart_err_t uart_err = gps_serial_send_and_receive(req_msg, resp_buff);
         if (uart_err != UART_OK) {
-            log_str(ERROR, GPS_LOG, false, "GPS UART err %d", uart_err);
+            log_str(ERROR, LOG_GPS_GENERAL, false, "GPS UART err %d", uart_err);
             xSemaphoreGive(xGpsMutex);
             return GPS_UART_ERR;
         }
@@ -145,7 +145,7 @@ static gps_req_err_t gps_request_and_receive(uint16_t timeout_s, const char* req
         if (parsing_func) {
             const gps_parse_err_t parse_err = parsing_func(resp_buff, gps_data);
             if (parse_err != GPS_PARSE_SUCCESS) {
-                log_str(ERROR, GPS_LOG, false, "GPS parse err %d", parse_err);
+                log_str(ERROR, LOG_GPS_GENERAL, false, "GPS parse err %d", parse_err);
                 xSemaphoreGive(xGpsMutex);
                 return GPS_MSG_PARSE_ERR;
             }
@@ -164,13 +164,13 @@ static gps_req_err_t gps_request_and_receive(uint16_t timeout_s, const char* req
         }
         // Else if the timer has expired then return timeout
         else if (!xTimerIsTimerActive(xGpsAcqTimer)) {
-            log_str(ERROR, GPS_LOG, false, "GPS acquisition timeout");
+            log_str(ERROR, LOG_GPS_GENERAL, false, "GPS acquisition timeout");
             xSemaphoreGive(xGpsMutex);
             return GPS_ACQ_TIMEOUT;
         }
         // Else delay for another GPS request-and-receive loop
         else {
-            log_str(INFO, GPS_LOG, false, "GPS module acquiring...");
+            log_str(INFO, LOG_GPS_GENERAL, false, "GPS module acquiring...");
             vTaskDelay(pdMS_TO_TICKS(GPS_ACQUISITION_POLL_INTERVAL_MS));
         }
     }

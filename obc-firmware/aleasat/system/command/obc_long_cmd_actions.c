@@ -51,19 +51,19 @@ void cmd_rtos_info(uint32_t arg_len, void* arg) {
  */
 void cmd_fs_ls(uint32_t arg_len, void* arg) {
     if (arg_len == 0) {
-        log_str(DEBUG, FS_LOG, false, "Usage: ls [PATH]");
+        log_str(DEBUG, LOG_FS_GENERAL, false, "Usage: ls [PATH]");
     } else {
         char ls_list[MAX_DIRS][LFS_NAME_MAX] = {'\0'};
 
         fs_err_t err = fs_ls((const char*)arg, ls_list);
 
         if (err != FS_OK) {
-            log_str(ERROR, FS_LOG, true, "Filesystem error: %d", err);
+            log_str(ERROR, LOG_FS_GENERAL, true, "Filesystem error: %d", err);
         } else {
             uint8_t i;
             for (i = 0; i < MAX_DIRS; i++) {
                 if (strlen(ls_list[i]) != 0) {
-                    log_str(DEBUG, FS_LOG, false, "%s", ls_list[i]);
+                    log_str(DEBUG, LOG_FS_GENERAL, false, "%s", ls_list[i]);
                 }
             }
         }
@@ -118,7 +118,7 @@ void cmd_gps_time(uint32_t arg_len, void* arg) {
     if (num_args == 1) {
         const int16_t acq_timeout = cseq_to_num((char*)arg);
         if (acq_timeout == -1) {
-            log_str(ERROR, GPS_LOG, true, "Invalid timeout: %s", (char*)arg);
+            log_str(ERROR, LOG_GPS_GENERAL, true, "Invalid timeout: %s", (char*)arg);
             return;
         }
 
@@ -128,10 +128,10 @@ void cmd_gps_time(uint32_t arg_len, void* arg) {
     }
 
     if (err == GPS_SUCCESS) {
-        log_str(INFO, GPS_LOG, true, "GPS TIME RECV");
-        log_str(INFO, GPS_LOG, true, "Ref. week: %d", ts.ref_week);
-        log_str(INFO, GPS_LOG, true, "Offset (ms): %d", ts.offset_ms);
-        log_str(INFO, GPS_LOG, true, "Sol. status: %s", ts.t_sol_status);
+        log_str(INFO, LOG_GPS_GENERAL, true, "GPS TIME RECV");
+        log_str(INFO, LOG_GPS_GENERAL, true, "Ref. week: %d", ts.ref_week);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Offset (ms): %d", ts.offset_ms);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Sol. status: %s", ts.t_sol_status);
     }
 }
 
@@ -152,7 +152,7 @@ void cmd_gps_xyz(uint32_t arg_len, void* arg) {
     if (num_args == 1) {
         const int16_t acq_timeout = cseq_to_num((char*)arg);
         if(acq_timeout == -1) {
-            log_str(ERROR, GPS_LOG, true, "Invalid timeout: %s", (char*)arg);
+            log_str(ERROR, LOG_GPS_GENERAL, true, "Invalid timeout: %s", (char*)arg);
             return;
         }
 
@@ -162,27 +162,27 @@ void cmd_gps_xyz(uint32_t arg_len, void* arg) {
     }
 
     if (err == GPS_SUCCESS) {
-        log_str(INFO, GPS_LOG, true, "GPS XYZ RECV");
+        log_str(INFO, LOG_GPS_GENERAL, true, "GPS XYZ RECV");
 
-        log_str(INFO, GPS_LOG, true, "Position data (m):");
-        log_str(INFO, GPS_LOG, true, "px: %lf", ec.px_m);
-        log_str(INFO, GPS_LOG, true, "py: %lf", ec.py_m);
-        log_str(INFO, GPS_LOG, true, "pz: %lf", ec.pz_m);
-        log_str(INFO, GPS_LOG, true, "px_sd: %lf", ec.px_sd_m);
-        log_str(INFO, GPS_LOG, true, "py_sd: %lf", ec.py_sd_m);
-        log_str(INFO, GPS_LOG, true, "pz_sd: %lf", ec.pz_sd_m);
-        log_str(INFO, GPS_LOG, true, "Sol. status: %s", ec.p_sol_status);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Position data (m):");
+        log_str(INFO, LOG_GPS_GENERAL, true, "px: %lf", ec.px_m);
+        log_str(INFO, LOG_GPS_GENERAL, true, "py: %lf", ec.py_m);
+        log_str(INFO, LOG_GPS_GENERAL, true, "pz: %lf", ec.pz_m);
+        log_str(INFO, LOG_GPS_GENERAL, true, "px_sd: %lf", ec.px_sd_m);
+        log_str(INFO, LOG_GPS_GENERAL, true, "py_sd: %lf", ec.py_sd_m);
+        log_str(INFO, LOG_GPS_GENERAL, true, "pz_sd: %lf", ec.pz_sd_m);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Sol. status: %s", ec.p_sol_status);
 
-        log_str(INFO, GPS_LOG, true, "Velocity data (m/s):");
-        log_str(INFO, GPS_LOG, true, "vx: %lf", ec.vx_mps);
-        log_str(INFO, GPS_LOG, true, "vy: %lf", ec.vy_mps);
-        log_str(INFO, GPS_LOG, true, "vz: %lf", ec.vz_mps);
-        log_str(INFO, GPS_LOG, true, "vx_sd: %lf", ec.vx_sd_mps);
-        log_str(INFO, GPS_LOG, true, "vy_sd: %lf", ec.vy_sd_mps);
-        log_str(INFO, GPS_LOG, true, "vz_sd: %lf", ec.vz_sd_mps);
-        log_str(INFO, GPS_LOG, true, "Sol. status: %s", ec.v_sol_status);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Velocity data (m/s):");
+        log_str(INFO, LOG_GPS_GENERAL, true, "vx: %lf", ec.vx_mps);
+        log_str(INFO, LOG_GPS_GENERAL, true, "vy: %lf", ec.vy_mps);
+        log_str(INFO, LOG_GPS_GENERAL, true, "vz: %lf", ec.vz_mps);
+        log_str(INFO, LOG_GPS_GENERAL, true, "vx_sd: %lf", ec.vx_sd_mps);
+        log_str(INFO, LOG_GPS_GENERAL, true, "vy_sd: %lf", ec.vy_sd_mps);
+        log_str(INFO, LOG_GPS_GENERAL, true, "vz_sd: %lf", ec.vz_sd_mps);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Sol. status: %s", ec.v_sol_status);
 
-        log_str(INFO, GPS_LOG, true, "Sol. age: %f", ec.sol_age_s);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Sol. age: %f", ec.sol_age_s);
     }
 }
 
@@ -200,7 +200,7 @@ void cmd_gps_cmd(uint32_t arg_len, void* arg) {
     char* arguments[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     uint8_t num_args    = obc_cmd_read_str_arguments(arg, 10, arguments);
     if (num_args == 0) {
-        log_str(DEBUG, GPS_LOG, false, "Usage: gps_cmd [WORD_0 ..]");
+        log_str(DEBUG, LOG_GPS_GENERAL, false, "Usage: gps_cmd [WORD_0 ..]");
         return;
     }
 
@@ -215,13 +215,13 @@ void cmd_gps_cmd(uint32_t arg_len, void* arg) {
     }
 
     // Send the command and receive the response string
-    log_str(INFO, GPS_LOG, true, "Sending: %s", req_msg);
+    log_str(INFO, LOG_GPS_GENERAL, true, "Sending: %s", req_msg);
     const gps_req_err_t err = gps_cmd(req_msg, resp_msg);
     if (err == GPS_SUCCESS) {
         // TBD: Need to log the entire response string for downlinking, which is sometimes more than 31 bytes..
-        log_str(INFO, GPS_LOG, true, "Resp: %s", resp_msg);
+        log_str(INFO, LOG_GPS_GENERAL, true, "Resp: %s", resp_msg);
     } else {
-        log_str(ERROR, GPS_LOG, true, "GPS req. err: %d", err);
+        log_str(ERROR, LOG_GPS_GENERAL, true, "GPS req. err: %d", err);
     }
 }
 
@@ -237,11 +237,11 @@ void cmd_test_temperature(uint32_t arg_len, void* arg) {
 void cmd_test_log_str(uint32_t arg_len, void* arg) {
     char test_payload[MAX_PAYLOAD_SIZE] = "";
 
-    log_str(DEBUG, PRINT_GENERAL, false, "A");
+    log_str(DEBUG, LOG_PRINT_GENERAL, false, "A");
 
     for (uint8_t i = 0; i < MAX_PAYLOAD_SIZE; i++) {
         strcat(test_payload, "A");
     }
 
-    log_str(DEBUG, PRINT_GENERAL, false, test_payload);
+    log_str(DEBUG, LOG_PRINT_GENERAL, false, test_payload);
 }

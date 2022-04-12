@@ -231,7 +231,7 @@ void vStateHandlerTask(void* pvParameters) {
             make_state_transition(transition_id);
             xSemaphoreGive(xStateMutex);
         } else {
-            log_str(INFO, PRINT_GENERAL, true, "state failed to take mutex");
+            log_str(INFO, LOG_PRINT_GENERAL, true, "state failed to take mutex");
         }
     }
 }
@@ -267,7 +267,7 @@ void make_state_transition(state_transition_id_t transition_id) {
     state_transition_t* state_transition = get_state_transition(transition_id);
     if ((valid_trigger_state(state_transition)) && (state_transition->enabled == STATE_ENABLED)) {
         current_state = (state_t)state_transition->end_state;
-        log_str(INFO, PRINT_GENERAL, true, "current_state = %i", (uint8_t)current_state);
+        log_str(INFO, LOG_PRINT_GENERAL, true, "current_state = %i", (uint8_t)current_state);
     } else {
         invalid_transition_log_t invalid_transition_log_data = {
             .transition_id        = transition_id,
@@ -276,6 +276,6 @@ void make_state_transition(state_transition_id_t transition_id) {
             .current_state        = current_state,
         };
 
-        log_data(INFO, PRINT_GENERAL, true, sizeof(invalid_transition_log_t), (void*)(&invalid_transition_log_data));
+        log_data(INFO, LOG_PRINT_GENERAL, true, sizeof(invalid_transition_log_t), (void*)(&invalid_transition_log_data));
     }
 }

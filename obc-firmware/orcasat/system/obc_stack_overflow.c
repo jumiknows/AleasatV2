@@ -16,7 +16,7 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     (void)pcTaskName;
     (void)xTask;
 
-    log_str(ERROR, TASK_OVERFLOW, true, "%s has overflowed", pcTaskName);
+    log_str(ERROR, LOG_TASK_OVERFLOW, true, "%s has overflowed", pcTaskName);
 
     /* Run time stack overflow checking is performed if
     configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook

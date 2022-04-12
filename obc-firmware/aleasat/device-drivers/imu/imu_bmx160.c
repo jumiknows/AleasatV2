@@ -94,7 +94,7 @@ imu_error_t bmx160_soft_reset(bmx160_t* imu){
 	uint8_t data = BMX160_SOFT_RESET_CMD;
 
 	if (bmx160_write_reg(imu, BMX160_COMMAND_REG_ADDR, 1, &data) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error preforming soft reset");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error preforming soft reset");
 		return IMU_ERROR;
 	}
 	return IMU_SUCCESS;
@@ -134,7 +134,7 @@ imu_error_t bmx160_set_power_mode(bmx160_t* imu, uint8_t power_mode){
 			vTaskDelay(pdMS_TO_TICKS(100)); //see datasheet page 90 (table 29)
 			break;
 		default:
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error wrong device mode selected: %d", power_mode);
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error wrong device mode selected: %d", power_mode);
 			return IMU_ERROR;
 	}
 
@@ -150,24 +150,24 @@ imu_error_t bmx160_set_power_mode(bmx160_t* imu, uint8_t power_mode){
 imu_error_t bmx160_set_low_power(bmx160_t* imu){
 
 	if (bmx160_soft_reset(imu) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error performing soft reset for power down");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error performing soft reset for power down");
 		return IMU_ERROR;
 	}
 
 	vTaskDelay(pdMS_TO_TICKS(100));
 
 	if (bmx160_set_power_mode(imu, BMX160_ACCEL_LOWPOWER_MODE) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error setting accel power mode low");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error setting accel power mode low");
 		return IMU_ERROR;
 	}
 
 	if (bmx160_set_power_mode(imu, BMX160_GYRO_FASTSTARTUP_MODE) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error setting gyro power mode low");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error setting gyro power mode low");
 		return IMU_ERROR;
 	}
 
 	if (bmx160_set_power_mode(imu, BMX160_MAGN_LOWPOWER_MODE) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error setting magn power mode low");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error setting magn power mode low");
 		return IMU_ERROR;
 	}
 
@@ -184,31 +184,31 @@ imu_error_t bmx160_set_low_power(bmx160_t* imu){
 imu_error_t bmx160_wake_up(bmx160_t* imu){
 
 	if (bmx160_soft_reset(imu) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error performing soft reset for wake up");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error performing soft reset for wake up");
 		return IMU_ERROR;
 	}
 
 	vTaskDelay(pdMS_TO_TICKS(100));
 
 	if (bmx160_init_mag(imu) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error performing IMU init for power up");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error performing IMU init for power up");
 		return IMU_ERROR;
 	}
 
 	vTaskDelay(pdMS_TO_TICKS(100));
 
 	if (bmx160_set_power_mode(imu, BMX160_ACCEL_NORMAL_MODE) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error setting accel power mode normal");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error setting accel power mode normal");
 		return IMU_ERROR;
 	}
 
 	if (bmx160_set_power_mode(imu, BMX160_GYRO_NORMAL_MODE) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error setting gyro power mode normal");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error setting gyro power mode normal");
 		return IMU_ERROR;
 	}
 
 	if (bmx160_set_power_mode(imu, BMX160_MAGN_NORMAL_MODE) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error setting magn power mode normal");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error setting magn power mode normal");
 		return IMU_ERROR;
 	}
 
@@ -267,7 +267,7 @@ imu_error_t bmx160_disable_imu(bmx160_t* imu){
 imu_error_t bmx160_set_gyro_range(bmx160_t* imu, uint8_t new_gyro_range){
 
 	if (bmx160_write_reg(imu, BMX160_GYRO_RANGE_ADDR, 1, &new_gyro_range) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error writing new gyro range %d", new_gyro_range);
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error writing new gyro range %d", new_gyro_range);
 		return IMU_ERROR;
 	}
 
@@ -309,7 +309,7 @@ imu_error_t bmx160_set_gyro_range(bmx160_t* imu, uint8_t new_gyro_range){
 imu_error_t bmx160_set_accel_range(bmx160_t* imu, uint8_t new_accel_range){
 
 	if (bmx160_write_reg(imu, BMX160_ACCEL_RANGE_ADDR, 1, &new_accel_range) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error writing new accel range %d", new_accel_range);
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error writing new accel range %d", new_accel_range);
 		return IMU_ERROR;
 	}
 
@@ -476,7 +476,7 @@ static imu_error_t bmx160_write_reg(bmx160_t* imu, uint8_t reg, uint8_t num_byte
 	i2c_err_t status = tms_i2c_write(imu->addr, 1, &reg, num_bytes, buff, I2C_MUTEX_TIMEOUT_MS);
 
 	if (status != I2C_SUCCESS) {
-		log_str(ERROR, ADCS_IMU_LOG, true, "I2C write failure: %d", status);
+		log_str(ERROR, LOG_ADCS_IMU, true, "I2C write failure: %d", status);
 		return IMU_ERROR;
 	}
 	return IMU_SUCCESS;
@@ -499,7 +499,7 @@ static imu_error_t bmx160_read_reg(bmx160_t* imu, uint8_t reg, uint8_t num_bytes
 	i2c_err_t status = tms_i2c_read(imu->addr, 1, &reg, num_bytes, buff, I2C_MUTEX_TIMEOUT_MS);
 
 	if (status != I2C_SUCCESS) {
-		log_str(ERROR, ADCS_IMU_LOG, true, "I2C read failure: %d", status);
+		log_str(ERROR, LOG_ADCS_IMU, true, "I2C read failure: %d", status);
 		return IMU_ERROR;
 	}
 	return IMU_SUCCESS;
@@ -538,7 +538,7 @@ static imu_error_t bmx160_init_mag(bmx160_t* imu){
 	vTaskDelay(pdMS_TO_TICKS(50));
 	for(i=1; i<12; i++){
 		if ((bmx160_write_reg(imu, cmd_array[i][1], 1, &cmd_array[i][0])) == IMU_ERROR){
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error init mag step %d", i);
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error init mag step %d", i);
 			return IMU_ERROR;
 		}
 	}
@@ -564,7 +564,7 @@ static imu_error_t bmx160_get_mag_iface_status(bmx160_t* imu){
 	uint8_t buff = 0;
 
 	if (bmx160_read_reg(imu, BMX160_STATUS_ADDR, 1, &buff) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error reading mag_man_op");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error reading mag_man_op");
 		return IMU_ERROR;
 	}
 	if ((buff&(0b00000100)) == 0){
@@ -661,7 +661,7 @@ static imu_error_t bmx160_read_trimming_data(bmx160_t* imu){
 	OBC_MISRA_CHECK_OFF
 	for(i=1; i<6; i++){
 		if ((bmx160_write_reg(imu, cmd_array[i][1], 1, &cmd_array[i][0])) == IMU_ERROR){
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error init mag step %d", i);
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error init mag step %d", i);
 			return IMU_ERROR;
 		}
 	}
@@ -684,7 +684,7 @@ static imu_error_t bmx160_read_trimming_data(bmx160_t* imu){
 static imu_error_t bmx160_whoami(bmx160_t* imu, uint8_t* buff){
 
 	if (bmx160_read_reg(imu, BMX160_CHIP_ID_ADDR, 1, buff) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error reading CHIPPID");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error reading CHIPPID");
 		return IMU_ERROR;
 	}
 	return IMU_SUCCESS;
@@ -704,11 +704,11 @@ static imu_error_t bmx160_get_data_status(bmx160_t* imu){
 	uint8_t buff = 0;
 
 	if (bmx160_read_reg(imu, BMX160_STATUS_ADDR, 1, &buff) == IMU_ERROR){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error reading drdy");
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error reading drdy");
 		return IMU_ERROR;
 	}
 	else if ((buff & 0b11100000) != (0b11100000)){
-		log_str(ERROR, ADCS_IMU_LOG, false, "Error data ready is %d", buff);
+		log_str(ERROR, LOG_ADCS_IMU, false, "Error data ready is %d", buff);
 		return IMU_ERROR;
 	}
 	else {
@@ -795,13 +795,13 @@ static imu_error_t bmx160_init(bmx160_t* imu, uint8_t gyro_range, uint8_t accel_
 		vTaskDelay((500));
 
 		if (bmx160_read_reg(imu, BMX160_PMU_STATUS, 1, &buff) == IMU_ERROR){
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error reading PMU status");
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error reading PMU status");
 			result = IMU_ERROR; //get power status
 			break;
 		}
 
 		if ((buff) != 21){
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error: PMU status return %d, should be 21", buff);
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error: PMU status return %d, should be 21", buff);
 			result = IMU_ERROR; //Power status is incorrect (something went wrong)
 			//21 = 00010101 -> Expected status of PMU_STATUS register
 			break;
@@ -813,7 +813,7 @@ static imu_error_t bmx160_init(bmx160_t* imu, uint8_t gyro_range, uint8_t accel_
 		}
 
 		if ((buff) != 216){
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error: CHIPPID return %d, should be 216", buff);
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error: CHIPPID return %d, should be 216", buff);
 			result = IMU_ERROR;
 			break;
 		}
@@ -835,14 +835,14 @@ static imu_error_t bmx160_init(bmx160_t* imu, uint8_t gyro_range, uint8_t accel_
 
 		/*write gyro bandwidth and output data rate*/
 		if (bmx160_write_reg(imu, BMX160_GYRO_CONFIG_ADDR, 1, &gyro_conf) == IMU_ERROR){
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error writing gyro config");
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error writing gyro config");
 			result = IMU_ERROR;
 			break;
 		}
 
 		/*write accel bandwidth and output data rate*/
 		if (bmx160_write_reg(imu, BMX160_ACCEL_CONFIG_ADDR, 1, &accel_conf) == IMU_ERROR){
-			log_str(ERROR, ADCS_IMU_LOG, false, "Error writing accel config");
+			log_str(ERROR, LOG_ADCS_IMU, false, "Error writing accel config");
 			result = IMU_ERROR;
 			break;
 		}

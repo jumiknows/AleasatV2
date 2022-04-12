@@ -231,7 +231,7 @@ rtos_err_t get_task_period_from_id(uint8_t id, task_period_t* period_ms) {
         *period_ms = t_params[id].period_ms;
         return OBC_RTOS_OK;
     }
-    log_str(ERROR, OBC_TASK, true, "Invalid ID %d", id);
+    log_str(ERROR, LOG_OBC_TASK, true, "Invalid ID %d", id);
     return INVALID_ID; // Invalid ID was provided
 }
 
@@ -269,10 +269,10 @@ rtos_err_t set_task_period(uint8_t id, task_period_t period_ms) {
                 // the old period to be safe.
                 res                    = TASK_NOT_BLOCKED;
                 t_params[id].period_ms = old_period_ms; // Return the period to its original value
-                log_str(ERROR, OBC_TASK, true, "ID %d %s", t_params[id].task_id, t_params[id].task_name);
+                log_str(ERROR, LOG_OBC_TASK, true, "ID %d %s", t_params[id].task_id, t_params[id].task_name);
             } else {
                 res = OBC_RTOS_OK;
-                log_str(INFO, OBC_TASK, true, "ID %d %s %d ok.", t_params[id].task_id, t_params[id].task_name, t_params[id].period_ms);
+                log_str(INFO, LOG_OBC_TASK, true, "ID %d %s %d ok.", t_params[id].task_id, t_params[id].task_name, t_params[id].period_ms);
             }
         } else { // Period not valid
             res = INVALID_PERIOD;
@@ -327,10 +327,10 @@ rtos_err_t suspend_task(const char* task_name, bool suspend) {
     if (task_suspend_resume != NULL) {
         if (suspend) {
             vTaskSuspend(task_suspend_resume);
-            log_str(INFO, OBC_TASK, false, "Task %s suspended", task_name);
+            log_str(INFO, LOG_OBC_TASK, false, "Task %s suspended", task_name);
         } else {
             vTaskResume(task_suspend_resume);
-            log_str(INFO, OBC_TASK, false, "Task %s resumed", task_name);
+            log_str(INFO, LOG_OBC_TASK, false, "Task %s resumed", task_name);
         }
     } else {
         res = INVALID_NAME;
@@ -351,22 +351,22 @@ rtos_err_t print_task_state(const char* task_name) {
     if (task_handle != NULL) {
         switch (eTaskGetState(task_handle)) {
             case eReady:
-                log_str(INFO, OBC_TASK, false, "Task %s ready", task_name);
+                log_str(INFO, LOG_OBC_TASK, false, "Task %s ready", task_name);
                 break;
             case eRunning:
-                log_str(INFO, OBC_TASK, false, "Task %s running", task_name);
+                log_str(INFO, LOG_OBC_TASK, false, "Task %s running", task_name);
                 break;
             case eBlocked:
-                log_str(INFO, OBC_TASK, false, "Task %s blocked", task_name);
+                log_str(INFO, LOG_OBC_TASK, false, "Task %s blocked", task_name);
                 break;
             case eSuspended:
-                log_str(INFO, OBC_TASK, false, "Task %s suspended", task_name);
+                log_str(INFO, LOG_OBC_TASK, false, "Task %s suspended", task_name);
                 break;
             case eDeleted:
-                log_str(INFO, OBC_TASK, false, "Task %s deleted", task_name);
+                log_str(INFO, LOG_OBC_TASK, false, "Task %s deleted", task_name);
                 break;
             default:
-                log_str(ERROR, OBC_TASK, false, "Task %s state error", task_name);
+                log_str(ERROR, LOG_OBC_TASK, false, "Task %s state error", task_name);
                 break;
         }
     } else {
@@ -379,11 +379,11 @@ rtos_err_t print_task_state(const char* task_name) {
  * @brief Prints the task name, period, priority, and ID for all tasks registered in the system.
  */
 void print_tasks(void) {
-    log_str(INFO, GET_TASKS_CMD, true, "num_tasks %d", num_tasks);
+    log_str(INFO, LOG_GET_TASKS_CMD, true, "num_tasks %d", num_tasks);
     uint8_t i = 0;
     for (i = 0; i < num_tasks; i++) {
-        log_str(INFO, GET_TASKS_CMD, false /* don't log to filesystem */, "ID %d, %s", t_params[i].task_id, t_params[i].task_name);
-        log_str(INFO, GET_TASKS_CMD, false /* don't log to filesystem */, "per %d, prio %d, HWM %d", t_params[i].period_ms, uxTaskPriorityGet(get_task_handle(i)),
+        log_str(INFO, LOG_GET_TASKS_CMD, false /* don't log to filesystem */, "ID %d, %s", t_params[i].task_id, t_params[i].task_name);
+        log_str(INFO, LOG_GET_TASKS_CMD, false /* don't log to filesystem */, "per %d, prio %d, HWM %d", t_params[i].period_ms, uxTaskPriorityGet(get_task_handle(i)),
                 uxTaskGetStackHighWaterMark(get_task_handle(i)));
     }
 }
@@ -395,13 +395,13 @@ void print_tasks(void) {
  */
 void print_rtos_status(void) {
     if ((rtos_errors.too_many_tasks == false) && (rtos_errors.rtos_task_create_failed == false)) {
-        log_str(INFO, OBC_TASK, true, "OK");
+        log_str(INFO, LOG_OBC_TASK, true, "OK");
     } else {
         if (rtos_errors.too_many_tasks) {
-            log_str(ERROR, OBC_TASK, true, "Too many tasks.");
+            log_str(ERROR, LOG_OBC_TASK, true, "Too many tasks.");
         }
         if (rtos_errors.rtos_task_create_failed) {
-            log_str(ERROR, OBC_TASK, true, "Task create failed.");
+            log_str(ERROR, LOG_OBC_TASK, true, "Task create failed.");
         }
     }
 }

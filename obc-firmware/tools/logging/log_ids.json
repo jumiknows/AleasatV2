@@ -1,241 +1,241 @@
 {
-  "PRINT_GENERAL": {
+  "LOG_PRINT_GENERAL": {
     "id": "1",
     "description": "General purpose printing"
   },
-  "HW_TYPE": {
+  "LOG_HW_TYPE": {
     "id": "2",
     "description": "Hardware type at startup"
   },
-  "START_TYPE": {
+  "LOG_START_TYPE": {
     "id": "3",
     "description": "Startup type (reason for reset)"
   },
-  "PBIST_STATUS": {
+  "LOG_PBIST_STATUS": {
     "id": "4",
     "description": "PBIST status"
   },
-  "SCHED_LOG": {
+  "LOG_SCHEDULER": {
     "id": "5",
     "description": "Scheduler messages"
   },
-  "ACK_CMD": {
+  "LOG_ACK_CMD": {
     "id": "6",
     "description": "Ack command"
   },
-  "HELP_CMD": {
+  "LOG_HELP_CMD": {
     "id": "7",
     "description": "Help command"
   },
-  "CMD_GENERAL": {
+  "LOG_CMD_GENERAL": {
     "id": "8",
     "description": "Command system general"
   },
-  "TEMP_MUTEX": {
+  "LOG_TEMP_MUTEX": {
     "id": "9",
     "description": "Temperature mutex"
   },
-  "ADC_ID": {
+  "LOG_ADC": {
     "id": "10",
     "description": "ADC"
   },
-  "TASK_OVERFLOW": {
+  "LOG_TASK_OVERFLOW": {
     "id": "11",
     "description": "Task overflow"
   },
-  "SUBCMD": {
+  "LOG_SUBCMD": {
     "id": "12",
     "description": "Subcommand processing"
   },
-  "GET_HEAP_CMD": {
+  "LOG_GET_HEAP_CMD": {
     "id": "13",
     "description": "Get heap command"
   },
-  "GET_RUNTIME_CMD": {
+  "LOG_GET_RUNTIME_CMD": {
     "id": "14",
     "description": "Get runtime command"
   },
-  "GET_MINHEAP_CMD": {
+  "LOG_GET_MINHEAP_CMD": {
     "id": "15",
     "description": "Get minheap command"
   },
-  "GET_TASKS_CMD": {
+  "LOG_GET_TASKS_CMD": {
     "id": "16",
     "description": "Get tasks command"
   },
-  "I2C_LOG": {
+  "LOG_I2C": {
     "id": "17",
     "description": "I2c"
   },
-  "PING_CMD": {
+  "LOG_PING_CMD": {
     "id": "18",
     "description": "Ping command for detection by San Antonio"
   },
-  "UNEXPECTED_PAYLOAD_LEN": {
+  "LOG_UNEXPECTED_PAYLOAD_LEN": {
     "id": "19",
     "description": "Unexpected payload size error"
   },
-  "UNEXPECTED_MSG_ID": {
+  "LOG_UNEXPECTED_MSG_ID": {
     "id": "20",
     "description": "Unexpected message ID"
   },
-  "TEMP_LOG": {
+  "LOG_TEMPERATURE": {
     "id": "21",
     "description": "Temperature sensor"
   },
-  "FLASH_LOG": {
+  "LOG_FLASH": {
     "id": "22",
     "description": "Flash memory tests"
   },
-  "GET_EPOCH_CMD": {
+  "LOG_GET_EPOCH_CMD": {
     "id": "23",
     "description": "Get epoch command"
   },
-  "RAMOCCUR_LOG": {
+  "LOG_RAMOCCUR_LOG": {
     "id": "24",
     "description": "ECC register telemetry"
   },
-  "RTC_A_LOG": {
+  "LOG_RTC_A_LOG": {
     "id": "25",
     "description": "RTC A"
   },
-  "RTC_B_LOG": {
+  "LOG_RTC_B_LOG": {
     "id": "26",
     "description": "RTC B"
   },
-  "RTC_REG_SCAN": {
+  "LOG_RTC_REG_SCAN": {
     "id": "27",
     "description": "RTC register scan"
   },
-  "RTC_LOG": {
+  "LOG_RTC_GENERAL": {
     "id": "28",
     "description": "RTC General"
   },
-  "CMD_ERR_OPCODE": {
+  "LOG_CMD_ERR_OPCODE": {
     "id": "29",
     "description": "Command Invalid"
   },
-  "CMD_SAFE_INVALID": {
+  "LOG_CMD_SAFE_INVALID": {
     "id": "30",
     "description": "Previously-scheduled command safe mode error"
   },
-  "CMD_RX": {
+  "LOG_CMD_RX": {
     "id": "31",
     "description": "Command reception"
   },
-  "GPIO_EXPAND_LOG": {
+  "LOG_GPIO_EXPAND": {
     "id": "32",
     "description": "GPIO Expander"
   },
-  "GPIO_LOG": {
+  "LOG_GPIO": {
     "id": "33",
     "description": "GPIO"
   },
-  "SCHEDULER_FAILED_TO_READ_RTC_CURRENT_TIME": {
+  "LOG_SCHEDULER_FAILED_TO_READ_RTC_CURRENT_TIME": {
     "id": "34",
     "description": "Scheduler Failed to read the current time from RTC"
   },
-  "GET_BACKUP_EPOCH_CMD": {
+  "LOG_GET_BACKUP_EPOCH_CMD": {
     "id": "35",
     "description": "Get backup epoch command"
   },
-  "STATE_LOG": {
+  "LOG_STATE_LOG": {
     "id": "36",
     "description": "State handler"
   },
-  "CMD_ERR_PARSE": {
+  "LOG_CMD_ERR_PARSE": {
     "id": "37",
     "description": "Failed to parse command"
   },
-  "FS_LOG": {
+  "LOG_FS_GENERAL": {
     "id": "38",
     "description": "Filesystem log messages"
   },
-  "WD_LOG": {
+  "LOG_WATCHDOG": {
     "id": "39",
     "description": "Watchdog"
   },
-  "SYS_LOG": {
+  "LOG_SYS_GENERAL": {
     "id": "40",
     "description": "System log"
   },
-  "TELEM_INFRA": {
+  "LOG_TELEM_INFRA": {
     "id": "41",
     "description": "Telemetry logging infrastructure"
   },
-  "OBC_TASK": {
+  "LOG_OBC_TASK": {
     "id": "42",
     "description": "OBC RTOS task control"
   },
-  "BOARD_ID": {
+  "LOG_BOARD_ID": {
     "id": "43",
     "description": "Platform type ID"
   },
-  "FILE_DOWNLINK": {
+  "LOG_FILE_DOWNLINK": {
     "id": "44",
     "description": "Used during file downlink"
   },
-  "GPS_LOG": {
+  "LOG_GPS_GENERAL": {
     "id": "45",
     "description": "GPS module"
   },
-  "HANG_TASK_LOG": {
+  "LOG_HANG_TASK": {
     "id": "46",
     "description": "Hang task"
   },
-  "ECHO_CMD": {
+  "LOG_ECHO_CMD": {
     "id": "47",
     "description": "Echo command"
   },
-  "SEQ_NUM_CMD": {
+  "LOG_SEQ_NUM_CMD": {
     "id": "48",
     "description": "Get sequence number command"
   },
-  "ADCS_LOG": {
+  "LOG_ADCS_GENERAL": {
     "id": "49",
     "description": "ADCS log"
   },
-  "SETTINGS_LOG": {
+  "LOG_SETTINGS": {
     "id": "50",
     "description": "Settings"
   },
-  "ACTION_ID_EXCEEDED": {
+  "LOG_ACTION_ID_EXCEEDED": {
     "id": "51",
     "description": "Action ID scheduler tried to assign was larger than max allowed action ID"
   },
-  "TEST_ACK_CMD": {
+  "LOG_TEST_ACK_CMD": {
     "id": "52",
     "description": "ACK Test Command"
   },
-  "TEST_COMMS_CMD": {
+  "LOG_TEST_COMMS_CMD": {
     "id": "53",
     "description": "Comms Test"
   },
-  "TEST_CAN_GPIO_CMD": {
+  "LOG_TEST_CAN_GPIO_CMD": {
     "id": "54",
     "description": "CAN GPIO Test"
   },
-  "PWR_FLT_LOG": {
+  "LOG_PWR_FLT_LOG": {
     "id": "55",
     "description": "Power Fault Log"
   },
-  "TEST_PCMD_GATING_CMD": {
+  "LOG_TEST_PCMD_GATING_CMD": {
     "id": "56",
     "description": "PCMD Power Gating Test"
   },
-  "COMMS_LOG": {
+  "LOG_COMMS_GENERAL": {
     "id": "57",
     "description": "Comms Log"
   },
-  "COMMS_ACK_CMD": {
+  "LOG_COMMS_ACK_CMD": {
     "id": "58",
     "description": "Comms ACK"
   },
-  "ADCS_IMU_LOG": {
+  "LOG_ADCS_IMU": {
     "id": "59",
     "description": "ADCS IMU Log"
   },
-  "ADCS_GYRO_LOG": {
+  "LOG_ADCS_GYRO": {
     "id": "60",
     "description": "ADCS GYRO"
   }

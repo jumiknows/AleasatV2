@@ -95,7 +95,7 @@ void telem_start_task(void) {
 void log_telem(data_bin_t bin) {
     if (telem_queue != 0) {
         if (!xQueueSend(telem_queue, (void*)&bin, 0)) {
-            log_str(ERROR, TELEM_INFRA, true, "Telemetry queue full.");
+            log_str(ERROR, LOG_TELEM_INFRA, true, "Telemetry queue full.");
         }
     }
 }
@@ -178,7 +178,7 @@ static void vTelemLoggerTask(void* pvParameters) {
                     log_file(bin, EPS_CONDN_FILENAME, (const void*)&snapshot.eps_condn, sizeof(snapshot.eps_condn));
                     break;
                 default:
-                    log_str(ERROR, TELEM_INFRA, true, "Invalid telem request bin of %d", bin);
+                    log_str(ERROR, LOG_TELEM_INFRA, true, "Invalid telem request bin of %d", bin);
                     break;
             }
         }
@@ -199,7 +199,7 @@ static void vTelemLoggerTask(void* pvParameters) {
  */
 static void log_file(data_bin_t data_bin, const char* filename, const void* data, uint32_t size) {
     if (!fs_initialized) {
-        log_str(ERROR, TELEM_INFRA, false, "No FS: %s", filename);
+        log_str(ERROR, LOG_TELEM_INFRA, false, "No FS: %s", filename);
         return;
     }
 
@@ -210,8 +210,8 @@ static void log_file(data_bin_t data_bin, const char* filename, const void* data
     // Write the data to the file.
     fs_err_t err = fs_write((const char*)file_path, 0, (const uint8_t*)data, size, LFS_SEEK_END);
     if (err == FS_OK) {
-        log_str(DEBUG, TELEM_INFRA, false, "Logged telem: %s", filename);
+        log_str(DEBUG, LOG_TELEM_INFRA, false, "Logged telem: %s", filename);
     } else {
-        log_str(DEBUG, TELEM_INFRA, false, "%s failed", filename, err);
+        log_str(DEBUG, LOG_TELEM_INFRA, false, "%s failed", filename, err);
     }
 }

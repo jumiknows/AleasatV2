@@ -208,7 +208,7 @@ comms_err_t comms_set_waiter_match(
         return COMMS_SUCCESS;
     }
     else {
-        log_str(ERROR, COMMS_LOG, false, "Comms resp mtx t-out 1");
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms resp mtx t-out 1");
         return COMMS_WAITER_MUTEX_TIMEOUT;
     }
 }
@@ -234,7 +234,7 @@ comms_err_t comms_set_waiter_match_struct(comms_waiter_match_params_t* match_par
         return COMMS_SUCCESS;
     }
     else {
-        log_str(ERROR, COMMS_LOG, false, "Comms resp mtx t-out 3");
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms resp mtx t-out 3");
         return COMMS_WAITER_MUTEX_TIMEOUT;
     }
 }
@@ -261,7 +261,7 @@ comms_err_t comms_clear_waiter_match(void) {
         return COMMS_SUCCESS;
     }
     else {
-        log_str(ERROR, COMMS_LOG, false, "Comms resp mtx t-out 2");
+        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms resp mtx t-out 2");
         return COMMS_WAITER_MUTEX_TIMEOUT;
     }
 }
@@ -298,19 +298,19 @@ void vCommsInterruptServiceTask(void* pvParameters) {
             }
 
             if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MIBSPI_MUTEX_TIMEOUT_MS)) == pdFALSE) {
-                log_str(ERROR, COMMS_LOG, false, "Comms spi mtx t-out");
+                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms spi mtx t-out");
                 break;
             }
             mibspi_ret = comms_mibspi_rx(data);
             xSemaphoreGive(xMibspiCommsMutexHandle);
             if (mibspi_ret != MIBSPI_NO_ERR) {
-                log_str(ERROR, COMMS_LOG, false, "Comms spi rx err %d", mibspi_ret);
+                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms spi rx err %d", mibspi_ret);
                 break;
             }
             // try converting to cmd_struct to check data validity
             comms_err = comms_buffer_to_cmd_struct(data, &comms_cmd_buf);
             if (comms_err != COMMS_SUCCESS) {
-                log_str(ERROR, COMMS_LOG, false, "Comms rx data err");
+                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms rx data err");
                 break;
             }
 
@@ -332,7 +332,7 @@ void vCommsInterruptServiceTask(void* pvParameters) {
                 xSemaphoreGive(xCommsWaiterMutexHandle);
             }
             else {
-                log_str(ERROR, COMMS_LOG, false, "Comms resp mtx t-out");
+                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms resp mtx t-out");
             }
 
             // Packet is already given to a waiter if there is one, so at this point any responses are not needed
@@ -343,7 +343,7 @@ void vCommsInterruptServiceTask(void* pvParameters) {
             // Pass message through to general handler
 
             // This causes stall in logging on OBC if Comms sends too many messages. Kept here for use in debugging.
-            // log_str(INFO, COMMS_LOG, false, "Comms prcs %x %x %x", comms_cmd_buf.header.seqnum, comms_cmd_buf.header.src_hwid, comms_cmd_buf.header.command);
+            // log_str(INFO, LOG_COMMS_GENERAL, false, "Comms prcs %x %x %x", comms_cmd_buf.header.seqnum, comms_cmd_buf.header.src_hwid, comms_cmd_buf.header.command);
 
             // TODO: refactor reply handling into separate file(s)
             memset(reply, 0, sizeof(reply));
@@ -385,12 +385,12 @@ void vCommsInterruptServiceTask(void* pvParameters) {
 
             comms_err = comms_cmd_struct_to_buffer(&comms_reply_buf, reply);
             if (comms_err != COMMS_SUCCESS) {
-                log_str(ERROR, COMMS_LOG, false, "Comms gen reply err");
+                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms gen reply err");
                 break;
             }
 
             if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MIBSPI_MUTEX_TIMEOUT_MS)) == pdFALSE) {
-                log_str(ERROR, COMMS_LOG, false, "Comms sdrc mtx t-out");
+                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc mtx t-out");
                 break;
             }
             // Bug can appear here where if COMMS_INT is high but this loop has not passed this point
@@ -400,7 +400,7 @@ void vCommsInterruptServiceTask(void* pvParameters) {
             mibspi_ret = comms_mibspi_tx(reply);
             xSemaphoreGive(xMibspiCommsMutexHandle);
             if (mibspi_ret != MIBSPI_NO_ERR) {
-                log_str(ERROR, COMMS_LOG, false, "Comms spi tx err %d", mibspi_ret);
+                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms spi tx err %d", mibspi_ret);
             }
 
         } while (0);

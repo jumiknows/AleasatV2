@@ -17,9 +17,11 @@
  * DO NOT MODIFY THIS FILE
  */
 
-{% for entry in log_ids -%}
-#define {{ entry }} {{ log_ids[entry]['id'] }} /* {{log_ids[entry]['description']}} */
+typedef enum {
+{% for entry in log_ids %}
+    {{ entry }} = {{ log_ids[entry]['id'] }}, /* {{log_ids[entry]['description']}} */
 {% endfor %}
+} log_identifier_t;
 
 /*
  * DO NOT MODIFY THIS FILE

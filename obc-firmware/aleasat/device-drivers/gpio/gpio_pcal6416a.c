@@ -207,7 +207,7 @@ gpio_err_t pcal6416a_init(void) {
  * @brief Hard reset of GPIO expander
  */
 void pcal6416a_reset(void) {
-    log_str(INFO, PRINT_GENERAL, false, "Resetting GPIO expander");
+    log_str(INFO, LOG_PRINT_GENERAL, false, "Resetting GPIO expander");
     gioSetBit(OBC_EXPAND_RESET_PORT, OBC_EXPAND_RESET_PIN, 0);
     vTaskDelay(1); // Delay the minimum amount of time (only 30 ns is required by the chip)
     gioSetBit(OBC_EXPAND_RESET_PORT, OBC_EXPAND_RESET_PIN, 1);
@@ -245,13 +245,13 @@ gpio_err_t pcal6416a_validate_regs(void) {
 
             // Attempt to correct the value
             if (i2c_write_reg(reg) != GPIO_SUCCESS) {
-                log_str(ERROR, GPIO_EXPAND_LOG, true, "Failed to correct reg val");
+                log_str(ERROR, LOG_GPIO_EXPAND, true, "Failed to correct reg val");
             }
         }
         reg++;
     }
 
-    log_str(INFO, GPIO_EXPAND_LOG, true, "Expander scan: %d/%d passed.", correct_count, all_regs_count);
+    log_str(INFO, LOG_GPIO_EXPAND, true, "Expander scan: %d/%d passed.", correct_count, all_regs_count);
 
     return GPIO_SUCCESS;
 }
@@ -420,11 +420,11 @@ void pcal6416a_handle_interrupts(void) {
 
     // Check interrupt status on each port
     if (i2c_read_reg(&ro_regs.interrupt_status[0], &interrupt_status[0]) != GPIO_SUCCESS) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "Expander irq check fail");
+        log_str(ERROR, LOG_GPIO_EXPAND, true, "Expander irq check fail");
     }
 
     if (i2c_read_reg(&ro_regs.interrupt_status[1], &interrupt_status[1]) != GPIO_SUCCESS) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "Expander irq check fail");
+        log_str(ERROR, LOG_GPIO_EXPAND, true, "Expander irq check fail");
     }
 
     // Iterate over the ports
@@ -447,7 +447,7 @@ void pcal6416a_handle_interrupts(void) {
                 } else {
                     // Don't call the callback if the read failed because we don't know
                     // what input value to pass in
-                    log_str(ERROR, GPIO_EXPAND_LOG, false, "Read failed from IRQ handler");
+                    log_str(ERROR, LOG_GPIO_EXPAND, false, "Read failed from IRQ handler");
                 }
             }
 
@@ -515,7 +515,7 @@ static gpio_err_t configure_pull_regs(pcal6416a_port_t port, uint8_t pin, pcal64
 static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg) {
     i2c_err_t status = tms_i2c_write(EXPANDER_ADDR, 1, &reg->addr, 1, &reg->val, I2C_MUTEX_TIMEOUT_MS);
     if (status != I2C_SUCCESS) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "I2C write failure: %d", status);
+        log_str(ERROR, LOG_GPIO_EXPAND, true, "I2C write failure: %d", status);
         return GPIO_I2C_ERR;
     }
     return GPIO_SUCCESS;
@@ -533,7 +533,7 @@ static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg) {
 static gpio_err_t i2c_read_reg(const pcal6416a_reg_t* reg, uint8_t* rx_data) {
     i2c_err_t status = tms_i2c_read(EXPANDER_ADDR, 1, &reg->addr, 1, rx_data, I2C_MUTEX_TIMEOUT_MS);
     if (status != I2C_SUCCESS) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "I2C read failure: %d", status);
+        log_str(ERROR, LOG_GPIO_EXPAND, true, "I2C read failure: %d", status);
         return GPIO_I2C_ERR;
     }
     return GPIO_SUCCESS;
@@ -552,7 +552,7 @@ static bool register_mismatch(pcal6416a_reg_t* predicted, uint8_t actual) {
     bool mismatches = false;
 
     if (predicted->val != actual) {
-        log_str(ERROR, GPIO_EXPAND_LOG, true, "Reg: %02X, Expect: %02X Act: %02X", predicted->addr, predicted->val, actual);
+        log_str(ERROR, LOG_GPIO_EXPAND, true, "Reg: %02X, Expect: %02X Act: %02X", predicted->addr, predicted->val, actual);
         mismatches = true;
     }
 

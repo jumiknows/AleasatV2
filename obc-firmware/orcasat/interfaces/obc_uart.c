@@ -240,7 +240,7 @@ uart_err_t gps_serial_send_and_receive(const char* str_to_send, char* gps_respon
 
     // GPS-UART RX timeout
     if (xTimerStart(xUartRecvTimer, 0) == pdFAIL) {
-        log_str(ERROR, GPS_LOG, true, "GPS-UART RX timer init fail");
+        log_str(ERROR, LOG_GPS_GENERAL, true, "GPS-UART RX timer init fail");
         return UART_RX_TIMEOUT;
     }
 
@@ -278,7 +278,7 @@ uart_err_t gps_serial_send_and_receive(const char* str_to_send, char* gps_respon
                 }
 
                 if (gps_rx_buf_idx >= GPS_RX_QUEUE_DEPTH) {
-                    log_str(ERROR, GPS_LOG, true, "RX buffer len exceeded");
+                    log_str(ERROR, LOG_GPS_GENERAL, true, "RX buffer len exceeded");
                     return UART_RX_OVERFLOW;
                 }
                 gps_response_msg[gps_rx_buf_idx++] = gps_rx_curr_rcvd_char;
@@ -287,7 +287,7 @@ uart_err_t gps_serial_send_and_receive(const char* str_to_send, char* gps_respon
 
             gps_rx_prev_rcvd_char = gps_rx_curr_rcvd_char;
         } else if (!xTimerIsTimerActive(xUartRecvTimer)) {
-            log_str(ERROR, GPS_LOG, true, "RX timeout. Recv bytes: %d", gps_rx_buf_idx);
+            log_str(ERROR, LOG_GPS_GENERAL, true, "RX timeout. Recv bytes: %d", gps_rx_buf_idx);
             return UART_RX_TIMEOUT;
         } else {
             vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(UART_BUFFER_READ_INTERVAL_MS));
@@ -339,7 +339,7 @@ static void vSerialTask(void* pvParameters) {
                 } else {
                     rx_buf[rx_buf_idx++] = rx_curr_rcvd_char;
                     if (rx_buf_idx >= MAX_CMD_LEN_BYTES) {
-                        log_str(ERROR, CMD_GENERAL, true, "Max command len exceeded");
+                        log_str(ERROR, LOG_CMD_GENERAL, true, "Max command len exceeded");
                         rx_buf_idx = 0;
                     }
                 }

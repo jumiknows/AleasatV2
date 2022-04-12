@@ -269,7 +269,7 @@ static void encode_header(log_level_t lvl, log_identifier_t func_id, log_payload
  */
 
 static void log_unexpected_payload_size(log_identifier_t func_id) {
-    log_str(ERROR, UNEXPECTED_PAYLOAD_LEN, true, "ID: %d payload too large", func_id);
+    log_str(ERROR, LOG_UNEXPECTED_PAYLOAD_LEN, true, "ID: %d payload too large", func_id);
 }
 
 /**
@@ -281,7 +281,7 @@ static void log_unexpected_payload_size(log_identifier_t func_id) {
  *
  */
 static void log_unexpected_msg_id(log_identifier_t func_id) {
-    log_str(ERROR, UNEXPECTED_MSG_ID, true, "ID: %d too large, using: %d", func_id, (func_id - (MAX_MSG_ID + 1)));
+    log_str(ERROR, LOG_UNEXPECTED_MSG_ID, true, "ID: %d too large, using: %d", func_id, (func_id - (MAX_MSG_ID + 1)));
 }
 
 /**
