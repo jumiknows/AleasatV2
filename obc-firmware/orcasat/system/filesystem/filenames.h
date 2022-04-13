@@ -4,6 +4,9 @@
  *  Created on: Apr 1, 2022
  */
 
+#ifndef FILENAMES_H_
+#define FILENAMES_H_
+
 #define SYS_LOG_FILENAME "sys_log"
 #define ERR_LOG_FILENAME "err_log"
 
@@ -13,3 +16,5 @@
 #define EPS_FAST_FILENAME   "eps_fast"
 #define EPS_SLOW_FILENAME   "eps_slow"
 #define EPS_CONDN_FILENAME  "eps_condn"
+
+#endif /* FILENAMES_H_ */
