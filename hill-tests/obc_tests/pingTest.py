@@ -17,7 +17,7 @@ class PingTest(OBCTestClass.OBCTest):
         self.obc.send_q.put("0 ping * *")
         while 1:
             msg = self.obc.recv_q.get(block=True)
-            if "Ping" in msg.print():
+            if "Ping" in msg:
                 return
 
     # Timeout is in seconds, it will also record how long this test takes.
@@ -26,7 +26,7 @@ class PingTest(OBCTestClass.OBCTest):
         self.obc.send_q.put("0 ping * *")
         while 1:
             msg = self.obc.recv_q.get(block=True)
-            if "Ping" in msg.print():
+            if "Ping" in msg:
                 return
 
 """
