@@ -1,10 +1,10 @@
-import unittest, glob, sys, serial
+import unittest, glob, sys, serial, os
 from obc_test_internals import obc_handler
 
 
 class OBCTest(unittest.TestCase):
     obc = None
-    PORT = "COM8"
+    PORT = os.getenv("DEVICE_PORT", default="COM8")
 
     def setUp(self) -> None:
         self.obc = obc_handler.OBCHandler()
