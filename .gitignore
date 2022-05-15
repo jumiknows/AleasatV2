@@ -1,2 +1,5 @@
 .vscode/*
 !.vscode/tasks.json
+
+hill-tests/obc_tests/obc_test_internals/__pycache__/*
+
