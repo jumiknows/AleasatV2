@@ -1,18 +1,22 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QPushButton, QLabel
+from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QShortcut
 import sys, threading, queue, time
-import san_antonio, constants, serial_tools, history
+import san_antonio, constants, serial_tools, history, config
 import ports as ports_tools
 import globs
 
 class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
     serial_assistant = None
     history_assistant = None
+    commmand_assistant = None
+    config_assistant = None
     # send and get data from thread listening in to serial
     send_q = None
     listening_thread = None
     ports = []
+    past_commands = []
+    past_command_index = 0
 
     def __init__(self, parent=None):
         super(SanAntonio, self).__init__(parent)  # I have no father
@@ -30,6 +34,8 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         # Get assistants
         self.serial_assistant = serial_tools.SerialHandler(self.send_q)
         self.history_assistant = history.HistoryHandler()
+        self.config_assistant = config.ConfigHandler()
+        self.commmand_assistant = history.CommandHistoryHandler(self.config_assistant.get_command_history())
 
         # Set state
         self.set_serial_state()
@@ -47,6 +53,12 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         self.actionMessage_Level.triggered.connect(self.toggle_msg_lvl)
         self.actionFunction_ID.triggered.connect(self.toggle_func_id)
         self.actionTimestamps.triggered.connect(self.toggle_timestamp)
+
+        # Shortcuts
+        self.last_msg_shortbut_next = QShortcut(QtGui.QKeySequence.MoveToPreviousLine, self)
+        self.last_msg_shortbut_next.activated.connect(self.get_last_command_next)
+        self.last_msg_shortbut_prev = QShortcut(QtGui.QKeySequence.MoveToNextLine, self)
+        self.last_msg_shortbut_prev.activated.connect(self.get_last_command_prev)
 
     def toggle_msg_lvl(self) -> None:
         if globs.toggle_msg_lvl_status():
@@ -107,9 +119,20 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         if not input_text:
             return
 
+        self.commmand_assistant.save_input(input_text)
+        self.config_assistant.update(self.commmand_assistant.history)
+        self.config_assistant.save()
         self.send_q.put(input_text)
         self.add_line_to_text(input_text)
         self.input_line.setText("")
+        
+    def get_last_command_next(self):
+        self.input_line.setText(self.commmand_assistant.get_next_command())
+
+    def get_last_command_prev(self):
+        self.input_line.setText(self.commmand_assistant.get_previous_command())
+
+        
 
 def main():
     app = QApplication(sys.argv)
