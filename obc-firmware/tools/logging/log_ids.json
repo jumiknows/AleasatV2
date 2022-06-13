@@ -238,5 +238,13 @@
   "LOG_ADCS_GYRO": {
     "id": "60",
     "description": "ADCS GYRO"
+  },
+  "TEST_EPS_READ_CMD": {
+    "id": "61",
+    "description": "EPS Read Test"
+  },
+  "TEST_EPS_WRITE_CMD": {
+    "id": "62",
+    "description": "EPS Write Test"
   }
 }

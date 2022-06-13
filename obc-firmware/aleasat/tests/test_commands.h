@@ -40,4 +40,11 @@ void cmd_imu_test(uint32_t arg_len, void* arg);
 // CAN GPIO
 void cmd_test_can_gpio(uint32_t arg_len, void* arg);
 
+// EPS
+void cmd_test_eps_read_float(uint32_t arg_len, void* arg);
+void cmd_test_eps_read_int(uint32_t arg_len, void* arg);
+void cmd_test_eps_write(uint32_t arg_len, void* arg);
+void cmd_test_eps_read_sanity(uint32_t arg_len, void* arg);
+void cmd_test_eps_writeread_sanity(uint32_t arg_len, void* arg);
+
 #endif // TEST_COMMANDS_H_

@@ -19,6 +19,7 @@ list(APPEND SRC_DIRS_ALEASAT
     aleasat/device-drivers
     aleasat/device-drivers/ADIS16260_gyro
     aleasat/device-drivers/comms
+    aleasat/device-drivers/eps
     aleasat/device-drivers/gpio
     aleasat/device-drivers/imu
     aleasat/device-drivers/magnetorquer

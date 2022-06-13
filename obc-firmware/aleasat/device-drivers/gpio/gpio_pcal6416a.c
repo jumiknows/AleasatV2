@@ -51,7 +51,7 @@
 /**
  * @brief Bit value for input direction
  */
-#define DIRECTION_INPUT  1
+#define DIRECTION_INPUT 1
 
 /**
  * @brief Maximum time to wait to acquire the I2C mutex in milliseconds
@@ -513,7 +513,7 @@ static gpio_err_t configure_pull_regs(pcal6416a_port_t port, uint8_t pin, pcal64
  * error when reading from the expander over I2C
  */
 static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg) {
-    i2c_err_t status = tms_i2c_write(EXPANDER_ADDR, 1, &reg->addr, 1, &reg->val, I2C_MUTEX_TIMEOUT_MS);
+    i2c_err_t status = tms_i2c_write(EXPANDER_ADDR, sizeof(reg->addr), &reg->addr, sizeof(reg->val), &reg->val, I2C_MUTEX_TIMEOUT_MS);
     if (status != I2C_SUCCESS) {
         log_str(ERROR, LOG_GPIO_EXPAND, true, "I2C write failure: %d", status);
         return GPIO_I2C_ERR;
@@ -531,7 +531,7 @@ static gpio_err_t i2c_write_reg(pcal6416a_reg_t* reg) {
  * reading from the expander over I2C
  */
 static gpio_err_t i2c_read_reg(const pcal6416a_reg_t* reg, uint8_t* rx_data) {
-    i2c_err_t status = tms_i2c_read(EXPANDER_ADDR, 1, &reg->addr, 1, rx_data, I2C_MUTEX_TIMEOUT_MS);
+    i2c_err_t status = tms_i2c_read(EXPANDER_ADDR, sizeof(reg->addr), &reg->addr, sizeof(reg->val), rx_data, I2C_MUTEX_TIMEOUT_MS);
     if (status != I2C_SUCCESS) {
         log_str(ERROR, LOG_GPIO_EXPAND, true, "I2C read failure: %d", status);
         return GPIO_I2C_ERR;

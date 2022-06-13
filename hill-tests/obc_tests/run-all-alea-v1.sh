@@ -9,4 +9,4 @@
 #
 
 # to add a new test, append the file name to the end of this command
-python3 -m unittest pingTest systemTest
+python3 -m unittest pingTest systemTest epsTest

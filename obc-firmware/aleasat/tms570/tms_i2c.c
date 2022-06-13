@@ -52,6 +52,11 @@
  */
 #define I2CPFNC_IO  1U
 
+/**
+ * @brief SCL pulse width for I2C reset function, measured in for-loop ticks (NOT FREERTOS TICKS)
+ */
+#define I2C_RESET_PULSE_WIDTH 300
+
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
@@ -240,9 +245,9 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
         uint8_t i;
         for (i = 0; i < 10; i++) {
             I2C->DOUT |= I2C_SCL;   // Set SCL high
-            busy_wait(300);
+            busy_wait(I2C_RESET_PULSE_WIDTH);
             I2C->DOUT ^= I2C->DOUT; // Set SCL low
-            busy_wait(300);
+            busy_wait(I2C_RESET_PULSE_WIDTH);
         }
         I2C->DOUT |= I2C_SCL; // Set SCL high
 
