@@ -539,7 +539,7 @@ void cmd_test_eps_read_float(uint32_t arg_len, void* arg) {
     uint8_t read_cmd = (uint8_t) cseq_to_num(args[0]);
 
     // Validate arguments
-    if (read_cmd < 1 || read_cmd > 52) {
+    if ((read_cmd < 1) || (read_cmd > 52)) {
         prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
             "Invalid read command '%d', must be between 1 and 52",
             read_cmd
@@ -575,7 +575,7 @@ void cmd_test_eps_read_int(uint32_t arg_len, void* arg) {
     uint8_t read_cmd = (uint8_t) cseq_to_num(args[0]);
 
     // Validate arguments
-    if (read_cmd < 1 || read_cmd > 52) {
+    if ((read_cmd < 1) || (read_cmd > 52)) {
         prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
             "Invalid read command '%d', must be between 1 and 52",
             read_cmd
@@ -778,7 +778,6 @@ void cmd_test_eps_writeread_sanity(uint32_t arg_len, void* arg) {
     bool success = false;
     uint8_t success_counter = 0; // Incremented for every succeeded test
     float32 retf = -1.0f;
-    uint16_t reti = 9999U;
 
     // Run test suite: return on failure
     do {
