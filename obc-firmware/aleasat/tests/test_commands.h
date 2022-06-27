@@ -27,6 +27,7 @@ void cmd_test_comms_tx_rx(uint32_t arg_len, void* arg);
 void cmd_test_comms_stress1(uint32_t arg_len, void* arg);
 void cmd_test_comms_flash_app(uint32_t arg_len, void* arg);
 void cmd_test_comms_reboot(uint32_t arg_len, void* arg);
+void cmd_test_comms_get_telem(uint32_t arg_len, void* arg);
 
 // Magnetorquer test commands
 void cmd_test_mag(uint32_t arg_len, void* arg);

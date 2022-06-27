@@ -154,6 +154,7 @@ const cmd_entry command_table[] = {
     {"test_comms_stress1", &cmd_test_comms_stress1},
     {"test_comms_flash_app", &cmd_test_comms_flash_app},
     {"test_comms_reboot", &cmd_test_comms_reboot},
+    {"test_comms_get_telem", &cmd_test_comms_get_telem},
     {"test_eps_read_float", &cmd_test_eps_read_float},
     {"test_eps_read_int", &cmd_test_eps_read_int},
     {"test_eps_write", &cmd_test_eps_write},

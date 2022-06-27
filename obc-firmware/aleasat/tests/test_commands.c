@@ -24,6 +24,7 @@
 #include "comms_cmd.h"
 #include "comms_flash.h"
 #include "comms_app_image.h"
+#include "comms_telem.h"
 #include "obc_magnetorquer.h"
 #include "imu_bmx160.h"
 #include "ADIS16260_gyro.h"
@@ -195,6 +196,50 @@ void cmd_test_comms_reboot(uint32_t arg_len, void* arg) {
     }
 
     prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "reboot pass");
+}
+
+/**
+ * @brief Tests sending comms get_telem command.
+ *
+ * If testing with Comms board, change comms_hwid
+ */
+void cmd_test_comms_get_telem(uint32_t arg_len, void* arg) {
+    comms_err_t err;
+    comms_telem_t telem_recv = { 0 };
+
+    err = comms_get_telem(&telem_recv);
+    if (err != COMMS_SUCCESS) {
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Unable to get telemetry!");
+    }
+    else {
+        uint8_t ind_adc;
+
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-reserved: %d", telem_recv.reserved);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-uptime: %d", telem_recv.uptime);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-uart0_rx_count: %d", telem_recv.uart0_rx_count);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-uart1_rx_count: %d", telem_recv.uart1_rx_count);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-rx_mode: %d", telem_recv.rx_mode);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-tx_mode: %d", telem_recv.tx_mode);
+
+        for (ind_adc = 0; ind_adc < COMMS_ADC_NUM_CHANNELS; ind_adc++) {
+            prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-adc[%d]: %d", ind_adc, telem_recv.adc[ind_adc]);
+
+        }
+
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-rssi: %d", telem_recv.rssi);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-last_lqi: %d", telem_recv.last_lqi);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-last_frequest: %d", telem_recv.last_frequest);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_sent: %d", telem_recv.packets_sent);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-cs_count: %d", telem_recv.cs_count);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_good: %d", telem_recv.packets_good);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_rej_cs: %d", telem_recv.packets_rejected_checksum);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_rej_rsv: %d", telem_recv.packets_rejected_reserved);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_rej_oth: %d", telem_recv.packets_rejected_other);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-reserved0: %d", telem_recv.reserved0);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-reserved1: %d", telem_recv.reserved1);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-custom0: %d", telem_recv.custom0);
+    	prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-custom1: %d", telem_recv.custom1);
+    }
 }
 
 /**
