@@ -9,7 +9,7 @@
  */
 
 #include "mr25h256.h"
-#include "obc_mibspi.h"
+#include "tms_mibspi.h"
 #include "gio.h"
 #include "reg_het.h"
 #include "obc_hardwaredefs.h"

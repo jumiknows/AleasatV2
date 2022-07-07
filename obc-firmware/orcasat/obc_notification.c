@@ -19,7 +19,7 @@
  */
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
-#include "obc_mibspi.h"
+#include "tms_mibspi.h"
 #include "obc_uart.h"
 #include "obc_featuredefs.h"
 #include "rtos.h"
@@ -100,9 +100,6 @@ void sciNotification(sciBASE_t* sci, uint32 flags) {
 /**
  * @brief MIBSPI interrupt callback
  *
- * mibspiREG1 -> xMibspiEventGroupHandle
- * mibspiREG3 -> xMibspiCommsEventGroupHandle
- *
  * This function is executed when the MIBSPI peripheral transfer is complete.
  * Using the mibSPI event group, this callback wakes up waiting threads by
  * setting the bit of the respective transfer group.
@@ -114,15 +111,10 @@ void mibspiGroupNotification(mibspiBASE_t* mibspi, uint32 group) {
     /* xHigherPriorityTaskWoken must be initialized to pdFALSE. */
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    if (mibspi == mibspiREG1) {
-        xEventGroupSetBitsFromISR(xMibspiEventGroupHandle, /* The event group being updated. */
-                                  (1 << group),            /* The bits being set. */
-                                  &xHigherPriorityTaskWoken);
-    } else {
-        xEventGroupSetBitsFromISR(xMibspiCommsEventGroupHandle, /* The event group being updated. */
-                                  (1 << group),                 /* The bits being set. */
-                                  &xHigherPriorityTaskWoken);
-    }
+    EventGroupHandle_t eg = get_eventgroup_handle(mibspi);
+    xEventGroupSetBitsFromISR(eg,                         /* The event group being updated. */
+                              (EventBits_t)(1 << group),  /* The bits being set. */
+                              &xHigherPriorityTaskWoken);
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -134,9 +126,6 @@ void mibspiGroupNotification(mibspiBASE_t* mibspi, uint32 group) {
  * an error interrupt. Using the mibSPI event group, this callback wakes up waiting
  * threads by setting the MIBSPI_ERR_NOTIF bit.
  *
- * mibspiREG1 -> xMibspiEventGroupHandle
- * mibspiREG3 -> xMibspiCommsEventGroupHandle
- *
  * @param mibspi:  pointer to the MIBSPI port that raised the interrupt
  * @param flags:   Copy of error interrupt flags
  * @warning this runs in interrupt context, so FreeRTOS interrupt-mode API functions must be used.
@@ -145,15 +134,10 @@ void mibspiNotification(mibspiBASE_t* mibspi, uint32 flags) {
     /* xHigherPriorityTaskWoken must be initialized to pdFALSE. */
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    if (mibspi == mibspiREG1) {
-        xEventGroupSetBitsFromISR(xMibspiEventGroupHandle, /* The event group being updated. */
-                                  MIBSPI_ERR_NOTIF,        /* The bits being set. */
-                                  &xHigherPriorityTaskWoken);
-    } else {
-        xEventGroupSetBitsFromISR(xMibspiCommsEventGroupHandle,  /* The event group being updated. */
-                                  (EventBits_t)MIBSPI_ERR_NOTIF, /* The bits being set. */
-                                  &xHigherPriorityTaskWoken);
-    }
+    EventGroupHandle_t eg = get_eventgroup_handle(mibspi);
+    xEventGroupSetBitsFromISR(eg,                             /* The event group being updated. */
+                              (EventBits_t)MIBSPI_ERR_NOTIF,  /* The bits being set. */
+                              &xHigherPriorityTaskWoken);
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

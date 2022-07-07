@@ -31,26 +31,44 @@ typedef enum flash_err {
     FLASH_OK = 0,
 
     /**
-     * @brief Indicates there was an error attempting to grab the MIBSPI mutex.
-     */
-    FLASH_MIBSPI_MUTEX_GRAB_ERR = -1,
-
-    /**
      * @brief Indicates there was a low-level error in the MIBSPI driver.
      */
-    FLASH_MIBSPI_ERR = -2,
+    FLASH_MIBSPI_ERR = -1,
 
     /**
      * @brief Indicates a timeout occurred while erasing, and the flash is still
      * reporting a busy state.
      */
-    FLASH_ERASE_TIMEOUT_ERR = -3,
+    FLASH_ERASE_TIMEOUT_ERR = -2,
+
+    /**
+     * @brief Indicates a timeout occurred while writing, and the flash is still
+     * reporting a busy state.
+     */
+    FLASH_WRITE_TIMEOUT_ERR = -3,
+
+    /**
+     * @brief Indicates that either the address passed to the flash driver is
+     * outside of bounds, or the operation would require writing outside of
+     * these bounds
+     */
+    FLASH_ADDR_OR_SIZE_TOO_LARGE_ERR = -4,
+
+    /**
+     * @brief Indicates that the address is not correctly aligned
+     */
+    FLASH_ADDR_UNALIGNED_ERR = -5,
+
+    /**
+     * @brief Indicates than an invalid read/write size was provided as argument
+     */
+    FLASH_INVALID_SIZE_ERR = -6,
 
 #ifdef PLATFORM_LAUNCHPAD_1224
-    FLASH_MOCK_ERR = -4
+    FLASH_MOCK_ERR = -7
 #endif
 #ifdef PLATFORM_ALEA_V1
-    FLASH_MOCK_ERR = -4
+    FLASH_MOCK_ERR = -7
 #endif
 } flash_err_t;
 
@@ -159,9 +177,14 @@ typedef enum mibspi_err {
     MIBSPI_TIMEOUT = -4,
 
     /**
+     * @brief Indicates a failure to grab the MIBSPI mutex. Most likely a timeout.
+     */
+    MIBSPI_MUTEX_GRAB_ERR = -5,
+
+    /**
      * @brief Unknown error occurred.
      */
-    MIBSPI_UNKNOWN_ERR = -5
+    MIBSPI_UNKNOWN_ERR = -6
 } mibspi_err_t;
 
 /**

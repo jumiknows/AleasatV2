@@ -18,7 +18,7 @@
 #include "obc_rtc.h"
 #include "obc_uart.h"
 #include "obc_gps.h"
-#include "obc_mibspi.h"
+#include "tms_mibspi.h"
 #include "tms_mibspi.h"
 #include "obc_startup.h"
 #include "obc_flash.h"
@@ -61,11 +61,14 @@ static void obc_main_task(void* pvParameters) {
     uart_create_infra();
     tms_i2c_create_infra();
     gpio_create_infra();
+    tms_mibspi_create_infra();
     rtc_create_infra();
     scheduler_create_infra();
     obc_rtos_create_infra();
     telem_create_infra();
     gps_create_infra();
+    comms_create_infra();
+    tms_spi_create_infra();
 
     // Start the backup epoch so we have a timestamp before initializing the hardware RTCs.
     // If errors occur in subsequent steps, they will be able to properly log the error because
@@ -79,11 +82,7 @@ static void obc_main_task(void* pvParameters) {
     uart_init_hw();
     tms_i2c_init();
     gpio_init_hw();
-    mibspi_init_hw(); // OBC is master on MIBSPI, so no interrupts will occur without the OBC
-                          // having enough infrastructure created to process them.
-    mibspi_create_infra();
-    comms_create_infra();
-    tms_spi_create_infra();
+    tms_mibspi_init_hw();
     comms_init_irq();
     hetInit();
     adc_init();
@@ -145,7 +144,7 @@ static void obc_main_task(void* pvParameters) {
     // Filesystem initialization requires flash, and takes a couple of seconds because we erase it
     // at startup.
     flash_init();
-    fs_init();
+    //fs_init(); // TODO enable filesystem
 
     // Create the telemetry logging task. This requires that the filesystem is ready to go.
     telem_start_task();

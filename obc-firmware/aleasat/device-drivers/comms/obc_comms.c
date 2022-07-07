@@ -60,11 +60,7 @@ static SemaphoreHandle_t xCommsWaiterMutexHandle;
 /*                P U B L I C  G L O B A L  V A R I A B L E S                 */
 /******************************************************************************/
 
-// MIBSPI
-EventGroupHandle_t xMibspiCommsEventGroupHandle;
-SemaphoreHandle_t xMibspiCommsMutexHandle;
-
-// vCommsInterruptServiceTask and Comms receiver
+// Comms event group handle
 EventGroupHandle_t xCommsWaiterEventGroupHandle;
 
 /******************************************************************************/
@@ -83,19 +79,13 @@ void vCommsInterruptServiceTask(void* pvParameters);
  * @brief Initializes the mibSPI peripheral and enables the appropriate transfer group interrupts.
  */
 void comms_create_infra(void) {
-    static StaticEventGroup_t xMibspiCommsStaticEventGroup;
-    static StaticSemaphore_t xMibspiCommsStaticMutex;
-
     static StaticEventGroup_t xCommsWaiterStaticEventGroup;
     static StaticSemaphore_t xCommsWaiterStaticMutex;
 
     // Initialize RTOS event group
-    xMibspiCommsEventGroupHandle = xEventGroupCreateStatic(&xMibspiCommsStaticEventGroup);
-
-    // Initialize MIBSPI mutex
-    xMibspiCommsMutexHandle = xSemaphoreCreateMutexStatic(&xMibspiCommsStaticMutex);
-
     xCommsWaiterEventGroupHandle = xEventGroupCreateStatic(&xCommsWaiterStaticEventGroup);
+
+    // Initialize comms waiter mutex
     xCommsWaiterMutexHandle = xSemaphoreCreateMutexStatic(&xCommsWaiterStaticMutex);
 }
 
@@ -141,7 +131,7 @@ void notify_comms_irq(void) {
 /**
  * @brief Transmit 256 bytes to Comms.
  *
- * @pre @ref mibspi_init_hw
+ * @pre @ref tms_mibspi_init_hw
  * @pre comms_init_irq
  * @pre comms_create_infra
  *
@@ -150,13 +140,13 @@ void notify_comms_irq(void) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_mibspi_tx(uint16_t* tx_buffer) {
-    return tms_mibspi_tx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, tx_buffer, COMMS_MIBSPI_TIMEOUT_MS);
+    return tms_mibspi_tx(&COMMS_256_BYTES_TG, tx_buffer, COMMS_MIBSPI_TIMEOUT_MS);
 }
 
 /**
  * @brief Receive 256 bytes from Comms.
  *
- * @pre @ref mibspi_init_hw
+ * @pre @ref tms_mibspi_init_hw
  * @pre comms_init_irq
  * @pre comms_create_infra
  *
@@ -165,7 +155,7 @@ mibspi_err_t comms_mibspi_tx(uint16_t* tx_buffer) {
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
 mibspi_err_t comms_mibspi_rx(uint16_t* rx_buffer) {
-    return tms_mibspi_rx(&COMMS_256_BYTES_TG, xMibspiCommsEventGroupHandle, rx_buffer, COMMS_MIBSPI_TIMEOUT_MS);
+    return tms_mibspi_rx(&COMMS_256_BYTES_TG, rx_buffer, COMMS_MIBSPI_TIMEOUT_MS);
 }
 
 /**
@@ -297,12 +287,7 @@ void vCommsInterruptServiceTask(void* pvParameters) {
                 break;
             }
 
-            if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MIBSPI_MUTEX_TIMEOUT_MS)) == pdFALSE) {
-                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms spi mtx t-out");
-                break;
-            }
             mibspi_ret = comms_mibspi_rx(data);
-            xSemaphoreGive(xMibspiCommsMutexHandle);
             if (mibspi_ret != MIBSPI_NO_ERR) {
                 log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms spi rx err %d", mibspi_ret);
                 break;
@@ -389,16 +374,11 @@ void vCommsInterruptServiceTask(void* pvParameters) {
                 break;
             }
 
-            if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MIBSPI_MUTEX_TIMEOUT_MS)) == pdFALSE) {
-                log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc mtx t-out");
-                break;
-            }
             // Bug can appear here where if COMMS_INT is high but this loop has not passed this point
             // then this SPI TX can also read out the message from Comms and message gets lost.
             // Only occurs during high traffic.
             // TODO: fix by using tms_mibspi_tx_rx and chaining handling if we receive additional messages
             mibspi_ret = comms_mibspi_tx(reply);
-            xSemaphoreGive(xMibspiCommsMutexHandle);
             if (mibspi_ret != MIBSPI_NO_ERR) {
                 log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms spi tx err %d", mibspi_ret);
             }

@@ -192,16 +192,14 @@
 
 /**
  * @brief Flash MIBSPI configuration.
- *
- * TODO: This is currently unused as the mock flash is used (see obc_flash.c)
- * (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/56)
  */
 #define FLASH_MIBSPI_REG    mibspiREG5
-#define FLASH_DATA_FORMAT   2
-#define FLASH_1_BYTE_GROUP  2 // transfer group with 1 byte length
-#define FLASH_2_BYTE_GROUP  3 // transfer group with 2 byte length
-#define FLASH_4_BYTE_GROUP  4 // transfer group with 4 byte length
-#define FLASH_20_BYTE_GROUP 5 // transfer group with 20 byte length
+#define FLASH_DATA_FORMAT   0
+#define FLASH_1_BYTE_GROUP  0 // transfer group with 1 byte length
+#define FLASH_2_BYTE_GROUP  1 // transfer group with 2 byte length
+#define FLASH_5_BYTE_GROUP  2 // transfer group with 5 byte length
+#define FLASH_20_BYTE_GROUP 3 // transfer group with 20 byte length
+#define FLASH_69_BYTE_GROUP 4 // transfer group with 69 byte length
 
 #define FLASH_CS0_PORT mibspiPORT5
 #define FLASH_CS0_PIN  MIBSPI_PIN_ENA
@@ -213,12 +211,8 @@
  * @brief Flash size configuration
  * @brief Flash size configuration - 32MB = 256Mb
  */
-// #define BLOCK_SIZE  4096
-// #define BLOCK_COUNT 8192
-// TODO these are temporary values for the mock flash, use the commented out values above when the flash driver is working
-// (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/56)
-#define BLOCK_SIZE  1024
-#define BLOCK_COUNT 64
+#define BLOCK_SIZE  4096
+#define BLOCK_COUNT 8192
 
 /**
  * @brief COMMS SPI interface

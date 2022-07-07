@@ -26,31 +26,205 @@
 // OBC
 #include "obc_misra.h"
 #include "obc_hardwaredefs.h"
+#include "logger.h"
 
 // HAL
 #include "gio.h"
 
 /******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
+
+/**
+ * @brief Timeout for MIBSPI mutex grab.
+ */
+#define MUTEX_TIMEOUT_MS 200
+
+/******************************************************************************/
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
+/******************************************************************************/
+
+EventGroupHandle_t xMibspi1EventGroupHandle;
+EventGroupHandle_t xMibspi3EventGroupHandle;
+EventGroupHandle_t xMibspi5EventGroupHandle;
+
+static SemaphoreHandle_t xMibspi1MutexHandle;
+static SemaphoreHandle_t xMibspi3MutexHandle;
+static SemaphoreHandle_t xMibspi5MutexHandle;
+
+/******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
+static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout);
+static mibspi_err_t mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout);
+static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout);
 static mibspi_err_t mibspi_error_handler(uint32_t error_flags);
+static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
 /**
+ * @brief Initializes the mibSPI peripheral and enables the appropriate transfer group
+ * interrupts.
+ */
+void tms_mibspi_create_infra(void) {
+    static StaticEventGroup_t xMibspi1StaticEventGroup;
+    static StaticEventGroup_t xMibspi3StaticEventGroup;
+    static StaticEventGroup_t xMibspi5StaticEventGroup;
+
+    static StaticSemaphore_t xMibspi1StaticMutex;
+    static StaticSemaphore_t xMibspi3StaticMutex;
+    static StaticSemaphore_t xMibspi5StaticMutex;
+
+    // Initialize RTOS event group
+    xMibspi1EventGroupHandle = xEventGroupCreateStatic(&xMibspi1StaticEventGroup);
+    xMibspi3EventGroupHandle = xEventGroupCreateStatic(&xMibspi3StaticEventGroup);
+    xMibspi5EventGroupHandle = xEventGroupCreateStatic(&xMibspi5StaticEventGroup);
+
+    // Initialize MIBSPI mutexes
+    xMibspi1MutexHandle = xSemaphoreCreateMutexStatic(&xMibspi1StaticMutex);
+    xMibspi3MutexHandle = xSemaphoreCreateMutexStatic(&xMibspi3StaticMutex);
+    xMibspi5MutexHandle = xSemaphoreCreateMutexStatic(&xMibspi5StaticMutex);
+}
+
+/**
  * @brief Initializes MIBSPI hardware.
  */
-void mibspi_init_hw(void) {
+void tms_mibspi_init_hw(void) {
     mibspiInit();
 }
 
 /**
+ * @brief Transmit data using a particular MibSPI transfer group.
+ *
+ * @pre tms_mibspi_create_infra
+ * @pre tms_mibspi_init_hw
+ *
+ * @param tg: Transfer group struct
+ * @param tx_buffer: Pointer to the data to transmit, length of data that is transmitted
+ * depends on the transfer group size
+ * @param timeout: MIBSPI timeout in ms
+ * @return MIBSPI_NO_ERR if no error, error code otherwise
+ */
+mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint32_t timeout) {
+    mibspi_err_t err = MIBSPI_NO_ERR;
+
+    SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+    EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+
+    if (xSemaphoreTake(mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
+        err = mibspi_tx(tg, eventgroup, tx_buffer, timeout);
+
+        xSemaphoreGive(mutex);
+    } else {
+        err = MIBSPI_MUTEX_GRAB_ERR;
+    }
+
+    return err;
+}
+
+/**
+ * @brief Receive data using a particular MibSPI transfer group.
+ * The data received will be the same size as the transfer group size.
+ * 
+ * @pre tms_mibspi_create_infra
+ * @pre tms_mibspi_init_hw
+ *
+ * @param tg: Transfer group struct
+ * @param rx_buffer: pointer to the data to receive
+ * @param timeout: MIBSPI timeout in ms
+ * @return MIBSPI_NO_ERR if no error, error code otherwise
+ */
+mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, uint16_t* rx_buffer, uint32_t timeout) {
+    mibspi_err_t err = MIBSPI_NO_ERR;
+
+    SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+    EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+
+    if (xSemaphoreTake(mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
+        err = mibspi_rx(tg, eventgroup, rx_buffer, timeout);
+
+        xSemaphoreGive(mutex);
+    } else {
+        err = MIBSPI_MUTEX_GRAB_ERR;
+    }
+
+    return err;
+}
+
+/**
+ * @brief Transmit data and wait for received data using a particular MibSPI transfer group.
+ * 
+ * @pre tms_mibspi_create_infra
+ * @pre tms_mibspi_init_hw
+ *
+ * @param tg: Transfer group struct
+ * @param tx_buffer: Pointer to the data to transmit, length of data that is transmitted
+ * depends on the transfer group size
+ * @param rx_buffer: Pointer to where received data is stored, length of data that is
+ * stored depends on the transfer group size
+ * @param timeout: MIBSPI timeout in ms
+ * @return MIBSPI_NO_ERR if no error, error code otherwise
+ */
+mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
+    mibspi_err_t err = MIBSPI_NO_ERR;
+
+    SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+    EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+
+    if (xSemaphoreTake(mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
+        err = mibspi_tx_rx(tg, eventgroup, tx_buffer, rx_buffer, SPI_TIMEOUT_MS);
+
+        xSemaphoreGive(mutex);
+    } else {
+        err = MIBSPI_MUTEX_GRAB_ERR;
+    }
+
+    return err;
+}
+
+/**
+ * @brief Get the event group for the corresponding transfer group
+ * 
+ * @param reg: the mibspi register
+ * @return EventGroupHandle_t: the relevant event group
+ */
+EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg) {
+    EventGroupHandle_t handle;
+
+    switch ((intptr_t)reg) {
+        case (intptr_t)mibspiREG1: {
+            handle = xMibspi1EventGroupHandle;
+            break;
+        }
+        case (intptr_t)mibspiREG3: {
+            handle = xMibspi3EventGroupHandle;
+            break;
+        }
+        case (intptr_t)mibspiREG5: {
+            handle = xMibspi5EventGroupHandle;
+            break;
+        }
+        default: {
+            log_str(ERROR, LOG_DRIVER_MIBSPI, true, "Cannot get eventgroup handle: transfer group has invalid mibspi reg");
+            break;
+        }
+    }
+
+    return handle;
+}
+
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
+
+/**
  * @brief Transmit data using a particular MibSPI transfer group and EventGroup
  *
- * @pre @ref mibspi_init_hw
+ * @pre @ref tms_mibspi_init_hw
  * @pre event group notification has been enabled
  *
  * @param tg: Transfer group struct
@@ -60,7 +234,7 @@ void mibspi_init_hw(void) {
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout) {
+static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout) {
     EventBits_t uxBits;
     const TickType_t xTicksToWait = pdMS_TO_TICKS(timeout);
 
@@ -80,11 +254,11 @@ mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, 
     // interrupt to signal
 
     uxBits = xEventGroupWaitBits(
-    		eg_handle,
-			((uint8_t)((uint8_t)1U << tg->transfer_group)) | MIBSPI_ERR_NOTIF,
-			pdTRUE,   /* The bits should be cleared before returning. */
-			pdFALSE,  /* Wait for only one bit. */
-			xTicksToWait);
+            eg_handle,
+            ((uint8_t)((uint8_t)1U << tg->transfer_group)) | MIBSPI_ERR_NOTIF,
+            pdTRUE,   /* The bits should be cleared before returning. */
+            pdFALSE,  /* Wait for only one bit. */
+            xTicksToWait);
 
     // Disable CS
     /* Waiving MISRA check due to false positive result for 12.2 (AZ) */
@@ -106,7 +280,7 @@ mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, 
 /**
  * @brief Receive data using a particular MibSPI transfer group.
  * The data received will be the same size as the transfer group size.
- * @pre mibspi_init_hw
+ * @pre tms_mibspi_init_hw
  * @pre event group notification has been enabled
  *
  * @param tg: Transfer group struct
@@ -115,12 +289,12 @@ mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, 
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout) {
+static mibspi_err_t mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout) {
     static uint16_t empty_data[128] = {0x0000};
     uint16_t* data_ptr = empty_data;
     // Transmit empty data, set the clock and slave select to allow the
     // slave to simultaneously send data.
-    mibspi_err_t err = tms_mibspi_tx(tg, eg_handle, data_ptr, timeout);
+    mibspi_err_t err = mibspi_tx(tg, eg_handle, data_ptr, timeout);
     if (err != MIBSPI_NO_ERR) {
         return err;
     }
@@ -139,7 +313,7 @@ mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, 
  * @brief Transmit data and wait for received data using a particular MibSPI transfer group.
  * and Event group
  *
- * @pre mibspi_init_hw
+ * @pre tms_mibspi_init_hw
  * @pre event group notification has been enabled
  *
  * @param tg: Transfer group struct
@@ -150,9 +324,9 @@ mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, 
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
+static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
     // Transmit data
-    mibspi_err_t err = tms_mibspi_tx(tg, eg_handle, tx_buffer, timeout);
+    mibspi_err_t err = mibspi_tx(tg, eg_handle, tx_buffer, timeout);
     if (err != MIBSPI_NO_ERR) {
         return err;
     }
@@ -165,10 +339,6 @@ mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
     return mibspi_error_handler(error_flags);
 }
 
-/******************************************************************************/
-/*                      P R I V A T E  F U N C T I O N S                      */
-/******************************************************************************/
-
 /**
  * @brief MIBSPI error handler. Parses the MibSPI error register to check
  * if an error has occurred.
@@ -179,8 +349,9 @@ mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
  * @return: Error code
  */
 static mibspi_err_t mibspi_error_handler(uint32_t error_flags) {
-    // No error, or ignore RX overflow error
-    if ((error_flags == 0) || ((error_flags & 0x40) != 0)) {
+    // No error, TXINT or RXINT, or ignore RX overflow error
+    if ((error_flags == 0) || ((error_flags & 0x40) != 0)
+            || ((error_flags & 0x100) != 0) || ((error_flags & 0x200) != 0)) {
         return MIBSPI_NO_ERR;
     }
 
@@ -195,4 +366,35 @@ static mibspi_err_t mibspi_error_handler(uint32_t error_flags) {
     }
 
     return MIBSPI_UNKNOWN_ERR;
+}
+
+/**
+ * @brief Get the mutex for the corresponding transfer group
+ * 
+ * @param reg: the mibspi register
+ * @return SemaphorHandle_t: the relevant mutex
+ */
+static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg) {
+    SemaphoreHandle_t handle;
+
+    switch ((intptr_t)reg) {
+        case (intptr_t)mibspiREG1: {
+            handle = xMibspi1MutexHandle;
+            break;
+        }
+        case (intptr_t)mibspiREG3: {
+            handle = xMibspi3MutexHandle;
+            break;
+        }
+        case (intptr_t)mibspiREG5: {
+            handle = xMibspi5MutexHandle;
+            break;
+        }
+        default: {
+            log_str(ERROR, LOG_DRIVER_MIBSPI, true, "Cannot get mutex handle: transfer group has invalid mibspi reg");
+            break;
+        }
+    }
+
+    return handle;
 }

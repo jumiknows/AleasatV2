@@ -92,10 +92,11 @@
  */
 #define FLASH_MIBSPI_REG    mibspiREG1
 #define FLASH_DATA_FORMAT   2
-#define FLASH_1_BYTE_GROUP  2 // transfer group with 1 byte length
-#define FLASH_2_BYTE_GROUP  3 // transfer group with 2 byte length
-#define FLASH_4_BYTE_GROUP  4 // transfer group with 4 byte length
-#define FLASH_20_BYTE_GROUP 5 // transfer group with 20 byte length
+#define FLASH_1_BYTE_GROUP  0 // transfer group with 1 byte length
+#define FLASH_2_BYTE_GROUP  1 // transfer group with 2 byte length
+#define FLASH_5_BYTE_GROUP  2 // transfer group with 5 byte length
+#define FLASH_20_BYTE_GROUP 3 // transfer group with 20 byte length
+#define FLASH_69_BYTE_GROUP 4 // transfer group with 69 byte length
 
 #define FLASH_CS0_PORT gioPORTA
 #define FLASH_CS0_PIN  2

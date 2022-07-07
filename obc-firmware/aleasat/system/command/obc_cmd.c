@@ -167,6 +167,7 @@ const cmd_entry command_table[] = {
     {"test_can_gpio", &cmd_test_can_gpio},
     {"test_panel_gyro", &cmd_test_panel_gyro},
     {"test_log_str", &cmd_test_log_str},
+    {"test_flash_rw", &cmd_test_flash_rw}
 #endif // SYSTEM_TESTS
 };
 

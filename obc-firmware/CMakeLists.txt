@@ -20,6 +20,7 @@ list(APPEND SRC_DIRS_ALEASAT
     aleasat/device-drivers/ADIS16260_gyro
     aleasat/device-drivers/comms
     aleasat/device-drivers/eps
+    aleasat/device-drivers/flash
     aleasat/device-drivers/gpio
     aleasat/device-drivers/imu
     aleasat/device-drivers/magnetorquer
@@ -36,7 +37,6 @@ list(APPEND SRC_DIRS_ORCASAT
     orcasat
     orcasat/featuredefs
     orcasat/hardware-drivers
-    orcasat/hardware-drivers/flash
     orcasat/hardware-drivers/gps
     orcasat/hardware-drivers/heartbeat
     orcasat/hardware-drivers/mram

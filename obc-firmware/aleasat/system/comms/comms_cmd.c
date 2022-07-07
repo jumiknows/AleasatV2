@@ -80,24 +80,14 @@ comms_err_t comms_send_cmd(
         return err;
     }
 
-    if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(timeout_ms))) {
-        mibspi_ret = comms_mibspi_tx(buf);
-        xSemaphoreGive(xMibspiCommsMutexHandle);
-        if (mibspi_ret == MIBSPI_TIMEOUT) {
-            err = COMMS_MIBSPI_TIMEOUT;
-        }
-        else if (mibspi_ret != MIBSPI_NO_ERR) {
-            err = COMMS_MIBSPI_ERR;
-        }
-        else {
-            inc_seqnum(&comms_seqnum);
-            err = COMMS_SUCCESS;
-        }
-    }
-    else {
-        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms send mtx t-out");
-        err = COMMS_MIBSPI_MUTEX_TIMEOUT;
-        return err;
+    mibspi_ret = comms_mibspi_tx(buf);
+    if (mibspi_ret == MIBSPI_TIMEOUT) {
+        err = COMMS_MIBSPI_TIMEOUT;
+    } else if (mibspi_ret != MIBSPI_NO_ERR) {
+        err = COMMS_MIBSPI_ERR;
+    } else {
+        inc_seqnum(&comms_seqnum);
+        err = COMMS_SUCCESS;
     }
 
     // check comms_mibspi_tx result
@@ -161,15 +151,7 @@ comms_err_t comms_send_recv_cmd(
     }
 
     do {
-        if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(timeout_ms)) == pdTRUE) {
-            mibspi_ret = comms_mibspi_tx(buf);
-            xSemaphoreGive(xMibspiCommsMutexHandle);
-        }
-        else {
-            log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms sdrc mtx t-out");
-            err = COMMS_MIBSPI_MUTEX_TIMEOUT;
-            break;
-        }
+        mibspi_ret = comms_mibspi_tx(buf);
 
         if (mibspi_ret == MIBSPI_TIMEOUT) {
             err = COMMS_MIBSPI_TIMEOUT;

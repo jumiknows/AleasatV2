@@ -85,7 +85,7 @@
   },
   "LOG_FLASH": {
     "id": "22",
-    "description": "Flash memory tests"
+    "description": "Flash driver"
   },
   "LOG_GET_EPOCH_CMD": {
     "id": "23",
@@ -246,5 +246,13 @@
   "TEST_EPS_WRITE_CMD": {
     "id": "62",
     "description": "EPS Write Test"
+  },
+  "LOG_TEST_FLASH_RW_CMD": {
+    "id": "63",
+    "description": "Test flash read/write command"
+  },
+  "LOG_DRIVER_MIBSPI": {
+    "id": "64",
+    "description": "MIBSPI Driver"
   }
 }

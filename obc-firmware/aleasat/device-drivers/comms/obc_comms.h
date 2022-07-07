@@ -80,9 +80,6 @@ typedef struct comms_waiter_match_params_struct {
 /**
  * @brief RTOS handles for data structures used in this driver.
  */
-extern EventGroupHandle_t xMibspiCommsEventGroupHandle;
-extern SemaphoreHandle_t xMibspiCommsMutexHandle;
-
 extern EventGroupHandle_t xCommsWaiterEventGroupHandle;
 
 /******************************************************************************/

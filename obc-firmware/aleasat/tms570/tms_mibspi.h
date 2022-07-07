@@ -60,11 +60,15 @@ typedef struct {
 /******************************************************************************/
 
 /* Startup steps */
-void mibspi_init_hw(void);
+void tms_mibspi_create_infra(void);
+void tms_mibspi_init_hw(void);
 
 /* User API */
-mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout);
-mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout);
-mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, uint16_t* rx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout);
+
+/* Public helper function */
+EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg);
 
 #endif /* TMS_MIBSPI_H_ */

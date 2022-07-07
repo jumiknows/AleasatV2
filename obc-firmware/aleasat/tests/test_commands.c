@@ -33,6 +33,7 @@
 #include "obc_eps.h"
 #include "obc_utils.h"
 #include "tms_spi.h"
+#include "obc_flash.h"
 
 // Logging
 #include "logger.h"
@@ -41,6 +42,7 @@
 // Standard Library
 #include <stdint.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include "printf.h"
 
 /******************************************************************************/
@@ -80,10 +82,7 @@ void cmd_test_comms_raw(uint32_t arg_len, void* arg) {
     uint16_t data[COMMS_TG_SIZE_WORDS] = {0x0000};
     memset(data, 0xAB, sizeof(data));
     memcpy(data, arg, arg_len);
-    if (xSemaphoreTake(xMibspiCommsMutexHandle, pdMS_TO_TICKS(COMMS_MIBSPI_MUTEX_TIMEOUT_MS))) {
-        err = comms_mibspi_tx(data);
-        xSemaphoreGive(xMibspiCommsMutexHandle);
-    }
+    err = comms_mibspi_tx(data);
     prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "raw tx %d", err);
 }
 
@@ -833,6 +832,65 @@ void cmd_test_eps_writeread_sanity(uint32_t arg_len, void* arg) {
         prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "PASS: eps wr sanity, %d", success_counter);
     } else {
         prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "FAIL: eps wr sanity, %d", success_counter);
+    }
+}
+
+/**
+ * @brief Erases full chip, then performs a 1KB chunk write, read, and comparison
+ * 
+ * @warning Erases the FULL EEPROM memory!
+ * 
+ * @param[in] arg_len size of argument array (number of arguments * ARGUMENT_SIZE)
+ * @param[in] arg     arg[0] addr  : 32-bit address to be tested in hex format
+ * @param[in] arg     arg[1] len   : length of test data to write-read, in bytes. Must be <= 1024
+ */
+void cmd_test_flash_rw(uint32_t arg_len, void* arg) {
+    static uint8_t read_data[1024];
+    static uint8_t write_data[1024];
+    for (uint32_t i = 0; i < sizeof(write_data); i++) {
+        write_data[i] = i % 256;
+        read_data[i] = 0; // clear any old read data
+    }
+
+    char* args[2] = {NULL};
+    uint8_t num_args    = obc_cmd_read_str_arguments(arg, 2, args);
+
+    // Check number of arguments
+    if (num_args != 2) {
+        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false,
+            "Wrong # arguments: %d, expected 2",
+            num_args
+        );
+        return;
+    }
+
+    // Parse hexadecimal addr, and decimal len
+    const uint32_t addr = (uint32_t) strtol(args[0], NULL, 16);
+    const uint32_t len  = (uint32_t) strtol(args[1], NULL, 10);
+
+    if (len > sizeof(write_data)) {
+        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false,
+            "Bad len: %d > %d",
+            len,
+            sizeof(write_data)
+        );
+        return;
+    }
+
+    prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false, "Performing rw test at 0x%08x for %d bytes", addr, len);
+
+    flash_err_t erase_err = flash_erase(addr, FULL_CHIP);
+    flash_err_t write_err = flash_write(addr, len, write_data);
+    flash_err_t read_err = flash_read(addr, len, read_data);
+
+    /*
+     * WARNING: do not change these messages, as hill tests depend on them!
+     */
+    prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false, "E: %d, W: %d, R: %d", erase_err, write_err, read_err);
+    if (0 == memcmp(write_data, read_data, len)) {
+        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false, "Read and write data match:  PASS");
+    } else {
+        prompt_cmd_response(ERROR, LOG_TEST_FLASH_RW_CMD, false, "Read and write data do not match:  FAIL");
     }
 }
 

@@ -8,6 +8,8 @@
  * @date March 26, 2020
  */
 
+#ifdef PLATFORM_LAUNCHPAD_1224
+
 #include "flash_mock.h"
 #include "obc_hardwaredefs.h"
 #include "obc_utils.h"
@@ -232,3 +234,4 @@ static bool flash_is_busy(void) {
     }
 }
 
+#endif // PLATFORM_LAUNCHPAD_1224

@@ -1,17 +1,28 @@
 /*
  * @file obc_flash.h
  * @brief Generic driver for OBC flash device.
- * @author Andrada Zoltan
- * @date April 22, 2020
  */
 
 #ifndef OBC_FLASH_H_
 #define OBC_FLASH_H_
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+// OBC
 #include "obc_hardwaredefs.h"
 #include "obc_error.h"
+
+// FreeRTOS
 #include "rtos.h"
+
+// HAL
 #include "sys_common.h"
+
+/******************************************************************************/
+/*                              T Y P E D E F S                               */
+/******************************************************************************/
 
 /**
  * @brief Erasable sizes for the flash.
@@ -40,14 +51,16 @@ typedef enum flash_erase_sz {
 #ifdef PLATFORM_LAUNCHPAD_1224
     SECTOR_1K = 4,
 #endif
-#ifdef PLATFORM_ALEA_V1 // TODO remove once flash driver is supported (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/56)
-    SECTOR_1K = 4,
-#endif
 } flash_erase_sz_t;
 
+/******************************************************************************/
+/*                             F U N C T I O N S                              */
+/******************************************************************************/
+
 void flash_init(void);
+void flash_identify(void);
 flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size);
 flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data);
 flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data);
 
-#endif /* OBC_FLASH_H_ */
+#endif // OBC_FLASH_H_

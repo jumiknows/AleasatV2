@@ -9,7 +9,7 @@
  */
 
 #include "obc_ecc_flash.h"
-#include "obc_mibspi.h"
+#include "tms_mibspi.h"
 #include "gio.h"
 
 #if FEATURE_ECC_FLASH
