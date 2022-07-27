@@ -135,8 +135,8 @@
  * @brief Flash size configuration
  * @brief Flash size configuration - 64KB
  */
-#define BLOCK_SIZE  1024
-#define BLOCK_COUNT 64
+#define EXT_FLASH_BLOCK_SIZE  1024
+#define EXT_FLASH_BLOCK_COUNT 64
 
 /**
  * @brief Watchdog pins and configuration.

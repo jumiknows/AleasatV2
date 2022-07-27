@@ -13,8 +13,6 @@
 #include "obc_uart.h"
 #include "obc_rtc.h"
 #include "printf.h"
-#include "filesystem.h"
-#include "filenames.h"
 #include "rtos.h"
 
 #define HEADER_SIZE             7 // bytes
@@ -316,6 +314,7 @@ static void update_metadata(log_level_t lvl) {
 }
 
 static void log_to_file(log_level_t lvl, uint8_t* data, uint32_t size) {
+#if 0 // TODO re-enable this as part of logger refactor
     // Don't do anything until the filesystem has been initialized, this is here
     // since some prints are called prior to the fs_init has finished
     if (!fs_initialized) {
@@ -332,4 +331,5 @@ static void log_to_file(log_level_t lvl, uint8_t* data, uint32_t size) {
     }
 
     fs_write((const char*)file_path, 0, data, size, LFS_SEEK_END);
+#endif
 }

@@ -51,4 +51,7 @@ void cmd_test_eps_writeread_sanity(uint32_t arg_len, void* arg);
 // FLASH
 void cmd_test_flash_rw(uint32_t arg_len, void* arg);
 
+// FILESYSTEM
+void cmd_test_fs(uint32_t arg_len, void* arg);
+
 #endif // TEST_COMMANDS_H_

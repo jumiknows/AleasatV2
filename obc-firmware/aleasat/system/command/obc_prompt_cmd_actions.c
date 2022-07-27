@@ -24,7 +24,6 @@
 #include "rtc_cmds.h"
 #include "rtc_state.h"
 #include "hang.h"
-#include "filesystem.h"
 #include "low_power.h"
 #include "obc_utils.h"
 #include "obc_temperature.h"
@@ -276,13 +275,6 @@ void cmd_rtc_ts(uint32_t arg_len, void* arg) {
 
 // ------------------------ TESTING PROMPT COMMAND IMPLEMENTATION -----------------------
 
-/**
- * @brief Initiates file-system test.
- */
-void cmd_exec_fs_test(uint32_t arg_len, void* arg) {
-    // TODO
-}
-
 /** @brief Count command, increments a counter. This can be
  * used to determine how many times this command was executed,
  * for testing and demonstration purposes.
@@ -434,88 +426,6 @@ void cmd_rtos_state(uint32_t arg_len, void* arg) {
     if (print_task_state((char*)arg) != OBC_RTOS_OK) {
         prompt_cmd_response(ERROR, LOG_OBC_TASK, false, "Invalid task name");
     }
-}
-
-// ------------------------ FILESYSTEM PROMPT COMMAND IMPLEMENTATION -----------------------
-
-/**
- * @brief Create a new directory
- *            Arg 0 - directory path
- */
-void cmd_fs_mkdir(uint32_t arg_len, void* arg) {
-    if (arg_len == 0) {
-        prompt_cmd_response(DEBUG, LOG_FS_GENERAL, false, "Usage: mkdir [PATH]");
-    } else {
-        fs_err_t err = fs_mkdir((const char*)arg);
-
-        if (err != FS_OK) {
-            prompt_cmd_response(ERROR, LOG_FS_GENERAL, true, "Filesystem error: %d", err);
-        } else {
-            prompt_cmd_response(INFO, LOG_FS_GENERAL, true, "Directory successfully created.");
-        }
-    }
-}
-
-/**
- * @brief Remove a file or directory
- *            Arg 0 - file / directory path
- */
-void cmd_fs_rm(uint32_t arg_len, void* arg) {
-    if (arg_len == 0) {
-        prompt_cmd_response(DEBUG, LOG_FS_GENERAL, false, "Usage: rm [PATH]");
-    } else {
-        fs_err_t err = fs_delete((const char*)arg);
-
-        if (err != FS_OK) {
-            prompt_cmd_response(ERROR, LOG_FS_GENERAL, true, "Filesystem error: %d", err);
-        } else {
-            prompt_cmd_response(INFO, LOG_FS_GENERAL, true, "Item successfully removed.");
-        }
-    }
-}
-
-/**
- * @brief Create a new file
- *            Arg 0 - file path
- */
-void cmd_fs_create(uint32_t arg_len, void* arg) {
-    if (arg_len == 0) {
-        prompt_cmd_response(DEBUG, LOG_FS_GENERAL, false, "Usage: mkfile [PATH]");
-    } else {
-        fs_err_t err = fs_create((const char*)arg);
-
-        if (err != FS_OK) {
-            prompt_cmd_response(ERROR, LOG_FS_GENERAL, true, "Filesystem error: %d", err);
-        } else {
-            prompt_cmd_response(INFO, LOG_FS_GENERAL, true, "File successfully created.");
-        }
-    }
-}
-
-/**
- * @brief Get size of an existing file
- *            Arg 0 - file path
- */
-void cmd_fs_file_size(uint32_t arg_len, void* arg) {
-    if (arg_len == 0) {
-        prompt_cmd_response(DEBUG, LOG_FS_GENERAL, false, "Usage: get_file_size [PATH]");
-    } else {
-        uint32_t size = 0;
-        fs_err_t err  = fs_file_size((const char*)arg, &size);
-
-        if (err != FS_OK) {
-            prompt_cmd_response(ERROR, LOG_FS_GENERAL, true, "Filesystem error: %d", err);
-        } else {
-            prompt_cmd_response(INFO, LOG_FS_GENERAL, true, "File Size: %d", size);
-        }
-    }
-}
-
-/**
- * @brief Get current size of the filesystem in bytes
- */
-void cmd_fs_size(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_FS_GENERAL, true, "FS Size: %d", fs_size());
 }
 
 // ------------------------ MISC TELEMETRY PROMPT COMMAND IMPLEMENTATION -----------------------

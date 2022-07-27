@@ -8,7 +8,6 @@
  */
 
 #include "obc_time.h"
-#include "filesystem.h"
 #include "printf.h"
 #include <string.h>
 
@@ -441,13 +440,12 @@ bool times_are_within(const epoch_t time_a, const epoch_t time_b, epoch_t within
 /**
  * @brief Returns the current date as a formatted string in the form DDMonYYYY
  * @param[in] curr_time The time to use. The real time, not the epoch, will be used.
- * @param[out] buf A character buffer where the generated string will be placed. Must be at least
- * @ref DIR_NAME_SIZE bytes.
+ * @param[out] buf A character buffer where the generated string will be placed. Must be at least 11 bytes
  *
  * @return Date as a string
  */
 void time_to_ymd_string(const real_time_t* curr_time, char* buf) {
-    snprintf(buf, DIR_NAME_SIZE, "%02d%s%04d", curr_time->day, month_to_string[curr_time->month - 1], curr_time->year + START_CENTURY);
+    snprintf(buf, YMD_STRING_LEN, "%02d%s%04d", curr_time->day, month_to_string[curr_time->month - 1], curr_time->year + START_CENTURY);
 }
 
 /**

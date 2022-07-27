@@ -254,5 +254,9 @@
   "LOG_DRIVER_MIBSPI": {
     "id": "64",
     "description": "MIBSPI Driver"
+  },
+  "LOG_TEST_FILESYSTEM_CMD": {
+    "id": "65",
+    "description": "Test filesystem command"
   }
 }

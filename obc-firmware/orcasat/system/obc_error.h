@@ -101,27 +101,26 @@ typedef enum mram_err {
  * @brief Filesystem error codes, propagated up from LittleFS.
  */
 typedef enum fs_err {
-    FS_OK                  = LFS_ERR_OK,          // 0 	: No error
-    FS_IO_ERR              = LFS_ERR_IO,          // -5 	: Error during device operation
-    FS_CORRUPT_ERR         = LFS_ERR_CORRUPT,     // -84 	: Corrupted
-    FS_NOENT_ERR           = LFS_ERR_NOENT,       // -2 	: No directory entry
-    FS_EXIST_ERR           = LFS_ERR_EXIST,       // -17 	: Entry already exists
-    FS_NOTDIR_ERR          = LFS_ERR_NOTDIR,      // -20 	: Entry is not a dir
-    FS_ISDIR_ERR           = LFS_ERR_ISDIR,       // -21 	: Entry is a dir
-    FS_NOTEMPTY_ERR        = LFS_ERR_NOTEMPTY,    // -39 	: Dir is not empty
-    FS_BADF_ERR            = LFS_ERR_BADF,        // -9 	: Bad file number
-    FS_FBIG_ERR            = LFS_ERR_FBIG,        // -27 	: File too large
-    FS_INVAL_ERR           = LFS_ERR_INVAL,       // -22 	: Invalid parameter
-    FS_NOSPC_ERR           = LFS_ERR_NOSPC,       // -28 	: No space left on device
-    FS_NOMEM_ERR           = LFS_ERR_NOMEM,       // -12 	: No more memory available
-    FS_NOATTR_ERR          = LFS_ERR_NOATTR,      // -61 	: No data/attr available
-    FS_NAMETOOLONG_ERR     = LFS_ERR_NAMETOOLONG, // -36 	: File name too long
-    FS_MUTEX_GRAB_ERR      = -1,                  // -1   : Mutex grab error
-    FS_PARAMISNULL_ERR     = -4,                  // -4   : File name/path or buffer is null
-    FS_INVAL_TASK_ERR      = -6,                  // -6   : Task making the request has an invalid handle or wd_id
-    FS_UNKNOWN_REQUEST_ERR = -3,                  // -3   : Request passed to FileSystemMasterTask is unknown
-    FS_ERASE_FAILURE_ERR   = -7,                  // -7   : Flash could not be erased prior to filesystem creation
-    FS_NOT_INITIALIZED     = -8                   // -8 	 : Filesystem is not initialized
+    /* OBC filesystem errors */
+    FS_TEST_READ_FAILURE    = 3,                   // 3     : Test function failed to read from file (for FS test)
+    FS_TEST_WRITE_FAILURE   = 2,                   // 2     : Test function failed to write to file (for FS test)
+    FS_TEST_STRINGS_UNEQUAL = 1,                   // 1     : Test strings do not match (for FS test)
+    /* Errors propagated up from LFS */
+    FS_OK                   = LFS_ERR_OK,          // 0 	: No error
+    FS_IO_ERR               = LFS_ERR_IO,          // -5 	: Error during device operation
+    FS_CORRUPT_ERR          = LFS_ERR_CORRUPT,     // -84 	: Corrupted
+    FS_NOENT_ERR            = LFS_ERR_NOENT,       // -2 	: No directory entry
+    FS_EXIST_ERR            = LFS_ERR_EXIST,       // -17 	: Entry already exists
+    FS_NOTDIR_ERR           = LFS_ERR_NOTDIR,      // -20 	: Entry is not a dir
+    FS_ISDIR_ERR            = LFS_ERR_ISDIR,       // -21 	: Entry is a dir
+    FS_NOTEMPTY_ERR         = LFS_ERR_NOTEMPTY,    // -39 	: Dir is not empty
+    FS_BADF_ERR             = LFS_ERR_BADF,        // -9 	: Bad file number
+    FS_FBIG_ERR             = LFS_ERR_FBIG,        // -27 	: File too large
+    FS_INVAL_ERR            = LFS_ERR_INVAL,       // -22 	: Invalid parameter
+    FS_NOSPC_ERR            = LFS_ERR_NOSPC,       // -28 	: No space left on device
+    FS_NOMEM_ERR            = LFS_ERR_NOMEM,       // -12 	: No more memory available
+    FS_NOATTR_ERR           = LFS_ERR_NOATTR,      // -61 	: No data/attr available
+    FS_NAMETOOLONG_ERR      = LFS_ERR_NAMETOOLONG, // -36 	: File name too long
 } fs_err_t;
 
 /**

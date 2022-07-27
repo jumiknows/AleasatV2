@@ -119,6 +119,18 @@ void _c_int00(void)
      * by its ECC logic for accesses to program flash or data RAM.
      */
     _coreEnableEventBusExport_();
+/* USER CODE BEGIN (9) */
+/* USER CODE END */
+
+    /* Enable response to ECC errors indicated by CPU for accesses to flash */
+    flashWREG->FEDACCTRL1 = 0x000A060AU;
+
+/* USER CODE BEGIN (10) */
+/* USER CODE END */
+
+    /* Enable CPU ECC checking for ATCM (flash accesses) */
+    _coreEnableFlashEcc_();
+	
 
 /* USER CODE BEGIN (11) */
 /* USER CODE END */

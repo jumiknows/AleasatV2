@@ -28,7 +28,7 @@
 #include "blinky.h"
 #include "logger.h"
 #include "scheduler.h"
-#include "filesystem.h"
+#include "obc_filesystem.h"
 #include "orca_telem_logger.h"
 #include "hang.h"
 #include "obc_settings.h"
@@ -144,7 +144,7 @@ static void obc_main_task(void* pvParameters) {
     // Filesystem initialization requires flash, and takes a couple of seconds because we erase it
     // at startup.
     flash_init();
-    //fs_init(); // TODO enable filesystem
+    fs_init();
 
     // Create the telemetry logging task. This requires that the filesystem is ready to go.
     telem_start_task();

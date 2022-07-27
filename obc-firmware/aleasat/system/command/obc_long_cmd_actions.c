@@ -18,7 +18,6 @@
 #include "obc_cmd.h"
 #include "obc_rtos.h"
 #include "logger.h"
-#include "filesystem.h"
 #include "rtc_state.h"
 #include "scheduler.h"
 
@@ -41,33 +40,6 @@ void cmd_rtos_tasks(uint32_t arg_len, void* arg) {
 /** @brief Prints info about the OBC RTOS layer. */
 void cmd_rtos_info(uint32_t arg_len, void* arg) {
     print_rtos_status();
-}
-
-// ------------------------ FILESYSTEM LONG COMMAND IMPLEMENTATION ------------------------
-
-/**
- * @brief Read the contents of a directory, contents are printed in the @ref fs_ls function
- *            Arg 0 - directory path
- */
-void cmd_fs_ls(uint32_t arg_len, void* arg) {
-    if (arg_len == 0) {
-        log_str(DEBUG, LOG_FS_GENERAL, false, "Usage: ls [PATH]");
-    } else {
-        char ls_list[MAX_DIRS][LFS_NAME_MAX] = {'\0'};
-
-        fs_err_t err = fs_ls((const char*)arg, ls_list);
-
-        if (err != FS_OK) {
-            log_str(ERROR, LOG_FS_GENERAL, true, "Filesystem error: %d", err);
-        } else {
-            uint8_t i;
-            for (i = 0; i < MAX_DIRS; i++) {
-                if (strlen(ls_list[i]) != 0) {
-                    log_str(DEBUG, LOG_FS_GENERAL, false, "%s", ls_list[i]);
-                }
-            }
-        }
-    }
 }
 
 // ------------------------ RTC LONG COMMAND IMPLEMENTATION ------------------------

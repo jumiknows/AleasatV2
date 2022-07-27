@@ -34,6 +34,7 @@
 #include "obc_utils.h"
 #include "tms_spi.h"
 #include "obc_flash.h"
+#include "obc_filesystem.h"
 
 // Logging
 #include "logger.h"
@@ -890,6 +891,31 @@ void cmd_test_flash_rw(uint32_t arg_len, void* arg) {
         prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false, "Read and write data match:  PASS");
     } else {
         prompt_cmd_response(ERROR, LOG_TEST_FLASH_RW_CMD, false, "Read and write data do not match:  FAIL");
+    }
+}
+
+/**
+ * @brief Executes the *destructive* filesystem self test
+ * 
+ * @warning Reformats the FS, losing all data!
+ * 
+ * @param[in] arg_len unused
+ * @param[in] arg     unused
+ */
+void cmd_test_fs(uint32_t arg_len, void* arg) {
+    // First, deinit the FS
+    fs_deinit();
+
+    // Run the test
+    fs_err_t err = fs_self_test();
+
+    // Finally, reinit the FS
+    fs_init();
+
+    if (err == FS_OK) {
+        prompt_cmd_response(INFO, LOG_TEST_FILESYSTEM_CMD, false, "FS test:  PASS");
+    } else {
+        prompt_cmd_response(ERROR, LOG_TEST_FILESYSTEM_CMD, false, "FS test:  FAIL, status %d", (int32_t) err);
     }
 }
 

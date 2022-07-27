@@ -19,9 +19,7 @@
 #define I2C_TASK_STACK_SIZE             (800)
 #define NVCT_SYNC_STACK_SIZE            (128)
 #define TELEM_TASK_STACK_SIZE           (500)
-#define FS_MASTER_TASK_STACK_SIZE       (5096)
-#define FS_LIFECYCLE_TASK_STACK_SIZE    (512)
-#define BLOCK_ERASE_TASK_STACK_SIZE     (128)
+#define FS_LOGGER_TASK_STACK_SIZE       (500)
 #define SCHEDULER_TASK_STACK_SIZE       (640)
 #define SYNC_TASK_STACK_SIZE            (128)
 #define SORT_TASK_STACK_SIZE            (128)
@@ -88,8 +86,6 @@
 /**
  * @brief Filesystem priorities.
  */
-#define FS_LIFECYCLE_PRIORITY 3
-#define FS_MASTER_PRIORITY    3
-#define BLOCK_ERASE_PRIORITY  1
+#define FS_LOGGER_PRIORITY    3
 
 #endif /* OBC_TASK_INFO_H_ */

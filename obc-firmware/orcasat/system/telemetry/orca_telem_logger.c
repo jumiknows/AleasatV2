@@ -23,8 +23,6 @@
 #include "obc_watchdog.h"
 #include "obc_rtos.h"
 #include "scheduler.h"
-#include "filesystem.h"
-#include "filenames.h"
 #include <string.h>
 
 // Telemetry logging queue setup
@@ -160,22 +158,23 @@ static void vTelemLoggerTask(void* pvParameters) {
             // Log the appropriate data based on the request type
             switch (bin) {
                 case OBC_FAST_TELEM:
-                    log_file(bin, OBC_FAST_FILENAME, (const void*)&snapshot.obc_fast, sizeof(snapshot.obc_fast));
+                    // TODO: should never need to reference file names outside of obc_filesystem
+                    log_file(bin, "OBC_FAST_FILENAME", (const void*)&snapshot.obc_fast, sizeof(snapshot.obc_fast));
                     break;
                 case OBC_SLOW_TELEM:
-                    log_file(bin, OBC_SLOW_FILENAME, (const void*)&snapshot.obc_slow, sizeof(snapshot.obc_slow));
+                    log_file(bin, "OBC_SLOW_FILENAME", (const void*)&snapshot.obc_slow, sizeof(snapshot.obc_slow));
                     break;
                 case EPS_NORMAL_TELEM:
-                    log_file(bin, EPS_NORMAL_FILENAME, (const void*)&snapshot.eps_normal, sizeof(snapshot.eps_normal));
+                    log_file(bin, "EPS_NORMAL_FILENAME", (const void*)&snapshot.eps_normal, sizeof(snapshot.eps_normal));
                     break;
                 case EPS_FAST_TELEM:
-                    log_file(bin, EPS_FAST_FILENAME, (const void*)&snapshot.eps_fast, sizeof(snapshot.eps_fast));
+                    log_file(bin, "EPS_FAST_FILENAME", (const void*)&snapshot.eps_fast, sizeof(snapshot.eps_fast));
                     break;
                 case EPS_SLOW_TELEM:
-                    log_file(bin, EPS_SLOW_FILENAME, (const void*)&snapshot.eps_slow, sizeof(snapshot.eps_slow));
+                    log_file(bin, "EPS_SLOW_FILENAME", (const void*)&snapshot.eps_slow, sizeof(snapshot.eps_slow));
                     break;
                 case EPS_CONDN_TELEM:
-                    log_file(bin, EPS_CONDN_FILENAME, (const void*)&snapshot.eps_condn, sizeof(snapshot.eps_condn));
+                    log_file(bin, "EPS_CONDN_FILENAME", (const void*)&snapshot.eps_condn, sizeof(snapshot.eps_condn));
                     break;
                 default:
                     log_str(ERROR, LOG_TELEM_INFRA, true, "Invalid telem request bin of %d", bin);
@@ -198,6 +197,7 @@ static void vTelemLoggerTask(void* pvParameters) {
  * @param[in] size Size (bytes) of the data to log into the file.
  */
 static void log_file(data_bin_t data_bin, const char* filename, const void* data, uint32_t size) {
+#if 0 // TODO fix as part of logger refactor
     if (!fs_initialized) {
         log_str(ERROR, LOG_TELEM_INFRA, false, "No FS: %s", filename);
         return;
@@ -214,4 +214,5 @@ static void log_file(data_bin_t data_bin, const char* filename, const void* data
     } else {
         log_str(DEBUG, LOG_TELEM_INFRA, false, "%s failed", filename, err);
     }
+#endif
 }

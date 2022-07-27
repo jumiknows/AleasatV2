@@ -117,6 +117,13 @@ extern const epoch_t no_epoch;
  */
 #define NO_EPOCH -1
 
+/**
+ * @brief Length in chars of the string returned by the time_to_ymd_string function
+ * 
+ * @ref time_to_ymd_string
+ */
+#define YMD_STRING_LEN 11
+
 /* Public API -------------- */
 
 // Time conversion utilities

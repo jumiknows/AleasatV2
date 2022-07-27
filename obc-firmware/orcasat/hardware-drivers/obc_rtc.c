@@ -36,7 +36,6 @@
 #include "rtc_mock.h"
 #include "gio.h"
 #include "printf.h"
-#include "filesystem.h"
 #include "logger.h"
 #include "rtc_state.h"
 #include "rtos.h"

@@ -89,15 +89,6 @@ const cmd_entry command_table[] = {
     {"rtos_resume", &cmd_rtos_resume},
     {"rtos_state", &cmd_rtos_state},
 
-    /* Filesystem commands */
-    {"exec_fs_test", &cmd_exec_fs_test},
-    {"ls", &cmd_fs_ls},
-    {"mkdir", &cmd_fs_mkdir},
-    {"rm", &cmd_fs_rm},
-    {"mkfile", &cmd_fs_create},
-    {"get_file_size", &cmd_fs_file_size},
-    {"get_fs_size", &cmd_fs_size},
-
     /* System Commands */
     {"get_time", &cmd_get_time},
     {"get_epoch", &cmd_get_epoch},
@@ -167,7 +158,8 @@ const cmd_entry command_table[] = {
     {"test_can_gpio", &cmd_test_can_gpio},
     {"test_panel_gyro", &cmd_test_panel_gyro},
     {"test_log_str", &cmd_test_log_str},
-    {"test_flash_rw", &cmd_test_flash_rw}
+    {"test_flash_rw", &cmd_test_flash_rw},
+    {"test_fs", &cmd_test_fs}
 #endif // SYSTEM_TESTS
 };
 

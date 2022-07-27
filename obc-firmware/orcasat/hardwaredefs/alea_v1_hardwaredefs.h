@@ -211,8 +211,8 @@
  * @brief Flash size configuration
  * @brief Flash size configuration - 32MB = 256Mb
  */
-#define BLOCK_SIZE  4096
-#define BLOCK_COUNT 8192
+#define EXT_FLASH_BLOCK_SIZE  4096
+#define EXT_FLASH_BLOCK_COUNT 8192
 
 /**
  * @brief COMMS SPI interface
