@@ -35,31 +35,51 @@
 /******************************************************************************/
 /*                P U B L I C  G L O B A L  V A R I A B L E S                 */
 /******************************************************************************/
-
+OBC_MISRA_CHECK_OFF
+/* Ignore MISRA-9.2: Braces shall be used to indicate and match the structure in the
+ *  non-zero initialization of arrays and structures
+ * 
+ * Ignoring because making the structure match will result in large, ugly definitions
+ */
 bmx160_t bmx160_imu_1 = {
+	.gyro_settings = { 0 },
+	.accel_settings = { 0 },
+	.mag_settings = { 0 },
 
 	.addr = IMU1_I2C_ADDR,
 	.en_port = IMU_1_EN_PORT,
 	.en_pin = IMU_1_EN_PIN,
+
+	.is_active = FALSE,
+
 	.gyro_cal = 1,
 	.accel_cal = 1,
 	.mag_cal = 1,
-	.is_active = FALSE
 
+	.trimming_data = { 0 }
 };
+OBC_MISRA_CHECK_ON
 
 #if IMU_2_EN
+OBC_MISRA_CHECK_OFF
 bmx160_t bmx160_imu_2 = {
+	.gyro_settings = { 0 },
+	.accel_settings = { 0 },
+	.mag_settings = { 0 },
 
 	.addr = IMU2_I2C_ADDR,
 	.en_port = IMU_2_EN_PORT,
 	.en_pin = IMU_2_EN_PIN,
+
+	.is_active = FALSE,
+
 	.gyro_cal = 1,
 	.accel_cal = 1,
 	.mag_cal = 1,
-	.is_active = FALSE
 
+	.trimming_data = { 0 }
 };
+OBC_MISRA_CHECK_ON
 #endif // IMU_2_EN
 
 /******************************************************************************/
@@ -133,9 +153,14 @@ imu_error_t bmx160_set_power_mode(bmx160_t* imu, uint8_t power_mode){
 			imu -> gyro_settings.power_state = power_mode;
 			vTaskDelay(pdMS_TO_TICKS(100)); //see datasheet page 90 (table 29)
 			break;
+		OBC_MISRA_CHECK_OFF
+		/*Removing MISRA check 15.2 as mandatory break statement is not needed here as
+        * function will return.
+		*/
 		default:
 			log_str(ERROR, LOG_ADCS_IMU, false, "Error wrong device mode selected: %d", power_mode);
 			return IMU_ERROR;
+		OBC_MISRA_CHECK_ON
 	}
 
 	imu_error_t result = bmx160_write_reg(imu, BMX160_COMMAND_REG_ADDR, 1, &power_mode);
@@ -390,14 +415,14 @@ static float32 mag_comp_x(bmx160_t* imu, uint16_t rhall, int16_t raw){
 
 	if (raw != (-4096)){
 		if (((rhall != 0) && (imu->trimming_data.dig_xyz1 != 0))){
-			result = (((float32)imu->trimming_data.dig_xyz1)*(float32)16384.0/(float32)rhall) - (float32)16384.0;
+			result = (((float32)imu->trimming_data.dig_xyz1) * ((float32)16384.0/(float32)rhall)) - (float32)16384.0;
 		}
 		else {
 			return result;
 		}
 		result = ((((float32)raw * ((((((float32)imu->trimming_data.dig_xy2) *
-				(result*result / (float32)268435456.0) + result *
-				((float32)imu->trimming_data.dig_xy1) / (float32)16384.0)) + (float32)256.0) *
+				(result*(result / (float32)268435456.0))) + (result *
+				(((float32)imu->trimming_data.dig_xy1) / (float32)16384.0))) + (float32)256.0) *
 				(((float32)imu->trimming_data.dig_x2) + (float32)160.0))) / (float32)8192.0) +
 				(((float32)imu->trimming_data.dig_x1) * (float32)8.0)) / (float32)16.0;
 	}
@@ -417,14 +442,14 @@ static float32 mag_comp_y(bmx160_t* imu, uint16_t rhall, int16_t raw){
 
 	if (raw != (-4096)){
 		if (((rhall != 0) && (imu->trimming_data.dig_xyz1 != 0))){
-				result = (((float32)imu->trimming_data.dig_xyz1)*(float32)16384.0/rhall) - (float32)16384.0;
+				result = (((float32)imu->trimming_data.dig_xyz1)*((float32)16384.0/rhall)) - (float32)16384.0;
 		}
 		else {
 			return result;
 		}
-		result = (((raw * ((((((float32)imu->trimming_data.dig_xy2) *
-				(result*result / (float32)268435456.0) + result *
-				((float32)imu->trimming_data.dig_xy1) / (float32)16384.0)) + (float32)256.0) *
+		result = (((raw * (((((((float32)imu->trimming_data.dig_xy2) *
+				((result*(result / (float32)268435456.0)))) + (result *
+				(((float32)imu->trimming_data.dig_xy1) / (float32)16384.0)))) + (float32)256.0) *
 				(((float32)imu->trimming_data.dig_y2) + (float32)160.0))) / (float32)8192.0) +
 				(((float32)imu->trimming_data.dig_y1) * (float32)8.0)) / (float32)16.0;
 	}
@@ -452,8 +477,8 @@ static float32 mag_comp_z(bmx160_t* imu, uint16_t rhall, int16_t raw){
 		result = ((((((float32)raw) - ((float32)imu->trimming_data.dig_z4)) *
 				(float32)131072.0) - (((float32)imu->trimming_data.dig_z3) * (((float32)rhall)
 				-((float32)imu->trimming_data.dig_xyz1)))) /
-				((((float32)imu->trimming_data.dig_z2) + ((float32)imu->trimming_data.dig_z1) *
-				((float32)raw) / (float32)32768.0) * (float32)4.0)) / (float32)16.0;
+				((((float32)imu->trimming_data.dig_z2) + (((float32)imu->trimming_data.dig_z1) *
+				(((float32)raw) / (float32)32768.0))) * (float32)4.0)) / (float32)16.0;
 	}
 	return result;
 }

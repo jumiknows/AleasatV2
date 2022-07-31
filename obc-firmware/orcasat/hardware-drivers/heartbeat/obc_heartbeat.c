@@ -17,7 +17,7 @@
 #include "obc_hardwaredefs.h"
 #include "het.h"
 
-#if FEATURE_HEARTBEAT
+#ifdef FEATURE_HEARTBEAT
 
 /**
  * @brief Enables the heartbeat by starting PWM generation.

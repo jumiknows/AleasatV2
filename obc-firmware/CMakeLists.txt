@@ -136,11 +136,12 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     SYSTEM_TESTS
 )
 
-# Configure MISRA TODO
+# Configure MISRA
 target_compile_options(${PROJECT_NAME} PRIVATE
-    --check_misra=all,-1.1,-2.2,-5.6,-5.7,-6.1,-10.1,-10.3,-10.6,-11.3,-11.4,-12.7,-12.13,-13.5,-14.7,-16.1,-16.7,-17.4,-18.4,-19.4,-19.7
-    --misra_advisory=warning
-    --misra_required=warning
+    # When changing check_misra, make sure to also update obc_misra.h
+    --check_misra=all,-1.1,-2.2,-5.6,-5.7,-6.1,-10.1,-10.3,-10.6,-11.3,-11.4,-12.7,-12.13,-13.5,-14.7,-16.1,-16.7,-17.4,-18.4,-19.4,-19.7,-20.1,-16.3
+    --misra_advisory=error
+    --misra_required=error
 )
 
 ################################################################################

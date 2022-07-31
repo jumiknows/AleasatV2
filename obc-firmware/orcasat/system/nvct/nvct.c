@@ -152,7 +152,7 @@ nvct_err_enum_t init_nvct(firmware_version_t firmware_v) {
     uint8_t test_table_offset = 0;
     for (test_table_offset = 0; test_table_offset < NVCT_MAX_NUM_TABLES; test_table_offset++) {
         // Read setting, check CRC and check against FW version.
-        _nvct_entry_t entry = {};
+        _nvct_entry_t entry = { 0 };
         if (read_mram(mram_offset(test_table_offset, FIRMWARE_VERSION_NVCT_INDEX), TABLE_ENTRY_SIZE, (uint8_t*)&entry) == MRAM_OK) {
             if (calculate_crc(entry.config, entry.value) == entry.crc) {
                 if (entry.value == firmware_v) {
@@ -213,7 +213,7 @@ nvct_err_enum_t get_nvct_value(uint8_t index, nvct_value_t* value) {
     }
 
     // Read the entry from storage.
-    _nvct_entry_t entry = {};
+    _nvct_entry_t entry = { 0 };
     if (read_mram(mram_offset(table_offset, entry_offset(index)), TABLE_ENTRY_SIZE, (uint8_t*)&entry) != MRAM_OK) {
         return NVCT_FAILED_TO_READ_FROM_MRAM_ERROR;
     }

@@ -70,7 +70,7 @@ flash_err_t flash_erase_mock(uint32_t addr, flash_erase_sz_t erase_size) {
     }
 
     uint32_t sector_addr;
-    static uint8_t erased_data[SIZE_16K] = {};
+    static uint8_t erased_data[SIZE_16K] = { 0 };
     switch (erase_size) {
         case FULL_CHIP:
         case SECTOR_64K:

@@ -41,8 +41,8 @@ static spi_err_t spi_receive(spiBASE_t* port, spi_config_t* cfg, uint32_t block_
 static spi_err_t spi_decode_err(uint32_t bits);
 static uint8_t spi_get_wdel(SPIDATAFMT_t fmt, spiBASE_t* reg);
 static void spi_clr_err(spiBASE_t* reg);
-static inline uint8_t spi_get_setup_del(uint32_t delay);
-static inline uint8_t spi_get_hold_del(uint32_t delay);
+static inline uint8_t spi_get_setup_del(uint32_t delay_reg);
+static inline uint8_t spi_get_hold_del(uint32_t delay_reg);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -300,13 +300,13 @@ static spi_err_t spi_send(spiBASE_t* port, spi_config_t* cfg, uint32_t block_cou
 
 
             /*Check if the CS_HOLD has been set or the databuffer has been fully sent */
-            if ((!cfg->cs_hold) || (block_count == 0))
+            if ((cfg->cs_hold == 0) || (block_count == 0))
             {
                 /* De activate the CS pin */
                 /* Get CS Hold timing delay */
                 delay = spi_get_hold_del(port->DELAY);
                 obc_delay_us((uint32_t)(delay/SPI_CPU_TICK_TO_US));
-                obc_gpio_write(cfg->cs_data.cs_port, cfg->cs_data.cs_pin,  !(cfg->cs_data.pol));
+                obc_gpio_write(cfg->cs_data.cs_port, cfg->cs_data.cs_pin,  (cfg->cs_data.pol) == 0);
             }
 
             /* If the wait delay is set, run the SPI bus data delay */
@@ -398,12 +398,12 @@ static spi_err_t spi_receive(spiBASE_t* port, spi_config_t* cfg, uint32_t block_
             }
 
             /*Check if the CS_HOLD has been set or the databuffer has been fully sent */
-            if ((!cfg->cs_hold) || (block_count == 0))
+            if ((cfg->cs_hold == 0) || (block_count == 0))
             {
                 /* Get CS Hold timing delay (bits 23:15) */
                 delay = spi_get_hold_del(port->DELAY);
                 obc_delay_us((uint32_t)(delay/SPI_CPU_TICK_TO_US));
-                obc_gpio_write(cfg->cs_data.cs_port, cfg->cs_data.cs_pin,  !(cfg->cs_data.pol));
+                obc_gpio_write(cfg->cs_data.cs_port, cfg->cs_data.cs_pin,  (cfg->cs_data.pol) == 0);
             }
 
             /* If the wait delay is set, run the SPI bus data delay */

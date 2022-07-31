@@ -16,7 +16,7 @@
 #include "rtos.h"
 #include "obc_error.h"
 
-#if FEATURE_MRAM
+#ifdef FEATURE_MRAM
 
 // MRAM Commands
 #define MRAM_WREN  0x06

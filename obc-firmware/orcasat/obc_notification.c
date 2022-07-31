@@ -26,6 +26,7 @@
 #include "het.h"
 #include "logger.h"
 #include "obc_comms.h"
+#include "gio.h"
 
 /**
  * @brief Callback for all TMS570 GIO interrupts.
@@ -112,9 +113,15 @@ void mibspiGroupNotification(mibspiBASE_t* mibspi, uint32 group) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     EventGroupHandle_t eg = get_eventgroup_handle(mibspi);
+
+    OBC_MISRA_CHECK_OFF
+    /* Removing MISRA error 16.9 because it asks to modify FreeRTOS code 
+     *  (function "vEventGroupSetBitsCallback" in event_groups.h)"
+     */
     xEventGroupSetBitsFromISR(eg,                         /* The event group being updated. */
                               (EventBits_t)(1 << group),  /* The bits being set. */
                               &xHigherPriorityTaskWoken);
+    OBC_MISRA_CHECK_ON
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -135,9 +142,15 @@ void mibspiNotification(mibspiBASE_t* mibspi, uint32 flags) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     EventGroupHandle_t eg = get_eventgroup_handle(mibspi);
+    
+    OBC_MISRA_CHECK_OFF
+    /* Removing MISRA error 16.9 because it asks to modify FreeRTOS code 
+     *  (function "vEventGroupSetBitsCallback" in event_groups.h)"
+     */
     xEventGroupSetBitsFromISR(eg,                             /* The event group being updated. */
                               (EventBits_t)MIBSPI_ERR_NOTIF,  /* The bits being set. */
                               &xHigherPriorityTaskWoken);
-
+    OBC_MISRA_CHECK_ON
+    
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

@@ -99,8 +99,6 @@ static const struct lfs_config cfg = {
 };
 
 static TaskHandle_t xFileSystemLoggerTaskHandle;
-static StaticTask_t fs_logger_buffer;
-static StackType_t fs_logger_stack[FS_LOGGER_TASK_STACK_SIZE];
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -131,6 +129,9 @@ fs_err_t fs_init(void) {
     } else if (err != FS_OK) {
         return err; // Isn't corrupted, but is still throwing an error
     }
+    
+    static StaticTask_t fs_logger_buffer;
+    static StackType_t fs_logger_stack[FS_LOGGER_TASK_STACK_SIZE];
 
     // Start tasks
     xFileSystemLoggerTaskHandle = task_create_static(

@@ -8,7 +8,9 @@
 
 #ifndef OBC_MAIN_H_
 #define OBC_MAIN_H_
+#include <stdint.h>
 
 void obc_main(void);
+int32_t main(void);
 
 #endif /* OBC_MAIN_H_ */

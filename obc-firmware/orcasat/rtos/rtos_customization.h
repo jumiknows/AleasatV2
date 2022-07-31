@@ -10,8 +10,6 @@
 #define RTOS_CUSTOMIZATION_H_
 
 #include "rtos.h"
-
-void vApplicationGetIdleTaskMemory(StaticTask_t** ppxIdleTaskTCBBuffer, StackType_t** ppxIdleTaskStackBuffer, uint32_t* pulIdleTaskStackSize);
-void vApplicationGetTimerTaskMemory(StaticTask_t** ppxTimerTaskTCBBuffer, StackType_t** ppxTimerTaskStackBuffer, uint32_t* pulTimerTaskStackSize);
+#include "timers.h"
 
 #endif // RTOS_CUSTOMIZATION_H_

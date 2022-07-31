@@ -379,7 +379,7 @@ void cmd_test_mag_init(uint32_t arg_len, void* arg) {
  * Can be used to test basic IMU functionality
 */
 void cmd_imu_test(uint32_t arg_len, void* arg) {
-    bmx160_data_t datap;
+    bmx160_data_t datap = { 0 };
 
     if (bmx160_enable_imu(&bmx160_imu_1) == IMU_SUCCESS) {
         prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "IMU initialized!");

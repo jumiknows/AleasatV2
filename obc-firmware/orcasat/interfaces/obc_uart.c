@@ -235,8 +235,8 @@ void give_debug_uart_mutex(void) {
 uart_err_t gps_serial_send_and_receive(const char* str_to_send, char* gps_response_msg) {
     gps_response_msg[0]           = '\0';
     uint16_t gps_rx_buf_idx       = 0;
-    uint8_t gps_rx_curr_rcvd_char = '\0';
-    uint8_t gps_rx_prev_rcvd_char = '\0';
+    char gps_rx_curr_rcvd_char = '\0';
+    char gps_rx_prev_rcvd_char = '\0';
 
     // GPS-UART RX timeout
     if (xTimerStart(xUartRecvTimer, 0) == pdFAIL) {

@@ -17,9 +17,7 @@
 #include "rtos.h"
 #include "obc_task_info.h"
 #include "telem_obc.h"
-#if !defined(PLATFORM_ALEA_V1)
 #include "telem_eps.h"
-#endif
 #include "obc_watchdog.h"
 #include "obc_rtos.h"
 #include "scheduler.h"
@@ -114,16 +112,16 @@ static void vTelemCollect(void* pvParameters) {
         obc_fast_telem_collect();
         eps_fast_telem_collect();
 
-        if (collectIndex % TELEM_SLOW_PERIOD == 0) {
+        if ((collectIndex % TELEM_SLOW_PERIOD) == 0) {
             obc_slow_telem_collect();
             eps_slow_telem_collect();
         }
 
-        if (collectIndex % TELEM_CONDN_PERIOD == 0) {
+        if ((collectIndex % TELEM_CONDN_PERIOD) == 0) {
             eps_condn_telem_collect();
         }
 
-        if (collectIndex % TELEM_NORMAL_PERIOD == 0) {
+        if ((collectIndex % TELEM_NORMAL_PERIOD) == 0) {
             eps_normal_telem_collect();
         }
 
@@ -204,7 +202,7 @@ static void log_file(data_bin_t data_bin, const char* filename, const void* data
     }
 
     // Assemble the file name: curr_dir/filename
-    char file_path[LFS_NAME_MAX] = {};
+    char file_path[LFS_NAME_MAX] = { 0 };
     make_file_path(filename, file_path);
 
     // Write the data to the file.

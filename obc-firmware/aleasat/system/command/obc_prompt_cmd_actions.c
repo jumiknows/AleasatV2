@@ -45,7 +45,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-// Third Part
+// Third Party
 #include "printf.h"
 
 /******************************************************************************/

@@ -12,7 +12,7 @@
 #include "tms_mibspi.h"
 #include "gio.h"
 
-#if FEATURE_ECC_FLASH
+#ifdef FEATURE_ECC_FLASH
 
 /**
  * Questions related to desired functionality:

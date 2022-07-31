@@ -122,8 +122,13 @@ void comms_interrupt_start_task(void) {
 void notify_comms_irq(void) {
     BaseType_t xHigherPriorityTaskWoken;
     xHigherPriorityTaskWoken = pdFALSE;
-
+    
+    OBC_MISRA_CHECK_OFF
+    /* Removing MISRA error 16.9 because it asks to modify FreeRTOS code 
+     *  (function "vEventGroupSetBitsCallback" in event_groups.h)"
+     */
     xEventGroupSetBitsFromISR(xCommsWaiterEventGroupHandle, COMMS_RX_EVENT_UNBLOCK_INT_TASK_BIT, &xHigherPriorityTaskWoken);
+    OBC_MISRA_CHECK_ON
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

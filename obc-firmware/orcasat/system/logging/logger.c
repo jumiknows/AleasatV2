@@ -8,7 +8,6 @@
 
 #include <stdarg.h>
 #include <string.h>
-
 #include "logger.h"
 #include "obc_uart.h"
 #include "obc_rtc.h"
@@ -321,7 +320,7 @@ static void log_to_file(log_level_t lvl, uint8_t* data, uint32_t size) {
         return;
     }
 
-    char file_path[LFS_NAME_MAX] = {};
+    char file_path[LFS_NAME_MAX] = { 0 };
     if (lvl == ERROR) {
         make_file_path(ERR_LOG_FILENAME, file_path);
     } else if (lvl == INFO) {

@@ -223,7 +223,7 @@ void obc_main(void) {
 /**
  * @brief Overrides main function in sys_main.c
  */
-int main(void)
+int32_t main(void)
 {
     obc_main();
     return 0;
