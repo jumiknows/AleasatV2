@@ -9,7 +9,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "logger.h"
-#include "obc_uart.h"
+#include "tms_uart.h"
 #include "obc_rtc.h"
 #include "printf.h"
 #include "rtos.h"

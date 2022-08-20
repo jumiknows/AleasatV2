@@ -11,7 +11,7 @@
 // OBC
 #include "logger.h"
 #include "scheduler.h"
-#include "obc_uart.h"
+#include "tms_uart.h"
 #include "obc_utils.h"
 #include "obc_cmd.h"
 #include "obc_time.h"
@@ -105,11 +105,6 @@ const cmd_entry command_table[] = {
     {"set_period", &cmd_set_period},
     {"last_response", &cmd_last_response},
     {"print_sched", &cmd_print_sched},
-
-    /* GPS Commands */
-    {"gps_time", &cmd_gps_time},
-    {"gps_xyz", &cmd_gps_xyz},
-    {"gps_cmd", &cmd_gps_cmd},
 
     /* MISC Commands */
     {"echo", &cmd_echo_to_log},

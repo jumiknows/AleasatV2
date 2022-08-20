@@ -16,8 +16,7 @@
 #include "obc_task_info.h"
 #include "obc_featuredefs.h"
 #include "obc_rtc.h"
-#include "obc_uart.h"
-#include "obc_gps.h"
+#include "tms_uart.h"
 #include "tms_mibspi.h"
 #include "tms_mibspi.h"
 #include "obc_startup.h"
@@ -66,7 +65,6 @@ static void obc_main_task(void* pvParameters) {
     scheduler_create_infra();
     obc_rtos_create_infra();
     telem_create_infra();
-    gps_create_infra();
     comms_create_infra();
     tms_spi_create_infra();
 

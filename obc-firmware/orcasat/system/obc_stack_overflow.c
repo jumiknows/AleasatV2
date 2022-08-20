@@ -9,7 +9,7 @@
  * 	- FreeRTOS will call this if it detects a stack overflow
  */
 #include "rtos.h"
-#include "obc_uart.h"
+#include "tms_uart.h"
 #include "logger.h"
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {

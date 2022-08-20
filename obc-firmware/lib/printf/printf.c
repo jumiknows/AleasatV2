@@ -30,7 +30,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "obc_uart.h"
+#include "tms_uart.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>

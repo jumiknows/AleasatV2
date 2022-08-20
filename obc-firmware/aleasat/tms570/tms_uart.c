@@ -1,24 +1,36 @@
-/*
- * obc_uart.c
- *
- *  Created on: Feb 8, 2017
- *      Author: Richard Arthurs
- *      UART (serial port) API functions.
- *
+/**
+ * @file tms_uart.c
+ * @brief Low level generic UART driver implementation.
+ * 
  */
-#include <stdlib.h>
-#include <string.h>
-#include "sys_common.h"
-#include "obc_uart.h"
-#include "obc_cmd.h"
+
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+#include "tms_uart.h"
+
+// OBC
 #include "obc_hardwaredefs.h"
 #include "obc_watchdog.h"
-#include "printf.h"
-#include "logger.h"
 #include "obc_misra.h"
 #include "obc_utils.h"
 #include "obc_task_info.h"
+#include "obc_cmd.h"
+#include "sys_common.h"
+#include "logger.h"
+
+// FreeRTOS
 #include "rtos.h"
+
+// Standard Library
+#include "printf.h"
+#include <stdlib.h>
+#include <string.h>
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
 
 /**
  * @brief The maximum length of a command.
@@ -52,13 +64,16 @@
  * response message is received after the timer has expired, then abort the send-and-receive
  * operation and signal a timeout error.
  */
-static TimerHandle_t xUartRecvTimer;
 #define GPS_UART_RX_TIMEOUT_MS 2000
 
 /**
  * @brief The tick rate at which the UART RX queue contents are checked/processed
  */
 #define UART_BUFFER_READ_INTERVAL_MS 100
+
+/******************************************************************************/
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
+/******************************************************************************/
 
 /**
  * @brief Task buffers.
@@ -85,18 +100,20 @@ QueueHandle_t xDebugSerialRXQueue;
 QueueHandle_t xGpsSerialRXQueue;
 TaskHandle_t xSerialTaskHandle = NULL;
 
-static void gps_uart_timer_callback(TimerHandle_t timer_handle);
+
+/******************************************************************************/
+/*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
+/******************************************************************************/
+
+
 static inline void uart_send_bytes(const uint8_t* data, uint32_t size_bytes, sciBASE_t* uart_port);
 static void vSerialTask(void* pvParameters); /* Serial TX/RX Task */
 bool take_debug_uart_mutex(void);
 void give_debug_uart_mutex(void);
 
-/**
- * @brief xUartRecvTimer callback
- */
-static void gps_uart_timer_callback(TimerHandle_t timer_handle) {
-    // Callback needed as FreeRTOS timers don't seem to expire with a NULL function pointer..
-}
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 /**
  * @brief Creates RTOS infrastructure that the UART requires to function.
@@ -105,7 +122,6 @@ static void gps_uart_timer_callback(TimerHandle_t timer_handle) {
  * so create the queues before enabling interrupts or starting the task.
  */
 void uart_create_infra(void) {
-    static StaticTimer_t xUartRecvTimerBuffer;
 
     // Debug Serial
     static StaticQueue_t xDebugSerialRXStaticQueue;
@@ -118,7 +134,6 @@ void uart_create_infra(void) {
     debug_uart_mutex    = xSemaphoreCreateMutexStatic(&debug_uart_mutex_buffer);
     xDebugSerialRXQueue = xQueueCreateStatic((MAX_CMD_LEN_BYTES * DEBUG_RX_QUEUE_DEPTH), sizeof(portCHAR), debug_serial_rx_queue_buffer, &xDebugSerialRXStaticQueue);
     xGpsSerialRXQueue   = xQueueCreateStatic(GPS_RX_QUEUE_DEPTH, sizeof(portCHAR), gps_serial_rx_queue_buffer, &xGpsSerialRXStaticQueue);
-    xUartRecvTimer      = xTimerCreateStatic("GPS UART recv timer", pdMS_TO_TICKS(GPS_UART_RX_TIMEOUT_MS), pdFALSE, NULL, &gps_uart_timer_callback, &xUartRecvTimerBuffer);
 }
 
 /**
@@ -157,6 +172,10 @@ void uart_start_task(void) {
     xSerialTaskHandle = task_create_static(&vSerialTask, "serial", UART_TASK_STACK_SIZE, NULL, SERIAL_TASK_DEFAULT_PRIORITY, uart_task_stack, &uart_task_buffer);
 }
 
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
+
 /**
  * @brief Send an arbitrary number of bytes over the specified UART port
  *
@@ -194,14 +213,6 @@ void serial_send_string(const char* str_to_send) {
 }
 
 /**
- * @brief Basic GPS-UART string transmission.
- * @param str_to_send[in]: The string to send. Must be null terminated
- */
-void gps_serial_send(const char* str_to_send) {
-    uart_send_bytes((const uint8_t*)str_to_send, strlen(str_to_send), UART_GPS);
-}
-
-/**
  * @brief Gets the UART mutex (blocking forever) if the UART is in RTOS mode.
  * @return True when the mutex is acquired.
  */
@@ -218,81 +229,6 @@ bool take_debug_uart_mutex(void) {
  */
 void give_debug_uart_mutex(void) {
     xSemaphoreGive(debug_uart_mutex);
-}
-
-/**
- * @brief Place bytes onto the queue for the GPS-UART to send.
- * Wait for a complete response message to arrive (delimited by /n or /r/n) or
- * until the receive timeout is triggered.
- *
- * @param str_to_send[in]: The string to send. Must be null terminated
- * @param gps_response_msg[out]: GPS-UART response buffer
- *
- * @returns UART_RX_OK if a complete response message was received
- * @returns UART_RX_TIMEOUT if a complete message was not received before timeout
- * @returns UART_RX_OVERFLOW if a complete message was not received before RX buffer overflow
- */
-uart_err_t gps_serial_send_and_receive(const char* str_to_send, char* gps_response_msg) {
-    gps_response_msg[0]           = '\0';
-    uint16_t gps_rx_buf_idx       = 0;
-    char gps_rx_curr_rcvd_char = '\0';
-    char gps_rx_prev_rcvd_char = '\0';
-
-    // GPS-UART RX timeout
-    if (xTimerStart(xUartRecvTimer, 0) == pdFAIL) {
-        log_str(ERROR, LOG_GPS_GENERAL, true, "GPS-UART RX timer init fail");
-        return UART_RX_TIMEOUT;
-    }
-
-    // Make sure the RX buffer is cleared of stray bytes before forming a new message
-    xQueueReset(xGpsSerialRXQueue);
-    // Send the command message to the GPS module
-    gps_serial_send(str_to_send);
-
-    // Verify that the timer has actually been started by the scheduler
-    while (!xTimerIsTimerActive(xUartRecvTimer)) {
-        vTaskDelay(1);
-    }
-
-    bool resp_header_found   = false;
-    bool resp_found          = false;
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    while (1) {
-        if (xQueueReceive(xGpsSerialRXQueue, &gps_rx_curr_rcvd_char, 0) == pdTRUE) {
-            // If command response header (i.e. <OK\r\n) not yet found, then wait for '<'
-            if ((!resp_header_found) && (gps_rx_curr_rcvd_char == (uint8_t)'<')) {
-                resp_header_found = true;
-                xTimerReset(xUartRecvTimer, 0);
-            }
-            if (resp_header_found) {
-                /* If command response not yet found, then wait for \r\n header terminator
-                 * If command response found, then wait for final \r\n response terminator
-                 */
-                if ((gps_rx_curr_rcvd_char == '\n') && (gps_rx_prev_rcvd_char == '\r')) {
-                    if (resp_found) {
-                        gps_response_msg[gps_rx_buf_idx - 1] = '\0';
-                        return UART_OK;
-                    } else {
-                        resp_found = true;
-                    }
-                }
-
-                if (gps_rx_buf_idx >= GPS_RX_QUEUE_DEPTH) {
-                    log_str(ERROR, LOG_GPS_GENERAL, true, "RX buffer len exceeded");
-                    return UART_RX_OVERFLOW;
-                }
-                gps_response_msg[gps_rx_buf_idx++] = gps_rx_curr_rcvd_char;
-            } else {
-            }
-
-            gps_rx_prev_rcvd_char = gps_rx_curr_rcvd_char;
-        } else if (!xTimerIsTimerActive(xUartRecvTimer)) {
-            log_str(ERROR, LOG_GPS_GENERAL, true, "RX timeout. Recv bytes: %d", gps_rx_buf_idx);
-            return UART_RX_TIMEOUT;
-        } else {
-            vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(UART_BUFFER_READ_INTERVAL_MS));
-        }
-    }
 }
 
 /**

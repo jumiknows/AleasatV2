@@ -20,7 +20,7 @@
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
 #include "tms_mibspi.h"
-#include "obc_uart.h"
+#include "tms_uart.h"
 #include "obc_featuredefs.h"
 #include "rtos.h"
 #include "het.h"

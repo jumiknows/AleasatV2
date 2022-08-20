@@ -14,7 +14,7 @@
 #include "obc_adc.h"
 #include "obc_hardwaredefs.h"
 #include "obc_utils.h"
-#include "obc_uart.h"
+#include "tms_uart.h"
 #include "sys_common.h"
 #include "adc.h"
 #include "rtos.h"
