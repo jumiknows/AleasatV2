@@ -158,7 +158,9 @@ typedef enum {
 /******************************************************************************/
 
 // Read APIs
+
 eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32* data);
+eps_err_t eps_read_float_raw(eps_cmd_read_float_t cmd, uint16_t* data);
 eps_err_t eps_read_int(eps_cmd_read_int_t cmd, uint16_t* data);
 
 // Write APIs

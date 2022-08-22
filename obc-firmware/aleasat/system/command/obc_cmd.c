@@ -142,6 +142,7 @@ const cmd_entry command_table[] = {
     {"test_comms_reboot", &cmd_test_comms_reboot},
     {"test_comms_get_telem", &cmd_test_comms_get_telem},
     {"test_eps_read_float", &cmd_test_eps_read_float},
+    {"test_eps_read_float_raw", &cmd_test_eps_read_float_raw},
     {"test_eps_read_int", &cmd_test_eps_read_int},
     {"test_eps_write", &cmd_test_eps_write},
     {"test_eps_read_sanity", &cmd_test_eps_read_sanity},

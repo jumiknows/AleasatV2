@@ -148,7 +148,7 @@ eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32* data) {
     }
 
     // Read the raw data from the EPS via I2C
-    i2c_err_t read_err = eps_read(cmd, &raw_data);
+    i2c_err_t read_err = eps_read((uint8_t)cmd, &raw_data);
     if (read_err != I2C_SUCCESS) {
         return EPS_I2C_ERROR;
     }
@@ -177,6 +177,28 @@ eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32* data) {
 }
 
 /**
+ * @brief Read the raw data of a float-valued register from the EPS module
+ * 
+ * @param cmd: the register to read
+ * @param data: pointer to store the read data to
+ * @return EPS_SUCCESS if no error, error code otherwise
+ */
+eps_err_t eps_read_float_raw(eps_cmd_read_float_t cmd, uint16_t* data) {
+    eps_err_t err = EPS_SUCCESS;
+    uint16_t raw_data = 0;
+
+    // Read the raw data from the EPS via I2C
+    i2c_err_t read_err = eps_read((uint8_t)cmd, &raw_data);
+    if (read_err != I2C_SUCCESS) {
+        return EPS_I2C_ERROR;
+    }
+
+    // Return the final, converted value
+    *data = raw_data;
+    return err;
+}
+
+/**
  * @brief Read a int-valued register from the EPS module
  * 
  * @param cmd: the register to read
@@ -188,7 +210,7 @@ eps_err_t eps_read_int(eps_cmd_read_int_t cmd, uint16_t* data) {
     uint16_t raw_data = 0;
 
     // Read the raw data from the EPS via I2C
-    i2c_err_t read_err = eps_read(cmd, &raw_data);
+    i2c_err_t read_err = eps_read((uint8_t)cmd, &raw_data);
     if (read_err != I2C_SUCCESS) {
         return EPS_I2C_ERROR;
     }

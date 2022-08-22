@@ -36,6 +36,14 @@ class EpsTest(OBCTestClass.OBCTest):
             msg = self.obc.recv_q.get(block=True)
             if "tx: 0" in msg.print():
                 return
+    
+    @timeout.timeout(10)
+    def test_eps_read_float_raw_battery_voltage(self):
+        self.obc.send_q.put("0 test_eps_read_float_raw * * 1") # 1 = v_battery in volts
+        while 1:
+            msg = self.obc.recv_q.get(block=True)
+            if "tx: 0" in msg.print():
+                return
 
     @timeout.timeout(10)
     def test_eps_read_int_input_conditions(self):

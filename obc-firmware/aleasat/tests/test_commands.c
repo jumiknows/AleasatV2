@@ -555,6 +555,42 @@ void cmd_test_eps_read_float(uint32_t arg_len, void* arg) {
 }
 
 /**
+ * @brief Tests the EPS I2C interface: eps_read_float_raw function
+ * @brief Sends a test read command to the EPS module
+ * @param[in] arg_len Size of argument array (number of arguments * ARGUMENT_SIZE)
+ * @param[in] arg     arg[0] read_cmd  :  1,2,3,...,51,52
+ */
+void cmd_test_eps_read_float_raw(uint32_t arg_len, void* arg) {
+    char* args[1] = {NULL};
+    uint8_t num_args    = obc_cmd_read_str_arguments(arg, 1, args);
+
+    // Check number of arguments
+    if (num_args != 1) {
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+            "Wrong # arguments: %d, expected 1",
+            num_args
+        );
+        return;
+    }
+
+    uint8_t read_cmd = (uint8_t) cseq_to_num(args[0]);
+
+    // Validate arguments
+    if ((read_cmd < 1) || (read_cmd > 52)) {
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+            "Invalid read command '%d', must be between 1 and 52",
+            read_cmd
+        );
+        return;
+    }
+
+    uint16_t data = 0;
+    eps_err_t err = eps_read_float_raw((eps_cmd_read_float_t) read_cmd, &data);
+
+    prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "tx: %d, data: %f", err, data);
+}
+
+/**
  * @brief Tests the EPS I2C interface: eps_read_int function
  * @brief Sends a test read command to the EPS module
  * @param[in] arg_len Size of argument array (number of arguments * ARGUMENT_SIZE)
