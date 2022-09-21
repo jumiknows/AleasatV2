@@ -527,36 +527,6 @@ typedef enum {
 } gps_parse_err_t;
 
 /**
- * @brief GPS module operation result status
- */
-typedef enum {
-    /**
-     * @brief No detected errors
-     */
-    GPS_SUCCESS = 0,
-
-    /**
-     * @brief GPS-UART failed to receive complete response message from OEM7X
-     */
-    GPS_UART_ERR = -1,
-
-    /**
-     * @brief OEM7X response message parsing error
-     */
-    GPS_MSG_PARSE_ERR = -2,
-
-    /**
-     * @brief Failed to acquire accurate GPS result before timeout
-     */
-    GPS_ACQ_TIMEOUT = -3,
-
-    /**
-     * @brief Failed to acquire accurate GPS send-and-receive mutex
-     */
-    GPS_MUTEX_TIMEOUT = -4
-} gps_req_err_t;
-
-/**
  * @brief Errors for settings.
  */
 typedef enum {

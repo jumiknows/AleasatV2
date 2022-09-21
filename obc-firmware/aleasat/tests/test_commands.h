@@ -55,4 +55,7 @@ void cmd_test_flash_rw(uint32_t arg_len, void* arg);
 // FILESYSTEM
 void cmd_test_fs(uint32_t arg_len, void* arg);
 
+// GPS commands
+void cmd_restart_gps(uint32_t arg_len, void* arg);
+
 #endif // TEST_COMMANDS_H_

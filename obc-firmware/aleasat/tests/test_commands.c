@@ -35,6 +35,7 @@
 #include "tms_spi.h"
 #include "obc_flash.h"
 #include "obc_filesystem.h"
+#include "obc_gps.h"
 
 // Logging
 #include "logger.h"
@@ -954,6 +955,19 @@ void cmd_test_fs(uint32_t arg_len, void* arg) {
         prompt_cmd_response(ERROR, LOG_TEST_FILESYSTEM_CMD, false, "FS test:  FAIL, status %d", (int32_t) err);
     }
 }
+
+void cmd_restart_gps(uint32_t arg_len, void* arg) {
+    gps_err_t err = gps_restart_receiver(GPS_RST_COLD_START);
+    switch (err) {
+        case GPS_SUCCESS:
+            prompt_cmd_response(INFO, LOG_GPS, false, "gps restarted!");
+            break;
+        default:
+            prompt_cmd_response(ERROR, LOG_GPS, false, "gps unexpected error while restart!");
+            break;
+    }
+}
+
 
 /******************************************************************************/
 /*                      P R I V A T E  F U N C T I O N S                      */

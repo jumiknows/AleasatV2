@@ -82,7 +82,7 @@ StaticTask_t uart_task_buffer;
 StackType_t uart_task_stack[UART_TASK_STACK_SIZE];
 
 /**
- * @brief Buffers and mutex for debug UART.
+ * @brief Buffers and mutex for debug UART and GPS UART
  *
  * We use the debug UART for sending log messages and downlinking
  * files. These operations may occur in different tasks, so the hardware
@@ -90,9 +90,11 @@ StackType_t uart_task_stack[UART_TASK_STACK_SIZE];
  */
 SemaphoreHandle_t debug_uart_mutex = NULL;
 StaticSemaphore_t debug_uart_mutex_buffer;
+SemaphoreHandle_t gps_uart_mutex = NULL;
+StaticSemaphore_t gps_uart_mutex_buffer;
 
 unsigned char curr_debug_char = '\0';
-unsigned char curr_gps_char   = '\0';
+unsigned char curr_gps_char = '\0';
 
 static bool using_rtos = false; /* Flag used to disregard incoming characters until RTOS is running */
 
@@ -127,13 +129,10 @@ void uart_create_infra(void) {
     static StaticQueue_t xDebugSerialRXStaticQueue;
     static uint8_t debug_serial_rx_queue_buffer[MAX_CMD_LEN_BYTES * DEBUG_RX_QUEUE_DEPTH];
 
-    // GPS Serial
-    static StaticQueue_t xGpsSerialRXStaticQueue;
-    static uint8_t gps_serial_rx_queue_buffer[GPS_RX_QUEUE_DEPTH];
-
     debug_uart_mutex    = xSemaphoreCreateMutexStatic(&debug_uart_mutex_buffer);
     xDebugSerialRXQueue = xQueueCreateStatic((MAX_CMD_LEN_BYTES * DEBUG_RX_QUEUE_DEPTH), sizeof(portCHAR), debug_serial_rx_queue_buffer, &xDebugSerialRXStaticQueue);
-    xGpsSerialRXQueue   = xQueueCreateStatic(GPS_RX_QUEUE_DEPTH, sizeof(portCHAR), gps_serial_rx_queue_buffer, &xGpsSerialRXStaticQueue);
+
+    gps_uart_mutex    = xSemaphoreCreateMutexStatic(&gps_uart_mutex_buffer);
 }
 
 /**
@@ -172,24 +171,6 @@ void uart_start_task(void) {
     xSerialTaskHandle = task_create_static(&vSerialTask, "serial", UART_TASK_STACK_SIZE, NULL, SERIAL_TASK_DEFAULT_PRIORITY, uart_task_stack, &uart_task_buffer);
 }
 
-/******************************************************************************/
-/*                      P R I V A T E  F U N C T I O N S                      */
-/******************************************************************************/
-
-/**
- * @brief Send an arbitrary number of bytes over the specified UART port
- *
- * @param data[in]: Pointer to the data to send.
- * @param size_bytes[in]: The number of bytes to send.
- * @param uart_port[in]: UART port base address.
- */
-static inline void uart_send_bytes(const uint8_t* data, uint32_t size_bytes, sciBASE_t* uart_port) {
-    // Disable MISRA warning about removing const. sciSend doesn't take a const ptr by design, although it does not modify it. (RA, March 3 2020)
-    OBC_MISRA_CHECK_OFF
-    sciSend(uart_port, size_bytes, (uint8_t*)data);
-    OBC_MISRA_CHECK_ON
-}
-
 /**
  * @brief Send an arbitrary number of bytes over the debug UART port
  *
@@ -210,6 +191,36 @@ void serial_send_string(const char* str_to_send) {
     take_debug_uart_mutex();
     uart_send_bytes((const uint8_t*)str_to_send, strlen(str_to_send), UART_DEBUG);
     give_debug_uart_mutex();
+}
+
+/**
+ * @brief Send an arbitrary number of bytes over the GPS UART port
+ *
+ * @param data[in]: Pointer to the data to send.
+ * @param size_bytes[in]: The number of bytes to send.
+ */
+void gps_send(const uint8_t* data, uint32_t size_bytes) {
+    xSemaphoreTake(gps_uart_mutex, portMAX_DELAY);
+    uart_send_bytes(data, size_bytes, UART_GPS);
+    xSemaphoreGive(gps_uart_mutex);
+}
+
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
+
+/**
+ * @brief Send an arbitrary number of bytes over the specified UART port
+ *
+ * @param data[in]: Pointer to the data to send.
+ * @param size_bytes[in]: The number of bytes to send.
+ * @param uart_port[in]: UART port base address.
+ */
+static inline void uart_send_bytes(const uint8_t* data, uint32_t size_bytes, sciBASE_t* uart_port) {
+    // Disable MISRA warning about removing const. sciSend doesn't take a const ptr by design, although it does not modify it. (RA, March 3 2020)
+    OBC_MISRA_CHECK_OFF
+    sciSend(uart_port, size_bytes, (uint8_t*)data);
+    OBC_MISRA_CHECK_ON
 }
 
 /**

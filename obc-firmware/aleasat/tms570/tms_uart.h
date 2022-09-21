@@ -34,6 +34,7 @@ void uart_init_irq(void);
 /* General API */
 void serial_send(const uint8_t* data, uint32_t size_bytes); /* Debug port arbitrary data send */
 void serial_send_string(const char* str_to_send);           /* Debug port string send */
+void gps_send(const uint8_t* data, uint32_t size_bytes);
 
 /* Special Functions */
 bool uart_get_rtos_mode(void);                                                           /* Getter for using rtos flag - required by sciNotification (htp_notification.c) */

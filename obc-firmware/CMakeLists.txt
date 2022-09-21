@@ -22,6 +22,7 @@ list(APPEND SRC_DIRS_ALEASAT
     aleasat/device-drivers/eps
     aleasat/device-drivers/flash
     aleasat/device-drivers/gpio
+    aleasat/device-drivers/gps
     aleasat/device-drivers/imu
     aleasat/device-drivers/magnetorquer
     aleasat/rtos

@@ -258,5 +258,9 @@
   "LOG_TEST_FILESYSTEM_CMD": {
     "id": "65",
     "description": "Test filesystem command"
+  },
+  "LOG_GPS": {
+    "id": "66",
+    "description": "GPS"
   }
 }

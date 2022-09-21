@@ -106,6 +106,9 @@ const cmd_entry command_table[] = {
     {"last_response", &cmd_last_response},
     {"print_sched", &cmd_print_sched},
 
+    /* GPS Commands */
+    {"restart_gps", &cmd_restart_gps},
+
     /* MISC Commands */
     {"echo", &cmd_echo_to_log},
     {"get_board_type", &cmd_get_board_type},
