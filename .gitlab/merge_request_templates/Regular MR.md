@@ -1,24 +1,21 @@
-Insert description of changes here.
+# Overview
+Insert overview of changes here.
+
+# Testing
+Describe how your changes were tested.
+
+# Reviewers
+@EthanJoyce @noah.tajwar.orbit @Julian-Mentasti
+Tag anyone else you would like to review your MR
 
 # Checklist
 
 ## Before Review (Submitter)
-* [ ] Code builds without warnings and errors on `platform-launchpad-1224`.
-* [ ] Code builds without warnings and errors on `platform-alea-v1`.
 * [ ] This branch has been rebased on top of the latest version of `dev`.
-* [ ] If this MR is related to an issue, the issue is linked above.
-* [ ] ~~San Antonio tests have been updated to test this behaviour.~~
-* [ ] ~~All San Antonio tests pass on the platform(s) I have.~~
-
-## Before/During Review (Submitter)
-* [ ] Relevant design docs have been updated.
-* [ ] If HALCoGEN settings were updated, code regenerates properly and configuration changes have been reviewed by a co-lead. ~~Wiki has been updated.~~
-* [ ] This has been tested on any platforms I don't have access to.
+* [ ] I have done a self-review of this MR, and left comments on anything that may be unclear
+* [ ] I have added unit & hill tests to any code that can be tested
 
 ## After Review, Before Merge (Submitter)
+* [ ] Relevant design docs and wiki pages have been updated.
 * [ ] Issue has been closed, if appropriate.
-* [ ] Branch has been rebased on top of the latest version of `dev`.
-* [ ] Changes from review have been tested on OBC and LaunchPad with Houston.
-
-## After Review (Reviewer)
-* [ ] Issues have been created for any discussions that came up that won't be fixed now.
+* [ ] Changes from review have been tested on OBC and LaunchPad
