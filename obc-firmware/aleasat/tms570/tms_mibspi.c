@@ -209,7 +209,7 @@ EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg) {
             break;
         }
         default: {
-            log_str(ERROR, LOG_DRIVER_MIBSPI, true, "Cannot get eventgroup handle: transfer group has invalid mibspi reg");
+            log_str(ERROR, LOG_DRIVER_MIBSPI, "Cannot get eventgroup handle: transfer group has invalid mibspi reg");
             break;
         }
     }
@@ -391,7 +391,7 @@ static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg) {
             break;
         }
         default: {
-            log_str(ERROR, LOG_DRIVER_MIBSPI, true, "Cannot get mutex handle: transfer group has invalid mibspi reg");
+            log_str(ERROR, LOG_DRIVER_MIBSPI, "Cannot get mutex handle: transfer group has invalid mibspi reg");
             break;
         }
     }

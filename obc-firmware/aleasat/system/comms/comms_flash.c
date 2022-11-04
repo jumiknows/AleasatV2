@@ -65,25 +65,25 @@ comms_err_t comms_flash_image(const comms_app_image_page_t* pages, uint8_t num_p
     };
 
     if (num_pages == 0) {
-        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms flsh no pages");
+        log_str(ERROR, LOG_COMMS_GENERAL, "Comms flsh no pages");
         return COMMS_FLASH_FAIL;
     }
 
     err = comms_enter_bootloader_once();
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms flsh btldr err %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, "Comms flsh btldr err %d", err);
         return COMMS_FLASH_FAIL;
     }
 
     err = comms_attempt_flash(pages, num_pages);
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms flsh app err %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, "Comms flsh app err %d", err);
         return COMMS_FLASH_FAIL;
     }
 
     err = comms_wait_for_cmd(&app_start_match_spec, COMMS_FLASH_APP_START_TIMEOUT_MS);
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, LOG_COMMS_GENERAL, false, "Comms flsh start err %d", err);
+        log_str(ERROR, LOG_COMMS_GENERAL, "Comms flsh start err %d", err);
         return err;
     }
 

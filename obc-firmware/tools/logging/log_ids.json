@@ -262,5 +262,9 @@
   "LOG_GPS": {
     "id": "66",
     "description": "GPS"
+  },
+  "MAX_LOG_ID_VALUE": {
+    "id": "67",
+    "description": "Maximum log ID value. Should always be equal to the largest log ID."
   }
 }

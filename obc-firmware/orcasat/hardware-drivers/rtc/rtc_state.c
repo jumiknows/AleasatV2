@@ -245,21 +245,21 @@ void register_rtc_mismatch(uint32_t mismatch_magnitude) {
  * @brief Prints RTC information.
  */
 void print_rtc_info(void) {
-    log_str(INFO, LOG_RTC_GENERAL, true, "Active: %s", time_source_names[state.active_rtc]);
-    log_str(INFO, LOG_RTC_GENERAL, true, "Last used: %s", time_source_names[state.used_rtc]);
-    log_str(INFO, LOG_RTC_GENERAL, true, "Tolerance: %d", state.time_tolerance_sec);
-    log_str(INFO, LOG_RTC_GENERAL, true, "Timestamp: %d", state.timestamp);
+    log_str(INFO, LOG_RTC_GENERAL, "Active: %s", time_source_names[state.active_rtc]);
+    log_str(INFO, LOG_RTC_GENERAL, "Last used: %s", time_source_names[state.used_rtc]);
+    log_str(INFO, LOG_RTC_GENERAL, "Tolerance: %d", state.time_tolerance_sec);
+    log_str(INFO, LOG_RTC_GENERAL, "Timestamp: %d", state.timestamp);
 }
 
 /**
  * @brief Prints RTC stats that are tracked.
  */
 void print_rtc_stats(void) {
-    log_str(INFO, LOG_RTC_GENERAL, true, "TS mismatch: %d", state.num_a_b_ts_mismatches);
-    log_str(INFO, LOG_RTC_GENERAL, true, "TS mismatch avg: %f", state.avg_mismatch_ts);
-    log_str(INFO, LOG_RTC_GENERAL, true, "REG mismatch: %d", state.num_a_b_reg_mismatches);
-    log_str(INFO, LOG_RTC_GENERAL, true, "REG mismatch avg: %f", state.avg_mismatch_reg);
-    log_str(INFO, LOG_RTC_GENERAL, true, "Overrides: %d", state.backup_overrides);
+    log_str(INFO, LOG_RTC_GENERAL, "TS mismatch: %d", state.num_a_b_ts_mismatches);
+    log_str(INFO, LOG_RTC_GENERAL, "TS mismatch avg: %f", state.avg_mismatch_ts);
+    log_str(INFO, LOG_RTC_GENERAL, "REG mismatch: %d", state.num_a_b_reg_mismatches);
+    log_str(INFO, LOG_RTC_GENERAL, "REG mismatch avg: %f", state.avg_mismatch_reg);
+    log_str(INFO, LOG_RTC_GENERAL, "Overrides: %d", state.backup_overrides);
 }
 
 /**

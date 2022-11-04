@@ -30,6 +30,7 @@ list(APPEND SRC_DIRS_ALEASAT
     aleasat/system/command
     aleasat/system/comms
     aleasat/system/filesystem
+    aleasat/system/logging
     aleasat/tests
     aleasat/tms570
 )
@@ -49,7 +50,6 @@ list(APPEND SRC_DIRS_ORCASAT
     orcasat/interfaces
     orcasat/rtos
     orcasat/system
-    orcasat/system/logging
     orcasat/system/nvct
     orcasat/system/scheduler
     orcasat/system/settings

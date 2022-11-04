@@ -64,7 +64,7 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...);
+static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, char* format, ...);
 static void run_panel_gyro_test(ADIS16260_t* gyro);
 
 /* Test Functions -------------------------------------------------------------*/
@@ -73,7 +73,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro);
  * @brief Acknowledges with a single logger message.
  */
 void cmd_test_ack(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_TEST_ACK_CMD, true, "Test Ack!");
+    prompt_cmd_response(INFO, LOG_TEST_ACK_CMD, "Test Ack!");
 }
 
 /**
@@ -85,7 +85,7 @@ void cmd_test_comms_raw(uint32_t arg_len, void* arg) {
     memset(data, 0xAB, sizeof(data));
     memcpy(data, arg, arg_len);
     err = comms_mibspi_tx(data);
-    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "raw tx %d", err);
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "raw tx %d", err);
 }
 
 /**
@@ -99,7 +99,7 @@ void cmd_test_comms_tx_only(uint32_t arg_len, void* arg) {
 
     err = comms_send_cmd(comms_hwid, COMMS_COMMON_MSG_ASCII, arg, arg_str_len, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
 
-    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "tx %d", err);
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "tx %d", err);
 }
 
 /**
@@ -113,7 +113,7 @@ void cmd_test_comms_tx_rx(uint32_t arg_len, void* arg) {
 
     err = comms_send_recv_cmd(comms_hwid, COMMS_RADIO_MSG_GET_TELEM, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
 
-    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "txrx %d resp %x", err, resp.header.command);
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "txrx %d resp %x", err, resp.header.command);
 }
 
 /**
@@ -144,10 +144,10 @@ void cmd_test_comms_stress1(uint32_t arg_len, void* arg) {
     }
 
     if (num_fail == 0) {
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "s1 all pass");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "s1 all pass");
     }
     else {
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "s1 pass %d fail %d", num_success, num_fail);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "s1 pass %d fail %d", num_success, num_fail);
     }
 }
 
@@ -161,10 +161,10 @@ void cmd_test_comms_flash_app(uint32_t arg_len, void* arg) {
 
     err = comms_flash_image(comms_test_app_image_pages, comms_test_app_image_num_pages);
     if (err == COMMS_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "flash pass");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "flash pass");
     }
     else {
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "flash fail");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "flash fail");
     }
 }
 
@@ -186,17 +186,17 @@ void cmd_test_comms_reboot(uint32_t arg_len, void* arg) {
 
     err = comms_send_cmd(comms_hwid, COMMS_RADIO_MSG_REBOOT, NULL, 0, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
     if (err != COMMS_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "reboot fail 1");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "reboot fail 1");
         return;
     }
 
     err = comms_wait_for_cmd(&app_start_match_spec, 2000);
     if (err != COMMS_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "reboot fail 2");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "reboot fail 2");
         return;
     }
 
-    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "reboot pass");
+    prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "reboot pass");
 }
 
 /**
@@ -210,36 +210,36 @@ void cmd_test_comms_get_telem(uint32_t arg_len, void* arg) {
 
     err = comms_get_telem(&telem_recv);
     if (err != COMMS_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Unable to get telemetry!");
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Unable to get telemetry!");
     }
     else {
         uint8_t ind_adc;
 
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-reserved: %d", telem_recv.reserved);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-uptime: %d", telem_recv.uptime);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-uart0_rx_count: %d", telem_recv.uart0_rx_count);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-uart1_rx_count: %d", telem_recv.uart1_rx_count);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-rx_mode: %d", telem_recv.rx_mode);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-tx_mode: %d", telem_recv.tx_mode);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-reserved: %d", telem_recv.reserved);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-uptime: %d", telem_recv.uptime);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-uart0_rx_count: %d", telem_recv.uart0_rx_count);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-uart1_rx_count: %d", telem_recv.uart1_rx_count);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-rx_mode: %d", telem_recv.rx_mode);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-tx_mode: %d", telem_recv.tx_mode);
 
         for (ind_adc = 0; ind_adc < COMMS_ADC_NUM_CHANNELS; ind_adc++) {
-            prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-adc[%d]: %d", ind_adc, telem_recv.adc[ind_adc]);
+            prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-adc[%d]: %d", ind_adc, telem_recv.adc[ind_adc]);
 
         }
 
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-rssi: %d", telem_recv.rssi);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-last_lqi: %d", telem_recv.last_lqi);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-last_frequest: %d", telem_recv.last_frequest);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_sent: %d", telem_recv.packets_sent);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-cs_count: %d", telem_recv.cs_count);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_good: %d", telem_recv.packets_good);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_rej_cs: %d", telem_recv.packets_rejected_checksum);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_rej_rsv: %d", telem_recv.packets_rejected_reserved);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-packets_rej_oth: %d", telem_recv.packets_rejected_other);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-reserved0: %d", telem_recv.reserved0);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-reserved1: %d", telem_recv.reserved1);
-        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-custom0: %d", telem_recv.custom0);
-    	prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, false, "Telem-custom1: %d", telem_recv.custom1);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-rssi: %d", telem_recv.rssi);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-last_lqi: %d", telem_recv.last_lqi);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-last_frequest: %d", telem_recv.last_frequest);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-packets_sent: %d", telem_recv.packets_sent);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-cs_count: %d", telem_recv.cs_count);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-packets_good: %d", telem_recv.packets_good);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-packets_rej_cs: %d", telem_recv.packets_rejected_checksum);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-packets_rej_rsv: %d", telem_recv.packets_rejected_reserved);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-packets_rej_oth: %d", telem_recv.packets_rejected_other);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-reserved0: %d", telem_recv.reserved0);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-reserved1: %d", telem_recv.reserved1);
+        prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-custom0: %d", telem_recv.custom0);
+    	prompt_cmd_response(INFO, LOG_TEST_COMMS_CMD, "Telem-custom1: %d", telem_recv.custom1);
     }
 }
 
@@ -259,27 +259,27 @@ void cmd_test_mag(uint32_t arg_len, void* arg) {
     mag_t mag_selected;
 
     if (arg_len == 0) {
-       prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Error Provide Arguments");
+       prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Error Provide Arguments");
     } else {
         if(strcmp((char*)arg, "1") == 0) {
             mag_selected = magnetorquer_1;
-            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer 1 Selected");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Magnetorquer 1 Selected");
         } else if(strcmp((char*)arg, "2") == 0) {
             mag_selected = magnetorquer_2;
-            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer 1 Selected");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Magnetorquer 1 Selected");
         } else if(strcmp((char*)arg, "3") == 0) {
             mag_selected = magnetorquer_3;
-            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer 1 Selected");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Magnetorquer 1 Selected");
         } else {
-            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Unknown Param");
+            prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Unknown Param");
             return;
         }
 
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Test Starting");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Magnetorquer Test Starting");
 
         vTaskDelay(100);
 
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Starting");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Magnetorquer Starting");
         
         mag_set_dir(&mag_selected, FORWARD);
         mag_start(&mag_selected);
@@ -292,14 +292,14 @@ void cmd_test_mag(uint32_t arg_len, void* arg) {
         mag_set_duty(&mag_selected, 0); //set magnetorquer duty to 0
         mag_stop(&mag_selected);
 
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Stopped");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Magnetorquer Stopped");
 
         mag_set_dir(&mag_selected, BACKWARD);
 
         vTaskDelay(100);
 
         mag_start(&mag_selected);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Magnetorquer Started in Reverse");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Magnetorquer Started in Reverse");
 
         for (i=0; i < 100; i++) {
             mag_set_duty(&mag_selected, i); //set magnetorquer duty
@@ -308,7 +308,7 @@ void cmd_test_mag(uint32_t arg_len, void* arg) {
 
         mag_stop(&mag_selected);
 
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Test Completed");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Test Completed");
     }
 }
 
@@ -383,24 +383,24 @@ void cmd_imu_test(uint32_t arg_len, void* arg) {
     bmx160_data_t datap = { 0 };
 
     if (bmx160_enable_imu(&bmx160_imu_1) == IMU_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "IMU initialized!");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "IMU initialized!");
     }
 
     vTaskDelay(pdMS_TO_TICKS(100));
 
     if (bmx160_get_data(&bmx160_imu_1, &datap) ==  IMU_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_x: %f ",datap.mag.x_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_y: %f ",datap.mag.y_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_z: %f ",datap.mag.z_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_x: %f ",datap.accel.x_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_y: %f ",datap.accel.y_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_z: %f ",datap.accel.z_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_x: %f ",datap.gyro.x_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_y: %f ",datap.gyro.y_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_z: %f ",datap.gyro.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "mag_x: %f ",datap.mag.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "mag_y: %f ",datap.mag.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "mag_z: %f ",datap.mag.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "accel_x: %f ",datap.accel.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "accel_y: %f ",datap.accel.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "accel_z: %f ",datap.accel.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "gyro_x: %f ",datap.gyro.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "gyro_y: %f ",datap.gyro.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "gyro_z: %f ",datap.gyro.z_proc);
 
     } else {
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "first data packet query failed");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "first data packet query failed");
     }
 
     bmx160_set_low_power(&bmx160_imu_1);
@@ -411,22 +411,22 @@ void cmd_imu_test(uint32_t arg_len, void* arg) {
     prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "AFTER POWER DOWN");
 
     if (bmx160_get_data(&bmx160_imu_1, &datap) ==  IMU_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_x: %f ",datap.mag.x_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_y: %f ",datap.mag.y_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "mag_z: %f ",datap.mag.z_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_x: %f ",datap.accel.x_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_y: %f ",datap.accel.y_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "accel_z: %f ",datap.accel.z_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_x: %f ",datap.gyro.x_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_y: %f ",datap.gyro.y_proc);
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "gyro_z: %f ",datap.gyro.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "mag_x: %f ",datap.mag.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "mag_y: %f ",datap.mag.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "mag_z: %f ",datap.mag.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "accel_x: %f ",datap.accel.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "accel_y: %f ",datap.accel.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "accel_z: %f ",datap.accel.z_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "gyro_x: %f ",datap.gyro.x_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "gyro_y: %f ",datap.gyro.y_proc);
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "gyro_z: %f ",datap.gyro.z_proc);
 
     } else {
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "second data packet query failed");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "second data packet query failed");
     }
     
     if (bmx160_disable_imu(&bmx160_imu_1) == IMU_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "IMU disabled");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "IMU disabled");
     }
 }
 
@@ -445,7 +445,7 @@ void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
 
     // Check number of arguments
     if (num_args < 3) {
-        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD,
             "Wrong # arguments: %d",
 			num_args
         );
@@ -455,37 +455,37 @@ void cmd_test_can_gpio(uint32_t arg_len, void* arg) {
     // Parse arguments
     int32_t port_idx = cseq_to_num(args[0]) - 1;
     if (port_idx == -2) { // -2 because we're subtracting 1 from the output
-    	log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[0]);
+    	log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, "Invalid arg %s", args[0]);
         return;
     }
     int32_t pin = cseq_to_num(args[1]);
     if (pin == -1) {
-    	log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[1]);
+    	log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, "Invalid arg %s", args[1]);
         return;
     }
     int32_t value = cseq_to_num(args[2]);
     if (value == -1) {
-        log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, true, "Invalid arg %s", args[2]);
+        log_str(ERROR, LOG_TEST_CAN_GPIO_CMD, "Invalid arg %s", args[2]);
         return;
     }
 
     // Validate arguments
     if (port_idx >= 3) {
-        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD,
             "Invalid Port: %d",
             (port_idx + 1)
         );
         return;
     }
     if ((pin != CAN_PIN_RX) && (pin != CAN_PIN_TX)) {
-        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD,
             "Invalid Pin: %d",
             pin
         );
         return;
     }
 
-    prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD, false,
+    prompt_cmd_response(INFO, LOG_TEST_CAN_GPIO_CMD,
         "Writing %d to CAN%d %s",
         (bool)value,
         (port_idx + 1),
@@ -505,16 +505,16 @@ void cmd_test_panel_gyro(uint32_t arg_len, void* arg){
     static ADIS16260_t* const GYROS[] = {&panel_gyro_0, &panel_gyro_1, &panel_gyro_2, &panel_gyro_3};
     int32_t gyro_idx = cseq_to_num((char*)arg);
     if (gyro_idx == -1) {
-    	log_str(ERROR, LOG_ADCS_GENERAL, true, "Invalid arg %s", (char*)arg);
+    	log_str(ERROR, LOG_ADCS_GENERAL, "Invalid arg %s", (char*)arg);
     	return;
     }
     if (gyro_idx > 3)
     {
-        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "ERROR Unknown Param");
+        prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "ERROR Unknown Param");
         return;
     }
 
-    prompt_cmd_response(INFO, LOG_ADCS_GENERAL, true, "Gyro %d Selected", gyro_idx);
+    prompt_cmd_response(INFO, LOG_ADCS_GENERAL, "Gyro %d Selected", gyro_idx);
 
     run_panel_gyro_test(GYROS[gyro_idx]);
 }
@@ -531,7 +531,7 @@ void cmd_test_eps_read_float(uint32_t arg_len, void* arg) {
 
     // Check number of arguments
     if (num_args != 1) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD,
             "Wrong # arguments: %d, expected 1",
             num_args
         );
@@ -542,7 +542,7 @@ void cmd_test_eps_read_float(uint32_t arg_len, void* arg) {
 
     // Validate arguments
     if ((read_cmd < 1) || (read_cmd > 52)) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD,
             "Invalid read command '%d', must be between 1 and 52",
             read_cmd
         );
@@ -552,7 +552,7 @@ void cmd_test_eps_read_float(uint32_t arg_len, void* arg) {
     float32 data = 0;
     eps_err_t err = eps_read_float((eps_cmd_read_float_t) read_cmd, &data);
 
-    prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "tx: %d, data: %f", err, data);
+    prompt_cmd_response(INFO, TEST_EPS_READ_CMD, "tx: %d, data: %f", err, data);
 }
 
 /**
@@ -567,7 +567,7 @@ void cmd_test_eps_read_float_raw(uint32_t arg_len, void* arg) {
 
     // Check number of arguments
     if (num_args != 1) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD,
             "Wrong # arguments: %d, expected 1",
             num_args
         );
@@ -578,7 +578,7 @@ void cmd_test_eps_read_float_raw(uint32_t arg_len, void* arg) {
 
     // Validate arguments
     if ((read_cmd < 1) || (read_cmd > 52)) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD,
             "Invalid read command '%d', must be between 1 and 52",
             read_cmd
         );
@@ -588,7 +588,7 @@ void cmd_test_eps_read_float_raw(uint32_t arg_len, void* arg) {
     uint16_t data = 0;
     eps_err_t err = eps_read_float_raw((eps_cmd_read_float_t) read_cmd, &data);
 
-    prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "tx: %d, data: %f", err, data);
+    prompt_cmd_response(INFO, TEST_EPS_READ_CMD, "tx: %d, data: %f", err, data);
 }
 
 /**
@@ -603,7 +603,7 @@ void cmd_test_eps_read_int(uint32_t arg_len, void* arg) {
 
     // Check number of arguments
     if (num_args != 1) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD,
             "Wrong # arguments: %d, expected 1",
             num_args
         );
@@ -614,7 +614,7 @@ void cmd_test_eps_read_int(uint32_t arg_len, void* arg) {
 
     // Validate arguments
     if ((read_cmd < 1) || (read_cmd > 52)) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD,
             "Invalid read command '%d', must be between 1 and 52",
             read_cmd
         );
@@ -624,7 +624,7 @@ void cmd_test_eps_read_int(uint32_t arg_len, void* arg) {
     uint16_t data = 0;
     eps_err_t err = eps_read_int((eps_cmd_read_int_t) read_cmd, &data);
 
-    prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "tx: %d, data: %d", err, data);
+    prompt_cmd_response(INFO, TEST_EPS_READ_CMD, "tx: %d, data: %d", err, data);
 }
 
 /**
@@ -639,7 +639,7 @@ void cmd_test_eps_write(uint32_t arg_len, void* arg) {
 
     // Check number of arguments
     if (num_args < 2) {
-        prompt_cmd_response(INFO, TEST_EPS_WRITE_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_WRITE_CMD,
             "Wrong # arguments: %d, expected 2",
             num_args
         );
@@ -652,7 +652,7 @@ void cmd_test_eps_write(uint32_t arg_len, void* arg) {
     // Validate arguments
     //   no need to validate write command, as it can be any non-negative integer
     if (state > 3) {
-        prompt_cmd_response(INFO, TEST_EPS_WRITE_CMD, false,
+        prompt_cmd_response(INFO, TEST_EPS_WRITE_CMD,
             "Invalid write state '%d', must be one of 0,1,2,3",
             state
         );
@@ -661,7 +661,7 @@ void cmd_test_eps_write(uint32_t arg_len, void* arg) {
 
     eps_err_t err = eps_write_state((eps_cmd_write_state_t) write_cmd, (eps_write_state_t) state);
 
-    prompt_cmd_response(INFO, TEST_EPS_WRITE_CMD, false, "tx: %d", err);
+    prompt_cmd_response(INFO, TEST_EPS_WRITE_CMD, "tx: %d", err);
 }
 
 /**
@@ -800,9 +800,9 @@ void cmd_test_eps_read_sanity(uint32_t arg_len, void* arg) {
     } while (0);
 
     if (success) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "PASS: eps read sanity, %d", success_counter);
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, "PASS: eps read sanity, %d", success_counter);
     } else {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "FAIL: eps read sanity, %d", success_counter);
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, "FAIL: eps read sanity, %d", success_counter);
     }
 }
 
@@ -866,9 +866,9 @@ void cmd_test_eps_writeread_sanity(uint32_t arg_len, void* arg) {
     } while (0);
 
     if (success) {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "PASS: eps wr sanity, %d", success_counter);
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, "PASS: eps wr sanity, %d", success_counter);
     } else {
-        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, false, "FAIL: eps wr sanity, %d", success_counter);
+        prompt_cmd_response(INFO, TEST_EPS_READ_CMD, "FAIL: eps wr sanity, %d", success_counter);
     }
 }
 
@@ -894,7 +894,7 @@ void cmd_test_flash_rw(uint32_t arg_len, void* arg) {
 
     // Check number of arguments
     if (num_args != 2) {
-        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD,
             "Wrong # arguments: %d, expected 2",
             num_args
         );
@@ -906,7 +906,7 @@ void cmd_test_flash_rw(uint32_t arg_len, void* arg) {
     const uint32_t len  = (uint32_t) strtol(args[1], NULL, 10);
 
     if (len > sizeof(write_data)) {
-        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false,
+        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD,
             "Bad len: %d > %d",
             len,
             sizeof(write_data)
@@ -914,7 +914,7 @@ void cmd_test_flash_rw(uint32_t arg_len, void* arg) {
         return;
     }
 
-    prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false, "Performing rw test at 0x%08x for %d bytes", addr, len);
+    prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, "Performing rw test at 0x%08x for %d bytes", addr, len);
 
     flash_err_t erase_err = flash_erase(addr, FULL_CHIP);
     flash_err_t write_err = flash_write(addr, len, write_data);
@@ -923,11 +923,11 @@ void cmd_test_flash_rw(uint32_t arg_len, void* arg) {
     /*
      * WARNING: do not change these messages, as hill tests depend on them!
      */
-    prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false, "E: %d, W: %d, R: %d", erase_err, write_err, read_err);
+    prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, "E: %d, W: %d, R: %d", erase_err, write_err, read_err);
     if (0 == memcmp(write_data, read_data, len)) {
-        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, false, "Read and write data match:  PASS");
+        prompt_cmd_response(INFO, LOG_TEST_FLASH_RW_CMD, "Read and write data match:  PASS");
     } else {
-        prompt_cmd_response(ERROR, LOG_TEST_FLASH_RW_CMD, false, "Read and write data do not match:  FAIL");
+        prompt_cmd_response(ERROR, LOG_TEST_FLASH_RW_CMD, "Read and write data do not match:  FAIL");
     }
 }
 
@@ -950,9 +950,9 @@ void cmd_test_fs(uint32_t arg_len, void* arg) {
     fs_init();
 
     if (err == FS_OK) {
-        prompt_cmd_response(INFO, LOG_TEST_FILESYSTEM_CMD, false, "FS test:  PASS");
+        prompt_cmd_response(INFO, LOG_TEST_FILESYSTEM_CMD, "FS test:  PASS");
     } else {
-        prompt_cmd_response(ERROR, LOG_TEST_FILESYSTEM_CMD, false, "FS test:  FAIL, status %d", (int32_t) err);
+        prompt_cmd_response(ERROR, LOG_TEST_FILESYSTEM_CMD, "FS test:  FAIL, status %d", (int32_t) err);
     }
 }
 
@@ -960,10 +960,10 @@ void cmd_restart_gps(uint32_t arg_len, void* arg) {
     gps_err_t err = gps_restart_receiver(GPS_RST_COLD_START);
     switch (err) {
         case GPS_SUCCESS:
-            prompt_cmd_response(INFO, LOG_GPS, false, "gps restarted!");
+            prompt_cmd_response(INFO, LOG_GPS, "gps restarted!");
             break;
         default:
-            prompt_cmd_response(ERROR, LOG_GPS, false, "gps unexpected error while restart!");
+            prompt_cmd_response(ERROR, LOG_GPS, "gps unexpected error while restart!");
             break;
     }
 }
@@ -980,11 +980,10 @@ void cmd_restart_gps(uint32_t arg_len, void* arg) {
  *
  * @param[in] lvl           The logging system level
  * @param[in] id            The log ID
- * @param[in] write_to_file Whether or not to log the data to a file
  * @param[in] format        Printf-style format string
  * @param[in] ...           Arguments for format specification
  */
-static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...) {
+static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, char* format, ...) {
     char string[MAX_PAYLOAD_SIZE + 1] = "temp";
     va_list va;
     OBC_MISRA_CHECK_OFF
@@ -992,7 +991,7 @@ static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write
     OBC_MISRA_CHECK_ON
     orca_vsnprintf(string, MAX_PAYLOAD_SIZE + 1, format, va);
     va_end(va);
-    log_str(lvl, id, write_to_file, "%s", string);
+    log_str(lvl, id, "%s", string);
 }
 
 /**
@@ -1023,7 +1022,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "ID is %d ", whoami.serial_num);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "ID is %d ", whoami.serial_num);
 
         /* Read gyro data */
         result = ADIS16260_read_gyro(gyro, &gyro_data);
@@ -1031,7 +1030,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Computed rate %f", gyro_data.data);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "Computed rate %f", gyro_data.data);
 
         /* Put gyro to sleep for 500ms*/
         result = ADIS16260_set_sleep(gyro, 1);
@@ -1039,7 +1038,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Sleeping...");
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "Sleeping...");
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         /* Read on-board temperature sensor*/
@@ -1048,7 +1047,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Temp is %f", temp_data.data_temp);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "Temp is %f", temp_data.data_temp);
 
         /* Set internal filter */
         result = ADIS16260_set_filter(gyro, ADIS16260_RANGE_160, ADIS16260_BW_330, 2);
@@ -1056,7 +1055,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Set filter to 330hz, 2 taps");
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "Set filter to 330hz, 2 taps");
 
         /* Read data with new filter setting */
         result = ADIS16260_read_gyro(gyro, &gyro_data);
@@ -1064,7 +1063,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Rate is %f", gyro_data.data);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "Rate is %f", gyro_data.data);
 
         /* Set filter settings back to default */
         result = ADIS16260_set_filter(gyro, ADIS16260_RANGE_320, ADIS16260_BW_50, 2);
@@ -1072,7 +1071,7 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Set filter to default");
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "Set filter to default");
 
         /* Read gyro rate one last time*/
         result = ADIS16260_read_gyro(gyro, &gyro_data);
@@ -1080,13 +1079,13 @@ static void run_panel_gyro_test(ADIS16260_t* gyro) {
         {
             break;
         }
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "Rate is %f", gyro_data.data);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "Rate is %f", gyro_data.data);
 
     } while(0);
 
     /* If there was an error anywhere, report this to console */
     if (result != ADIS16260_SUCCESS)
     {
-        prompt_cmd_response(INFO, LOG_ADCS_GYRO, true, "ERROR -> %d <-", result);
+        prompt_cmd_response(INFO, LOG_ADCS_GYRO, "ERROR -> %d <-", result);
     }
 }

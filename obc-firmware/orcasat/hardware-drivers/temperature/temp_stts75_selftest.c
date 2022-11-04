@@ -28,7 +28,7 @@ static void stts75_sanity_temp(void);
  * @brief confirm that all registers are set to values expected
  */
 void stts75_check_registers(void) {
-    log_str(DEBUG, LOG_TEMPERATURE, false, "STTS75 Register Check");
+    log_str(DEBUG, LOG_TEMPERATURE, "STTS75 Register Check");
     stts75_check_hysteresis();
     stts75_check_overtemp();
     stts75_check_mode();
@@ -46,7 +46,7 @@ void stts75_check_registers(void) {
 void stts75_self_test(void) {
     uint8_t test_status = 0;
 
-    log_str(DEBUG, LOG_TEMPERATURE, false, "STTS75 Self-Test");
+    log_str(DEBUG, LOG_TEMPERATURE, "STTS75 Self-Test");
     stts75_print_config();
     stts75_print_temp_bytes();
 
@@ -54,25 +54,25 @@ void stts75_self_test(void) {
     int16_t val = 0;
     stts75_temp_get(&val);
     if ((val >= 20) && (val <= 30)) {
-        log_str(DEBUG, LOG_TEMPERATURE, false, "Temperature %d in range.", val);
+        log_str(DEBUG, LOG_TEMPERATURE, "Temperature %d in range.", val);
         test_status++;
     } else {
-        log_str(ERROR, LOG_TEMPERATURE, true, "Temperature %d out of range.", val);
+        log_str(ERROR, LOG_TEMPERATURE, "Temperature %d out of range.", val);
     }
 
     // Print resolution
     stts75_resolution_t resolution = STTS75_9bit;
     stts75_resolution_get(&resolution);
-    log_str(DEBUG, LOG_TEMPERATURE, false, "Resolution: %d", resolution);
+    log_str(DEBUG, LOG_TEMPERATURE, "Resolution: %d", resolution);
 
     // Set and test resolution
     stts75_resolution_set(STTS75_11bit);
     stts75_resolution_get(&resolution);
     if (resolution == STTS75_11bit) {
-        log_str(DEBUG, LOG_TEMPERATURE, false, "Resolution set 11-bit passed.");
+        log_str(DEBUG, LOG_TEMPERATURE, "Resolution set 11-bit passed.");
         test_status++;
     } else {
-        log_str(ERROR, LOG_TEMPERATURE, true, "Res set fail. des: 2 , act: %d", resolution);
+        log_str(ERROR, LOG_TEMPERATURE, "Res set fail. des: 2 , act: %d", resolution);
     }
     stts75_resolution_set(STTS75_9bit);
 
@@ -91,7 +91,7 @@ void stts75_self_test(void) {
     }
     stts75_print_temp_deg_c();
 
-    log_str(INFO, LOG_TEMPERATURE, false, "%d/5 STTS75 tests passed.", test_status);
+    log_str(INFO, LOG_TEMPERATURE, "%d/5 STTS75 tests passed.", test_status);
 }
 
 /**
@@ -105,12 +105,12 @@ static void stts75_check_hysteresis(void) {
     int16_t val = 0;
     stts75_hysteresis_get(&val);
     if (val != expected_hysteresis) {
-        log_str(INFO, LOG_TEMPERATURE, true, "Hyst bytes incorrect: %d", val);
+        log_str(INFO, LOG_TEMPERATURE, "Hyst bytes incorrect: %d", val);
         stts75_hysteresis_set(expected_hysteresis);
 
         stts75_hysteresis_get(&val);
         if (val != expected_hysteresis) {
-            log_str(ERROR, LOG_TEMPERATURE, true, "Hyst bytes incorrect, not reset: %d", val);
+            log_str(ERROR, LOG_TEMPERATURE, "Hyst bytes incorrect, not reset: %d", val);
         }
     }
 }
@@ -126,12 +126,12 @@ static void stts75_check_overtemp(void) {
     int16_t val = 0;
     stts75_overtemp_get(&val);
     if (val != expected_overtemp) {
-        log_str(INFO, LOG_TEMPERATURE, true, "Overtemp bytes incorrect: %d", val);
+        log_str(INFO, LOG_TEMPERATURE, "Overtemp bytes incorrect: %d", val);
         stts75_overtemp_set(expected_overtemp);
 
         stts75_overtemp_get(&val);
         if (val != expected_overtemp) {
-            log_str(ERROR, LOG_TEMPERATURE, true, "Overtemp bytes incorrect, not reset: %d", val);
+            log_str(ERROR, LOG_TEMPERATURE, "Overtemp bytes incorrect, not reset: %d", val);
         }
     }
 }
@@ -147,12 +147,12 @@ static void stts75_check_mode(void) {
     stts75_mode_t current_mode = continuous_conversion;
     stts75_mode_get(&current_mode);
     if (current_mode != expected_mode) {
-        log_str(INFO, LOG_TEMPERATURE, true, "Mode incorrect, is: %d", current_mode);
+        log_str(INFO, LOG_TEMPERATURE, "Mode incorrect, is: %d", current_mode);
         stts75_mode_set(expected_mode);
 
         stts75_mode_get(&current_mode);
         if (current_mode != expected_mode) {
-            log_str(ERROR, LOG_TEMPERATURE, true, "Mode incorrect, not fixed, is: %d", current_mode);
+            log_str(ERROR, LOG_TEMPERATURE, "Mode incorrect, not fixed, is: %d", current_mode);
         }
     }
 }
@@ -169,12 +169,12 @@ static void stts75_check_resolution(void) {
     stts75_resolution_get(&current_res);
 
     if (current_res != expected_resolution) {
-        log_str(INFO, LOG_TEMPERATURE, true, "Res incorrect, is: %d", current_res);
+        log_str(INFO, LOG_TEMPERATURE, "Res incorrect, is: %d", current_res);
         stts75_resolution_set(expected_resolution);
 
         stts75_resolution_get(&current_res);
         if (current_res != expected_resolution) {
-            log_str(ERROR, LOG_TEMPERATURE, true, "Res incorrect, not fixed, is: %d", current_res);
+            log_str(ERROR, LOG_TEMPERATURE, "Res incorrect, not fixed, is: %d", current_res);
         }
     }
 }
@@ -191,12 +191,12 @@ static void stts75_check_faults(void) {
     stts75_fault_get(&current_fault);
 
     if (current_fault != expected_fault) {
-        log_str(INFO, LOG_TEMPERATURE, true, "Faults incorrect, is: %d", current_fault);
+        log_str(INFO, LOG_TEMPERATURE, "Faults incorrect, is: %d", current_fault);
         stts75_fault_set(expected_fault);
 
         stts75_fault_get(&current_fault);
         if (current_fault != expected_fault) {
-            log_str(ERROR, LOG_TEMPERATURE, true, "Faults incorrect, not fixed, is: %d", current_fault);
+            log_str(ERROR, LOG_TEMPERATURE, "Faults incorrect, not fixed, is: %d", current_fault);
         }
     }
 }
@@ -216,10 +216,10 @@ static bool stts75_test_config_rw(uint8_t desired_val) {
     stts75_write_config_reg(desired_val);
     stts75_read_config_reg(&config_read);
     if (config_read == desired_val) {
-        log_str(DEBUG, LOG_TEMPERATURE, false, "Config set 0x%02X passed.", desired_val);
+        log_str(DEBUG, LOG_TEMPERATURE, "Config set 0x%02X passed.", desired_val);
         return true;
     } else {
-        log_str(ERROR, LOG_TEMPERATURE, true, "Config set 0x%02X failed: 0x%02X.", desired_val, config_read);
+        log_str(ERROR, LOG_TEMPERATURE, "Config set 0x%02X failed: 0x%02X.", desired_val, config_read);
     }
     return false;
 }
@@ -236,7 +236,7 @@ static void stts75_sanity_temp(void) {
     bool temp_too_low  = 0 > temp;
     bool temp_too_high = temp > 90;
     if (temp_too_low || temp_too_high) {
-        log_str(ERROR, LOG_TEMPERATURE, true, "Temp outside expected bounds: %d C", temp);
+        log_str(ERROR, LOG_TEMPERATURE, "Temp outside expected bounds: %d C", temp);
     }
 }
 
@@ -246,7 +246,7 @@ static void stts75_sanity_temp(void) {
 static void stts75_print_temp_bytes(void) {
     uint8_t data_rcv[2] = {'\0'};
     stts75_read_reg(STTS75_TEMPERATURE, data_rcv, 2);
-    log_str(DEBUG, LOG_TEMPERATURE, false, "Temp bytes: 0x%02X 0x%02X", data_rcv[0], data_rcv[1]);
+    log_str(DEBUG, LOG_TEMPERATURE, "Temp bytes: 0x%02X 0x%02X", data_rcv[0], data_rcv[1]);
 }
 
 /**
@@ -255,7 +255,7 @@ static void stts75_print_temp_bytes(void) {
 static void stts75_print_temp_deg_c(void) {
     int16_t val = 0;
     stts75_temp_get(&val);
-    log_str(DEBUG, LOG_TEMPERATURE, false, "Temp: %d C", val);
+    log_str(DEBUG, LOG_TEMPERATURE, "Temp: %d C", val);
 }
 
 /**
@@ -264,7 +264,7 @@ static void stts75_print_temp_deg_c(void) {
 static void stts75_print_config(void) {
     uint8_t data_rcv = 0;
     stts75_read_config_reg(&data_rcv);
-    log_str(DEBUG, LOG_TEMPERATURE, false, "Config: 0x%02X", data_rcv);
+    log_str(DEBUG, LOG_TEMPERATURE, "Config: 0x%02X", data_rcv);
 }
 
 /**
@@ -273,7 +273,7 @@ static void stts75_print_config(void) {
 static void stts75_print_hyst(void) {
     uint8_t data_rcv[2] = {0x00, 0x00};
     stts75_read_reg(STTS75_HYSTERESIS, data_rcv, 2);
-    log_str(DEBUG, LOG_TEMPERATURE, false, "Hyst bytes: 0x%02X 0x%02X", data_rcv[0], data_rcv[1]);
+    log_str(DEBUG, LOG_TEMPERATURE, "Hyst bytes: 0x%02X 0x%02X", data_rcv[0], data_rcv[1]);
 }
 
 /**
@@ -289,30 +289,30 @@ static bool stts75_test_overtemp_rw(void) {
     stts75_overtemp_set(70);
     stts75_overtemp_get(&val);
     if (val == 70) {
-        log_str(DEBUG, LOG_TEMPERATURE, false, "OT set 70 passed.");
+        log_str(DEBUG, LOG_TEMPERATURE, "OT set 70 passed.");
         tests_passed++;
     } else {
-        log_str(ERROR, LOG_TEMPERATURE, true, "OT set 70 failed.");
+        log_str(ERROR, LOG_TEMPERATURE, "OT set 70 failed.");
     }
 
     // Check overtemp 75
     stts75_overtemp_set(75);
     stts75_overtemp_get(&val);
     if (val == 75) {
-        log_str(DEBUG, LOG_TEMPERATURE, false, "OT set 75 passed.");
+        log_str(DEBUG, LOG_TEMPERATURE, "OT set 75 passed.");
         tests_passed++;
     } else {
-        log_str(ERROR, LOG_TEMPERATURE, true, "OT set 75 failed.");
+        log_str(ERROR, LOG_TEMPERATURE, "OT set 75 failed.");
     }
 
     // Check overtemp 80
     stts75_overtemp_set(80);
     stts75_overtemp_get(&val);
     if (val == 80) {
-        log_str(DEBUG, LOG_TEMPERATURE, false, "OT set 80 passed.");
+        log_str(DEBUG, LOG_TEMPERATURE, "OT set 80 passed.");
         tests_passed++;
     } else {
-        log_str(ERROR, LOG_TEMPERATURE, true, "OT set 80 failed.");
+        log_str(ERROR, LOG_TEMPERATURE, "OT set 80 failed.");
     }
 
     return (tests_passed == 3);

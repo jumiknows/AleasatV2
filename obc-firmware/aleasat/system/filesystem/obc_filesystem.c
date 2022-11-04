@@ -290,7 +290,7 @@ static void vFileSystemLoggerTask(void* pvParameters) {
                 OBC_MISRA_CHECK_ON
                 break;
             default:
-                log_str(ERROR, LOG_FS_GENERAL, true, "Unknown Request: %d", req.type);
+                log_str(ERROR, LOG_FS_GENERAL, "Unknown Request: %d", req.type);
                 *(req.err) = FS_UNKNOWN_REQUEST_ERR;
                 break;
         }

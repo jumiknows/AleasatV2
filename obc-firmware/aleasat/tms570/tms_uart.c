@@ -286,7 +286,7 @@ static void vSerialTask(void* pvParameters) {
                 } else {
                     rx_buf[rx_buf_idx++] = rx_curr_rcvd_char;
                     if (rx_buf_idx >= MAX_CMD_LEN_BYTES) {
-                        log_str(ERROR, LOG_CMD_GENERAL, true, "Max command len exceeded");
+                        log_str(ERROR, LOG_CMD_GENERAL, "Max command len exceeded");
                         rx_buf_idx = 0;
                     }
                 }

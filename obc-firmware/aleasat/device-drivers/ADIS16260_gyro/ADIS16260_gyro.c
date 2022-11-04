@@ -574,6 +574,6 @@ static void ADIS16260_timer_cb(xTimerHandle pxTimer)
     }
     else
     {
-        log_str(ERROR, LOG_ADCS_GYRO, true, "Sleep callback triggered on removed handler");
+        log_str(ERROR, LOG_ADCS_GYRO, "Sleep callback triggered on removed handler");
     }
 }

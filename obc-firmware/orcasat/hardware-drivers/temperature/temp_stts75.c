@@ -271,7 +271,7 @@ temp_err_t stts75_overtemp_set(int16_t overtemp_deg_c) {
 temp_err_t stts75_read_reg(uint8_t reg, uint8_t* data_rcv, uint8_t len) {
     i2c_err_t status = tms_i2c_read(OBC_TEMP_ADDR, 1, &reg, len, data_rcv, I2C_MUTEX_TIMEOUT_MS);
     if (status != I2C_SUCCESS) {
-        log_str(ERROR, LOG_TEMPERATURE, true, "I2C read failure: %d", status);
+        log_str(ERROR, LOG_TEMPERATURE, "I2C read failure: %d", status);
         return TEMP_I2C_ERR;
     }
     return TEMP_SUCCESS;
@@ -290,7 +290,7 @@ temp_err_t stts75_read_reg(uint8_t reg, uint8_t* data_rcv, uint8_t len) {
 static temp_err_t stts75_write_reg(uint8_t reg, uint8_t* data, uint8_t len) {
     i2c_err_t status = tms_i2c_write(OBC_TEMP_ADDR, 1, &reg, len, data, I2C_MUTEX_TIMEOUT_MS);
     if (status != I2C_SUCCESS) {
-        log_str(ERROR, LOG_TEMPERATURE, true, "I2C write failure: %d", status);
+        log_str(ERROR, LOG_TEMPERATURE, "I2C write failure: %d", status);
         return TEMP_I2C_ERR;
     }
     return TEMP_SUCCESS;

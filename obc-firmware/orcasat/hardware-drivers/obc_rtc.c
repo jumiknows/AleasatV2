@@ -98,7 +98,7 @@ epoch_t rtc_get_epoch_time(void) {
         err = rtc_get_current_time(&curr_time);
 
         if (err != RTC_NO_ERR) {
-            log_str(ERROR, LOG_GET_EPOCH_CMD, true, "Cannot read time. Err: %d", err);
+            log_str(ERROR, LOG_GET_EPOCH_CMD, "Cannot read time. Err: %d", err);
         }
 
         xSemaphoreGiveRecursive(rtc_mutex);

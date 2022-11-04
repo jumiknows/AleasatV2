@@ -39,7 +39,7 @@ temp_err_t read_temp(int16_t* temp) {
  */
 void self_test_temperature(void) {
 #ifdef PLATFORM_LAUNCHPAD_1224
-    log_str(ERROR, LOG_TEMPERATURE, true, "Mocked temp sensor check passed.");
+    log_str(ERROR, LOG_TEMPERATURE, "Mocked temp sensor check passed.");
 #endif /* PLATFORM_LAUNCHPAD_1224 */
 }
 

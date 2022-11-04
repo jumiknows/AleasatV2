@@ -46,27 +46,27 @@ void init_both_rtc(void) {
         real_time_t init_time = orca_time_init;
         set_dual_time(&init_time, RTC_A);
         if (rtc_a.most_recent_low_level_err != RTC_NO_ERR) {
-            log_str(ERROR, rtc_a.log_id, true, "RTC %s ERR: %d", rtc_a.name, rtc_a.most_recent_low_level_err);
+            log_str(ERROR, rtc_a.log_id, "RTC %s ERR: %d", rtc_a.name, rtc_a.most_recent_low_level_err);
         }
 
         set_dual_time(&init_time, RTC_B);
         if (rtc_b.most_recent_low_level_err != RTC_NO_ERR) {
-            log_str(ERROR, rtc_b.log_id, true, "RTC %s ERR: %d", rtc_b.name, rtc_b.most_recent_low_level_err);
+            log_str(ERROR, rtc_b.log_id, "RTC %s ERR: %d", rtc_b.name, rtc_b.most_recent_low_level_err);
         }
 
         /* Now that RTCs are initialized, errors can be logged. Logging requires
          * both RTCs to be initialized, as log messages include a timestamp.
          */
         if (err_a != RTC_NO_ERR) {
-            log_str(ERROR, rtc_a.log_id, true, "RTC A ERR: %d", err_a);
+            log_str(ERROR, rtc_a.log_id, "RTC A ERR: %d", err_a);
         } else {
-            log_str(INFO, rtc_a.log_id, false, "RTC A init OK");
+            log_str(INFO, rtc_a.log_id, "RTC A init OK");
         }
 
         if (err_b != RTC_NO_ERR) {
-            log_str(ERROR, rtc_b.log_id, true, "RTC B ERR: %d", err_b);
+            log_str(ERROR, rtc_b.log_id, "RTC B ERR: %d", err_b);
         } else {
-            log_str(INFO, rtc_b.log_id, false, "RTC B init OK");
+            log_str(INFO, rtc_b.log_id, "RTC B init OK");
         }
         xSemaphoreGiveRecursive(rtc_mutex);
     } else {

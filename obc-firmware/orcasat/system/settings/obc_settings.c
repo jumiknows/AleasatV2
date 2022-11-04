@@ -70,16 +70,16 @@ void update_settings_from_nvct(void) {
                     } else {
                         // Setting was not loaded properly from NVCT, log errors and mark as NVCT_INVALID.
                         if (get_nvct_err == NVCT_CRC_ERROR) {
-                            log_str(ERROR, LOG_SETTINGS, true, "%s CRC err", settings[i].name);
+                            log_str(ERROR, LOG_SETTINGS, "%s CRC err", settings[i].name);
                         } else {
-                            log_str(ERROR, LOG_SETTINGS, true, "%s NVCT err: %d", settings[i].name, get_nvct_err);
+                            log_str(ERROR, LOG_SETTINGS, "%s NVCT err: %d", settings[i].name, get_nvct_err);
                         }
                         settings[i].nvct = NVCT_INVALID;
                     }
                 }
             }
         } else {
-            log_str(ERROR, LOG_SETTINGS, true, "No NVCT: %d", nvct_err);
+            log_str(ERROR, LOG_SETTINGS, "No NVCT: %d", nvct_err);
         }
         xSemaphoreGiveRecursive(settings_mutex);
     }
@@ -203,7 +203,7 @@ setting_err_t provision_new_settings_table(uint32_t table_index) {
 
         // Handle errors.
         if (nvct_err != NVCT_SUCCESS) {
-            log_str(ERROR, LOG_SETTINGS, true, "Provision NVCT err: %d %d", nvct_err, i);
+            log_str(ERROR, LOG_SETTINGS, "Provision NVCT err: %d %d", nvct_err, i);
             ret = SETTING_NVCT_UPDATE_ERR;
         }
 
@@ -211,7 +211,7 @@ setting_err_t provision_new_settings_table(uint32_t table_index) {
         // from NVCT.
         update_settings_from_nvct();
     } else {
-        log_str(ERROR, LOG_SETTINGS, true, "No FW version");
+        log_str(ERROR, LOG_SETTINGS, "No FW version");
         ret = INVALID_SETTING_NAME;
     }
     return ret;
@@ -274,7 +274,7 @@ static setting_err_t set_uint32(const char* setting_name, uint32_t value, bool c
                 nvct_ok = increment_revision_count();
             } else {
                 nvct_ok = false;
-                log_str(ERROR, LOG_SETTINGS, true, "%s NVCT err: %d", settings[idx].name, nvct_err);
+                log_str(ERROR, LOG_SETTINGS, "%s NVCT err: %d", settings[idx].name, nvct_err);
             }
         }
 
@@ -331,7 +331,7 @@ static bool increment_revision_count(void) {
 
         // If revision count is 0 after the increment, we rolled over. Log it.
         if (revision_setting->setting_value == 0) {
-            log_str(INFO, LOG_SYS_GENERAL, true, "revision rollover");
+            log_str(INFO, LOG_SYS_GENERAL, "revision rollover");
         }
 
         // Update revision count setting in NVCT.
@@ -339,7 +339,7 @@ static bool increment_revision_count(void) {
         if (nvct_err == NVCT_SUCCESS) {
             ok = true;
         } else {
-            log_str(ERROR, LOG_SETTINGS, true, "Revision %d NVCT err: %d", revision_setting->setting_value, nvct_err);
+            log_str(ERROR, LOG_SETTINGS, "Revision %d NVCT err: %d", revision_setting->setting_value, nvct_err);
             ok = false;
         }
     }

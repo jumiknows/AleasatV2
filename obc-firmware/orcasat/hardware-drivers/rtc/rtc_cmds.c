@@ -46,24 +46,24 @@ void command_update_rtc_time(char** arguments) {
         real_time_t set_time = orca_time_init;
         rtc_err_t err        = extract_time(arguments, &set_time);
         if (err != RTC_NO_ERR) {
-            log_str_no_time(ERROR, LOG_RTC_GENERAL, true, "Invalid Time. RTC err: %d", err); // Indicates an error with the params
+            log_str_without_time(ERROR, LOG_RTC_GENERAL, "Invalid Time. RTC err: %d", err); // Indicates an error with the params
             return;
         }
 
         err = rtc_set_current_time(&set_time, rtc_to_use, use_backup);
         if (err == RTC_NO_ERR) {
-            log_str(INFO, LOG_RTC_GENERAL, true, "Updated time on %s", get_time_source_name(rtc_to_use));
+            log_str(INFO, LOG_RTC_GENERAL, "Updated time on %s", get_time_source_name(rtc_to_use));
         } else {
             if ((err == RTC_REAL_TIME_INVALID) || (err == RTC_EPOCH_INVALID)) {
-                log_str_no_time(ERROR, LOG_RTC_GENERAL, true, "Invalid Time. RTC err: %d",
+                log_str_without_time(ERROR, LOG_RTC_GENERAL, "Invalid Time. RTC err: %d",
                                 err); // Indicates an error with the params
             } else {
-                log_str_no_time(ERROR, LOG_RTC_GENERAL, true, "RTC comm issue. RTC err: %d",
+                log_str_without_time(ERROR, LOG_RTC_GENERAL, "RTC comm issue. RTC err: %d",
                                 err); // Otherwise, it's an RTC comms issue
             }
         }
     } else {
-        log_str(ERROR, LOG_RTC_GENERAL, true, "Invalid time params."); // Invalid RTC param was passed in.
+        log_str(ERROR, LOG_RTC_GENERAL, "Invalid time params."); // Invalid RTC param was passed in.
     }
 }
 
@@ -85,7 +85,7 @@ void command_update_active_rtc(char** arguments) {
 
     if (rtc_to_use == get_active_rtc()) {
         // Desired RTC matches already active, so don't bother adjusting anything.
-        log_str(INFO, LOG_RTC_GENERAL, true, "%s already active.", get_time_source_name(get_active_rtc()));
+        log_str(INFO, LOG_RTC_GENERAL, "%s already active.", get_time_source_name(get_active_rtc()));
     } else {
         // Active RTC is different from what we want to set, so set it.
         if (ok) {
@@ -93,12 +93,12 @@ void command_update_active_rtc(char** arguments) {
 
             // Log success or errors
             if (rtc_err == RTC_NO_ERR) {
-                log_str(INFO, LOG_RTC_GENERAL, true, "Updated active to %s", get_time_source_name(get_active_rtc()));
+                log_str(INFO, LOG_RTC_GENERAL, "Updated active to %s", get_time_source_name(get_active_rtc()));
             } else {
-                log_str_no_time(ERROR, LOG_RTC_GENERAL, true, "Active RTC set err: %i", rtc_err);
+                log_str_without_time(ERROR, LOG_RTC_GENERAL, "Active RTC set err: %i", rtc_err);
             }
         } else {
-            log_str_no_time(ERROR, LOG_RTC_GENERAL, true, "Invalid desired RTC param.");
+            log_str_without_time(ERROR, LOG_RTC_GENERAL, "Invalid desired RTC param.");
         }
     }
 }

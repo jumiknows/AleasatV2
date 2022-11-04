@@ -40,7 +40,7 @@ void print_startup_type(void) {
      */
     const char* startup_string[] = {"DEFAULT_START", "PORRST_START", "DEBUG_START", "SOFT_RESET_INTERNAL_START", "SOFT_RESET_EXTERNAL_START", "OSCFAIL_START", "WATCHDOG_START", "CPU_RESET_START"};
 
-    log_str(INFO, LOG_START_TYPE, false, "%s", startup_string[start_data.reset_src]);
+    log_str(INFO, LOG_START_TYPE, "%s", startup_string[start_data.reset_src]);
 }
 
 /* log_PBIST_fails
@@ -70,7 +70,7 @@ void log_PBIST_fails(void) {
 
     if (failure_detected) {
         bool was_reset = false;
-        log_str(ERROR, LOG_PBIST_STATUS, true, "PBIST Fail: %x", pbist_failed);
+        log_str(ERROR, LOG_PBIST_STATUS, "PBIST Fail: %x", pbist_failed);
 
         /* TODO: read was_reset from flag file
          * 	was_reset = read from flag file
@@ -85,7 +85,7 @@ void log_PBIST_fails(void) {
         }
     } else {
         /* TODO: set was_reset flag = false in flag file so that it can be used next time */
-        log_str(INFO, LOG_PBIST_STATUS, false, "No PBIST Fails.");
+        log_str(INFO, LOG_PBIST_STATUS, "No PBIST Fails.");
     }
 }
 

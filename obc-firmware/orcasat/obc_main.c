@@ -116,7 +116,7 @@ static void obc_main_task(void* pvParameters) {
     blinky_start_task();
 
     // Print now that enough features have been initialized to make it happen.
-    log_str_no_time(INFO, LOG_PRINT_GENERAL, false, "Startup");
+    log_str_without_time(INFO, LOG_PRINT_GENERAL, "Startup");
 
     // Initialize the complex external hardware.
     // The RTC requires MIBSPI to be working before it can be initialized.
@@ -148,8 +148,8 @@ static void obc_main_task(void* pvParameters) {
     telem_start_task();
 
     // Hardware is ready to go now. Print out some information about startup.
-    log_str(INFO, LOG_PRINT_GENERAL, false, "ALEASAT Started");
-    log_str(INFO, LOG_HW_TYPE, false, BOARD_TYPE_MSG);
+    log_str(INFO, LOG_PRINT_GENERAL, "ALEASAT Started");
+    log_str(INFO, LOG_HW_TYPE, BOARD_TYPE_MSG);
     // TODO: Re-design startup
     // print_startup_type();
     // log_PBIST_fails();

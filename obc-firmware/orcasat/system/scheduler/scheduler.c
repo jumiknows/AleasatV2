@@ -436,13 +436,13 @@ void print_schedule(void) {
         obc_cmd_opcode_from_action(action_info_header->action, &opcode_str);
 
         // First line - command info: number, ID, state, opcode
-        log_str(INFO, LOG_SCHEDULER, false, "%d %d %s %s", i, action_info_header->id, action_state_strings[action_info_header->state], opcode_str);
+        log_str(INFO, LOG_SCHEDULER, "%d %d %s %s", i, action_info_header->id, action_state_strings[action_info_header->state], opcode_str);
 
         // Second line - submission info: number, ID, submission epoch, internal/external
-        log_str(INFO, LOG_SCHEDULER, false, "%d %d %d %s", i, action_info_header->id, action_info_header->submission_time.epoch, submission_source_strings[action_info_header->source]);
+        log_str(INFO, LOG_SCHEDULER, "%d %d %d %s", i, action_info_header->id, action_info_header->submission_time.epoch, submission_source_strings[action_info_header->source]);
 
         // Third line - schedule info: number, ID, scheduled epoch, interval
-        log_str(INFO, LOG_SCHEDULER, false, "%d %d %d %d", i, action_info_header->id, action_info_header->start_at.epoch, action_info_header->interval);
+        log_str(INFO, LOG_SCHEDULER, "%d %d %d %d", i, action_info_header->id, action_info_header->start_at.epoch, action_info_header->interval);
     }
 }
 
@@ -471,7 +471,7 @@ static void vSchedulerTask(void* pvParameters) {
 
         rtc_err_t errcode = rtc_get_current_time(&current_time);
         if (errcode != RTC_NO_ERR) {
-            log_str_no_time(ERROR, LOG_SCHEDULER_FAILED_TO_READ_RTC_CURRENT_TIME, true, "rtc err: %d", errcode);
+            log_str_without_time(ERROR, LOG_SCHEDULER_FAILED_TO_READ_RTC_CURRENT_TIME, "rtc err: %d", errcode);
         } else {
             xSemaphoreTake(actions_mutex, portMAX_DELAY);
 

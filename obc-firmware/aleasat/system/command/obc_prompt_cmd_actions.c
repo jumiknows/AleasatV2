@@ -79,7 +79,7 @@ struct Last_Logged last_logged = {.log_lvl = INFO, .log_id = LOG_PRINT_GENERAL, 
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...);
+static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, char* format, ...);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -91,7 +91,7 @@ static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write
  * @brief Acknowledges with a single logger message.
  */
 void cmd_ack(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_ACK_CMD, true, "Ack!");
+    prompt_cmd_response(INFO, LOG_ACK_CMD, "Ack!");
 }
 
 /**
@@ -100,14 +100,14 @@ void cmd_ack(uint32_t arg_len, void* arg) {
  */
 void cmd_ping(uint32_t arg_len, void* arg) {
     // NOTE: tests assume that this command does not log to the filesystem.
-    prompt_cmd_response(INFO, LOG_PING_CMD, false, "Ping");
+    prompt_cmd_response(INFO, LOG_PING_CMD, "Ping");
 }
 
 /**
  * @brief Prints out the board type.
  */
 void cmd_get_board_type(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_BOARD_ID, true, BOARD_TYPE_MSG);
+    prompt_cmd_response(INFO, LOG_BOARD_ID, BOARD_TYPE_MSG);
 }
 
 /**
@@ -124,7 +124,7 @@ void cmd_watchdog_reset(uint32_t arg_len, void* arg) {
  * to the OBC, it is not the sequence number of this command.
  */
 void cmd_get_sequence_num(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_SEQ_NUM_CMD, false, "%d", obc_cmd_next_seq_num());
+    prompt_cmd_response(INFO, LOG_SEQ_NUM_CMD, "%d", obc_cmd_next_seq_num());
 }
 
 /**
@@ -135,7 +135,7 @@ void cmd_get_sequence_num(uint32_t arg_len, void* arg) {
  * the last prompt command that wasn't this one.
  */
 void cmd_last_response(uint32_t arg_len, void* arg) {
-    log_str(last_logged.log_lvl, last_logged.log_id, false, "%s", last_logged.string);
+    log_str(last_logged.log_lvl, last_logged.log_id, "%s", last_logged.string);
 }
 
 /**
@@ -143,7 +143,7 @@ void cmd_last_response(uint32_t arg_len, void* arg) {
  */
 void cmd_temp_reset(uint32_t arg_len, void* arg) {
     reset_temp();
-    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, false, "Reset temp sensor");
+    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Reset temp sensor");
 }
 
 /**
@@ -151,7 +151,7 @@ void cmd_temp_reset(uint32_t arg_len, void* arg) {
  */
 void cmd_expander_reset(uint32_t arg_len, void* arg) {
     gpio_expander_reset();
-    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, false, "Reset GPIO expander");
+    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Reset GPIO expander");
 }
 
 /**
@@ -160,9 +160,9 @@ void cmd_expander_reset(uint32_t arg_len, void* arg) {
 void cmd_i2c_reset(uint32_t arg_len, void* arg) {
     const i2c_err_t err = tms_i2c_reset(0, 500); // 0 retires, 500 ms mutex timeout
     if (err == I2C_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_I2C, false, "I2C bus reset");
+        prompt_cmd_response(INFO, LOG_I2C, "I2C bus reset");
     } else {
-        prompt_cmd_response(INFO, LOG_I2C, false, "I2C reset failed: %d", err);
+        prompt_cmd_response(INFO, LOG_I2C, "I2C reset failed: %d", err);
     }
 }
 
@@ -175,9 +175,9 @@ void cmd_get_time(uint32_t arg_len, void* arg) {
     real_time_t curr_time = {0};
     rtc_err_t err         = rtc_get_current_time(&curr_time);
     if (err == RTC_NO_ERR) {
-        prompt_cmd_response(INFO, LOG_GET_EPOCH_CMD, true, "%d-%d-%d %d:%d:%d", curr_time.year, curr_time.month, curr_time.day, curr_time.hour, curr_time.minute, curr_time.second);
+        prompt_cmd_response(INFO, LOG_GET_EPOCH_CMD, "%d-%d-%d %d:%d:%d", curr_time.year, curr_time.month, curr_time.day, curr_time.hour, curr_time.minute, curr_time.second);
     } else {
-        prompt_cmd_response(ERROR, LOG_GET_EPOCH_CMD, true, "Cannot read time.");
+        prompt_cmd_response(ERROR, LOG_GET_EPOCH_CMD, "Cannot read time.");
     }
 }
 
@@ -188,9 +188,9 @@ void cmd_get_time(uint32_t arg_len, void* arg) {
 void cmd_get_epoch(uint32_t arg_len, void* arg) {
     epoch_t epoch = rtc_get_epoch_time();
     if (epoch != -1) {
-        prompt_cmd_response(INFO, LOG_GET_EPOCH_CMD, true, "Epoch: %d", epoch);
+        prompt_cmd_response(INFO, LOG_GET_EPOCH_CMD, "Epoch: %d", epoch);
     } else {
-        prompt_cmd_response(ERROR, LOG_GET_EPOCH_CMD, true, "Epoch invalid.");
+        prompt_cmd_response(ERROR, LOG_GET_EPOCH_CMD, "Epoch invalid.");
     }
 }
 
@@ -202,9 +202,9 @@ void cmd_get_epoch_and_time(uint32_t arg_len, void* arg) {
     real_time_t curr_time = {0};
     rtc_err_t err         = rtc_get_current_time(&curr_time);
     if (err == RTC_NO_ERR) {
-        prompt_cmd_response(INFO, LOG_GET_EPOCH_CMD, true, "%d %d-%d-%d %d:%d:%d", curr_time.epoch, curr_time.year, curr_time.month, curr_time.day, curr_time.hour, curr_time.minute, curr_time.second);
+        prompt_cmd_response(INFO, LOG_GET_EPOCH_CMD, "%d %d-%d-%d %d:%d:%d", curr_time.epoch, curr_time.year, curr_time.month, curr_time.day, curr_time.hour, curr_time.minute, curr_time.second);
     } else {
-        prompt_cmd_response(ERROR, LOG_GET_EPOCH_CMD, true, "Cannot read time.");
+        prompt_cmd_response(ERROR, LOG_GET_EPOCH_CMD, "Cannot read time.");
     }
 }
 
@@ -213,7 +213,7 @@ void cmd_get_epoch_and_time(uint32_t arg_len, void* arg) {
  */
 void cmd_get_backup_epoch(uint32_t arg_len, void* arg) {
     epoch_t backup_epoch = get_backup_epoch();
-    prompt_cmd_response(INFO, LOG_GET_BACKUP_EPOCH_CMD, true, "Backup Epoch: %d", backup_epoch);
+    prompt_cmd_response(INFO, LOG_GET_BACKUP_EPOCH_CMD, "Backup Epoch: %d", backup_epoch);
 }
 
 // ------------------------ RTC PROMPT COMMAND IMPLEMENTATION -----------------------
@@ -227,7 +227,7 @@ void cmd_set_time(uint32_t arg_len, void* arg) {
     if (num_args == 7) {
         command_update_rtc_time(arguments);
     } else {
-        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, true, "Too few args. Need rtc y m d h m s.");
+        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, "Too few args. Need rtc y m d h m s.");
     }
 }
 
@@ -240,7 +240,7 @@ void cmd_set_rtc(uint32_t arg_len, void* arg) {
     if (num_args == 1) {
         command_update_active_rtc(arg);
     } else {
-        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, true, "Too few args. Need rtc.");
+        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, "Too few args. Need rtc.");
     }
 }
 
@@ -258,18 +258,18 @@ void cmd_rtc_ts(uint32_t arg_len, void* arg) {
     if (num_args == 1) {
         int8_t ts = (int8_t) cseq_to_num((char*)arg);
         if (ts == -1) {
-            log_str(ERROR, LOG_RTC_GENERAL, true, "Invalid ts arg %s", (char*)arg);
+            log_str(ERROR, LOG_RTC_GENERAL, "Invalid ts arg %s", (char*)arg);
             return;
         }
 
         if ((ts == 1) || (ts == 0)) {
             rtc_set_ts(ts);
-            ts ? prompt_cmd_response(INFO, LOG_RTC_GENERAL, true, "RTC mode: ts") : prompt_cmd_response(INFO, LOG_RTC_GENERAL, false, "RTC mode: reg");
+            ts ? prompt_cmd_response(INFO, LOG_RTC_GENERAL, "RTC mode: ts") : prompt_cmd_response(INFO, LOG_RTC_GENERAL, "RTC mode: reg");
         } else {
-            prompt_cmd_response(ERROR, LOG_RTC_GENERAL, true, "Invalid ts arg %s", (const char*)arg);
+            prompt_cmd_response(ERROR, LOG_RTC_GENERAL, "Invalid ts arg %s", (const char*)arg);
         }
     } else {
-        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, true, "Usage: rtc_ts 1");
+        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, "Usage: rtc_ts 1");
     }
 }
 
@@ -288,7 +288,7 @@ void cmd_count(uint32_t arg_len, void* arg) {
  * for testing and demonstration purposes.
  */
 void cmd_get_count(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, false, "Count: %d", demo_counter);
+    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Count: %d", demo_counter);
 }
 
 /**
@@ -297,9 +297,9 @@ void cmd_get_count(uint32_t arg_len, void* arg) {
  */
 void cmd_run_hang_task(uint32_t arg_len, void* arg) {
     if (set_hang_task_status_alive()) {
-        prompt_cmd_response(INFO, LOG_HANG_TASK, false, "Hanging a test task.");
+        prompt_cmd_response(INFO, LOG_HANG_TASK, "Hanging a test task.");
     } else {
-        prompt_cmd_response(ERROR, LOG_HANG_TASK, true, "Error when hanging test task.");
+        prompt_cmd_response(ERROR, LOG_HANG_TASK, "Error when hanging test task.");
     }
 }
 
@@ -310,9 +310,9 @@ void cmd_echo_to_log(uint32_t arg_len, void* arg) {
     char* arguments[1] = {NULL};
     uint8_t num_args   = obc_cmd_read_str_arguments(arg, 1, arguments);
     if (num_args == 1) {
-        prompt_cmd_response(INFO, LOG_ECHO_CMD, true, arguments[0]);
+        prompt_cmd_response(INFO, LOG_ECHO_CMD, arguments[0]);
     } else {
-        prompt_cmd_response(ERROR, LOG_ECHO_CMD, true, "Can only echo single word.");
+        prompt_cmd_response(ERROR, LOG_ECHO_CMD, "Can only echo single word.");
     }
 }
 
@@ -322,7 +322,7 @@ void cmd_echo_to_log(uint32_t arg_len, void* arg) {
  * @brief Enables low power mode.
  */
 void cmd_LP_on(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, true, "Enabled low power!");
+    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Enabled low power!");
     idle_sleep_on();
 }
 
@@ -330,7 +330,7 @@ void cmd_LP_on(uint32_t arg_len, void* arg) {
  * @brief Disables low power mode.
  */
 void cmd_LP_off(uint32_t arg_len, void* arg) {
-    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, true, "Disabled low power!");
+    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Disabled low power!");
     idle_sleep_off();
 }
 
@@ -345,7 +345,7 @@ void cmd_LP_off(uint32_t arg_len, void* arg) {
  * */
 void cmd_rtos_suspend(uint32_t arg_len, void* arg) {
     if (suspend_task((char*)arg, true) != OBC_RTOS_OK) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, false, "Invalid task name");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Invalid task name");
     }
 }
 /**
@@ -357,7 +357,7 @@ void cmd_rtos_suspend(uint32_t arg_len, void* arg) {
  * */
 void cmd_rtos_resume(uint32_t arg_len, void* arg) {
     if (suspend_task((char*)arg, false) != OBC_RTOS_OK) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, false, "Invalid task name");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Invalid task name");
     }
 }
 
@@ -374,37 +374,37 @@ void cmd_rtos_period(uint32_t arg_len, void* arg) {
     uint8_t num_args   = obc_cmd_read_str_arguments(arg, 3, arguments);
 
     if (num_args == 0) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, true, "Task name not found");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Task name not found");
         return;
     }
     uint8_t id      = 0;
     char* task_name = arguments[0];
     if (get_task_id_from_name(task_name, &id) != OBC_RTOS_OK) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, true, "Task ID %d not found", id);
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Task ID %d not found", id);
         return;
     }
     task_period_t period_ms = 0;
     if (num_args == 1) { // only have task name in cmd. return current period
-        prompt_cmd_response(INFO, LOG_OBC_TASK, true, "Task %s per %d", task_name, period_ms);
+        prompt_cmd_response(INFO, LOG_OBC_TASK, "Task %s per %d", task_name, period_ms);
         return;
     } else if (num_args != 2) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, true, "1 or 2 arguments required");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "1 or 2 arguments required");
         return;
     }
     char* task_period = arguments[1];
     if (task_period == NULL) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, true, "Task period not found");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Task period not found");
         return;
     }
 
     period_ms = cseq_to_num(task_period);
     if (period_ms == -1) {
-    	log_str(ERROR, LOG_OBC_TASK, true, "Invalid period %s", (char*)arg);
+    	log_str(ERROR, LOG_OBC_TASK, "Invalid period %s", (char*)arg);
         return;
     }
 
     if (period_ms <= 0) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, true, "Task period not valid");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Task period not valid");
         return;
     }
     // cseq will not handle negative integers or non integers correctly
@@ -412,7 +412,7 @@ void cmd_rtos_period(uint32_t arg_len, void* arg) {
     // be zero, that is reserved for aperiodic tasks
     // changing task period of aperiodic tasks should return an err
     if (set_task_period(id, period_ms) != OBC_RTOS_OK) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, true, "Task is not periodic");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Task is not periodic");
     }
 }
 
@@ -424,7 +424,7 @@ void cmd_rtos_period(uint32_t arg_len, void* arg) {
  */
 void cmd_rtos_state(uint32_t arg_len, void* arg) {
     if (print_task_state((char*)arg) != OBC_RTOS_OK) {
-        prompt_cmd_response(ERROR, LOG_OBC_TASK, false, "Invalid task name");
+        prompt_cmd_response(ERROR, LOG_OBC_TASK, "Invalid task name");
     }
 }
 
@@ -436,9 +436,9 @@ void cmd_rtos_state(uint32_t arg_len, void* arg) {
 void cmd_get_temperature(uint32_t arg_len, void* arg) {
     int16_t temp = 0;
     if (read_temp(&temp) == TEMP_SUCCESS) {
-        prompt_cmd_response(INFO, LOG_TEMPERATURE, true, "Temperature: %d C", temp);
+        prompt_cmd_response(INFO, LOG_TEMPERATURE, "Temperature: %d C", temp);
     } else {
-        prompt_cmd_response(ERROR, LOG_TEMPERATURE, true, "Temperature read error.");
+        prompt_cmd_response(ERROR, LOG_TEMPERATURE, "Temperature read error.");
     }
 }
 
@@ -450,19 +450,19 @@ void cmd_get_period(uint32_t arg_len, void* arg) {
     if (num_args == 0) {
         int8_t action_id      = (int8_t) cseq_to_num((char*)arg);
         if (action_id == -1) {
-            log_str(ERROR, LOG_RTC_GENERAL, true, "Invalid action id: %s", (char*)arg);
+            log_str(ERROR, LOG_RTC_GENERAL, "Invalid action id: %s", (char*)arg);
             return;
        	}
 
         uint32_t period            = 0;
         scheduler_err_t result = scheduler_get_period(action_id, &period);
         if (result == SCHEDULER_SUCCESS) {
-            prompt_cmd_response(INFO, LOG_PRINT_GENERAL, false, "Task Period %d", period);
+            prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Task Period %d", period);
         } else {
-            prompt_cmd_response(INFO, LOG_PRINT_GENERAL, false, "Scheduler error: %d", result);
+            prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Scheduler error: %d", result);
         }
     } else {
-        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, true, "Usage: get_period [action ID]");
+        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, "Usage: get_period [action ID]");
     }
 }
 
@@ -472,23 +472,23 @@ void cmd_set_period(uint32_t arg_len, void* arg) {
     if (num_args == 2) {
     	int8_t action_id = cseq_to_num(args[0]);
         if (action_id == -1) {
-            log_str(ERROR, LOG_RTC_GENERAL, true, "Invalid action id: %s", (char*)arg);
+            log_str(ERROR, LOG_RTC_GENERAL, "Invalid action id: %s", (char*)arg);
             return;
         }
 
         int32_t period = cseq_to_num(args[1]);
         if (period == -1) {
-            log_str(ERROR, LOG_RTC_GENERAL, true, "Invalid period: %s", (char*)arg);
+            log_str(ERROR, LOG_RTC_GENERAL, "Invalid period: %s", (char*)arg);
             return;
         }
 
         scheduler_err_t result = scheduler_set_period(action_id, period);
         if (result != SCHEDULER_SUCCESS) {
-            prompt_cmd_response(INFO, LOG_PRINT_GENERAL, false, "Scheduler error: %d", result);
+            prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Scheduler error: %d", result);
         }
-        prompt_cmd_response(INFO, LOG_PRINT_GENERAL, false, "period changed %d, %d", action_id, period);
+        prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "period changed %d, %d", action_id, period);
     } else {
-        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, true, "Usage: set_period [action ID] [new interval]");
+        prompt_cmd_response(ERROR, LOG_RTC_GENERAL, "Usage: set_period [action ID] [new interval]");
     }
 }
 
@@ -505,27 +505,27 @@ void cmd_erase_nvct(uint32_t arg_len, void* arg) {
     if (num_args == 1) {
     	int32_t table_index = cseq_to_num(args[0]);
         if (table_index == -1) {
-            log_str(ERROR, LOG_SETTINGS, true, "Invalid table index: %s", (char*)arg);
+            log_str(ERROR, LOG_SETTINGS, "Invalid table index: %s", (char*)arg);
             return;
         }
 
         nvct_err_enum_t err  = erase_nvct_table(table_index);
         switch (err) {
             case NVCT_SUCCESS:
-                prompt_cmd_response(INFO, LOG_SETTINGS, true, "NVCT %d erased", table_index);
+                prompt_cmd_response(INFO, LOG_SETTINGS, "NVCT %d erased", table_index);
                 break;
             case NVCT_TABLE_INDEX_ERROR:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "Table %d invalid", table_index);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "Table %d invalid", table_index);
                 break;
             case NVCT_FAILED_TO_WRITE_TO_MRAM_ERROR:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "MRAM error");
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "MRAM error");
                 break;
             default:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "Unknown error: %d", err);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "Unknown error: %d", err);
                 break;
         }
     } else {
-        prompt_cmd_response(ERROR, LOG_SETTINGS, false, "Usage: erase_nvct [table index]");
+        prompt_cmd_response(ERROR, LOG_SETTINGS, "Usage: erase_nvct [table index]");
     }
 }
 
@@ -540,27 +540,27 @@ void cmd_provision_nvct(uint32_t arg_len, void* arg) {
     if (num_args == 1) {
         int32_t table_index = cseq_to_num((char*)arg);
         if (table_index == -1) {
-            log_str(ERROR, LOG_SETTINGS, true, "Invalid table index: %s", (char*)arg);
+            log_str(ERROR, LOG_SETTINGS, "Invalid table index: %s", (char*)arg);
             return;
         }
 
         setting_err_t err = provision_new_settings_table(table_index);
         switch (err) {
             case SETTING_OK:
-                prompt_cmd_response(INFO, LOG_SETTINGS, true, "Provision OK %d", table_index);
+                prompt_cmd_response(INFO, LOG_SETTINGS, "Provision OK %d", table_index);
                 break;
             case SETTING_NVCT_UPDATE_ERR:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "NVCT failed");
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "NVCT failed");
                 break;
             case INVALID_SETTING_NAME:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "No fw_version!");
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "No fw_version!");
                 break;
             default:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "Unknown error: %d", err);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "Unknown error: %d", err);
                 break;
         }
     } else {
-        prompt_cmd_response(ERROR, LOG_SETTINGS, false, "Usage: erase_nvct [table index]");
+        prompt_cmd_response(ERROR, LOG_SETTINGS, "Usage: erase_nvct [table index]");
     }
 }
 
@@ -579,17 +579,17 @@ void cmd_get_setting(uint32_t arg_len, void* arg) {
 
         switch (err) {
             case SETTING_OK:
-                prompt_cmd_response(INFO, LOG_SETTINGS, false, "%s %d (%d)", (const char*)arg, val, nvct_info);
+                prompt_cmd_response(INFO, LOG_SETTINGS, "%s %d (%d)", (const char*)arg, val, nvct_info);
                 break;
             case INVALID_SETTING_NAME:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "%s not found", (const char*)arg);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "%s not found", (const char*)arg);
                 break;
             default:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "Unknown error: %d (%d)", err, nvct_info);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "Unknown error: %d (%d)", err, nvct_info);
                 break;
         }
     } else {
-        prompt_cmd_response(ERROR, LOG_SETTINGS, false, "Usage: get_setting [name]");
+        prompt_cmd_response(ERROR, LOG_SETTINGS, "Usage: get_setting [name]");
     }
 }
 
@@ -605,7 +605,7 @@ void cmd_set_setting(uint32_t arg_len, void* arg) {
         const char* setting = args[0];
         int32_t val        = cseq_to_num(args[1]);
         if (val == -1) {
-            log_str(ERROR, LOG_SETTINGS, true, "Invalid val: %s", (char*)arg);
+            log_str(ERROR, LOG_SETTINGS, "Invalid val: %s", (char*)arg);
             return;
         }
 
@@ -613,29 +613,29 @@ void cmd_set_setting(uint32_t arg_len, void* arg) {
 
         switch (err) {
             case SETTING_OK:
-                prompt_cmd_response(INFO, LOG_SETTINGS, false, "%s %d OK", (const char*)arg, val);
+                prompt_cmd_response(INFO, LOG_SETTINGS, "%s %d OK", (const char*)arg, val);
                 break;
             case INVALID_SETTING_NAME:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "%s not found", (const char*)arg);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "%s not found", (const char*)arg);
                 break;
             case INVALID_SETTING_VALUE:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "%s invalid val", (const char*)arg);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "%s invalid val", (const char*)arg);
                 break;
             case SETTING_CALLBACK_FAILED:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "%s callback failed", (const char*)arg);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "%s callback failed", (const char*)arg);
                 break;
             case SETTING_IMMUTABLE:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "%s immutable", (const char*)arg);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "%s immutable", (const char*)arg);
                 break;
             case SETTING_NVCT_UPDATE_ERR:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "%s NVCT err", (const char*)arg);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "%s NVCT err", (const char*)arg);
                 break;
             default:
-                prompt_cmd_response(ERROR, LOG_SETTINGS, true, "Unknown error: %d", err);
+                prompt_cmd_response(ERROR, LOG_SETTINGS, "Unknown error: %d", err);
                 break;
         }
     } else {
-        prompt_cmd_response(ERROR, LOG_SETTINGS, false, "set_setting [name] [value]");
+        prompt_cmd_response(ERROR, LOG_SETTINGS, "set_setting [name] [value]");
     }
 }
 
@@ -651,10 +651,9 @@ void cmd_set_setting(uint32_t arg_len, void* arg) {
  *
  * @param lvl The logging system level.
  * @param id The log ID.
- * @param write_to_file Whether or not to log the data to a file.
  * @param format Printf-style format string.
  */
-static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write_to_file, char* format, ...) {
+static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, char* format, ...) {
     last_logged.log_lvl = lvl;
     last_logged.log_id  = id;
     va_list va;
@@ -663,5 +662,5 @@ static void prompt_cmd_response(log_level_t lvl, log_identifier_t id, bool write
     OBC_MISRA_CHECK_ON
     orca_vsnprintf(last_logged.string, MAX_PAYLOAD_SIZE + 1, format, va);
     va_end(va);
-    log_str(lvl, id, write_to_file, "%s", last_logged.string);
+    log_str(lvl, id, "%s", last_logged.string);
 }

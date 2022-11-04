@@ -57,7 +57,7 @@ void wd_start_task(void) {
  */
 void watchdog_reset(void) {
     xSemaphoreTake(watchdog_mutex, portMAX_DELAY); // Take the mutex to ensure WDPT doesn't have it
-    log_str(INFO, LOG_WATCHDOG, true, "Suspending WDPT");
+    log_str(INFO, LOG_WATCHDOG, "Suspending WDPT");
     vTaskSuspend(xWatchdogPetTaskHandle);
     xSemaphoreTake(watchdog_mutex,
                    portMAX_DELAY); // Allow other tasks to use the WD table between now and reset time
@@ -74,10 +74,10 @@ void vWatchdogPetTask(void* pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(TASK_PERIOD_MS(pvParameters)));
     while (1) {
         if (tasks_statuses_valid()) {
-            log_str(DEBUG, LOG_WATCHDOG, false, "Petting watchdog");
+            log_str(DEBUG, LOG_WATCHDOG, "Petting watchdog");
             pet_watchdog();
         } else {
-            log_str(ERROR, LOG_WATCHDOG, true, "One or more tasks has UNKNOWN");
+            log_str(ERROR, LOG_WATCHDOG, "One or more tasks has UNKNOWN");
         }
         vTaskDelay(pdMS_TO_TICKS(TASK_PERIOD_MS(pvParameters)));
     }
@@ -98,7 +98,7 @@ bool set_task_status(task_id_t task_id, watchdog_task_status_t status) {
         xSemaphoreGive(watchdog_mutex);
         return true;
     } else {
-        log_str(ERROR, LOG_WATCHDOG, true, "Failed to take watchdog mutex");
+        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex");
         return false;
     }
 }
@@ -116,7 +116,7 @@ bool get_task_status(task_id_t task_id, watchdog_task_status_t* task_status) {
         xSemaphoreGive(watchdog_mutex);
         return true;
     } else {
-        log_str(ERROR, LOG_WATCHDOG, true, "Failed to take watchdog mutex");
+        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex");
         return false;
     }
 }
@@ -144,7 +144,7 @@ void task_suspend_wd(TaskHandle_t xTaskToSuspend) {
         }
         xSemaphoreGive(watchdog_mutex);
     } else {
-        log_str(ERROR, LOG_WATCHDOG, true, "Failed to take watchdog mutex\n\r");
+        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex\n\r");
     }
 }
 
@@ -167,7 +167,7 @@ void task_resume_wd(TaskHandle_t xTaskToResume) {
         }
         xSemaphoreGive(watchdog_mutex);
     } else {
-        log_str(ERROR, LOG_WATCHDOG, true, "Failed to take watchdog mutex\n\r");
+        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex\n\r");
     }
 }
 
