@@ -4,9 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+obcpy = {path = "./../obcpy", editable = true}
 pyserial = "*"
+unittest-xml-reporting = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3"

@@ -6,3 +6,8 @@ add_library(littlefs
 target_include_directories(littlefs PUBLIC
     ./
 )
+
+target_compile_definitions(littlefs PUBLIC
+    # TODO
+    # LFS_NO_MALLOC
+)

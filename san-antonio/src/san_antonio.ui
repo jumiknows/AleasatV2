@@ -20,14 +20,10 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="1">
-       <widget class="QPushButton" name="connect_button">
-        <property name="text">
-         <string>Connect</string>
-        </property>
-       </widget>
+      <item row="0" column="0">
+       <widget class="QComboBox" name="comboBox"/>
       </item>
-      <item row="0" column="4" alignment="Qt::AlignHCenter">
+      <item row="0" column="5">
        <widget class="QLabel" name="status_label">
         <property name="font">
          <font>
@@ -39,10 +35,28 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QComboBox" name="comboBox"/>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="refresh_button">
+        <property name="text">
+         <string>Refresh</string>
+        </property>
+       </widget>
       </item>
-      <item row="0" column="3">
+      <item row="0" column="9">
+       <widget class="QPushButton" name="reset_button">
+        <property name="text">
+         <string>Reset OBC</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <widget class="QPushButton" name="set_datetime_button">
+        <property name="text">
+         <string>Set Current Date/Time</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -55,10 +69,30 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="refresh_button">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="connect_button">
         <property name="text">
-         <string>Refresh</string>
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="7">
+       <widget class="QPushButton" name="ping_button">
+        <property name="text">
+         <string>Ping</string>
         </property>
        </widget>
       </item>

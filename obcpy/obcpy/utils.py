@@ -1,7 +1,7 @@
 import sys
 import glob
-import serial
 
+import serial
 
 def get_serial_ports():
     """ Lists serial port names
@@ -30,7 +30,3 @@ def get_serial_ports():
         except (OSError, serial.SerialException):
             pass
     return result
-
-
-if __name__ == '__main__':
-    print(get_serial_ports())

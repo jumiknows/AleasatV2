@@ -19,11 +19,21 @@
   tags:
     - obc-alea-v1-runner
   before_script:
-    - export DEVICE_PORT=/dev/ttyUSB0
-    - cd hill-tests/obc_tests
+    - echo "Using Python ${ALEA_PY_VER}"
+    - cd hil-tests
+    - python${ALEA_PY_VER} -m pipenv install --python ${ALEA_PY_VER}
+    - cd ../
+    - echo "OBC connected to ${ALEA_OBC_PORT}"
   only:
     - merge_requests
     - web
+  artifacts:
+    when: always
+    paths:
+        - "hil-tests/results/*.xml"
+    reports:
+      junit:
+          - "hil-tests/results/*.xml"
 
 build-launchpad:
   extends: .build
@@ -40,5 +50,6 @@ test-alea-v1:
   dependencies:
     - build-alea-v1
   script:
-    - ../../obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f ../../obc-firmware/build/_bin/*.elf
-    - ./run-all-alea-v1.sh
+    - obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f obc-firmware/build/_bin/*.elf
+    - cd hil-tests
+    - python${ALEA_PY_VER} -m pipenv run ./run.sh

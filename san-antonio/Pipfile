@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+obcpy = {path = "./../obcpy", editable = true}
 pyserial = "*"
 pyqt5 = "*"
-pyqt5-tools = "*"
 
 [dev-packages]
 

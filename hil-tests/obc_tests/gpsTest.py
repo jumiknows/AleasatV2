@@ -1,4 +1,4 @@
-from obc_test_internals import OBCTestClass, timeout
+from obc_test_internals import obc_test, timeout
 import argparse, unittest, serial, threading, time, queue
 
 class GpsMock():
@@ -17,7 +17,7 @@ class GpsMock():
             return True
 
         except Exception as e:
-            return False    
+            return False
 
     def run(self):
         try:
@@ -44,7 +44,7 @@ class GpsMock():
             return
 
 
-class GpsTestClass(OBCTestClass.OBCTest):
+class GpsTestClass(obc_test.OBCTest):
     gps = None
     connect_thread = None
     gps_recv_q = None
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
 
     if args["listports"] == "True":
-        print(OBCTestClass.get_serial_ports())
+        print(obc_test.get_serial_ports())
         exit(0)
 
     GpsTest.PORT = args["port"]

@@ -1,6 +1,9 @@
 # File will contain all the constants used
 
 # Texts
+connect_button_connect_text = "Connect"
+connect_button_disconnect_text = "Disconnect"
+
 serial_status_connected_text = "Status: Connected"
 serial_status_disconnected_text = "Status: Disconnected"
 

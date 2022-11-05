@@ -564,14 +564,18 @@ size_t orca_vsnprintf(char* buffer, size_t buffer_len, const char* format, va_li
  * @warning Since Houston parsing does not support receiving arbitrary strings, this should not be used.
  */
 int printf(const char* format, ...){
-  va_list va;
-  va_start(va, format);
-  char buffer[PRINTF_BUFFER_SIZE] = {'\0'};
-  size_t ret = orca_vsnprintf(buffer, PRINTF_BUFFER_SIZE, format, va);
-  va_end(va);
+  // va_list va;
+  // va_start(va, format);
+  // char buffer[PRINTF_BUFFER_SIZE] = {'\0'};
+  // size_t ret = orca_vsnprintf(buffer, PRINTF_BUFFER_SIZE, format, va);
+  // va_end(va);
 
-  serial_send_string(buffer);
-  return (int)ret;
+  // serial_send_string(buffer);
+
+  // return (int)ret;
+
+  // TODO either replace printf or implement it to match the UART packet structure
+  return -1;
 }
 
 
