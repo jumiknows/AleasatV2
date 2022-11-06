@@ -1,4 +1,4 @@
-add_library(FreeRTOS
+add_library(FreeRTOS STATIC
     source/croutine.c
     source/event_groups.c
     source/list.c

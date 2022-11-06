@@ -1,4 +1,4 @@
-add_library(printf
+add_library(printf STATIC
     printf.c
 )
 

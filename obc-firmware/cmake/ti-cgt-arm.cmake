@@ -8,8 +8,9 @@ set(tools $ENV{TI_CGT_ARM_DIR})
 set(CMAKE_C_COMPILER ${tools}/bin/armcl)
 set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
 
-set(CMAKE_OBJCOPY ${tools}/armobjcopy CACHE INTERNAL "objcopy tool")
-set(CMAKE_SIZE_UTIL ${tools}/armsize CACHE INTERNAL "size tool")
+set(CMAKE_OBJCOPY ${tools}/bin/armobjcopy CACHE INTERNAL "objcopy tool")
+set(CMAKE_SIZE_UTIL ${tools}/bin/armsize CACHE INTERNAL "size tool")
+set(CMAKE_HEX ${tools}/bin/armhex CACHE INTERNAL "hex tool")
 
 # Filename Suffixes
 set(CMAKE_EXECUTABLE_SUFFIX_C   .elf)

@@ -271,6 +271,11 @@ void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, const struct xMEMOR
 
 /*----------------------------------------------------------------------------*/
 
+/**
+ * @brief Linker-defined symbol whose address is the start of the kernel code
+ */
+extern void * KERNEL_START;
+
 static void prvSetupDefaultMPU( void )
 {
     /* make sure MPU is disabled */
@@ -279,9 +284,9 @@ static void prvSetupDefaultMPU( void )
     /* First setup the entire flash for unprivileged read only access. */
     prvMpuSetRegion(portUNPRIVILEGED_FLASH_REGION,  0x00000000, portMPU_SIZE_4MB | portMPU_REGION_ENABLE, portMPU_PRIV_RO_USER_RO_EXEC | portMPU_NORMAL_OIWTNOWA_SHARED);
 
-    /* Setup the first 32K for privileged only access.  This is where the kernel code is
-    placed. */
-    prvMpuSetRegion(portPRIVILEGED_FLASH_REGION,  0x00000000, portMPU_SIZE_32KB | portMPU_REGION_ENABLE, portMPU_PRIV_RO_USER_NA_EXEC | portMPU_NORMAL_OIWTNOWA_SHARED);
+    /* Setup the 32K of kernel code for privileged only access. */
+    uint32_t kernel_mask = ~(0x8000 - 1); // align to 32K
+    prvMpuSetRegion(portPRIVILEGED_FLASH_REGION,  (((uintptr_t)&KERNEL_START) & kernel_mask), portMPU_SIZE_32KB | portMPU_REGION_ENABLE, portMPU_PRIV_RO_USER_NA_EXEC | portMPU_NORMAL_OIWTNOWA_SHARED);
 
     /* Setup the the entire RAM region for privileged read-write and unprivileged read only access */
     prvMpuSetRegion(portPRIVILEGED_RAM_REGION,  0x08000000, portMPU_SIZE_512KB | portMPU_REGION_ENABLE, portMPU_PRIV_RW_USER_RO_EXEC | portMPU_NORMAL_OIWTNOWA_SHARED);

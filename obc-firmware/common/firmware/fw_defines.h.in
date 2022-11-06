@@ -1,0 +1,26 @@
+#ifndef FW_DEFINES_H_
+#define FW_DEFINES_H_
+
+#include <stdint.h>
+
+#define FW_VERSION_MAJOR      @PROJECT_VERSION_MAJOR@
+#define FW_VERSION_MINOR      @PROJECT_VERSION_MINOR@
+#define FW_VERSION_PATCH      @PROJECT_VERSION_PATCH@
+#define FW_VERSION_TWEAK      @PROJECT_VERSION_TWEAK@
+
+#define FW_GITHASH            @GITHASH@
+#define FW_FLAGS              (@GIT_DIRTY@)
+
+#define FW_PLATFORM_LAUNCHPAD 1
+#define FW_PLATFORM_ALEAV1    2
+
+#define FW_PLATFORM           @FW_PLATFORM@
+
+#define FW_TARGET_STARTUP     1
+#define FW_TARGET_BOOT        2
+#define FW_TARGET_CORE        3
+#define FW_TARGET_EXT         4
+
+#define FW_TARGET             @FW_TARGET@
+
+#endif // FW_DEFINES_H_

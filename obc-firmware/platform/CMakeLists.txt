@@ -1,16 +1,6 @@
-if (PLATFORM STREQUAL "launchpad")
-    set(PLATFORM_DEFINE    PLATFORM_LAUNCHPAD_1224)
-    set(PLATFORM_DIRECTORY launchpad)
-elseif (PLATFORM STREQUAL "alea-v1")
-    set(PLATFORM_DEFINE    PLATFORM_ALEA_V1)
-    set(PLATFORM_DIRECTORY alea-v1)
-else()
-    message(FATAL_ERROR "invalid PLATFORM: ${PLATFORM}")
-endif()
+set(PLATFORM_DIRECTORY "${PLATFORM}/${TARGET}")
 
-message(STATUS "Building for platform ${PLATFORM}")
-
-add_library(platform
+add_library(platform STATIC
     ${PLATFORM_DIRECTORY}/halcogen/source/adc.c
     ${PLATFORM_DIRECTORY}/halcogen/source/can.c
     ${PLATFORM_DIRECTORY}/halcogen/source/dabort.asm
@@ -27,7 +17,8 @@ add_library(platform
     ${PLATFORM_DIRECTORY}/halcogen/source/spi.c
     ${PLATFORM_DIRECTORY}/halcogen/source/sys_core.asm
     ${PLATFORM_DIRECTORY}/halcogen/source/sys_dma.c
-    ${PLATFORM_DIRECTORY}/halcogen/source/sys_intvecs.asm
+    # Exception vectors are contained in common/ files
+    # ${PLATFORM_DIRECTORY}/halcogen/source/sys_intvecs.asm
     # Application layer provides the main function - don't use the HALCoGen one
     # ${PLATFORM_DIRECTORY}/halcogen/source/sys_main.c
     ${PLATFORM_DIRECTORY}/halcogen/source/sys_mpu.asm
@@ -39,18 +30,40 @@ add_library(platform
     ${PLATFORM_DIRECTORY}/halcogen/source/sys_startup.c
     ${PLATFORM_DIRECTORY}/halcogen/source/sys_vim.c
     ${PLATFORM_DIRECTORY}/halcogen/source/system.c
+
+    common/exc_ram.asm
+    common/isr.asm
+    common/entrypoint.asm
 )
+
+if (STANDALONE EQUAL 1)
+    target_sources(platform PRIVATE
+        common/exc_flash.asm
+    )
+endif()
 
 target_include_directories(platform PUBLIC
     ${PLATFORM_DIRECTORY}/halcogen/include
+    common
 )
 
 target_compile_definitions(platform PUBLIC
     ${PLATFORM_DEFINE}
+    TARGET=${TARGET}
+    CFG_USE_RTOS=${USE_RTOS}
+    CFG_FLASH_SLOT=${FLASH_SLOT}
+)
+
+target_link_options(platform PUBLIC
+    # The SHELL quoting is required to prevent option de-duplication
+    # (see https://cmake.org/cmake/help/latest/command/target_link_options.html#option-de-duplication)
+    "SHELL:--define CFG_USE_RTOS=${USE_RTOS}"
+    "SHELL:--define CFG_FLASH_SLOT=${FLASH_SLOT}"
+    "SHELL:--define CFG_STANDALONE=${STANDALONE}"
 )
 
 target_link_libraries(platform PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_DIRECTORY}/linker.cmd
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/linker.cmd
 )
 
 # HALCoGen generates a vPortPreemptiveTick function in the rti.c library (and assigns the RTI interrupt vector to this function)

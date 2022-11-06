@@ -1,7 +1,7 @@
 .build:
   stage: build
   image:
-    name: registry.gitlab.com/alea-2020/command-data-handling/obc2-firmware/obc-fw-build-tools:1.1
+    name: registry.gitlab.com/alea-2020/command-data-handling/obc2-firmware/obc-fw-build-tools:1.2
     entrypoint: [""]
   before_script:
     - cd obc-firmware
@@ -11,7 +11,8 @@
   artifacts:
       when: always
       paths:
-          - "obc-firmware/build/_bin/*.elf"
+          - "obc-firmware/build/_bin/*.mot"
+          - "obc-firmware/build/**/*.elf"
       expire_in: 1 month
 
 .test:
@@ -35,21 +36,21 @@
       junit:
           - "hil-tests/results/*.xml"
 
-build-launchpad:
+build-launchpad-ext:
   extends: .build
   script:
-    - ./cmake_wrapper.sh launchpad
+    - ./cmake_wrapper.sh launchpad ext A --standalone
 
-build-alea-v1:
+build-alea-v1-ext:
   extends: .build
   script:
-    - ./cmake_wrapper.sh alea-v1
+    - ./cmake_wrapper.sh alea-v1 ext A --standalone
 
-test-alea-v1:
+test-alea-v1-ext:
   extends: .test
   dependencies:
-    - build-alea-v1
+    - build-alea-v1-ext
   script:
-    - obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f obc-firmware/build/_bin/*.elf
+    - obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f obc-firmware/build/_bin/*.mot
     - cd hil-tests
     - python${ALEA_PY_VER} -m pipenv run ./run.sh

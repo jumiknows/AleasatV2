@@ -9,25 +9,19 @@ JLINK_SCRIPT="jlink_script_tmp.jlink"
 # parse args
 while getopts "f:" opt; do
   case "$opt" in
-    f)  elf_file=$OPTARG ;;
+    f)  mot_file=$OPTARG ;;
   esac
 done
 
-if [ -z "$elf_file" ]; then
-        printf "Please specify an elf file with -f\n"
-        printf "Exiting...\n"
-        exit 1
+if [ -z "$mot_file" ]; then
+    printf "Please specify a mot file with -f\n"
+    printf "Exiting...\n"
+    exit 1
 fi
-
-bin_file=${elf_file}.bin
-
-# first, convert elf to bin file:
-objcopy -I elf32-little -O binary $elf_file $bin_file
 
 # generate jlink script
 printf "erase
-loadbin ${bin_file}, 0x0
-verifybin ${bin_file}, 0x0
+loadfile ${mot_file}
 r
 g
 exit" > $JLINK_SCRIPT

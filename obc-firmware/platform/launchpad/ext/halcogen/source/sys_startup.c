@@ -64,6 +64,8 @@
 
 #include "errata_SSWF021_45.h"
 /* USER CODE BEGIN (1) */
+#include "exc_ram.h"
+#include "cpy_tbl.h"
 /* USER CODE END */
 
 
@@ -119,18 +121,6 @@ void _c_int00(void)
      * by its ECC logic for accesses to program flash or data RAM.
      */
     _coreEnableEventBusExport_();
-/* USER CODE BEGIN (9) */
-/* USER CODE END */
-
-    /* Enable response to ECC errors indicated by CPU for accesses to flash */
-    flashWREG->FEDACCTRL1 = 0x000A060AU;
-
-/* USER CODE BEGIN (10) */
-/* USER CODE END */
-
-    /* Enable CPU ECC checking for ATCM (flash accesses) */
-    _coreEnableFlashEcc_();
-	
 
 /* USER CODE BEGIN (11) */
 /* USER CODE END */
@@ -152,7 +142,7 @@ void _c_int00(void)
 /* USER CODE BEGIN (12) */
 /* USER CODE END */
         /* Add condition to check whether PLL can be started successfully */
-        if (_errata_SSWF021_45_pll1(PLL_RETRIES) != 0U)
+        if (_errata_SSWF021_45_both_plls(PLL_RETRIES) != 0U)
         {
             /* Put system in a safe state */
 			handlePLLLockFail();
@@ -341,7 +331,7 @@ void _c_int00(void)
      * The CPU RAM is a single-port memory. The actual "RAM Group" for all on-chip SRAMs is defined in the
      * device datasheet.
      */
-    pbistRun(0x00100020U, /* ESRAM Single Port PBIST */
+    pbistRun(0x00300020U, /* ESRAM Single Port PBIST */
              (uint32)PBIST_March13N_SP);
 
 /* USER CODE BEGIN (32) */
@@ -401,6 +391,7 @@ void _c_int00(void)
     _coreEnableRamEcc_();
 
 /* USER CODE BEGIN (39) */
+    copy_in(&EXCRAM_COPY_TABLE);
 /* USER CODE END */
 
     /* Start PBIST on all dual-port memories */

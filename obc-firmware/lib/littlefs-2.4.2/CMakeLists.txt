@@ -1,4 +1,4 @@
-add_library(littlefs
+add_library(littlefs STATIC
     lfs.c
     lfs_util.c
 )

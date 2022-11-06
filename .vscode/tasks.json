@@ -6,7 +6,7 @@
         {
             "label": "Build Firmware",
             "type": "shell",
-            "command": "./fw_build.sh ${input:platform}",
+            "command": "./fw_build.sh ${input:platform} ${input:target} ${input:slot} ${input:standalone}",
             "options": {
                 "cwd": "${workspaceFolder}/obc-firmware"
             },
@@ -80,7 +80,39 @@
                 "launchpad",
                 "alea-v1"
             ],
-            "default": "launchpad"
+            "default": "alea-v1"
+        },
+        {
+            "id": "target",
+            "type": "pickString",
+            "description": "Select a build target",
+            "options": [
+                "startup",
+                "boot",
+                "core",
+                "ext"
+            ],
+            "default": "ext"
+        },
+        {
+            "id": "slot",
+            "type": "pickString",
+            "description": "Select a flash slot",
+            "options": [
+                "A",
+                "B",
+            ],
+            "default": "A"
+        },
+        {
+            "id": "standalone",
+            "type": "pickString",
+            "description": "Build standalone image?",
+            "options": [
+                "--standalone",
+                "",
+            ],
+            "default": "--standalone"
         },
         {
             "id": "busid",

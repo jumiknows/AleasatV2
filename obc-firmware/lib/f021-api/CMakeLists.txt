@@ -1,4 +1,4 @@
-add_library(f021-api
+add_library(f021-api STATIC
     source/Fapi_UserDefinedFunctions.c
 )
 

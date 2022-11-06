@@ -14,7 +14,8 @@ RUN apt-get update \
 
 # Install necessary python modules
 RUN pip3 install \
-        jinja2
+        jinja2 \
+        bincopy
 
 # Download and install the TI ARM Code Generation Tools (i.e. compiler toochain)
 ARG COMPILER_VERSION="20.2.6.LTS"

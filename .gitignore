@@ -1,4 +1,3 @@
 .vscode/*
 !.vscode/tasks.json
 .san_antoniorc
-hill-tests/obc_tests/obc_test_internals/__pycache__/*

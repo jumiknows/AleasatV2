@@ -1,4 +1,4 @@
-add_library(tiny-AES-c
+add_library(tiny-AES-c STATIC
     aes.c
 )
 
