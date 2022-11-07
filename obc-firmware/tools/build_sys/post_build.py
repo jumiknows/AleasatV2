@@ -4,6 +4,7 @@ from pathlib import Path
 import bincopy
 
 from fw_header import FWHeader
+import srec
 
 EXCFLASH_SIZE  = 0x00000040 # Must match FW_MEMMAP_EXCFLASH_SIZE in fw_memmap.h
 
@@ -47,16 +48,7 @@ def main():
     bin_file.add_binary(header_bytes, (fw_image_start - len(header_bytes)))
 
     # Write the new output srecord
-    output_srec = bin_file.as_srec(number_of_data_bytes=32, address_length_bits=32)
-    with open(output_path, "w") as f:
-        for line in output_srec.splitlines(keepends=True):
-            # CCS doesn't understand all the s-record types that bincopy produces (specifically S5),
-            # so only allow these srecord types:
-            #   - S0: Header
-            #   - S3: Data
-            #   - S7: Start Address (Termination)
-            if line.startswith("S0") or line.startswith("S3") or line.startswith("S7"):
-                f.write(line)
+    srec.save_srec(bin_file, output_path)
     print(f"Generated output file: {output_path}")
 
     # Write an output binary as well

@@ -23,7 +23,7 @@ set(CMAKE_ASM_FLAGS_INIT ${CMAKE_C_FLAGS_INIT})
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS_INIT}" CACHE STRING "" FORCE)
 
 # Linker Flags
-set(CMAKE_EXE_LINKER_FLAGS_INIT "--reread_libs --priority --rom_model --be32 --warn_sections") # --priority is important here to allow object files / earlier libraries to override symbols from later libraries
+set(CMAKE_EXE_LINKER_FLAGS_INIT "--priority --rom_model --be32 --warn_sections") # --priority is important here to allow object files / earlier libraries to override symbols from later libraries
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT}" CACHE STRING "" FORCE)
 
 # Standard Libraries

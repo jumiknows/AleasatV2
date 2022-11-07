@@ -56,22 +56,22 @@ typedef struct {
 /**
  * @brief Linker-defined symbol for this firmware image's header
  */
-extern const fw_header_t FW_HEADER;
+extern const volatile fw_header_t FW_HEADER;
 
 /**
  * @brief Linker-defined symbol for this firmware image's entrypoint
  */
-extern const fw_entrypoint_t FW_ENTRYPOINT;
+extern const volatile fw_entrypoint_t FW_ENTRYPOINT;
 
 /**
  * @brief This firmware image's info (defined in fw_structs.c)
  */
-extern const fw_info_t FW_INFO;
+extern const volatile fw_info_t FW_INFO;
 
 /**
  * @brief Array of pointers to the firmware structs for all firmware images
  *        that may be present on the device
  */
-extern const fw_structs* FW_STRUCTS[FLASH_SLOT_COUNT];
+extern const volatile fw_structs* FW_STRUCTS[FLASH_SLOT_COUNT];
 
-#endif // FW_INFO_H_
+#endif // FW_STRUCTS_H_

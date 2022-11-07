@@ -41,16 +41,34 @@ build-launchpad-ext:
   script:
     - ./cmake_wrapper.sh launchpad ext A --standalone
 
+build-alea-v1-startup:
+  extends: .build
+  script:
+    - ./cmake_wrapper.sh alea-v1 startup A --standalone
+
 build-alea-v1-ext:
   extends: .build
   script:
-    - ./cmake_wrapper.sh alea-v1 ext A --standalone
+    - ./cmake_wrapper.sh alea-v1 ext A
 
-test-alea-v1-ext:
-  extends: .test
+build-alea-v1:
+  extends: .build
   dependencies:
+    - build-alea-v1-startup
+    - build-alea-v1-ext
+  needs:
+    - build-alea-v1-startup
     - build-alea-v1-ext
   script:
-    - obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f obc-firmware/build/_bin/*.mot
+    - python3 tools/build_sys/srec.py merge -i build/_bin/*.mot -o build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
+
+test-alea-v1:
+  extends: .test
+  dependencies:
+    - build-alea-v1
+  needs:
+    - build-alea-v1
+  script:
+    - obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f obc-firmware/build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
     - cd hil-tests
     - python${ALEA_PY_VER} -m pipenv run ./run.sh
