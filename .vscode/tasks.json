@@ -69,6 +69,15 @@
             "command": "cd san-antonio; pipenv install; pipenv run python src/main.py",
             "isBackground": true,
             "problemMatcher": []
+        },
+        {
+            "label": "Test Firmware",
+            "type": "shell",
+            "command": "./fw_test.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/obc-firmware"
+            },
+            "group": "test",
         }
     ],
     "inputs": [

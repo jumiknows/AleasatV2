@@ -5,17 +5,20 @@ FROM ubuntu:20.04
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive TZ=Canada/Pacific apt-get install --no-install-recommends -y \
         wget \
+        build-essential \
         ca-certificates \
         cmake \
         make \
         git \
         python3 \
-        python3-pip
+        python3-pip \
+        ruby-full
 
 # Install necessary python modules
 RUN pip3 install \
         jinja2 \
-        bincopy
+        bincopy \
+        gcovr
 
 # Download and install the TI ARM Code Generation Tools (i.e. compiler toochain)
 ARG COMPILER_VERSION="20.2.6.LTS"
@@ -30,5 +33,7 @@ RUN wget ${COMPILER_DL_URL} \
 # Setup build environment variables
 ENV OBC_FIRMWARE_DOCKER=1
 ENV TI_CGT_ARM_DIR="/opt/ti/ti-cgt-arm_${COMPILER_VERSION}"
+
+RUN gem install ceedling
 
 WORKDIR /

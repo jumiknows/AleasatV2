@@ -1,10 +1,14 @@
-.build:
-  stage: build
+# See https://docs.gitlab.com/ee/ci/yaml
+.docker:
   image:
-    name: registry.gitlab.com/alea-2020/command-data-handling/obc2-firmware/obc-fw-build-tools:1.2
+    name: registry.gitlab.com/alea-2020/command-data-handling/obc2-firmware/obc-fw-build-tools:1.3
     entrypoint: [""]
   before_script:
     - cd obc-firmware
+
+.build:
+  stage: build
+  extends: .docker
   only:
     - merge_requests
     - web
@@ -35,6 +39,22 @@
     reports:
       junit:
           - "hil-tests/results/*.xml"
+    expire_in: 1 month
+
+.unittest:
+  stage: test
+  extends: .docker
+  only:
+    - merge_requests
+    - web
+  artifacts:
+    when: always
+    paths:
+      - "obc-firmware/test/build/artifacts/gcov/*.xml"
+    reports:
+      junit:
+        - "obc-firmware/test/build/artifacts/gcov/*.xml"
+    expire_in: 1 month
 
 build-launchpad-ext:
   extends: .build
@@ -72,3 +92,8 @@ test-alea-v1:
     - obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f obc-firmware/build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
     - cd hil-tests
     - python${ALEA_PY_VER} -m pipenv run ./run.sh
+
+unittest-alea:
+  extends: .unittest
+  script:
+    - ceedling gcov:all utils:gcov
