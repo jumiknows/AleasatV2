@@ -19,6 +19,8 @@
 // System commands
 void cmd_ack(uint32_t arg_len, void* arg);
 void cmd_ping(uint32_t arg_len, void* arg);
+void cmd_sys_time(uint32_t arg_len, void* arg);
+void cmd_cpu_usage(uint32_t arg_len, void* arg);
 void cmd_get_heap(uint32_t arg_len, void* arg);
 void cmd_get_minheap(uint32_t arg_len, void* arg);
 void cmd_get_board_type(uint32_t arg_len, void* arg);

@@ -30,6 +30,8 @@ list(APPEND SRC_DIRS
     ${.}/tests
     ${.}/tms570
 
+    ${.}/utils
+
     ${.}/orcasat
     ${.}/orcasat/hardware-drivers
     ${.}/orcasat/hardware-drivers/gps

@@ -40,7 +40,7 @@
 #define portRTI_GCTRL_REG       ( * ( ( volatile uint32_t * ) 0xFFFFFC00 ) )
 #define portRTI_TBCTRL_REG      ( * ( ( volatile uint32_t * ) 0xFFFFFC04 ) )
 #define portRTI_COMPCTRL_REG    ( * ( ( volatile uint32_t * ) 0xFFFFFC0C ) )
-#define portRTI_CNT0_FRC0_REG   ( * ( ( volatile uint32_t * ) 0xFFFFFC10 ) )
+// See portmacro.h for portRTI_CNT0_FRC0_REG
 #define portRTI_CNT0_UC0_REG    ( * ( ( volatile uint32_t * ) 0xFFFFFC14 ) )
 #define portRTI_CNT0_CPUC0_REG  ( * ( ( volatile uint32_t * ) 0xFFFFFC18 ) )
 #define portRTI_CNT0_COMP0_REG  ( * ( ( volatile uint32_t * ) 0xFFFFFC50 ) )
@@ -323,8 +323,8 @@ static void prvSetupTimerInterrupt(void)
 
     /* Set Prescalar for RTI clock. */
     portRTI_CNT0_CPUC0_REG = 0x00000001U;
-    portRTI_CNT0_COMP0_REG = ( configCPU_CLOCK_HZ / 2 ) / configTICK_RATE_HZ;
-    portRTI_CNT0_UDCP0_REG = ( configCPU_CLOCK_HZ / 2 ) / configTICK_RATE_HZ;
+    portRTI_CNT0_COMP0_REG = portRTI_CNT0_FRC0_CLOCK_HZ / configTICK_RATE_HZ;
+    portRTI_CNT0_UDCP0_REG = portRTI_CNT0_FRC0_CLOCK_HZ / configTICK_RATE_HZ;
 
     /* Clear interrupts. */
     portRTI_INTFLAG_REG     =  0x0007000FU;

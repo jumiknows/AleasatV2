@@ -104,6 +104,25 @@ void cmd_ping(uint32_t arg_len, void* arg) {
 }
 
 /**
+ * @brief Prints out the current system time in microseconds
+ */
+void cmd_sys_time(uint32_t arg_len, void* arg) {
+    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "System Time: %d us", SYSTEM_TIME_US());
+}
+
+/**
+ * @brief Prints out an estimate of the average CPU usage since boot
+ * 
+ * TODO implement a continuous monitoring system since the run-time counters may wrap around
+ * making these measurements incorrect.
+ */
+void cmd_cpu_usage(uint32_t arg_len, void* arg) {
+    uint32_t idle_runtime_us = portRUNTIME_TO_US(xTaskGetIdleRunTimeCounter());
+    float32 idle_runtime_pcnt = ((float32)idle_runtime_us / (float32)SYSTEM_TIME_US()) * 100.0f;
+    prompt_cmd_response(INFO, LOG_PRINT_GENERAL, "Average CPU Usage: %.4f%%", (100.0f - idle_runtime_pcnt));
+}
+
+/**
  * @brief Prints out the board type.
  */
 void cmd_get_board_type(uint32_t arg_len, void* arg) {

@@ -54,7 +54,6 @@
 #define configTOTAL_HEAP_SIZE                   ( ( size_t ) 65536U )
 #define configMAX_TASK_NAME_LEN                 ( 16U )
 #define configIDLE_SHOULD_YIELD                 1
-#define configGENERATE_RUN_TIME_STATS           0
 #define configUSE_MALLOC_FAILED_HOOK            0
 
 /*
@@ -103,12 +102,13 @@
 #define INCLUDE_xTaskGetCurrentTaskHandle       1
 #define INCLUDE_xTaskAbortDelay                 1
 #define INCLUDE_eTaskGetState                   1
+#define INCLUDE_xTaskGetIdleTaskHandle          1
 
 /* Debug */
 #define configASSERT( x ) if( ( x ) == pdFALSE ) { taskDISABLE_INTERRUPTS(); for( ;; ); }
-#define configUSE_TRACE_FACILITY                0
+#define configUSE_TRACE_FACILITY                1
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
-#define configGENERATE_RUN_TIME_STATS           0
+#define configGENERATE_RUN_TIME_STATS           1
 
 /* Overrides */
 /**

@@ -114,6 +114,8 @@ const cmd_entry command_table[] = {
     {"get_board_type", &cmd_get_board_type},
     {"ack", &cmd_ack},
     {"ping", &cmd_ping},
+    {"sys_time", &cmd_sys_time},
+    {"cpu_usage", &cmd_cpu_usage},
     {"count", &cmd_count},
     {"get_count", &cmd_get_count},
     {"temptest", &cmd_test_temperature},
