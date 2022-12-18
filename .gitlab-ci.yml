@@ -50,10 +50,14 @@
   artifacts:
     when: always
     paths:
+      - "obc-firmware/test/build/artifacts/test/*.xml"
       - "obc-firmware/test/build/artifacts/gcov/*.xml"
     reports:
       junit:
-        - "obc-firmware/test/build/artifacts/gcov/*.xml"
+        - "obc-firmware/test/build/artifacts/test/*.xml"
+      coverage_report:
+        coverage_format: cobertura
+        path: "obc-firmware/test/build/artifacts/gcov/GcovCoverageCobertura.xml"
     expire_in: 1 month
 
 build-launchpad-ext:

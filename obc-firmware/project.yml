@@ -31,7 +31,7 @@
 :paths:
   :test:
     - +:test/tests/**
-  :source:
+  :source: &source_dirs
     - common/**
     - lib/**
     - main/**
@@ -92,12 +92,23 @@
 :gcov:
   :reports:
     - HtmlDetailed
+    - Cobertura
   :gcovr:
     :html_medium_threshold: 75
     :html_high_threshold: 90
-    :keep: true
-    :report_root: test/build/artifacts/gcov
+    :keep: false
     :object_directory: test/build/artifacts/gcov
+    :gcov_ignore_parse_errors: true
+  # The next two options are a hack so that gcov doesn't pay attention to files that
+  # are uncovered. This means we don't get information about overall project coverage
+  # (just per file coverage), but it removes the large number of "Could not find coverage
+  # results for" errors from the gcov output that result from ceedling not generating
+  # empty coverage reports for files without unit tests (since those files are never built).
+  :abort_on_uncovered: true
+  :uncovered_ignore_list: *source_dirs
+
+:junit_tests_report:
+  :path: test/build/artifacts/test
 
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
@@ -120,9 +131,9 @@
   :load_paths:
     - "#{Ceedling.load_path}"
   :enabled:
-    - gcov
-    - stdout_gtestlike_tests_report
+    - colour_report
     - junit_tests_report
+    - gcov
     - module_generator
-    - raw_output_report
+
 ...
