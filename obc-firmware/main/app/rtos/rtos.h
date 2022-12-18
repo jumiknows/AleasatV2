@@ -16,6 +16,8 @@ OBC_MISRA_CHECK_OFF
 #include "queue.h"
 #include "event_groups.h"
 #include "timers.h"
+#include "stream_buffer.h"
+#include "message_buffer.h"
 
 OBC_MISRA_CHECK_ON
 
