@@ -27,6 +27,7 @@
 #include "logger.h"
 #include "obc_comms.h"
 #include "gio.h"
+#include "obc_serial_rx.h"
 
 /**
  * @brief Callback for all TMS570 GIO interrupts.
@@ -75,27 +76,19 @@ void edgeNotification(hetBASE_t* hetREG, uint32 edge) {
  * @warning this runs in interrupt context, so FreeRTOS interrupt-mode API functions must be used.
  */
 void sciNotification(sciBASE_t* sci, uint32 flags) {
-    const bool is_rx_interrupt = ((flags & SCI_RX_INT) == SCI_RX_INT);
-    const bool uart_rtos_mode  = uart_get_rtos_mode();
-    uint8_t* rx_data           = NULL;
-    QueueHandle_t xRXQueue;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    if (sci == UART_DEBUG) {
-        rx_data  = &curr_debug_char;
-        xRXQueue = xDebugSerialRXQueue;
-    } else if (sci == UART_GPS) {
-        rx_data  = &curr_gps_char;
-        xRXQueue = xGpsSerialRXQueue;
-    } else {
-        return;
+    if ((flags & SCI_RX_INT) == SCI_RX_INT) {
+        if (sci == UART_DEBUG) {
+            obc_serial_rx_isr(&xHigherPriorityTaskWoken);
+        } else if (sci == UART_GPS) {
+            // TODO replace with GPS handler func after GPS serial is upgraded
+            xQueueSendToBackFromISR(xGpsSerialRXQueue, &curr_gps_char, &xHigherPriorityTaskWoken);
+            sciReceive(sci, 1, &curr_gps_char); /* Place back into receive mode */
+        }
     }
 
-    if (is_rx_interrupt && uart_rtos_mode) { /* Disregard incoming characters until RTOS is enabled */
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        xQueueSendToBackFromISR(xRXQueue, rx_data, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-    }
-    sciReceive(sci, 1, rx_data); /* Place back into receive mode */
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /**

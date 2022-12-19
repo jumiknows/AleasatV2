@@ -1,13 +1,13 @@
 import sys
-import datetime
 import globs
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QApplication, QShortcut
 
-import obcpy.utils
-from obcpy.obc_message import OBCMessage
+from obcpy.utils.serial import get_serial_ports
+from obcpy.utils.data import bytes_to_hexstr
+from obcpy.obc_protocol.log import OBCLog
 
 import san_antonio, history, config, constants
 from qt_obc import OBCQT
@@ -40,13 +40,13 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         self.config_assistant = config.ConfigHandler()
         self.commmand_assistant = history.CommandHistoryHandler(self.config_assistant.get_command_history())
 
-        self.obc_assistant.msg_received.connect(self.handle_msg)
+        self.obc_assistant.log_received.connect(self.handle_log)
 
         # Update connection state
         self.update_connection_state()
 
         # Populate the serial ports
-        self.ports = obcpy.utils.get_serial_ports()
+        self.ports = get_serial_ports()
         self.comboBox.addItems(self.ports)
 
         # Connect functions to the buttons
@@ -158,17 +158,17 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
     def reset_obc(self):
         self.obc_assistant.obc.reset()
 
-    def handle_msg(self, msg: OBCMessage):
+    def handle_log(self, log: OBCLog):
         line = ""
 
         if globs.msg_lvl_status == constants.MSG_LVL_ON:
-            line += f"[{OBCMessage.LEVEL_MAP[msg.level]}] "
+            line += f"[{log.level.name}] "
         if globs.timestamp_status == constants.TIMESTAMPS_ON:
-            line += f"[{msg.timestamp.strftime('%Y-%m-%d %H:%M:%S')}] "
+            line += f"[{str(log.date_time)}] "
         if globs.func_id_status == constants.FUNC_ID_ON:
-            line += f"[ID: {str(msg.func_id)}] "
+            line += f"[ID: {str(log.func_id)}] "
 
-        line += msg.payload
+        line += bytes_to_hexstr(log.payload, ascii_only=True)
         self.add_line_to_text_from_serial(line)
 
 def main():

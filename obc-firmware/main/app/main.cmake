@@ -26,6 +26,7 @@ list(APPEND SRC_DIRS
     ${.}/system/comms
     ${.}/system/filesystem
     ${.}/system/logging
+    ${.}/system/serial
 
     ${.}/tests
     ${.}/tms570

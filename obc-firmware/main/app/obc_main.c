@@ -37,6 +37,8 @@
 #include "tms_can.h"
 #include "tms_spi.h"
 #include "tms_i2c.h"
+#include "obc_serial.h"
+#include "obc_cmd_serial.h"
 
 // Private Functions
 static void obc_main_task(void* pvParameters);
@@ -58,6 +60,7 @@ static void obc_main_task(void* pvParameters) {
     // None of this code relies on other application features.
     wd_create_infra();
     uart_create_infra();
+    obc_serial_create_infra();
     tms_i2c_create_infra();
     gpio_create_infra();
     tms_mibspi_create_infra();
@@ -107,7 +110,8 @@ static void obc_main_task(void* pvParameters) {
     // Start the tasks that deal with hardware. These tasks process requests from queues, and also
     // handle interrupts. These tasks must be created before the interrupts are enabled, because
     // interrupt processing requires that these tasks can run.
-    uart_start_task();
+    obc_cmd_serial_start_task();
+    obc_serial_start_tasks();
     gpio_start_task();
     comms_interrupt_start_task();
 
@@ -137,6 +141,7 @@ static void obc_main_task(void* pvParameters) {
 
     // Enable interrupts for the UART. This should only be done after the scheduler is started,
     // because the scheduler processes commands received from the UART.
+    obc_serial_init_irqs();
     uart_init_irq();
 
     // Filesystem initialization requires flash, and takes a couple of seconds because we erase it

@@ -17,10 +17,7 @@ class FilesystemTest(obc_test.OBCTest):
     @timeout.timeout(10)
     def test_fs_cmd(self):
         self.obc.send("test_fs")
-        while 1:
-            msg = self.obc.recv()
-            if passKeyword in msg.payload:
-                return
+        self.wait_for_keyword(passKeyword)
 
 """
 This section is required if you want to run these tests independently.

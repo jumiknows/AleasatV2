@@ -31,34 +31,22 @@ class EpsTest(obc_test.OBCTest):
     @timeout.timeout(10)
     def test_eps_read_float_battery_voltage(self):
         self.obc.send("test_eps_read_float", 1) # 1 = v_battery in volts
-        while 1:
-            msg = self.obc.recv()
-            if "tx: 0" in msg.payload:
-                return
+        self.wait_for_keyword("tx: 0")
     
     @timeout.timeout(10)
     def test_eps_read_float_raw_battery_voltage(self):
         self.obc.send("test_eps_read_float_raw", 1) # 1 = v_battery in volts
-        while 1:
-            msg = self.obc.recv()
-            if "tx: 0" in msg.payload:
-                return
+        self.wait_for_keyword("tx: 0")
 
     @timeout.timeout(10)
     def test_eps_read_int_input_conditions(self):
         self.obc.send("test_eps_read_int", 23) # 23 = input conditions bitfield
-        while 1:
-            msg = self.obc.recv()
-            if "tx: 0" in msg.payload:
-                return
+        self.wait_for_keyword("tx: 0")
 
     @timeout.timeout(10)
     def test_eps_write_vbatt_en(self):
         self.obc.send("test_eps_write", 1, 1) # write vbatt_en = AUTO_ON
-        while 1:
-            msg = self.obc.recv()
-            if "tx: 0" in msg.payload:
-                return
+        self.wait_for_keyword("tx: 0")
 
 """
 This section is required if you want to run these tests independently.

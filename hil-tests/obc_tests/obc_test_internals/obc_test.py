@@ -7,8 +7,10 @@ import sys
 
 import xmlrunner
 
+from obcpy.protocol.routing import PacketSource
+from obcpy.obc_protocol.log import OBCLog
 from obcpy.obc_handler import OBCHandler
-import obcpy.utils
+from  obcpy.utils.serial import get_serial_ports
 
 PORT_ENV_VAR = "ALEA_OBC_PORT"
 
@@ -16,6 +18,7 @@ class OBCTest(unittest.TestCase):
     PORT = os.getenv(PORT_ENV_VAR)
 
     obc : OBCHandler = None
+    logs : PacketSource[OBCLog] = None
 
     @classmethod
     def setUpClass(cls):
@@ -26,14 +29,30 @@ class OBCTest(unittest.TestCase):
         if not cls.obc.start(cls.PORT):
             raise Exception(f"ERROR: Could not connect to {cls.PORT}")
 
+        cls.logs = cls.obc.interface.protocol.add_log_dest()
+
     def setUp(self) -> None:
         # Put the OBC in a known state
         self.obc.reset()
-        self.obc.reset() # TODO remove after serial protocol is updated to have sync bytes
         time.sleep(2)
 
     def tearDown(self) -> None:
         pass
+
+    def wait_for_keyword(self, pass_key: str, fail_key: str = None) -> OBCLog:
+        while 1:
+            logs = self.logs.read()
+            if logs:
+                for log in logs:
+                    print(log)
+                    try:
+                        log_text = log.payload.decode("ascii")
+                        if pass_key in log_text:
+                            return log
+                        elif (fail_key is not None) and (fail_key in log_text):
+                            self.fail(f"\"{fail_key}\" observed: test failed.")
+                    except UnicodeDecodeError:
+                        pass
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -54,7 +73,7 @@ def main(test_cases: Union[Type[OBCTest],List[Type[OBCTest]]]) -> str:
     port = ns.port
 
     if port is None or ns.list_ports:
-        ports = obcpy.utils.get_serial_ports()
+        ports = get_serial_ports()
         print("Please specify a port in the ALEA_OBC_PORT environment variable or with the --port argument:")
         print("\n".join([f"    {port}" for port in ports]))
         exit(0)

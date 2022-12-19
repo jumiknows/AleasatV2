@@ -14,10 +14,7 @@ class PingTest(obc_test.OBCTest):
     @timeout.timeout(5)
     def test_ping(self):
         self.obc.ping()
-        while 1:
-            msg = self.obc.recv()
-            if "Ping" in msg.payload:
-                return
+        self.wait_for_keyword("Ping")
 
 """
 This section is required if you want to run these tests independently.

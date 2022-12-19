@@ -10,7 +10,11 @@
 #include "logger.h"
 
 // OBC
+#include "obc_serial_tx.h"
 #include "obc_rtc.h"
+
+// Utils
+#include "io_stream.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -31,6 +35,8 @@
 
 #define HEADER_SIZE                 7U     ///< Size of header in bytes
 #define LOGGER_MUTEX_TIMEOUT_MS     500U   ///< Logger mutex acquire timeout in milliseconds
+
+#define SERIAL_TIMEOUT_MS           100U
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -152,14 +158,11 @@ static void encode_header(log_level_t lvl, log_identifier_t func_id, uint8_t siz
         current_epoch = get_epoch_time();
     }
 
-    // byte 0: current_epoch[7], ..., current_epoch[0]
-    header_ptr[0] = (current_epoch & 0xff);
-    // byte 1: current_epoch[15], ..., current_epoch[8]
-    header_ptr[1] = (current_epoch >> 8) & 0xff;
-    // byte 2: current_epoch[23], ..., current_epoch[16]
-    header_ptr[2] = (current_epoch >> 16) & 0xff;
-    // byte 3: current_epoch[31], ..., current_epoch[24]
-    header_ptr[3] = (current_epoch >> 24) & 0xff;
+    // byte 0-3: epoch (big-endian)
+    header_ptr[0] = (current_epoch >> 24) & 0xff;
+    header_ptr[1] = (current_epoch >> 16) & 0xff;
+    header_ptr[2] = (current_epoch >>  8) & 0xff;
+    header_ptr[3] = (current_epoch >>  0) & 0xff;
     // byte 4:  func_id[5], ..., func_id[0], lvl[1], lvl[0]
     header_ptr[4] = ((uint8_t)((uint8_t)func_id << 2) & 0b11111100) | (lvl & 0b00000011);
     // byte 5: padding[3], ..., padding[0], func_id[9], ..., func_id[6]
@@ -239,7 +242,7 @@ static void log_data_internal(log_level_t lvl, log_identifier_t func_id, bool wr
 
         // Encode the payload
         memcpy(&message[HEADER_SIZE], data, sizeof(uint8_t) * payload_size);
-        serial_send((uint8_t*)message, HEADER_SIZE + payload_size);
+        io_stream_write(&obc_serial_logs_out, message, HEADER_SIZE + payload_size, pdMS_TO_TICKS(SERIAL_TIMEOUT_MS), NULL);
 
         release_mutex();
     }

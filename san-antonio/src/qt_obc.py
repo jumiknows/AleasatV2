@@ -1,16 +1,18 @@
 from PyQt5 import QtCore
 
-from obcpy.obc_message import OBCMessage
+from obcpy.protocol.routing import PacketSource
+from obcpy.obc_protocol.log import OBCLog
+
 from obcpy.obc_handler import OBCHandler
 
 class OBCRXWorker(QtCore.QObject):
-    msg_received = QtCore.pyqtSignal(object)
+    log_received = QtCore.pyqtSignal(OBCLog)
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, obc_handler: OBCHandler, **kwargs):
+    def __init__(self, log_source: PacketSource[OBCLog], **kwargs):
         super().__init__(**kwargs)
 
-        self._obc = obc_handler
+        self._logs = log_source
 
     @property
     def cancelled(self) -> bool:
@@ -19,16 +21,18 @@ class OBCRXWorker(QtCore.QObject):
     @QtCore.pyqtSlot()
     def work(self):
         while not self.cancelled:
-            msg = self._obc.recv(timeout=0.1)
-            if msg is not None:
-                self.msg_received.emit(msg)
+            logs = self._logs.read(timeout=0.1)
+            if logs:
+                for log in logs:
+                    print(log)
+                    self.log_received.emit(log)
 
         self.finished.emit()
 
         QtCore.QThread.currentThread().quit()
 
 class OBCQT(QtCore.QObject):
-    msg_received = QtCore.pyqtSignal(OBCMessage)
+    log_received = QtCore.pyqtSignal(OBCLog)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -41,12 +45,12 @@ class OBCQT(QtCore.QObject):
     def start(self, serial_port: str) -> bool:
         if self.obc.start(serial_port):
             print("Starting OBC QT threads")
-            self._worker = OBCRXWorker(self.obc)
+            self._worker = OBCRXWorker(self.obc.interface.protocol.add_log_dest())
             self._thread = QtCore.QThread()
 
             self._worker.moveToThread(self._thread)
 
-            self._worker.msg_received.connect(self.msg_received)
+            self._worker.log_received.connect(self.log_received)
 
             self._thread.started.connect(self._worker.work)
             self._thread.finished.connect(self._worker.deleteLater)

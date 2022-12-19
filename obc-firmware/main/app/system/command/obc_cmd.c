@@ -395,7 +395,7 @@ static obc_cmd_err_t find_command(char* name, scheduler_action_t* action) {
  * @returns OBC_CMD_CRITICAL if the command is a critical command
  */
 static obc_cmd_err_t parse(cmd_t* cmd, char* input_cmd_str, char** opcode_out) {
-    *opcode_out        = NULL; // Set the default output
+    *opcode_out        = "NO OPCODE"; // Set the default output
     const char delim[] = " ";
     char *token, *saveptr = NULL;
     token = orca_strtok_r(input_cmd_str, delim, &saveptr);

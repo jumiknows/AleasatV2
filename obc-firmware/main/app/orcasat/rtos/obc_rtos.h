@@ -43,9 +43,9 @@
 /**
  * @brief The maximum number of tasks that can be created with the obc_rtos API.
  *
- * When adding a new task, please increment this number.
+ * When adding a new task, please increment this number. TODO ALEA-845 explicitly declare tasks in enum.
  */
-#define MAX_NUM_TASKS 16
+#define MAX_NUM_TASKS 32
 
 /**
  * @brief Getters for values of the @ref task_params_t structure, suitable
@@ -61,6 +61,7 @@
  */
 #define WD_TASK_ID(PARAMS)     (*((struct task_parameters*)PARAMS)).task_id
 #define TASK_PERIOD_MS(PARAMS) (*((struct task_parameters*)PARAMS)).period_ms
+#define TASK_PARAMS(PARAMS)    (*((struct task_parameters*)PARAMS)).parameters
 
 /**
  * @brief Task period type.
