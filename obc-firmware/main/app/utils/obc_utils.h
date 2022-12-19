@@ -30,6 +30,13 @@
 // Timing
 #define SYSTEM_TIME_US()            portCPU_CLOCK_US() /* Use FreeRTOS CPU clock */
 
+// Data
+
+/**
+ * @brief Extract byte i from x where i = 0 is the least significant byte
+ */
+#define GET_BYTE(x, i)              (uint8_t)(((x) >> ((i) * 8U)) & 0xFF)
+
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
