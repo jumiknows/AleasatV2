@@ -13,7 +13,6 @@ class SystemTest(obc_test.OBCTest):
     @timeout.timeout(5)
     def test_get_time(self):
         timestamp = self.obc.get_time()
-        print(timestamp)
         # Should be within the first 2 seconds
         self.assertLessEqual(timestamp.to_timestamp(), 2)
 
@@ -21,31 +20,38 @@ class SystemTest(obc_test.OBCTest):
     def test_set_time(self):
         target_time = datetime.datetime(2023, 7, 1, 11, 22, 33)
         resp = self.obc.set_time(target_time)
-        self.assertEqual(resp.code, resp.Code.SUCCESS)
+        self.assertTrue(resp.is_success)
 
         obc_current_time = self.obc.get_time()
         self.assertEqual(target_time, obc_current_time.date_time)
 
-    # TODO ALEA-425 Re-enable after new scheduler
-    # @timeout.timeout(10)
-    # def test_schedule_command(self):
-    #     # Schedule it 5 seconds in the future
-    #     self.obc.send_raw("0 ping 20-1-1 0:0:5 0")
-    #     log = self.wait_for_keyword("Ping")
-    #     expected_time = datetime.datetime.strptime('20-1-1 0:0:5', '%y-%m-%d %H:%M:%S')
-    #     delta = (expected_time - log.date_time.date_time).total_seconds()
-    #     self.assertLessEqual(delta, 0)
+    @timeout.timeout(10)
+    def test_schedule_command(self):
+        now = self.obc.get_time()
+
+        # Schedule a PING command for 5 seconds in the future
+        sched_time = (now + 5)
+        pending_resp = self.obc.send_cmd("PING", date_time=sched_time)
+        self.assertTrue(pending_resp)
+        self.assertTrue(pending_resp.sched_resp.is_success_sched)
+
+        # Wait for the response to the command
+        response = pending_resp.wait(6)
+
+        self.assertTrue(response)
+        self.assertTrue(response.is_success)
+        self.assertEqual(response.data_header.exec_datetime, sched_time)
 
     @timeout.timeout(5)
     def test_get_rtos_tasks(self):
         resp = self.obc.send_cmd("RTOS_TASKS")
-        self.assertEqual(resp.code, resp.Code.SUCCESS)
+        self.assertTrue(resp.is_success)
         time.sleep(1) # Give time for rest of message to be sent
 
     @timeout.timeout(5)
     def test_get_rtos_info(self):
         resp = self.obc.send_cmd("RTOS_INFO")
-        self.assertEqual(resp.code, resp.Code.SUCCESS)
+        self.assertTrue(resp.is_success)
         self.wait_for_keyword("OK")
 
 """

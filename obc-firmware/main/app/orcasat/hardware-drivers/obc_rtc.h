@@ -43,6 +43,8 @@ extern SemaphoreHandle_t rtc_mutex;
  */
 #define RTC_MUTEX_TIMEOUT_MS 1500
 
+typedef void (*rtc_alarm_cb_t)(void *arg);
+
 // Initialization steps
 void rtc_create_infra(void);
 void rtc_init_backup(void);
@@ -59,7 +61,8 @@ rtc_err_t rtc_set_current_time(real_time_t* curr_time, active_rtc_t rtcs, bool u
 rtc_err_t switch_active_rtc(active_rtc_t rtc);
 
 rtc_err_t rtc_set_relative_alarm(uint32_t seconds_to_alarm);
-rtc_err_t rtc_set_absolute_alarm(real_time_t alarm_time);
+
+rtc_err_t rtc_set_absolute_alarm(uint32_t timestamp, rtc_alarm_cb_t cb, void *cb_arg);
 
 void rtc_set_ts(bool use_ts);
 #endif /* OBC_RTC_H_ */

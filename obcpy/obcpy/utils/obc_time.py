@@ -1,5 +1,8 @@
 import datetime
+import functools
 
+# From the < and == overrides, automatically generate the remaining comparison operators (<=, >, >=)
+@functools.total_ordering
 class OBCDateTime:
     """datetime wrapper for use with the OBC.
 
@@ -46,6 +49,61 @@ class OBCDateTime:
         """
         return int(self.date_time.timestamp() - self.EPOCH_BASE.timestamp())
 
+    def __add__(self, other) -> "OBCDateTime":
+        """Adds an integer number of seconds to this OBCDateTime.
+
+        Args:
+            other: The number of seconds to add to the timestamp represented by self. Must be an integer.
+
+        Raises:
+            ValueError: If the result of the operation is an invalid OBCDateTime.
+
+        Returns:
+            A new OBCDateTime representing the timestamp resulting from the addition.
+        """
+        if not isinstance(other, int):
+            return NotImplemented
+
+        return OBCDateTime.from_timestamp(self.to_timestamp() + other)
+
+    def __radd__(self, other) -> "OBCDateTime":
+        """Enables support for int + OBCDateTime (support for OBCDateTime + int is supplied by __add__)
+        """
+        return self + other
+
+    def __sub__(self, other) -> "OBCDateTime":
+        """Subtracts an integer number of seconds from this OBCDateTime.
+
+        Args:
+            other: The number of seconds to subtract from the timestamp represented by self. Must be an integer.
+
+        Raises:
+            ValueError: If the result of the operation is an invalid OBCDateTime.
+
+        Returns:
+            A new OBCDateTime representing the timestamp resulting from the subtraction.
+        """
+        if not isinstance(other, int):
+            return NotImplemented
+
+        return self + (-other)
+
+    def __eq__(self, other) -> bool:
+        """Equality comparison based on timestamps
+        """
+        if not isinstance(other, OBCDateTime):
+            return NotImplemented
+
+        return self.to_timestamp() == other.to_timestamp()
+
+    def __lt__(self, other) -> bool:
+        """Ordering comparison based on timestamps
+        """
+        if not isinstance(other, OBCDateTime):
+            return NotImplemented
+
+        return self.to_timestamp() < other.to_timestamp()
+
     def __str__(self) -> str:
         """Converts this OBCDateTime to a string representation in the format:
         yyyy-mm-dd hh:mm:ss
@@ -65,9 +123,15 @@ class OBCDateTime:
         Args:
             timestamp: Offset from OBCDateTime.EPOCH_BASE in seconds.
 
+        Raises:
+            ValueError: If timestamp < 0.
+
         Returns:
             An OBCDateTime instance representing the provided timestamp.
         """
+        if timestamp < 0:
+            raise ValueError(f"Invalid timestamp: {timestamp}")
+
         return cls(datetime.datetime.fromtimestamp(cls.EPOCH_BASE.timestamp() + timestamp))
 
     @classmethod

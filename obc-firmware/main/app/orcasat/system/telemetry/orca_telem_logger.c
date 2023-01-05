@@ -20,7 +20,6 @@
 #include "telem_eps.h"
 #include "obc_watchdog.h"
 #include "obc_rtos.h"
-#include "scheduler.h"
 #include <string.h>
 
 // Telemetry logging queue setup

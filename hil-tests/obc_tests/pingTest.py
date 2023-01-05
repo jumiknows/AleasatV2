@@ -13,14 +13,14 @@ class PingTest(obc_test.OBCTest):
     @timeout.timeout(5)
     def test_ping(self):
         resp = self.obc.ping()
-        self.assertEqual(resp.code, resp.Code.SUCCESS)
+        self.assertTrue(resp.is_success)
 
     @timeout.timeout(5)
     def test_echo(self):
         number = 0xA113311A
         message = "Hello ALEASAT"
         resp = self.obc.send_cmd("TEST_ECHO", number, message)
-        self.assertEqual(resp.code, resp.Code.SUCCESS)
+        self.assertTrue(resp.is_success)
         self.assertEqual(number, resp["number"])
         self.assertEqual(message, resp["message"])
 

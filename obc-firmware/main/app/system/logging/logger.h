@@ -65,7 +65,7 @@ typedef enum {
  * @param[in] size      The size of the payload data (bytes).
  * @param[in] data      The data to log.
  */
-void log_data(log_level_t lvl, log_identifier_t func_id, uint8_t size, void* data);
+void log_data(log_level_t lvl, log_identifier_t func_id, uint8_t size, const void* data);
 
 /**
  * @brief Logs a string

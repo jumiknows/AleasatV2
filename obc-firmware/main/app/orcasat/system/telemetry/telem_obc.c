@@ -18,7 +18,6 @@
 #include "sys_common.h"
 #include "reg_tcram.h"
 #include "logger.h"
-#include "scheduler.h"
 #include "obc_temperature.h"
 #include "obc_rtc.h"
 

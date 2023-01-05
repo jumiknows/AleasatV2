@@ -20,6 +20,12 @@ class OBCCmdSysMsgHeader(packet.Packet):
         self.resp = resp
         self.data_len = data_len
 
+    @property
+    def uuid(self) -> int:
+        # UUID consists of the seq_num, cmd_id, date_time and flags fields encoded as binary then interpreted as a 64-bit integer
+        uuid_bytes = struct.pack("!BBIH", self.seq_num, self.cmd_id, self.date_time.to_timestamp(), self.flags)
+        return struct.unpack("!Q", uuid_bytes)[0]
+
     def extract_data(self) -> bytes:
         raise NotImplementedError()
 

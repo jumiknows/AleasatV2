@@ -263,8 +263,12 @@
     "id": "66",
     "description": "GPS"
   },
-  "MAX_LOG_ID_VALUE": {
+  "LOG_CMD_SYS_SCHED_RESP": {
     "id": "67",
+    "description": "Responses to scheduled commands"
+  },
+  "MAX_LOG_ID_VALUE": {
+    "id": "68",
     "description": "Maximum log ID value. Should always be equal to the largest log ID."
   }
 }

@@ -11,7 +11,6 @@
 #include "telem_eps.h"
 #include "sys_common.h"
 #include "logger.h"
-#include "scheduler.h"
 #include "obc_rtc.h"
 #include "obc_hardwaredefs.h"
 

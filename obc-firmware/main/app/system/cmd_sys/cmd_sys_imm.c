@@ -11,6 +11,7 @@
 
 // Command System
 #include "cmd_sys.h"
+#include "cmd_sys_sched.h"
 
 // Serial
 #include "obc_serial_socket.h"
@@ -42,7 +43,7 @@ static void cmd_sys_imm_exec_callback(cmd_sys_err_t status);
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
 /******************************************************************************/
 
-static TaskHandle_t task_handle;
+static TaskHandle_t task_handle = NULL;
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -52,7 +53,7 @@ static TaskHandle_t task_handle;
  * @brief Start the command system task for immediate commands
  */
 void cmd_sys_imm_start_task(void) {
-    static StaticTask_t task_buffer;
+    static StaticTask_t task_buffer = { 0 };
     static StackType_t task_stack[CMD_SYS_IMM_TASK_STACK_SIZE];
 
     task_handle = task_create_static(&cmd_sys_imm_task, "cmd_sys_imm", CMD_SYS_IMM_TASK_STACK_SIZE, NULL, CMD_SYS_IMM_TASK_PRIORITY, task_stack, &task_buffer);

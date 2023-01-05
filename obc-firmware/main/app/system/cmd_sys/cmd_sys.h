@@ -25,9 +25,6 @@
 #define CMD_SYS_INPUT_READ_TIMEOUT_MS    100U
 #define CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS  100U
 
-// TODO this should move to be defined by the scheduler
-#define CMD_SYS_SCHED_MAX_DATA_SIZE  256U
-
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
@@ -77,9 +74,10 @@ typedef struct {
  * the command header information as well as the input and output streams.
  */
 typedef struct {
-    cmd_sys_msg_header_t header;
     const io_istream_t *input;
     const io_ostream_t *output;
+    cmd_sys_msg_header_t header;
+    uint32_t exec_timestamp;
 } cmd_sys_cmd_t;
 
 /**

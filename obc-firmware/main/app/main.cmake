@@ -19,15 +19,17 @@ list(APPEND SRC_DIRS
     ${.}/device-drivers/imu
     ${.}/device-drivers/magnetorquer
 
+    ${.}/device-mock
+
     ${.}/rtos
 
     ${.}/system
-    ${.}/system/command
     ${.}/system/cmd_sys
     ${.}/system/cmd_sys/impl
     ${.}/system/comms
     ${.}/system/filesystem
     ${.}/system/logging
+    ${.}/system/rtc_scheduler
     ${.}/system/serial
 
     ${.}/tests

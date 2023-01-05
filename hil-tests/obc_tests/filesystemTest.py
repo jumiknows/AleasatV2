@@ -17,7 +17,7 @@ class FilesystemTest(obc_test.OBCTest):
     @timeout.timeout(10)
     def test_fs_cmd(self):
         resp = self.obc.send_cmd("TEST_FILESYSTEM")
-        self.assertEqual(resp.code, resp.Code.SUCCESS)
+        self.assertTrue(resp.is_success)
         self.assertEqual(resp["fs_err"], 0)
 
 """

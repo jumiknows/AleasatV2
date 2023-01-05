@@ -11,6 +11,7 @@
 
 // Command System
 #include "cmd_sys_exec.h"
+#include "cmd_sys_sched.h"
 #include "cmd_sys_gen.h"
 
 // Utils
@@ -32,6 +33,11 @@
  * @brief Serialized header size in bytes
  */
 #define CMD_SYS_MSG_HEADER_LEN       12U
+
+/**
+ * @brief Serialized response data header size in bytes
+ */
+#define CMD_SYS_RESP_DATA_HEADER_LEN 5U
 
 /**
  * @brief Bit to set in the data_len field of the header to indicate the message
@@ -112,7 +118,7 @@ cmd_sys_err_t cmd_sys_run(cmd_sys_cmd_t *cmd, uint8_t *buf, cmd_sys_callback_t c
 /**
  * @brief Invoke a command. The command will run synchronously in the current task.
  * 
- * @param[in] cmd Pointer to the command struct. The header should already be parsed and populated.
+ * @param[in] cmd Pointer to a fully populated command struct.
  * 
  * @return Status code:
  *            - CMD_SYS_ERR_INVALID_CMD if the cmd ID is invalid
@@ -151,20 +157,24 @@ cmd_sys_err_t cmd_sys_begin_response(const cmd_sys_cmd_t *cmd, cmd_sys_resp_code
     if (cmd == NULL) {
         return CMD_SYS_ERR_INVALID_ARGS;
     }
-    resp_data_len += 1; // one extra byte for resp_code
+    resp_data_len += CMD_SYS_RESP_DATA_HEADER_LEN;
     if (resp_data_len > (CMD_SYS_RESPONSE_BIT - 1)) {
         return CMD_SYS_ERR_RESP_TOO_LARGE;
     }
 
-    uint8_t buf[CMD_SYS_MSG_HEADER_LEN + 1] = { 0 }; // one extra byte for resp_code
-    buf[0] = cmd->header.seq_num;
-    buf[1] = cmd->header.cmd_id;
-    data_fmt_u32_to_arr_be(cmd->header.timestamp, (buf + 2));
-    data_fmt_u16_to_arr_be(cmd->header.flags, (buf + 6));
-    resp_data_len |= CMD_SYS_RESPONSE_BIT;
-    data_fmt_u32_to_arr_be(resp_data_len, (buf + 8));
+    uint8_t buf[CMD_SYS_MSG_HEADER_LEN + CMD_SYS_RESP_DATA_HEADER_LEN] = { 0 };
+    uint8_t idx = 0;
 
-    buf[12] = (uint8_t)resp_code;
+    // Populate message header
+    buf[idx++] = cmd->header.seq_num;
+    buf[idx++] = cmd->header.cmd_id;
+    data_fmt_u32_to_arr_be(cmd->header.timestamp                 , &buf[idx]); idx += sizeof(cmd->header.timestamp);
+    data_fmt_u16_to_arr_be(cmd->header.flags                     , &buf[idx]); idx += sizeof(cmd->header.flags);
+    data_fmt_u32_to_arr_be((resp_data_len | CMD_SYS_RESPONSE_BIT), &buf[idx]); idx += sizeof(resp_data_len);
+
+    // Populate response data header
+    buf[idx++] = (uint8_t)resp_code;
+    data_fmt_u32_to_arr_be(cmd->exec_timestamp, &buf[idx]);
 
     uint32_t written = io_stream_write(cmd->output, buf, sizeof(buf), pdMS_TO_TICKS(CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS), NULL);
     if (written != sizeof(buf)) {
@@ -360,15 +370,20 @@ static cmd_sys_err_t cmd_sys_schedule_cmd(const cmd_sys_cmd_t *cmd, uint8_t *buf
         }
     }
 
-    // TODO schedule the command
+    cmd_sys_resp_code_t resp_code = CMD_SYS_RESP_CODE_ERROR;
+
+    // Schedule the command
+    cmd_sys_err_t err = cmd_sys_sched_push_cmd(&(cmd->header), buf, (CMD_SYS_MSG_HEADER_LEN + data_len));
+    if (err == CMD_SYS_SUCCESS) {
+        resp_code = CMD_SYS_RESP_CODE_SUCCESS_SCHED;
+    }
 
     // Send an immediate response
-    cmd_sys_resp_code_t resp_code = CMD_SYS_RESP_CODE_ERROR; // For now always send an error since scheduling is not supported
-    cmd_sys_err_t err = cmd_sys_begin_response(cmd, resp_code, 0);
+    err = cmd_sys_begin_response(cmd, resp_code, 0);
     if (err != CMD_SYS_SUCCESS) {
         return err;
     }
-
     err = cmd_sys_finish_response(cmd);
+
     return err;
 }

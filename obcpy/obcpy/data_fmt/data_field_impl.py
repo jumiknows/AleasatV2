@@ -261,12 +261,14 @@ class DataFieldImpl(Enum):
     """Enum of all available DataField implementations.
     """
 
-    u32      = U32
-    s32      = S32
-    u16      = U16
-    s16      = S16
     u8       = U8
     s8       = S8
+    u16      = U16
+    s16      = S16
+    u32      = U32
+    s32      = S32
+    u64      = U64
+    s64      = S64
     f32      = F32
     f64      = F64
     bool     = Bool

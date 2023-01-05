@@ -67,14 +67,14 @@ static void encode_header(log_level_t lvl, log_identifier_t func_id, uint8_t siz
 static void log_unexpected_payload_size(log_identifier_t func_id);
 static void log_unexpected_msg_id(log_identifier_t func_id);
 static void log_to_file(log_level_t lvl, uint8_t* data, uint32_t size);
-static void log_data_internal(log_level_t lvl, log_identifier_t func_id, bool write_to_file, uint8_t size, void* data, bool use_rtc);
+static void log_data_internal(log_level_t lvl, log_identifier_t func_id, bool write_to_file, uint8_t size, const void* data, bool use_rtc);
 static void log_str_internal(log_level_t lvl, log_identifier_t func_id, bool write_to_file, char* format, va_list va, bool use_rtc);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
-void log_data(log_level_t lvl, log_identifier_t func_id, uint8_t size, void* data) {
+void log_data(log_level_t lvl, log_identifier_t func_id, uint8_t size, const void* data) {
     log_data_internal(lvl, func_id, true, size, data, true);
 }
 
@@ -226,7 +226,7 @@ static void log_to_file(log_level_t lvl, uint8_t* data, uint32_t size) {
  * @param[in] size The size of the payload data (bytes).
  * @param[in] data The data to log. 25 bytes will be logged.
  */
-static void log_data_internal(log_level_t lvl, log_identifier_t func_id, bool write_to_file, uint8_t size, void* data, bool use_rtc) {
+static void log_data_internal(log_level_t lvl, log_identifier_t func_id, bool write_to_file, uint8_t size, const void* data, bool use_rtc) {
     uint8_t message[HEADER_SIZE + MAX_PAYLOAD_SIZE] = {'\0'};
 
     uint8_t payload_size;

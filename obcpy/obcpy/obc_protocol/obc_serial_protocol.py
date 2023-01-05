@@ -1,3 +1,5 @@
+import threading
+
 from obcpy.protocol import packet
 from obcpy.protocol import layer_impl
 from obcpy.protocol import routing
@@ -178,7 +180,9 @@ class OBCSerialProtocol:
         # Send Command
         self.send_cmd(cmd_sys_spec, *args, date_time=date_time, timeout=timeout)
 
-        if cmd_sys_spec.resp:
+        if cmd_sys_spec.resp or (not date_time.is_immediate):
+            # Command that are specified to have a response or any command that is scheduled will have a response.
+
             # Read Response Header
             resp_header = self.recv_resp_header(timeout=timeout)
 

@@ -14,6 +14,7 @@
 #define MAIN_TASK_STACK_SIZE            (1000)
 #define CMD_SYS_EXEC_TASK_STACK_SIZE    (1024)
 #define CMD_SYS_IMM_TASK_STACK_SIZE     (256)
+#define CMD_SYS_SCHED_TASK_STACK_SIZE   (256)
 #define SERIAL_RX_TASK_STACK_SIZE       (256)
 #define SERIAL_TX_TASK_STACK_SIZE       (256)
 #define GPIO_IRQ_TASK_STACK_SIZE        (400)
@@ -30,6 +31,7 @@
 #define STATE_HANDLER_STACK_DEPTH       (128)
 #define HANG_TASK_STACK_SIZE            (128)
 #define COMMS_IRQ_TASK_STACK_SIZE       (400)
+#define RTC_MOCK_STACK_SIZE             (128)
 
 /**
  * @brief Maximum priority that any task may have.
@@ -57,10 +59,12 @@
 #define SERIAL_TX_COMMS_TASK_PRIORITY    3
 #define SERIAL_TX_LOGS_TASK_PRIORITY     2
 #define CMD_SYS_IMM_TASK_PRIORITY        4
+#define CMD_SYS_SCHED_TASK_PRIORITY      4
 #define CMD_SYS_EXEC_TASK_PRIORITY       4
 #define WATCHDOG_TASK_DEFAULT_PRIORITY   1
 #define STATE_HANDLER_TASK_PRIORITY      5
 #define HANG_TASK_DEFAULT_PRIORITY       1
+#define RTC_MOCK_TASK_PRIORITY           5
 
 /**
  * @brief I2C FreeRTOS priorities.

@@ -13,6 +13,7 @@
 #include "cmd_sys.h"
 
 // OBC
+#include "obc_rtc.h"
 #include "obc_watchdog.h"
 #include "obc_task_info.h"
 
@@ -31,7 +32,7 @@
 /******************************************************************************/
 
 typedef struct {
-    const cmd_sys_cmd_t *cmd;
+    cmd_sys_cmd_t *cmd;
     cmd_sys_callback_t callback;
 } cmd_sys_exec_queue_item_t;
 
@@ -83,7 +84,7 @@ void cmd_sys_exec_start_task(void) {
  *            - CMD_SYS_SUCCESS if the command was added to the queue successfully
  *            - CMD_SYS_ERR_EXEC_TIMEOUT if a timeout occurred waiting for space in the queue
  */
-cmd_sys_err_t cmd_sys_exec_enqueue(const cmd_sys_cmd_t *cmd, cmd_sys_callback_t callback, uint32_t timeout_ticks) {
+cmd_sys_err_t cmd_sys_exec_enqueue(cmd_sys_cmd_t *cmd, cmd_sys_callback_t callback, uint32_t timeout_ticks) {
     cmd_sys_exec_queue_item_t queue_item = {
         .cmd      = cmd,
         .callback = callback,
@@ -111,6 +112,10 @@ static void cmd_sys_exec_task(void *pvParameters) {
         set_task_status(wd_task_id, task_asleep);
         if (xQueueReceive(cmd_queue, &queue_item, portMAX_DELAY) == pdTRUE) {
             set_task_status(wd_task_id, task_alive);
+
+            // Set exec_timestamp field of command
+            uint32_t exec_timestamp = rtc_get_epoch_time();
+            queue_item.cmd->exec_timestamp = exec_timestamp;
 
             cmd_sys_err_t err = cmd_sys_invoke_cmd(queue_item.cmd);
 

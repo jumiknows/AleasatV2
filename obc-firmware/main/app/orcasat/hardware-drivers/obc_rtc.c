@@ -242,14 +242,21 @@ rtc_err_t rtc_set_relative_alarm(uint32_t seconds_to_alarm) {
 /**
  * rtc_set_absolute_alarm
  *
- * @brief Sets an alarm on RTC A to activate at a pre-defined time.
+ * @brief Sets an alarm to activate at a pre-defined time.
+ * 
+ * Only works with the mock RTC right now.
  *
- * @param[in] alarm_time The real time that the alarm should trigger. Real time fields are used, not
- * epoch.
+ * @param[in] timestamp Epoch timestamp when the alarm should trigger
+ * @param[in] cb        Callback function to invoke at the alarm time
+ * @param[in] cb_arg    Argument to pass to the callback function
+ * 
  * @return RTC_NO_ERR if successful, error code otherwise.
  */
-rtc_err_t rtc_set_absolute_alarm(real_time_t alarm_time) {
+rtc_err_t rtc_set_absolute_alarm(uint32_t timestamp, rtc_alarm_cb_t cb, void *cb_arg) {
     rtc_err_t err = RTC_NO_ERR;
+#if RTC_MOCK_EN
+    err = rtc_set_alarm_mock(timestamp, cb, cb_arg);
+#endif
     return err;
 }
 
