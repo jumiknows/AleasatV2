@@ -82,6 +82,9 @@ class MultiPacketDest(Generic[AnyPacket], routing.PacketDest[AnyPacket]):
         """
         self._dests.extend(dests)
 
+    def remove_dest(self, dest: routing.PacketDest[AnyPacket]):
+        self._dests.remove(dest)
+
     def write(self, packet_in: AnyPacket, timeout: float = None):
         for dest in self._dests:
             dest.write(packet_in, timeout=timeout)

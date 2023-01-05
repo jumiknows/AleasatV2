@@ -17,7 +17,6 @@
 #include "obc_misra.h"
 #include "obc_utils.h"
 #include "obc_task_info.h"
-#include "obc_cmd.h"
 #include "sys_common.h"
 #include "logger.h"
 

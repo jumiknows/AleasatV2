@@ -34,7 +34,6 @@ class PacketRXProtocolLayer(Generic[AnyPacket], layer.ProtocolLayer[AnyPacket]):
     def transform_packet(self, packet_in: packet.Packet) -> List[AnyPacket]:
         return [self._packet_cls.deserialize(packet_in.extract_data())]
 
-
 class DirectionalProtocolLayer(Generic[AnyPacket], layer.ProtocolLayer[AnyPacket]):
     """Abstract base class for ProtocolLayer's that do not themselves prescribe a specific direction,
     but accept a direction parameter at initialization time.
@@ -84,6 +83,28 @@ class DirectionalProtocolLayer(Generic[AnyPacket], layer.ProtocolLayer[AnyPacket
             return packet_in.extract_data()
         else:
             raise ValueError("Invalid ProtocolLayer direction")
+
+class RawProtocolLayer(DirectionalProtocolLayer[packet.RawPacket]):
+    """Concrete implementation of a DirectionalProtocolLayer that converts all incoming packets
+    to RawPackets containing the result of calling `DirectionalProtocolLayer.packet_to_bytes()`
+    """
+
+    def transform_packet(self, packet_in: packet.Packet) -> List[packet.RawPacket]:
+        return [packet.RawPacket(self.packet_to_bytes(packet_in))]
+
+class RXRawProtocolLayer(RawProtocolLayer):
+    """RawProtocolLayer in the RX direction
+    """
+
+    def __init__(self):
+        super().__init__(DirectionalProtocolLayer.Direction.RX)
+
+class TXRawProtocolLayer(RawProtocolLayer):
+    """RawProtocolLayer in the TX direction
+    """
+
+    def __init__(self):
+        super().__init__(DirectionalProtocolLayer.Direction.TX)
 
 class BufferedProtocolLayer(DirectionalProtocolLayer[packet.RawPacket]):
     """Concrete implementation of a DirectionalProtocolLayer that buffers packets.

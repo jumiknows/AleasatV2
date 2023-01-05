@@ -84,6 +84,9 @@
 #define configTIMER_QUEUE_LENGTH                1
 #define configTIMER_TASK_STACK_DEPTH            (3U * configMINIMAL_STACK_SIZE )
 
+/* Task Notifications */
+#define configTASK_NOTIFICATION_ARRAY_ENTRIES   2U
+
 /* Privileged Functions */
 #define configINCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 1
 

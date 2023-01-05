@@ -1,0 +1,90 @@
+{
+    "RESET": {
+        "id": 0,
+        "args": [],
+        "resp": null
+    },
+    "PING": {
+        "id": 1,
+        "args": [],
+        "resp": []
+    },
+    "GET_TIME": {
+        "id": 2,
+        "args": [],
+        "resp": [
+            {"timestamp": "datetime"}
+        ]
+    },
+    "SET_TIME": {
+        "id": 3,
+        "args": [
+            {"timestamp": "datetime"}
+        ],
+        "resp": []
+    },
+    "RTOS_TASKS": {
+        "id": 4,
+        "args": [],
+        "resp": []
+    },
+    "RTOS_INFO": {
+        "id": 5,
+        "args": [],
+        "resp": []
+    },
+    "RTOS_STATE": {
+        "id": 6,
+        "args": [],
+        "resp": []
+    },
+    "LOW_POWER": {
+        "id": 7,
+        "args": [
+            {"enable": "bool"}
+        ],
+        "resp": []
+    },
+    "SYS_TIME": {
+        "id": 8,
+        "args": [],
+        "resp": [
+            {"sys_time_us": "u32"}
+        ]
+    },
+    "CPU_USAGE": {
+        "id": 9,
+        "args": [],
+        "resp": [
+            {"sys_time_us": "u32"},
+            {"idle_time_us": "u32"}
+        ]
+    },
+    "WD_RESET": {
+        "id": 10,
+        "args": [],
+        "resp": []
+    },
+    "GPIO_EXP_RESET": {
+        "id": 11,
+        "args": [],
+        "resp": []
+    },
+    "I2C_RESET": {
+        "id": 12,
+        "args": [],
+        "resp": []
+    },
+    "HEARTBEAT": {
+        "id": 13,
+        "args": [
+            {"enable": "bool"}
+        ],
+        "resp": []
+    },
+    "GPS_RESTART": {
+        "id": 14,
+        "args": [],
+        "resp": []
+    }
+}

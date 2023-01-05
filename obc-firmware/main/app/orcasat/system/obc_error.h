@@ -100,7 +100,7 @@ typedef enum mram_err {
 /**
  * @brief Filesystem error codes, propagated up from LittleFS.
  */
-typedef enum fs_err {
+typedef enum {
     /* OBC filesystem errors */
     FS_TEST_READ_FAILURE    = 3,                   // 3     : Test function failed to read from file (for FS test)
     FS_TEST_WRITE_FAILURE   = 2,                   // 2     : Test function failed to write to file (for FS test)
@@ -147,7 +147,7 @@ typedef enum {
 /**
  * @brief Return value for MIBSPI functions, indicating any errors.
  */
-typedef enum mibspi_err {
+typedef enum {
     /**
      * @brief Indicates that there were no IO errors.
      */

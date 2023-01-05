@@ -10,11 +10,19 @@ Should you want to change the default SetUp or tearDown you can implement it her
 """
 class PingTest(obc_test.OBCTest):
 
-    # Timeout is in seconds, it will also record how long this test takes.
     @timeout.timeout(5)
     def test_ping(self):
-        self.obc.ping()
-        self.wait_for_keyword("Ping")
+        resp = self.obc.ping()
+        self.assertEqual(resp.code, resp.Code.SUCCESS)
+
+    @timeout.timeout(5)
+    def test_echo(self):
+        number = 0xA113311A
+        message = "Hello ALEASAT"
+        resp = self.obc.send_cmd("TEST_ECHO", number, message)
+        self.assertEqual(resp.code, resp.Code.SUCCESS)
+        self.assertEqual(number, resp["number"])
+        self.assertEqual(message, resp["message"])
 
 """
 This section is required if you want to run these tests independently.

@@ -15,6 +15,8 @@ class OBCDateTime:
 
     EPOCH_BASE = datetime.datetime(2020, 1, 1, 0, 0, 0)
 
+    STR_FORMAT = "%Y-%m-%d@%H:%M:%S"
+
     def __init__(self, date_time: datetime.datetime):
         self._date_time = date_time
 
@@ -54,7 +56,7 @@ class OBCDateTime:
         if self.is_immediate:
             return "IMMEDIATE"
         else:
-            return self.date_time.strftime('%Y-%m-%d %H:%M:%S')
+            return self.date_time.strftime(self.STR_FORMAT)
 
     @classmethod
     def from_timestamp(cls, timestamp: int) -> "OBCDateTime":
@@ -66,6 +68,21 @@ class OBCDateTime:
         Returns:
             An OBCDateTime instance representing the provided timestamp.
         """
-        return OBCDateTime(datetime.datetime.fromtimestamp(cls.EPOCH_BASE.timestamp() + timestamp))
+        return cls(datetime.datetime.fromtimestamp(cls.EPOCH_BASE.timestamp() + timestamp))
+
+    @classmethod
+    def from_string(cls, datetime_str: str) -> "OBCDateTime":
+        """Constructs an OBCDateTime from a string in the format %Y-%m-%d %H:%M:%S.
+
+        Args:
+            datetime_str: A date/time in string format.
+
+        Raises:
+            ValueError: If datetime_str is not a valid date/time.
+
+        Returns:
+            An OBCDateTime instance representing the provided date/time string.
+        """
+        return cls(datetime.datetime.strptime(datetime_str, OBCDateTime.STR_FORMAT))
 
 IMMEDIATE = OBCDateTime.from_timestamp(0)

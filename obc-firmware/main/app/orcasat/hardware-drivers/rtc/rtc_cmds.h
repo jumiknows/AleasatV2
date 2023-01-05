@@ -7,7 +7,6 @@
 
 #ifndef RTC_CMDS_H_
 #define RTC_CMDS_H_
-#include "obc_cmd.h"
 
 /**
  * @brief Command to update the time on various sets of RTCs.

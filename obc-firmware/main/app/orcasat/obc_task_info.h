@@ -12,9 +12,10 @@
  * @brief Task stack sizes. These sizes are in units of 32 bits (4 bytes).
  */
 #define MAIN_TASK_STACK_SIZE            (1000)
-#define CMD_TASK_STACK_SIZE             (512)
-#define SERIAL_RX_TASK_STACK_SIZE       (128)
-#define SERIAL_TX_TASK_STACK_SIZE       (128)
+#define CMD_SYS_EXEC_TASK_STACK_SIZE    (1024)
+#define CMD_SYS_IMM_TASK_STACK_SIZE     (256)
+#define SERIAL_RX_TASK_STACK_SIZE       (256)
+#define SERIAL_TX_TASK_STACK_SIZE       (256)
 #define GPIO_IRQ_TASK_STACK_SIZE        (400)
 #define BLINKY_TASK_STACK_SIZE          (128)
 #define EXPANDER_BLINKY_TASK_STACK_SIZE (400)
@@ -53,9 +54,10 @@
 #define SCHEDULER_TEST_TASK_PRIORITY     4
 #define STATE_HANDLER_TEST_TASK_PRIORITY 4
 #define SERIAL_RX_TASK_PRIORITY          5
-#define CMD_TASK_PRIORITY                4
 #define SERIAL_TX_COMMS_TASK_PRIORITY    3
 #define SERIAL_TX_LOGS_TASK_PRIORITY     2
+#define CMD_SYS_IMM_TASK_PRIORITY        4
+#define CMD_SYS_EXEC_TASK_PRIORITY       4
 #define WATCHDOG_TASK_DEFAULT_PRIORITY   1
 #define STATE_HANDLER_TASK_PRIORITY      5
 #define HANG_TASK_DEFAULT_PRIORITY       1

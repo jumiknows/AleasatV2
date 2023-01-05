@@ -4,47 +4,82 @@ import os
 import time
 import argparse
 import sys
+import threading
+import pathlib
 
 import xmlrunner
 
-from obcpy.protocol.routing import PacketSource
-from obcpy.obc_protocol.log import OBCLog
-from obcpy.obc_handler import OBCHandler
+from obcpy.protocol import routing_impl
+from obcpy.obc_protocol import log
+from obcpy.obc import OBC
 from  obcpy.utils.serial import get_serial_ports
 
 PORT_ENV_VAR = "ALEA_OBC_PORT"
 
+CMD_SYS_SPECS_PATHS = [
+    pathlib.Path(__file__).parent.parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
+    pathlib.Path(__file__).parent.parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
+]
+
 class OBCTest(unittest.TestCase):
     PORT = os.getenv(PORT_ENV_VAR)
 
-    obc : OBCHandler = None
-    logs : PacketSource[OBCLog] = None
+    # For use by test case subclass
+    obc : OBC = None
+    logs : routing_impl.QueuePacketBridge[log.OBCLog] = None
+
+    # For internal use only
+    _logs_print: routing_impl.QueuePacketBridge[log.OBCLog] = None
+    _logs_print_thread: threading.Thread = None
+    _logs_print_stop: threading.Event = None
 
     @classmethod
     def setUpClass(cls):
         if cls.PORT is None:
             raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
 
-        cls.obc = OBCHandler()
+        cls.obc = OBC(*CMD_SYS_SPECS_PATHS)
         if not cls.obc.start(cls.PORT):
             raise Exception(f"ERROR: Could not connect to {cls.PORT}")
 
-        cls.logs = cls.obc.interface.protocol.add_log_dest()
+        cls.logs = cls.obc.interface.protocol.add_log_listener(queue_size=100)
+
+        cls._logs_print = cls.obc.interface.protocol.add_log_listener(queue_size=100)
+        cls._logs_print_stop = threading.Event()
+        cls._logs_print_thread = threading.Thread(target=cls.bg_logs_run, daemon=True)
+        print("Starting log printing thread")
+        cls._logs_print_thread.start()
 
     def setUp(self) -> None:
         # Put the OBC in a known state
         self.obc.reset()
-        time.sleep(2)
+        self.wait_for_keyword("ALEASAT Started", timeout=2) # TODO ALEA-853 use a less ambiguous log message to indicate system is booted
+        time.sleep(1) # TODO remove once ALEA-853 is implemented
 
     def tearDown(self) -> None:
         pass
 
-    def wait_for_keyword(self, pass_key: str, fail_key: str = None) -> OBCLog:
-        while 1:
-            logs = self.logs.read()
+    @classmethod
+    def tearDownClass(cls) -> None:
+        print("Stopping log printing thread")
+        cls._logs_print_stop.set()
+        cls._logs_print_thread.join(2)
+        cls.obc.stop()
+
+    @classmethod
+    def bg_logs_run(cls):
+        while not cls._logs_print_stop.is_set():
+            logs = cls._logs_print.read(0.1)
             if logs:
                 for log in logs:
                     print(log)
+
+    def wait_for_keyword(self, pass_key: str, fail_key: str = None, timeout: float = None) -> log.OBCLog:
+        start = time.time()
+        while 1:
+            logs = self.logs.read(0.1)
+            if logs:
+                for log in logs:
                     try:
                         log_text = log.payload.decode("ascii")
                         if pass_key in log_text:
@@ -53,10 +88,9 @@ class OBCTest(unittest.TestCase):
                             self.fail(f"\"{fail_key}\" observed: test failed.")
                     except UnicodeDecodeError:
                         pass
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.obc.stop()
+            if timeout is not None:
+                if (time.time() - start) >= timeout:
+                    self.fail("Timed-out waiting for keyword")
 
 def main(test_cases: Union[Type[OBCTest],List[Type[OBCTest]]]) -> str:
     env_port = os.getenv(PORT_ENV_VAR)

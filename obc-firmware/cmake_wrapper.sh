@@ -12,6 +12,9 @@ if [[ $# -lt 3 ]]; then
     exit 1
 fi
 
+# Setup environment
+export PYTHONPATH=../obcpy
+
 # Process arguments
 PLATFORM=$1
 TARGET=$2

@@ -59,8 +59,7 @@ void watchdog_reset(void) {
     xSemaphoreTake(watchdog_mutex, portMAX_DELAY); // Take the mutex to ensure WDPT doesn't have it
     log_str(INFO, LOG_WATCHDOG, "Suspending WDPT");
     vTaskSuspend(xWatchdogPetTaskHandle);
-    xSemaphoreTake(watchdog_mutex,
-                   portMAX_DELAY); // Allow other tasks to use the WD table between now and reset time
+    xSemaphoreGive(watchdog_mutex);
 }
 
 /**

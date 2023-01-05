@@ -23,6 +23,8 @@ list(APPEND SRC_DIRS
 
     ${.}/system
     ${.}/system/command
+    ${.}/system/cmd_sys
+    ${.}/system/cmd_sys/impl
     ${.}/system/comms
     ${.}/system/filesystem
     ${.}/system/logging
@@ -84,6 +86,28 @@ add_custom_command(
 )
 list(APPEND SRC_FILES
     generated/log_ids.h
+)
+
+# Generate Command System
+
+add_custom_command(
+    OUTPUT              generated/cmd_sys_gen.h
+                        generated/cmd_sys_gen.c
+    WORKING_DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND             python3 tools/cmd_sys/cmd_sys_gen.py
+                            -i ${CMAKE_CURRENT_SOURCE_DIR}/tools/cmd_sys/cmd_sys.json
+                               ${CMAKE_CURRENT_SOURCE_DIR}/tools/cmd_sys/cmd_sys_test.json
+                            -o ${CMAKE_CURRENT_BINARY_DIR}/generated
+    DEPENDS             ./tools/cmd_sys/cmd_sys.json
+                        ./tools/cmd_sys/cmd_sys_test.json
+                        ./tools/cmd_sys/cmd_sys_gen.py
+                        ./tools/cmd_sys/templates/cmd_sys_gen_template.h
+                        ./tools/cmd_sys/templates/cmd_sys_gen_template.c
+                        ./tools/cmd_sys/templates/macros.c
+)
+list(APPEND SRC_FILES
+    generated/cmd_sys_gen.h
+    generated/cmd_sys_gen.c
 )
 
 # Main / ISRs

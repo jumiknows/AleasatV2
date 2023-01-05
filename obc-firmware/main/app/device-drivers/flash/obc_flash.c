@@ -33,7 +33,8 @@
  */
 void flash_init(void) {
 #ifdef PLATFORM_LAUNCHPAD_1224
-    flash_init_mock();
+    // TODO ALEA-855 Enable mock filesystem
+    // flash_init_mock();
 #endif
 #ifdef PLATFORM_ALEA_V1
     mt25ql_init();
@@ -76,7 +77,9 @@ void flash_identify(void) {
  */
 flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size) {
 #ifdef PLATFORM_LAUNCHPAD_1224
-    return flash_erase_mock(addr, erase_size);
+    // TODO ALEA-855 Enable mock filesystem
+    return FLASH_MOCK_ERR;
+    // return flash_erase_mock(addr, erase_size);
 #endif
 #ifdef PLATFORM_ALEA_V1
     return mt25ql_erase(addr, erase_size);
@@ -93,7 +96,9 @@ flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size) {
  */
 flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data) {
 #ifdef PLATFORM_LAUNCHPAD_1224
-    return flash_write_mock(addr, size_bytes, data);
+    // TODO ALEA-855 Enable mock filesystem
+    return FLASH_MOCK_ERR;
+    // return flash_write_mock(addr, size_bytes, data);
 #endif
 #ifdef PLATFORM_ALEA_V1
     if (size_bytes == 64) {
@@ -115,7 +120,9 @@ flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data)
  */
 flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data) {
 #ifdef PLATFORM_LAUNCHPAD_1224
-    return flash_read_mock(addr, size_bytes, data);
+    // TODO ALEA-855 Enable mock filesystem
+    return FLASH_MOCK_ERR;
+    // return flash_read_mock(addr, size_bytes, data);
 #endif
 #ifdef PLATFORM_ALEA_V1
     if (size_bytes == 64) {

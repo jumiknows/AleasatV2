@@ -23,10 +23,8 @@
 #include "obc_flash.h"
 #include "obc_watchdog.h"
 #include "obc_gpio.h"
-#include "obc_cmd.h"
 #include "blinky.h"
 #include "logger.h"
-#include "scheduler.h"
 #include "obc_filesystem.h"
 #include "orca_telem_logger.h"
 #include "hang.h"
@@ -38,7 +36,8 @@
 #include "tms_spi.h"
 #include "tms_i2c.h"
 #include "obc_serial.h"
-#include "obc_cmd_serial.h"
+#include "cmd_sys_imm.h"
+#include "cmd_sys_exec.h"
 
 // Private Functions
 static void obc_main_task(void* pvParameters);
@@ -65,11 +64,12 @@ static void obc_main_task(void* pvParameters) {
     gpio_create_infra();
     tms_mibspi_create_infra();
     rtc_create_infra();
-    scheduler_create_infra();
+    // scheduler_create_infra(); // TODO ALEA-425 new scheduler
     obc_rtos_create_infra();
     telem_create_infra();
     comms_create_infra();
     tms_spi_create_infra();
+    cmd_sys_exec_create_infra();
 
     // Start the backup epoch so we have a timestamp before initializing the hardware RTCs.
     // If errors occur in subsequent steps, they will be able to properly log the error because
@@ -110,7 +110,8 @@ static void obc_main_task(void* pvParameters) {
     // Start the tasks that deal with hardware. These tasks process requests from queues, and also
     // handle interrupts. These tasks must be created before the interrupts are enabled, because
     // interrupt processing requires that these tasks can run.
-    obc_cmd_serial_start_task();
+    cmd_sys_exec_start_task();
+    cmd_sys_imm_start_task();
     obc_serial_start_tasks();
     gpio_start_task();
     comms_interrupt_start_task();
@@ -137,7 +138,7 @@ static void obc_main_task(void* pvParameters) {
 
     // Start the scheduler tasks so that commands can be processed. It's best to do this after the
     // RTC is started so there is a good time reference.
-    scheduler_start();
+    // scheduler_start(); // TODO ALEA-425 new scheduler
 
     // Enable interrupts for the UART. This should only be done after the scheduler is started,
     // because the scheduler processes commands received from the UART.
@@ -159,12 +160,6 @@ static void obc_main_task(void* pvParameters) {
     // print_startup_type();
     // log_PBIST_fails();
     // obc_startup_logs();
-
-    // Create the internally scheduled actions
-    obc_cmd_parse_and_invoke("0 count 20-01-01 0:0:10 5", INTERNAL);
-    // Create any other tasks.
-    // task_create(&vLogSysTestTask, "Log", 400, NULL, BLINKY_TASK_DEFAULT_PRIORITY,
-    // &xLogSysTaskHandle );
 
     vTaskDelay(pdMS_TO_TICKS(10)); // NECESSARY: expander blinker doesn't work without brief delay (waiting for hw init?)
     expander_blinky_start_task();
