@@ -18,8 +18,8 @@ import san_antonio, history, config, constants
 from obcqt import OBCQT, OBCQTRequest
 
 CMDS_PATHS = [
-    Path(__file__).parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
-    Path(__file__).parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
+    Path(__file__).resolve().parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
+    Path(__file__).resolve().parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
 ]
 
 class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):

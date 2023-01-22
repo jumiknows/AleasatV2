@@ -93,7 +93,7 @@ class OBC:
         self._pending_responses: Dict[int, OBCPendingResponse] = {}
         self._sched_resp_source = self.interface.protocol.add_log_listener(queue_size=100)
         self._sched_resp_event = threading.Event()
-        self._sched_resp_thread = threading.Thread(target=self._run_sched_resp, daemon=True)
+        self._sched_resp_thread: threading.Thread = None
 
     @property
     def connected(self) -> bool:
@@ -128,14 +128,18 @@ class OBC:
         Returns:
             True if the connection was opened successfully, otherwise False.
         """
+        self._sched_resp_thread = threading.Thread(target=self._run_sched_resp, daemon=True)
+        self._sched_resp_event.clear()
         self._sched_resp_thread.start()
         return self.interface.start(serial_port)
 
     def stop(self):
         """Closes a connection to the OBC and terminates the background threads.
         """
-        self._sched_resp_event.set()
-        self._sched_resp_thread.join()
+        if self._sched_resp_thread is not None:
+            self._sched_resp_event.set()
+            self._sched_resp_thread.join()
+            self._sched_resp_thread = None
         return self.interface.stop()
 
     def send_cmd_str(self, cmd_str: str, date_time: obc_time.OBCDateTime = obc_time.IMMEDIATE, timeout: int = DEFAULT_CMD_TIMEOUT) -> Union[resp.OBCResponse, OBCPendingResponse]:
