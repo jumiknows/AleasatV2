@@ -9,9 +9,6 @@
 
 // Comms
 #include "comms_telem.h"
-#include "comms_defs.h"
-#include "comms_cmd.h"
-#include "obc_comms.h"
 
 // OBC
 #include "logger.h"
@@ -48,11 +45,26 @@ static uint32_t get_32bit_uint(uint8_t* bytes, uint8_t* i);
  * @return comms_err_t indicating if telemetry was successfully acquired and
  *         returned via telem_recv
  */
-comms_err_t comms_get_telem(comms_telem_t* telem_recv) {
+comms_err_t comms_get_telem(
+    comms_session_handle_t session_handle,
+    comms_telem_t* telem_recv
+) {
     comms_err_t err;
-    comms_command_t resp = { 0 };
 
-    err = comms_send_recv_cmd(comms_hwid, COMMS_RADIO_MSG_GET_TELEM, NULL, 0, &resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+    // (MISRA-C:2004 9.2/R) Braces shall be used to indicate and match the structure 
+    // in the non-zero initialization of arrays and structures
+    //
+    // MISRA requires each field to be explicitly initialized when any fields are initialized to a non-zero value
+    // Disable the MISRA check here so we don't have to zero out each element of the array in this struct
+    OBC_MISRA_CHECK_OFF
+    comms_cmd_resp_t resp = {COMMS_CMD_RESULT_OK, {0}};
+    OBC_MISRA_CHECK_ON
+
+    err = comms_send_command(session_handle, COMMS_CMD_GET_TELEM, NULL, 0, 0);
+
+    if(err == COMMS_SUCCESS) {
+        err = comms_wait_cmd_resp(session_handle, &resp, pdMS_TO_TICKS(COMMS_CMD_TIMEOUT_MS_DEFAULT));
+    }
 
     if (err == COMMS_SUCCESS) {
         uint8_t ind_data = 0;

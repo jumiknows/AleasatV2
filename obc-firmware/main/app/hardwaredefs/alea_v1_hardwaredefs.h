@@ -217,12 +217,13 @@
 /**
  * @brief COMMS SPI interface
  */
-#define COMMS_MIBSPI_REG     mibspiREG3
-#define COMMS_CS_PORT        gioPORTA
-#define COMMS_CS_PIN         5
-#define COMMS_TRANSFER_GROUP 0
-#define COMMS_TG_SIZE_WORDS  128 // one word is 16 bits
-#define COMMS_DATA_FORMAT    0
+#define COMMS_MIBSPI_REG       mibspiREG3
+#define COMMS_CS_PORT          gioPORTA
+#define COMMS_CS_PIN           5
+#define COMMS_TRANSFER_GROUP   0
+#define COMMS_TG_SIZE_WORDS    128 // one word is 16 bits
+#define COMMS_DATA_FORMAT      0
+#define COMMS_MIBSPI_TGI_LEVEL 0
 
 #define COMMS_RST_PORT CAN_PORT(canREG1)
 #define COMMS_RST_PIN  CAN_PIN_RX

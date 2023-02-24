@@ -10,7 +10,7 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-#include "comms_defs.h"
+#include "comms_api.h"
 
 // Standard Library
 #include <stdint.h>
@@ -22,7 +22,6 @@
 #define COMMS_FLASH_APP_START 0x0400
 #define COMMS_FLASH_APP_END 0x6BFF
 #define COMMS_FLASH_PAGE_SIZE_BYTES 128
-
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
@@ -36,6 +35,8 @@ typedef struct comms_app_image_page_struct {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-comms_err_t comms_flash_image(const comms_app_image_page_t* pages, uint8_t num_pages);
+comms_err_t comms_flash_image(comms_session_handle_t session_handle,
+                              const comms_app_image_page_t* pages,
+                              uint8_t num_pages);
 
 #endif /* COMMS_FLASH_H_ */

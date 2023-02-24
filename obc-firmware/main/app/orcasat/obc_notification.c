@@ -25,9 +25,9 @@
 #include "rtos.h"
 #include "het.h"
 #include "logger.h"
-#include "obc_comms.h"
 #include "gio.h"
 #include "obc_serial_rx.h"
+#include "comms_mibspi.h"
 
 /**
  * @brief Callback for all TMS570 GIO interrupts.
@@ -65,7 +65,7 @@ void edgeNotification(hetBASE_t* hetREG, uint32 edge) {
      */
     if ((hetREG == COMMS_INT_REG) && (edge == COMMS_INT_EDGE)) {
         // Notify Comms service task to read message from SPI
-        notify_comms_irq();
+        comms_mibspi_invoke_irq_cb();
     }
 }
 

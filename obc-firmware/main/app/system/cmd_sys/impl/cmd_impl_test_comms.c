@@ -11,10 +11,11 @@
 #include "cmd_sys.h"
 
 // COMMS
-#include "obc_comms.h"
-#include "comms_cmd.h"
+#include "comms_flash.h"
+#include "comms_api.h"
 #include "comms_app_image.h"
 #include "comms_telem.h"
+#include "comms_defs.h"
 
 // OBC
 #include "logger.h"
@@ -32,48 +33,21 @@
 #include "assert.h"
 
 /******************************************************************************/
-/*                       P U B L I C  F U N C T I O N S                       */
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
 /******************************************************************************/
 
-/**
- * @brief Tests sending the command arguments via raw MIBSPI.
- */
-cmd_sys_resp_code_t cmd_impl_TEST_COMMS_RAW(const cmd_sys_cmd_t *cmd, cmd_TEST_COMMS_RAW_resp_t *resp) {
-    uint16_t data[COMMS_TG_SIZE_WORDS] = {0x0000};
-    memset(data, 0xAB, sizeof(data));
+static comms_session_handle_t session = -1;
+static SemaphoreHandle_t comms_reboot_sem;
 
-    uint32_t bytes_read = io_stream_read(cmd->input, (uint8_t *)data, cmd->header.data_len, pdMS_TO_TICKS(CMD_SYS_INPUT_READ_TIMEOUT_MS), NULL);
-    if (bytes_read != cmd->header.data_len) {
-        return CMD_SYS_RESP_CODE_ERROR;
-    }
+/******************************************************************************/
+/*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
+/******************************************************************************/
 
-    mibspi_err_t err = comms_mibspi_tx(data);
+static void comms_reboot_callback(comms_session_handle_t session_handle, comms_event_id_t ev_id, void* arg);
 
-    resp->mibspi_err = (int8_t)err;
-    return CMD_SYS_RESP_CODE_SUCCESS;
-}
-
-/**
- * @brief Tests sending command, taking command line argument as params. Does not wait for response.
- *
- * If testing with Comms board, change comms_hwid
- */
-cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_ONLY(const cmd_sys_cmd_t *cmd, cmd_TEST_COMMS_TX_ONLY_resp_t *resp) {
-    uint8_t message[226] = { 0 };
-    if (cmd->header.data_len > sizeof(message)) {
-        return CMD_SYS_RESP_CODE_ERROR;
-    }
-
-    uint32_t bytes_read = io_stream_read(cmd->input, (uint8_t *)message, cmd->header.data_len, pdMS_TO_TICKS(CMD_SYS_INPUT_READ_TIMEOUT_MS), NULL);
-    if (bytes_read != cmd->header.data_len) {
-        return CMD_SYS_RESP_CODE_ERROR;
-    }
-
-    comms_err_t err = comms_send_cmd(comms_hwid, COMMS_COMMON_MSG_ASCII, message, cmd->header.data_len, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
-
-    resp->comms_err = (int8_t)err;
-    return CMD_SYS_RESP_CODE_SUCCESS;
-}
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 /**
  * @brief Tests sending commands and receiving the responses.
@@ -81,13 +55,43 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_ONLY(const cmd_sys_cmd_t *cmd, cmd_TE
  * If testing with Comms board, change comms_hwid
  */
 cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_RX(const cmd_sys_cmd_t *cmd, cmd_TEST_COMMS_TX_RX_resp_t *resp) {
-    comms_err_t err;
-    comms_command_t comms_resp = {0};
+    comms_err_t err = COMMS_SUCCESS;
+    // (MISRA-C:2004 9.2/R) Braces shall be used to indicate and match the structure 
+    // in the non-zero initialization of arrays and structures
+    //
+    // MISRA requires each field to be explicitly initialized when any fields are initialized to a non-zero value
+    // Disable the MISRA check here so we don't have to zero out each element of the array in this struct
+    OBC_MISRA_CHECK_OFF
+    comms_cmd_resp_t comms_resp = {COMMS_CMD_RESULT_OK, {0}};
+    OBC_MISRA_CHECK_ON
 
-    err = comms_send_recv_cmd(comms_hwid, COMMS_RADIO_MSG_GET_TELEM, NULL, 0, &comms_resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
+    // open a comms session to communicate with the radio card
+    if(session < 0) {
+        err = comms_session_init(COMMS_ENDPOINT_RADIO, &session);
+    }
+
+    if (err != COMMS_SUCCESS) {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to start a comms session: %d ", err);
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    // send a command to request telemtry 
+    err = comms_send_command(session, COMMS_CMD_GET_TELEM, NULL, 0, 0);
+    if(err != COMMS_SUCCESS) {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to send command: %d ", err);
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+        // block and wait for response
+    err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
+
+    if(err != COMMS_SUCCESS) {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to receive command response: %d ", err);
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
 
     resp->comms_err = err;
-    resp->command = comms_resp.header.command;
+    resp->command = (uint8_t)COMMS_CMD_GET_TELEM;
     return CMD_SYS_RESP_CODE_SUCCESS;
 }
 
@@ -97,16 +101,27 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_RX(const cmd_sys_cmd_t *cmd, cmd_TEST
  * If testing with Comms board, change comms_hwid
  */
 cmd_sys_resp_code_t cmd_impl_TEST_COMMS_STRESS1(const cmd_sys_cmd_t *cmd, cmd_TEST_COMMS_STRESS1_resp_t *resp) {
-    comms_err_t err;
-    comms_command_t comms_resp = {0};
+    comms_err_t err = COMMS_SUCCESS;
+    comms_cmd_resp_t comms_resp;
     uint32_t num_success = 0;
     uint32_t num_fail = 0;
     uint32_t i;
 
+    // open a comms session to communicate with the radio card
+    if(session < 0) {
+        err = comms_session_init(COMMS_ENDPOINT_RADIO, &session);
+    }
+
+    if (err != COMMS_SUCCESS) {
+           log_str(INFO, LOG_TEST_COMMS_CMD, "failed to start a comms session: %d ", err);
+           return CMD_SYS_RESP_CODE_ERROR;
+    }
+
     for (i = 0; i < 1000; ++i) {
         memset(&comms_resp, 0, sizeof(comms_resp));
-        err = comms_send_recv_cmd(comms_hwid, COMMS_COMMON_MSG_ACK, NULL, 0, &comms_resp, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
-        if ((err != COMMS_SUCCESS) || (comms_resp.header.command != COMMS_COMMON_MSG_ACK)) {
+        comms_send_command(session, COMMS_CMD_PING, NULL, 0, 0);
+        err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
+        if ((err != COMMS_SUCCESS) || (comms_resp.result != COMMS_CMD_RESULT_OK)) {
             num_fail++;
             if (num_fail >= 5) {
                 break;
@@ -129,12 +144,37 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_STRESS1(const cmd_sys_cmd_t *cmd, cmd_TE
  * If testing with Comms board, change comms_hwid
  */
 cmd_sys_resp_code_t cmd_impl_TEST_COMMS_FLASH_APP(const cmd_sys_cmd_t *cmd, cmd_TEST_COMMS_FLASH_APP_resp_t *resp) {
-    comms_err_t err;
+    comms_err_t err = COMMS_SUCCESS;
 
-    err = comms_flash_image(comms_test_app_image_pages, comms_test_app_image_num_pages);
-    
+    // open a comms session to communicate with the radio card
+    if(session < 0) {
+        err = comms_session_init(COMMS_ENDPOINT_RADIO, &session);
+    }
+
+    if (err != COMMS_SUCCESS) {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to start a comms session: %d ", err);
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    err = comms_flash_image(session, comms_test_app_image_pages,
+                               comms_test_app_image_num_pages);
+
     resp->comms_err = err;
     return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Unblock reboot test thread after receiving radio app start message
+ */
+static void comms_reboot_callback(comms_session_handle_t session_handle,
+                           comms_event_id_t ev_id,
+                           void* arg)
+{
+    comms_command_t* cmd = (comms_command_t*)arg;
+
+    if(cmd->header.command == COMMS_RADIO_MSG_START) {
+        xSemaphoreGive(comms_reboot_sem);
+    }
 }
 
 /**
@@ -145,28 +185,55 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_FLASH_APP(const cmd_sys_cmd_t *cmd, cmd_
  * If testing with Comms board, change comms_hwid
  */
 cmd_sys_resp_code_t cmd_impl_TEST_COMMS_REBOOT(const cmd_sys_cmd_t *cmd) {
-    comms_err_t err;
-    comms_command_t msg = {0};
-    comms_waiter_match_params_t app_start_match_spec = {
-        .match_cmd_num_spec = COMMS_MATCH_EQUAL,
-        .match_cmd_num = COMMS_RADIO_MSG_START,
-        .cmd_ptr = &msg
-    };
+    comms_err_t err = COMMS_SUCCESS;
 
-    err = comms_send_cmd(comms_hwid, COMMS_RADIO_MSG_REBOOT, NULL, 0, COMMS_MIBSPI_MUTEX_TIMEOUT_MS);
-    if (err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "reboot fail 1");
+    // (MISRA-C:2004 9.2/R) Braces shall be used to indicate and match the structure 
+    // in the non-zero initialization of arrays and structures
+    //
+    // MISRA requires each field to be explicitly initialized when any fields are initialized to a non-zero value
+    // Disable the MISRA check here so we don't have to zero out each element of the array in this struct
+    OBC_MISRA_CHECK_OFF
+    comms_cmd_resp_t comms_resp = {COMMS_CMD_RESULT_OK, {0}};
+    OBC_MISRA_CHECK_ON
+
+    static StaticSemaphore_t comms_reboot_sem_buf = {0};
+
+    // open a comms session to communicate with the radio card
+    if(session < 0) {
+        comms_session_init(COMMS_ENDPOINT_RADIO, &session);
+    }
+
+    if(!comms_reboot_sem) {
+        comms_reboot_sem = xSemaphoreCreateBinaryStatic(&comms_reboot_sem_buf);
+    }
+
+    err = comms_register_events(session, (1<<COMMS_EVENT_MSG_RCV), &comms_reboot_callback);
+    if(err != COMMS_SUCCESS) {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to register for comms msg events %d", err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-    err = comms_wait_for_cmd(&app_start_match_spec, 2000);
-    if (err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "reboot fail 2");
+    err = comms_send_command(session, COMMS_CMD_REBOOT, NULL, 0, 0);
+    if(err != COMMS_SUCCESS) {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to send reboot command %d", err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-    log_str(INFO, LOG_TEST_COMMS_CMD, "reboot pass");
-    return CMD_SYS_RESP_CODE_SUCCESS;
+    // block and wait for response
+     err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
+     if((err != COMMS_SUCCESS) || (comms_resp.result == COMMS_CMD_RESULT_ERR)) {
+         log_str(INFO, LOG_TEST_COMMS_CMD, "failed to receive reboot response %d", err);
+         return CMD_SYS_RESP_CODE_ERROR;
+     }
+
+    if(xSemaphoreTake(comms_reboot_sem, pdMS_TO_TICKS(2000)) == pdTRUE) {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "reboot pass");
+        return CMD_SYS_RESP_CODE_SUCCESS;
+    }
+    else {
+        log_str(INFO, LOG_TEST_COMMS_CMD, "failed waiting for reboot");
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
 }
 
 /**
@@ -175,12 +242,16 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_REBOOT(const cmd_sys_cmd_t *cmd) {
  * If testing with Comms board, change comms_hwid
  */
 cmd_sys_resp_code_t cmd_impl_TEST_COMMS_GET_TELEM(const cmd_sys_cmd_t *cmd, cmd_TEST_COMMS_GET_TELEM_resp_t *resp) {
-    comms_err_t err;
+    comms_err_t err = COMMS_SUCCESS;
     comms_telem_t telem_recv = { 0 };
 
-    err = comms_get_telem(&telem_recv);
+    if(session < 0) {
+        comms_session_init(COMMS_ENDPOINT_RADIO, &session);
+    }
+
+    err = comms_get_telem(session, &telem_recv);
     if (err != COMMS_SUCCESS) {
-        log_str(ERROR, LOG_TEST_COMMS_CMD, "Unable to get telemetry!");
+        log_str(INFO, LOG_TEST_COMMS_CMD, "Unable to get telemetry!");
         return CMD_SYS_RESP_CODE_ERROR;
     }
 

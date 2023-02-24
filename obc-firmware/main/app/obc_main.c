@@ -31,7 +31,8 @@
 #include "obc_settings.h"
 #include "obc_adc.h"
 #include "obc_mram.h"
-#include "obc_comms.h"
+#include "comms_defs.h"
+#include "comms_mibspi.h"
 #include "tms_can.h"
 #include "tms_spi.h"
 #include "tms_i2c.h"
@@ -67,7 +68,6 @@ static void obc_main_task(void* pvParameters) {
     rtc_create_infra();
     obc_rtos_create_infra();
     telem_create_infra();
-    comms_create_infra();
     tms_spi_create_infra();
     rtc_scheduler_create_infra();
     cmd_sys_exec_create_infra();
@@ -86,7 +86,8 @@ static void obc_main_task(void* pvParameters) {
     tms_i2c_init();
     gpio_init_hw();
     tms_mibspi_init_hw();
-    comms_init_irq();
+    comms_service_create_infra();
+    comms_mibspi_init();
     hetInit();
     adc_init();
     tms_can_init();
@@ -117,7 +118,9 @@ static void obc_main_task(void* pvParameters) {
     cmd_sys_sched_start_task();
     obc_serial_start_tasks();
     gpio_start_task();
-    comms_interrupt_start_task();
+
+    comms_dev_handle_t cdev = comms_mibspi_get_handle();
+    comms_mngr_start_task(cdev);
 
     // Start the GPIO blinky task. This is a useful indicator because if anything is really wrong
     // with startup, it might stop blinking.

@@ -10,24 +10,6 @@
             {"message": "string"}
         ]
     },
-    "TEST_COMMS_RAW" : {
-        "id": 254,
-        "args": [
-            {"test_data": "bytes"}
-        ],
-        "resp": [
-            {"mibspi_err": "s8"}
-        ]
-    },
-    "TEST_COMMS_TX_ONLY" : {
-        "id": 253,
-        "args": [
-            {"test_data": "string"}
-        ],
-        "resp": [
-            {"comms_err": "s8"}
-        ]
-    },
     "TEST_COMMS_TX_RX" : {
         "id": 252,
         "args": [],
