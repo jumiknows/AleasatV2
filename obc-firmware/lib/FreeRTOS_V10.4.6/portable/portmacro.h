@@ -282,6 +282,14 @@ typedef struct MPU_SETTINGS
     xMPU_REGION_REGISTERS xRegion[ portTOTAL_NUM_REGIONS ];
 } xMPU_SETTINGS;
 
+
+/* System Exception Control Register */
+#define portSYS_SYSECR_REG  ( * ( ( volatile uint32_t * ) 0xFFFFFFE0 ) )
+#define portRESET_CPU() \
+{ \
+    portSYS_SYSECR_REG = ((uint32_t)(1U << 15)); \
+}
+
 /* CPU Clock */
 /*
  * These defines control the configuration and access for the CPU clock. See section 13 of the TMS570LS0714 TRM for details.

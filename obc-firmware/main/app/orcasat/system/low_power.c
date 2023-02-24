@@ -45,12 +45,6 @@ void idle_sleep_off(void) {
     enable_sleep = 0;
 }
 
-void vApplicationIdleHook(void) {
-#if (OBC_IDLE_SLEEP_EN == 1)
-    enter_idle_sleep();
-#endif
-}
-
 void enter_idle_sleep(void) {
     if (enable_sleep == 1) {
         asm_dsb();

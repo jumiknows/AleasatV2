@@ -8,7 +8,6 @@
 #ifndef LOW_POWER_H_
 #define LOW_POWER_H_
 
-void vApplicationIdleHook(void);
 void enter_idle_sleep(void);
 
 void idle_sleep_on(void);

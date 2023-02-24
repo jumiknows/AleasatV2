@@ -15,8 +15,6 @@
 #ifndef APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_
 #define APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_
 
-#define portSYS_SYSECR_REG ( * ( ( volatile uint32_t * ) 0xFFFFFFE0U ) )
-
 /**
  * @brief Performs an immediate software reset
  */
@@ -26,7 +24,7 @@ void vPrivilegedCPUReset(void) {
     xPortRaisePrivilege( xRunningPrivileged );
 
     // Privileged code
-    portSYS_SYSECR_REG = ((uint32_t)(1U << 15)); /* Set bit 15 of SYSECR to reset */
+    portRESET_CPU();
 
     // Reset privilege
     vPortResetPrivilege( xRunningPrivileged ); // shouldn't ever actually reach here because we're performing a reset

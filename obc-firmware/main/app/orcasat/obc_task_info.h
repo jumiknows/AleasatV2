@@ -39,16 +39,6 @@
 #define MAX_PRIORITY (configMAX_PRIORITIES - 1)
 
 /**
- * @brief The executer task stack size in units of 32 bits (4 bytes).
- *
- * This task runs the scheduled functions. Therefore, it must have a stack size large enough to run
- * the most demanding action. If this task tries to run an action that requires a larger stack than
- * is available, the task stack overflow hook will be called, which will issue a logger message
- * indicating that the executer task has overflowed, or it will hang.
- */
-#define EXECUTER_TASK_STACK_SIZE (1300)
-
-/**
  * @brief Task default priorities.
  */
 #define MAIN_TASK_PRIORITY               2
@@ -80,14 +70,6 @@
  * @brief Comms interrupt handling priority.
  */
 #define COMMS_IRQ_SERVICE_PRIORITY 3
-
-/**
- * @brief Priorities for the scheduler.
- */
-#define SCHEDULER_TASK_PRIORITY configMAX_PRIORITIES - 2
-#define EXECUTER_TASK_PRIORITY  configMAX_PRIORITIES - 3
-#define SYNC_TASK_PRIORITY      configMAX_PRIORITIES - 4
-#define SORT_TASK_PRIORITY      configMAX_PRIORITIES - 4
 
 /**
  * @brief Telemetry logger priority.
