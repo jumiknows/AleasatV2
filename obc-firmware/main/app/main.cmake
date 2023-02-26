@@ -11,6 +11,7 @@ list(APPEND SRC_DIRS
 
     ${.}/device-drivers
     ${.}/device-drivers/ADIS16260_gyro
+    ${.}/device-drivers/camera
     ${.}/device-drivers/comms
     ${.}/device-drivers/eps
     ${.}/device-drivers/flash

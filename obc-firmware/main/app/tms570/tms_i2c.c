@@ -53,6 +53,11 @@
 #define I2CPFNC_IO  1U
 
 /**
+ * @brief Position of IGNACK (ignore NACK) bit in the EMDR (extended mode) register
+ */
+#define I2C_EMDR_IGNACK_BIT 1U
+
+/**
  * @brief SCL pulse width for I2C reset function, measured in for-loop ticks (NOT FREERTOS TICKS)
  */
 #define I2C_RESET_PULSE_WIDTH 300
@@ -81,10 +86,10 @@ static SemaphoreHandle_t xI2CMutex;
 
 static void i2c_init_voltage_levels(void);
 static i2c_err_t i2c_reset(uint8_t max_retry);
-static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t rcv_bytes, uint8_t* rcv_data);
-static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data);
+static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t rcv_bytes, uint8_t* rcv_data, bool ignore_nack);
+static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data, bool ignore_nack);
 
-static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t num_bytes);
+static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t num_bytes, bool ignore_nack);
 static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data);
 static inline i2c_err_t i2c_send_byte(uint8_t byte);
 static i2c_err_t i2c_receive(uint32_t length, uint8_t* data);
@@ -145,12 +150,14 @@ i2c_err_t tms_i2c_reset(uint8_t max_retry, uint32_t mtx_timeout_ms) {
  *                           gain control of the I2C peripheral. This does not
  *                           include completing the I2C transaction.
  */
-i2c_err_t tms_i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data,
-                       uint32_t rcv_bytes, uint8_t* rcv_data, uint32_t mtx_timeout_ms) {
+i2c_err_t tms_i2c_read(uint8_t addr,
+                       uint8_t reg_bytes, const uint8_t* reg_data,
+                       uint32_t rcv_bytes, uint8_t* rcv_data,
+                       bool ignore_nack, uint32_t mtx_timeout_ms) {
 
     i2c_err_t result;
     if (xSemaphoreTake(xI2CMutex, pdMS_TO_TICKS(mtx_timeout_ms)) == pdTRUE) {
-        result = i2c_read(addr, reg_bytes, reg_data, rcv_bytes, rcv_data);
+        result = i2c_read(addr, reg_bytes, reg_data, rcv_bytes, rcv_data, ignore_nack);
         xSemaphoreGive(xI2CMutex);
     } else {
         result = I2C_MUTEX_TIMEOUT;
@@ -167,12 +174,14 @@ i2c_err_t tms_i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data,
  *                           gain control of the I2C peripheral. This does not
  *                           include completing the I2C transaction.
  */
-i2c_err_t tms_i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data,
-                        uint32_t send_bytes, const uint8_t* send_data, uint32_t mtx_timeout_ms) {
+i2c_err_t tms_i2c_write(uint8_t addr,
+                        uint8_t reg_bytes, const uint8_t* reg_data,
+                        uint32_t send_bytes, const uint8_t* send_data,
+                        bool ignore_nack, uint32_t mtx_timeout_ms) {
 
     i2c_err_t result;
     if (xSemaphoreTake(xI2CMutex, pdMS_TO_TICKS(mtx_timeout_ms)) == pdTRUE) {
-        result = i2c_write(addr, reg_bytes, reg_data, send_bytes, send_data);
+        result = i2c_write(addr, reg_bytes, reg_data, send_bytes, send_data, ignore_nack);
         xSemaphoreGive(xI2CMutex);
     } else {
         result = I2C_MUTEX_TIMEOUT;
@@ -278,21 +287,22 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
  *
  * @pre Should hold the I2C mutex
  *
- * @param[in]  addr      I2C device address
- * @param[in]  reg_bytes Size of the register address in bytes
- * @param[in]  reg_data  Pointer to the register address bytes
- * @param[in]  rcv_bytes Number of bytes to read from the device
- * @param[out] rcv_data  Buffer to store the read bytes
+ * @param[in]  addr        I2C device address
+ * @param[in]  reg_bytes   Size of the register address in bytes
+ * @param[in]  reg_data    Pointer to the register address bytes
+ * @param[in]  rcv_bytes   Number of bytes to read from the device
+ * @param[out] rcv_data    Buffer to store the read bytes
+ * @param[in]  ignore_nack Set to true to ignore NACK bits sent by the slave
  *
  * @returns I2C module status
  */
-static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t rcv_bytes, uint8_t* rcv_data) {
+static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t rcv_bytes, uint8_t* rcv_data, bool ignore_nack) {
     i2c_err_t err = I2C_SUCCESS;
     if (i2cIsBusBusy(I2C)) {
         return I2C_BUS_BUSY;
     }
 
-    i2c_setup_transaction(addr, I2C_TRANSMITTER, reg_bytes);
+    i2c_setup_transaction(addr, I2C_TRANSMITTER, reg_bytes, ignore_nack);
 
     // Send the register to read from
     I2C->MDR &= ~((uint32_t)I2C_STOP_COND); // Clear STOP condition since this is immediately followed by a read
@@ -338,21 +348,22 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_da
  *
  * @pre Should hold the I2C mutex
  *
- * @param[in] addr       I2C device address
- * @param[in] reg_bytes  Size of the register address in bytes
- * @param[in] reg_data   Pointer to the register address bytes
- * @param[in] send_bytes Size of the data in bytes
- * @param[in] send_data  Pointer to the data bytes
+ * @param[in] addr        I2C device address
+ * @param[in] reg_bytes   Size of the register address in bytes
+ * @param[in] reg_data    Pointer to the register address bytes
+ * @param[in] send_bytes  Size of the data in bytes
+ * @param[in] send_data   Pointer to the data bytes
+ * @param[in] ignore_nack Set to true to ignore NACK bits sent by the slave
  *
  * @returns I2C module status
  */
-static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data) {
+static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data, bool ignore_nack) {
     i2c_err_t err = I2C_SUCCESS;
     if (i2cIsBusBusy(I2C)) {
         return I2C_BUS_BUSY;
     }
 
-    i2c_setup_transaction(addr, I2C_TRANSMITTER, (reg_bytes + send_bytes));
+    i2c_setup_transaction(addr, I2C_TRANSMITTER, (reg_bytes + send_bytes), ignore_nack);
 
     // Set the stop bit so that a stop condition is generated by the
     // hardware once all bytes are sent
@@ -383,15 +394,21 @@ static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_d
 /**
  * @brief Sets up the I2C bus for a transaction, required before sending data
  *
- * @param[in] addr      Address of I2C slave device
- * @param[in] dir       Mode of I2C module (I2C_TRANSMITTER or I2C_RECEIVER)
- * @param[in] num_bytes Number of bytes sent / transmitted for this transaction
+ * @param[in] addr        Address of I2C slave device
+ * @param[in] dir         Mode of I2C module (I2C_TRANSMITTER or I2C_RECEIVER)
+ * @param[in] num_bytes   Number of bytes sent / transmitted for this transaction
+ * @param[in] ignore_nack Set to true to ignore NACK bits sent by the slave
  */
-static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t num_bytes) {
+static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t num_bytes, bool ignore_nack) {
     i2cSetMode(I2C, I2C_MASTER);
     i2cSetSlaveAdd(I2C, addr);
     i2cSetDirection(I2C, dir);
     i2cSetCount(I2C, num_bytes);
+
+    // Set IGNACK bit (no HAL function for this)
+    uint32_t IGNNACK_mask = (1U << I2C_EMDR_IGNACK_BIT);
+    uint32_t tmp_EMDR = i2cREG1->EMDR & ~IGNNACK_mask;
+    i2cREG1->EMDR = tmp_EMDR | ((uint32_t)ignore_nack << I2C_EMDR_IGNACK_BIT);
 }
 
 /**

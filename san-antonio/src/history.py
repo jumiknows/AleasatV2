@@ -19,6 +19,10 @@ class HistoryHandler():
     def get_history_print(self):
         return self.history_print
 
+    def clear(self):
+        self.history = []
+        self.history_print = ""
+
 class CommandHistoryHandler():
     history = []
     history_index = 0

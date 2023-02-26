@@ -2,10 +2,11 @@ from typing import Union
 import sys
 import globs
 from pathlib import Path
+from datetime import datetime
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QShortcut
+from PyQt5.QtWidgets import QApplication, QShortcut, QFileDialog
 
 from obcpy.obc import OBC
 from obcpy.cmd_sys.resp import OBCResponse
@@ -23,17 +24,6 @@ CMDS_PATHS = [
 ]
 
 class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
-    obc_assistant = None
-    history_assistant = None
-    command_assistant = None
-    config_assistant = None
-    # send and get data from thread listening in to serial
-    send_q = None
-    listening_thread = None
-    ports = []
-    past_commands = []
-    past_command_index = 0
-
     def __init__(self, parent=None):
         super(SanAntonio, self).__init__(parent)  # I have no father
         self.setupUi(self)
@@ -52,8 +42,10 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
 
         self.obc_assistant.logs.connect(self.handle_log)
 
-        # Update connection state
-        self.update_connection_state()
+        # Camera
+        self.img_data: bytes = None
+        self.img_timestamp: datetime = None
+        self.last_save_dir: Path = Path("./").resolve()
 
         # Populate the serial ports
         self.ports = get_serial_ports()
@@ -61,11 +53,23 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
 
         # Connect functions to the buttons
         self.connect_button.clicked.connect(self.toggle_connection)
+        self.clear_button.clicked.connect(self.clear_text)
         self.send_button.clicked.connect(self.send_text)
         self.refresh_button.clicked.connect(self.refresh_ports)
         self.set_datetime_button.clicked.connect(self.set_current_datetime)
         self.reset_button.clicked.connect(self.reset_obc)
         self.ping_button.clicked.connect(self.ping)
+        self.take_image_button.clicked.connect(self.camera_capture)
+        self.save_image_button.clicked.connect(self.save_image)
+
+        self.obc_buttons = [
+            self.send_button,
+            self.reset_button,
+            self.ping_button,
+            self.set_datetime_button,
+            self.take_image_button,
+            self.save_image_button,
+        ]
 
         # Connect settings
         self.actionMessage_Level.triggered.connect(self.toggle_msg_lvl)
@@ -77,6 +81,9 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         self.last_msg_shortbut_next.activated.connect(self.get_last_command_next)
         self.last_msg_shortbut_prev = QShortcut(QtGui.QKeySequence.MoveToNextLine, self)
         self.last_msg_shortbut_prev.activated.connect(self.get_last_command_prev)
+
+        # Update connection state
+        self.update_connection_state()
 
     def toggle_msg_lvl(self) -> None:
         if globs.toggle_msg_lvl_status():
@@ -113,16 +120,16 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
             self.status_label.setText(constants.serial_status_connected_text)
             self.status_label.setStyleSheet(constants.get_colour(constants.green))
             self.connect_button.setText(constants.connect_button_disconnect_text)
-            self.reset_button.setDisabled(False)
-            self.set_datetime_button.setDisabled(False)
-            self.ping_button.setDisabled(False)
+
+            for button in self.obc_buttons:
+                button.setDisabled(False)
         else:
             self.status_label.setText(constants.serial_status_disconnected_text)
             self.status_label.setStyleSheet(constants.get_colour(constants.red))
             self.connect_button.setText(constants.connect_button_connect_text)
-            self.reset_button.setDisabled(True)
-            self.set_datetime_button.setDisabled(True)
-            self.ping_button.setDisabled(True)
+
+            for button in self.obc_buttons:
+                button.setDisabled(True)
 
     def toggle_connection(self):
         if self.obc_assistant.connected:
@@ -173,6 +180,10 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
                 self.handle_cmd_resp
             ))
 
+    def clear_text(self):
+        self.history_assistant.clear()
+        self.textEdit.setText(self.history_assistant.history_print)
+
     def get_last_command_next(self):
         self.input_line.setText(self.command_assistant.get_next_command())
 
@@ -197,10 +208,50 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
             self.handle_cmd_resp
         ))
 
+    def camera_capture(self):
+        self.take_image_button.setDisabled(True)
+
+        def req_func(obc: OBC):
+            resp = obc.camera_init()
+
+            if resp["arducam_err"] == 0:
+                print(resp)
+                resp = obc.camera_capture()
+
+            return resp
+
+        self.obc_assistant.execute(OBCQTRequest(req_func, self.handle_img))
+
     def handle_cmd_resp(self, resp: Union[OBCResponse, OBCError]):
         if resp is not None:
             print(resp)
             self.add_line_to_text_from_serial(str(resp))
+
+    def handle_img(self, resp: Union[OBCResponse, OBCError]):
+        self.take_image_button.setDisabled(False)
+
+        # Handle errors
+        if resp is None:
+            return
+
+        if not isinstance(resp, OBCResponse):
+            self.add_line_to_text_from_serial(str(resp))
+            return
+
+        if resp["image_size"] <= 0:
+            self.add_line_to_text_from_serial(str(resp))
+            return
+
+        # Load image data
+        self.img_data = resp["image_data"]
+        self.img_timestamp = datetime.now()
+
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(self.img_data, 'jpeg')
+
+        self.image_label.setPixmap(pixmap)
+
+        self.show()
 
     def handle_log(self, log: OBCLog):
         line = ""
@@ -214,6 +265,29 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
 
         line += bytes_to_hexstr(log.payload, ascii_only=True)
         self.add_line_to_text_from_serial(line)
+
+    def save_image(self):
+        if self.img_data is None or self.img_timestamp is None:
+            return
+
+        try:
+            default_file_path = self.last_save_dir / f"ALEASAT_capture_{self.img_timestamp.strftime('%Y-%m-%d_%H%M%S')}.jpg"
+            file_path, _ = QFileDialog.getSaveFileName(self,
+                caption="Save Image",
+                directory=str(default_file_path),
+                filter="All Files (*);;JPEG Images (*.jpg)",
+                initialFilter="JPEG Images (*.jpg)")
+
+            if file_path:
+                file_path = Path(file_path)
+                self.last_save_dir = file_path.parent
+
+                with open(file_path, "wb") as f:
+                    f.write(self.img_data)
+
+                print(f"Saved image to: {str(file_path)}")
+        except Exception as e:
+            print(e)
 
 def main():
     app = QApplication(sys.argv)

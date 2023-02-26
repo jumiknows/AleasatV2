@@ -43,6 +43,48 @@
 /******************************************************************************/
 
 /**
+ * @brief Return value for MIBSPI functions, indicating any errors.
+ */
+typedef enum {
+    /**
+     * @brief Indicates that there were no IO errors.
+     */
+    MIBSPI_NO_ERR = 0,
+
+    /**
+     * @brief Indicates that an overflow has occurred in the RX buffer,
+     * and unread data was overwritten.
+     */
+    MIBSPI_RX_OVERFLOW = -1,
+
+    /**
+     * @brief Indicates there was a mismatch in the data that was transmitted
+     * and the internal TX data.
+     */
+    MIBSPI_TX_BITERR = -2,
+
+    /**
+     * @brief Indicates a data length error has occurred.
+     */
+    MIBSPI_DATALEN_ERR = -3,
+
+    /**
+     * @brief Indicates a timeout has occurred in the MIBSPI transaction.
+     */
+    MIBSPI_TIMEOUT = -4,
+
+    /**
+     * @brief Indicates a failure to grab the MIBSPI mutex. Most likely a timeout.
+     */
+    MIBSPI_MUTEX_GRAB_ERR = -5,
+
+    /**
+     * @brief Unknown error occurred.
+     */
+    MIBSPI_UNKNOWN_ERR = -6
+} mibspi_err_t;
+
+/**
  * @brief Wrapper for a MIBSPI transfer group.
  *
  * Contains a pointer to the mibspiBASE_t* to be used in this transaction,

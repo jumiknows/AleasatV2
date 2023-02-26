@@ -498,7 +498,7 @@ static imu_error_t bmx160_write_reg(bmx160_t* imu, uint8_t reg, uint8_t num_byte
 		return IMU_ERROR;
 	}
 
-	i2c_err_t status = tms_i2c_write(imu->addr, 1, &reg, num_bytes, buff, I2C_MUTEX_TIMEOUT_MS);
+	i2c_err_t status = tms_i2c_write(imu->addr, 1, &reg, num_bytes, buff, false, I2C_MUTEX_TIMEOUT_MS);
 
 	if (status != I2C_SUCCESS) {
 		log_str(ERROR, LOG_ADCS_IMU, "I2C write failure: %d", status);
@@ -521,7 +521,7 @@ static imu_error_t bmx160_read_reg(bmx160_t* imu, uint8_t reg, uint8_t num_bytes
 		return IMU_ERROR;
 	}
 
-	i2c_err_t status = tms_i2c_read(imu->addr, 1, &reg, num_bytes, buff, I2C_MUTEX_TIMEOUT_MS);
+	i2c_err_t status = tms_i2c_read(imu->addr, 1, &reg, num_bytes, buff, false, I2C_MUTEX_TIMEOUT_MS);
 
 	if (status != I2C_SUCCESS) {
 		log_str(ERROR, LOG_ADCS_IMU, "I2C read failure: %d", status);

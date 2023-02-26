@@ -276,7 +276,7 @@ static i2c_err_t eps_read(uint8_t cmd, uint16_t* raw_data) {
     i2c_err_t err;
 
     uint8_t read_data[READ_CMD_DATA_LEN] = { 0 };
-    err = tms_i2c_read(EPS_ADDR, 1U, &cmd, 2U, read_data, EPS_I2C_TIMEOUT_MS);
+    err = tms_i2c_read(EPS_ADDR, 1U, &cmd, 2U, read_data, false, EPS_I2C_TIMEOUT_MS);
 
     if (err != I2C_SUCCESS) {
         return err;
@@ -293,5 +293,5 @@ static i2c_err_t eps_read(uint8_t cmd, uint16_t* raw_data) {
  * @param[in] state  EPS state to be written
  */
 static i2c_err_t eps_write(uint8_t cmd, uint8_t state) {
-    return tms_i2c_write(EPS_ADDR, 1U, &cmd, 1U, &state, EPS_I2C_TIMEOUT_MS);
+    return tms_i2c_write(EPS_ADDR, 1U, &cmd, 1U, &state, false, EPS_I2C_TIMEOUT_MS);
 }

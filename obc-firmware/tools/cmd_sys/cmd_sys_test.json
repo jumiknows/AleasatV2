@@ -173,5 +173,21 @@
         "resp": [
             {"fs_err": "s8"}
         ]
+    },
+    "TEST_CAM_INIT": {
+        "id": 233,
+        "args": [],
+        "resp": [
+            {"arducam_err": "s8"}
+        ]
+    },
+    "TEST_CAM_CAPTURE": {
+        "id": 232,
+        "args": [],
+        "resp": [
+            {"arducam_err": "s8"},
+            {"image_size": "u32"},
+            {"image_data": "bytes"}
+        ]
     }
 }

@@ -244,9 +244,13 @@
 /**
  * @brief Camera
  */
-#define CAMERA_MIBSPI_REG mibspiREG1
-#define CAMERA_CS_PORT    mibspiPORT1
-#define CAMERA_CS_PIN     MIBSPI_PIN_CS(0)
+#define CAMERA_MIBSPI_REG     mibspiREG1
+#define CAMERA_CS_PORT        mibspiPORT1
+#define CAMERA_CS_PIN         0
+#define CAMERA_RX_INT_LEVEL   0
+#define CAMERA_TG_SINGLE      0
+#define CAMERA_TG_BURST       1
+#define CAMERA_TG_BURST_WORDS 127 // one word is 16 bits
 
 #define CAMERA_PWR_EN_PORT  GIO_PORT(hetPORT1)
 #define CAMERA_PWR_EN_PIN   1

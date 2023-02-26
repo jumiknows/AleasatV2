@@ -256,4 +256,15 @@
 #define PANEL2_SPI_PORT spiREG4
 #define PANEL3_SPI_PORT spiREG4
 
+/**
+ * @brief Camera
+ */
+#define CAMERA_MIBSPI_REG     mibspiREG1
+#define CAMERA_CS_PORT        mibspiPORT1
+#define CAMERA_CS_PIN         0
+#define CAMERA_RX_INT_LEVEL   0
+#define CAMERA_TG_SINGLE      0
+#define CAMERA_TG_BURST       1
+#define CAMERA_TG_BURST_WORDS 127 // one word is 16 bits
+
 #endif /* LAUNCHPAD_1224_HARDWAREDEFS_H_ */
