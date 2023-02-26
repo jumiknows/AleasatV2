@@ -32,6 +32,19 @@ def main():
     with open(args.inputFile, 'r') as log_ids_json:
         log_ids = json.load(log_ids_json)
 
+    # Find the maximum log ID value
+    max_id = 0
+    for entry in log_ids:
+        this_id = int(log_ids[entry]['id'])
+        if this_id > max_id:
+            max_id = this_id
+
+    # Add MAX_LOG_ID_VALUE to end of list
+    log_ids['MAX_LOG_ID_VALUE'] = {
+        'id': str(max_id),
+        'description': 'Maximum log ID value. Should always be equal to the largest log ID.'
+    }
+
     # Create file dirs
     pathlib.Path(args.outputFile).parent.mkdir(parents=True, exist_ok=True)
 

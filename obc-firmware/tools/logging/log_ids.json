@@ -270,9 +270,5 @@
   "LOG_CAMERA": {
     "id": "68",
     "description": "Camera"
-  },
-  "MAX_LOG_ID_VALUE": {
-    "id": "68",
-    "description": "Maximum log ID value. Should always be equal to the largest log ID."
   }
 }
