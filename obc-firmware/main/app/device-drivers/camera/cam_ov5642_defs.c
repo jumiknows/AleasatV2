@@ -698,32 +698,36 @@ const ov5642_reg_data_t ov5642_reg_data_jpeg_capture_qsxga[OV5642_REG_DATA_JPEG_
 };
 
 const ov5642_reg_data_t ov5642_reg_data_320x240[OV5642_REG_DATA_320X240_LEN] = {
-    {0x3800 ,0x1 },
-    {0x3801 ,0xa8},
-    {0x3802 ,0x0 },
-    {0x3803 ,0xA },
-    {0x3804 ,0xA },
-    {0x3805 ,0x20},
-    {0x3806 ,0x7 },
-    {0x3807 ,0x98},
-    {0x3808 ,0x1 },
-    {0x3809 ,0x40},
-    {0x380a ,0x0 },
-    {0x380b ,0xF0},
-    {0x380c ,0xc },
-    {0x380d ,0x80},
-    {0x380e ,0x7 },
-    {0x380f ,0xd0},
-    {0x5001 ,0x7f},
-    {0x5680 ,0x0 },
-    {0x5681 ,0x0 },
-    {0x5682 ,0xA },
-    {0x5683 ,0x20},
-    {0x5684 ,0x0 },
-    {0x5685 ,0x0 },
-    {0x5686 ,0x7 },
-    {0x5687 ,0x98},
-    {0x3801, 0xb0},
+    {OV5642_REG_TIMING_HS_1,    0x1 },
+    {OV5642_REG_TIMING_HS_0,    0xA8}, // HREF horizontal start point = 0x1A8 = 424
+    {OV5642_REG_TIMING_VS_1,    0x0 },
+    {OV5642_REG_TIMING_VS_0,    0xA }, // HREF vertical start point = 0x00A = 10
+    {OV5642_REG_TIMING_HW_1,    0xA },
+    {OV5642_REG_TIMING_HW_0,    0x20}, // HREF horizontal width = 0xA20 = 2592
+    {OV5642_REG_TIMING_VH_1,    0x7 },
+    {OV5642_REG_TIMING_VH_0,    0x98}, // HREF vertical height = 0x798 = 1944
+    {OV5642_REG_TIMING_DVPHO_1, 0x1 },
+    {OV5642_REG_TIMING_DVPHO_0, 0x40}, // DVP output horizontal width = 0x140 = 320
+    {OV5642_REG_TIMING_DVPVO_1, 0x0 },
+    {OV5642_REG_TIMING_DVPVO_0, 0xF0}, // DVP output vertical height = 0xF0 = 240
+    {OV5642_REG_TIMING_HTS_1,   0xc },
+    {OV5642_REG_TIMING_HTS_0,   0x80}, // total horizontal size = 0xC80 = 3200
+    {OV5642_REG_TIMING_VTS_1,   0x7 },
+    {OV5642_REG_TIMING_VTS_0,   0xd0}, // total vertical size = 0x7D0 = 2000
+
+
+    {OV5642_REG_ISP_CONTROL_01, 0x7f}, // 0111 1111
+
+    {OV5642_REG_AVG_X_START_1,  0x0 },
+    {OV5642_REG_AVG_X_START_0,  0x0 }, // 0
+    {OV5642_REG_AVG_X_END_1,    0xA },
+    {OV5642_REG_AVG_X_END_0,    0x20}, // 2592
+    {OV5642_REG_AVG_Y_START_1,  0x0 },
+    {OV5642_REG_AVG_Y_START_0,  0x0 }, // 0
+    {OV5642_REG_AVG_Y_END_1,    0x7 },
+    {OV5642_REG_AVG_Y_END_0,    0x98}, // 1944
+
+    {0x3801, 0xb0}, // TODO is this supposed to be here?
     {0xffff, 0xff},
 };
 
@@ -731,21 +735,22 @@ const ov5642_reg_data_t ov5642_reg_data_320x240[OV5642_REG_DATA_320X240_LEN] = {
 const ov5642_reg_data_t ov5642_reg_data_2592x1944[OV5642_REG_DATA_2592X1944_LEN] =
 {
     {0x3800 ,0x1 },
-    {0x3801 ,0xB0},
+    {0x3801 ,0xB0}, // HS = 432
     {0x3802 ,0x0 },
-    {0x3803 ,0xA },
+    {0x3803 ,0xA }, // VS = 10
     {0x3804 ,0xA },
-    {0x3805 ,0x20},
+    {0x3805 ,0x20}, // HW = 2592
     {0x3806 ,0x7 },
-    {0x3807 ,0x98},
+    {0x3807 ,0x98}, // VH = 1944
     {0x3808 ,0xA },
-    {0x3809 ,0x20},
+    {0x3809 ,0x20}, // DVP OW = 2592
     {0x380a ,0x7 },
-    {0x380b ,0x98},
+    {0x380b ,0x98}, // DVP OH = 1944
     {0x380c ,0xc },
-    {0x380d ,0x80},
+    {0x380d ,0x80}, // HTS = 3200
     {0x380e ,0x7 },
-    {0x380f ,0xd0},
+    {0x380f ,0xd0}, // VTS = 2000
+
     {0x5001 ,0x7f},
     {0x5680 ,0x0 },
     {0x5681 ,0x0 },

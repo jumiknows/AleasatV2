@@ -10,8 +10,11 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
- // Standard Library
- #include <stdint.h>
+// OBC
+#include "obc_utils.h"
+
+// Standard Library
+#include <stdint.h>
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -74,13 +77,13 @@
 // Group Write Control Registers             0x3213 - 0x3214
 
 ///////////////////////////////// AWB Control //////////////////////////////////
-#define OV5642_REG_AWB_R_GAIN_HIGH           0x3400
-#define OV5642_REG_AWB_R_GAIN_LOW            0x3401
-#define OV5642_REG_AWB_G_GAIN_HIGH           0x3402
-#define OV5642_REG_AWB_G_GAIN_LOW            0x3403
-#define OV5642_REG_AWB_B_GAIN_HIGH           0x3404
-#define OV5642_REG_AWB_B_GAIN_LOW            0x3405
-#define OV5642_REG_AWB_MANUAL                0x3406
+#define OV5642_REG_AWB_R_GAIN_1              0x3400
+#define OV5642_REG_AWB_R_GAIN_0              0x3401
+#define OV5642_REG_AWB_G_GAIN_1              0x3402
+#define OV5642_REG_AWB_G_GAIN_0              0x3403
+#define OV5642_REG_AWB_B_GAIN_1              0x3404
+#define OV5642_REG_AWB_B_GAIN_0              0x3405
+#define OV5642_REG_AWB_MODE                  0x3406
 
 //////////////////////// AEC / AGC (Power Keep Domain) /////////////////////////
 #define OV5642_REG_AEC_PK_LONG_EXPO_0        0x3500
@@ -104,22 +107,22 @@
 // Analog Control Registers                  0x370E - 0x3711
 
 //////////////////////////////// Timing Control ////////////////////////////////
-#define OV5642_REG_TIMING_HS_0               0x3800
-#define OV5642_REG_TIMING_HS_1               0x3801
-#define OV5642_REG_TIMING_VS_0               0x3802
-#define OV5642_REG_TIMING_VS_1               0x3803
-#define OV5642_REG_TIMING_HW_0               0x3804
-#define OV5642_REG_TIMING_HW_1               0x3805
-#define OV5642_REG_TIMING_VH_0               0x3806
-#define OV5642_REG_TIMING_VH_1               0x3807
-#define OV5642_REG_TIMING_DVPHO_0            0x3808
-#define OV5642_REG_TIMING_DVPHO_1            0x3809
-#define OV5642_REG_TIMING_DVPVO_0            0x380A
-#define OV5642_REG_TIMING_DVPVO_1            0x380B
-#define OV5642_REG_TIMING_HTS_0              0x380C
-#define OV5642_REG_TIMING_HTS_1              0x380D
-#define OV5642_REG_TIMING_VTS_0              0x380E
-#define OV5642_REG_TIMING_VTS_1              0x380F
+#define OV5642_REG_TIMING_HS_1               0x3800
+#define OV5642_REG_TIMING_HS_0               0x3801
+#define OV5642_REG_TIMING_VS_1               0x3802
+#define OV5642_REG_TIMING_VS_0               0x3803
+#define OV5642_REG_TIMING_HW_1               0x3804
+#define OV5642_REG_TIMING_HW_0               0x3805
+#define OV5642_REG_TIMING_VH_1               0x3806
+#define OV5642_REG_TIMING_VH_0               0x3807
+#define OV5642_REG_TIMING_DVPHO_1            0x3808
+#define OV5642_REG_TIMING_DVPHO_0            0x3809
+#define OV5642_REG_TIMING_DVPVO_1            0x380A
+#define OV5642_REG_TIMING_DVPVO_0            0x380B
+#define OV5642_REG_TIMING_HTS_1              0x380C
+#define OV5642_REG_TIMING_HTS_0              0x380D
+#define OV5642_REG_TIMING_VTS_1              0x380E
+#define OV5642_REG_TIMING_VTS_0              0x380F
 #define OV5642_REG_TIMING_HVOFFS             0x3810
 #define OV5642_REG_TIMING_THNVH              0x3811
 #define OV5642_REG_TIMING_THNHW_0            0x3812
@@ -324,16 +327,29 @@
 #define OV5642_REG_UV_ADJ_TH2_1              0x5505
 #define OV5642_REG_UV_ADJUST_IN_AUTO         0x5506
 
+/////////////////////////// Special Digital Effects ////////////////////////////
+#define OV5642_REG_SDE_CONTROL_00            0x5580
+#define OV5642_REG_SDE_CONTROL_01            0x5581
+#define OV5642_REG_SDE_CONTROL_02            0x5582
+#define OV5642_REG_SDE_CONTROL_03            0x5583
+#define OV5642_REG_SDE_CONTROL_04            0x5584
+#define OV5642_REG_SDE_CONTROL_05            0x5585
+#define OV5642_REG_SDE_CONTROL_06            0x5586
+#define OV5642_REG_SDE_CONTROL_07            0x5587
+#define OV5642_REG_SDE_CONTROL_08            0x5588
+#define OV5642_REG_SDE_CONTROL_09            0x5589
+#define OV5642_REG_SDE_CONTROL_10            0x558A
+
 /////////////////////////////// Scale / Average ////////////////////////////////
 #define OV5642_REG_SCALE_CONTROL_00          0x5600
-#define OV5642_REG_AVG_X_START_0             0x5680
-#define OV5642_REG_AVG_X_START_1             0x5681
-#define OV5642_REG_AVG_X_END_0               0x5682
-#define OV5642_REG_AVG_X_END_1               0x5683
-#define OV5642_REG_AVG_Y_START_0             0x5684
-#define OV5642_REG_AVG_Y_START_1             0x5685
-#define OV5642_REG_AVG_Y_END_0               0x5686
-#define OV5642_REG_AVG_Y_END_1               0x5687
+#define OV5642_REG_AVG_X_START_1             0x5680
+#define OV5642_REG_AVG_X_START_0             0x5681
+#define OV5642_REG_AVG_X_END_1               0x5682
+#define OV5642_REG_AVG_X_END_0               0x5683
+#define OV5642_REG_AVG_Y_START_1             0x5684
+#define OV5642_REG_AVG_Y_START_0             0x5685
+#define OV5642_REG_AVG_Y_END_1               0x5686
+#define OV5642_REG_AVG_Y_END_0               0x5687
 #define OV5642_REG_AVG_R8                    0x5688
 #define OV5642_REG_AVG_R9                    0x5689
 #define OV5642_REG_AVG_RA                    0x568A
@@ -502,15 +518,15 @@
 
 /****************************** REGISTER VALUES *******************************/
 
-#define OV5642_CHIPID                          0x5642
+#define OV5642_CHIPID                                   0x5642
 
-#define OV5642_REG_SC_SYS_0_SOFT_RESET         ((uint8_t)(1U << 7))
-#define OV5642_REG_SC_SYS_0_SOFT_PWDN          ((uint8_t)(1U << 6))
+#define OV5642_REG_SC_SYS_0_SOFT_RESET                  UINT8_BIT(7)
+#define OV5642_REG_SC_SYS_0_SOFT_PWDN                   UINT8_BIT(6)
 
-#define OV5642_REG_DATA_QVGA_PREVIEW_LEN       584U
-#define OV5642_REG_DATA_JPEG_CAPTURE_QSXGA_LEN 72U
-#define OV5642_REG_DATA_320X240_LEN            27U
-#define OV5642_REG_DATA_2592X1944_LEN          26U
+#define OV5642_REG_DATA_QVGA_PREVIEW_LEN                584U
+#define OV5642_REG_DATA_JPEG_CAPTURE_QSXGA_LEN          72U
+#define OV5642_REG_DATA_320X240_LEN                     27U
+#define OV5642_REG_DATA_2592X1944_LEN                   26U
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */

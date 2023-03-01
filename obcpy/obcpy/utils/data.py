@@ -26,3 +26,9 @@ def bytes_to_hexstr(data: bytes, ascii_only: bool = False) -> str:
         decoded = ""
 
     return f"{data.hex(' ').upper()}{decoded}"
+
+def get_byte(value: int, idx: int) -> int:
+    return ((value >> (idx * 8)) & 0xFF)
+
+def bit(idx: int) -> int:
+    return (1 << idx)

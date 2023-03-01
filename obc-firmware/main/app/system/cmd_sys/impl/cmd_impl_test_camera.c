@@ -15,9 +15,11 @@
 
 // Camera
 #include "cam_arducam.h"
+#include "cam_ov5642.h"
 
 // Utils
 #include "io_stream.h"
+#include "data_fmt.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -101,4 +103,39 @@ cmd_sys_err_t cmd_impl_TEST_CAM_CAPTURE(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_C
     cmd_sys_err = cmd_sys_finish_response(cmd);
 
     return cmd_sys_err;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_CAM_WR_SREG(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_WR_SREG_args_t *args, cmd_TEST_CAM_WR_SREG_resp_t *resp) {
+    resp->ov5642_err = ov5642_write_reg(args->addr, args->data);
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_CAM_RD_SREG(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_RD_SREG_args_t *args, cmd_TEST_CAM_RD_SREG_resp_t *resp) {
+    resp->ov5642_err = ov5642_read_reg(args->addr, &(resp->data));
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_CAM_WR_SREGS(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_WR_SREGS_resp_t *resp) {
+    uint8_t buf[3] = { 0 };
+    uint32_t bytes_left = cmd->header.data_len;
+    bool do_write = true;
+
+    while (bytes_left >= sizeof(buf)) {
+        uint32_t bytes_read = io_stream_read(cmd->input, buf, sizeof(buf), pdMS_TO_TICKS(CMD_SYS_INPUT_READ_TIMEOUT_MS), NULL);
+        if (bytes_read != 3) {
+            return CMD_SYS_RESP_CODE_ERROR;
+        }
+        bytes_left -= bytes_read;
+
+        if (do_write) {
+            uint16_t addr = data_fmt_arr_be_to_u16(buf);
+            uint8_t data = buf[2];
+
+            resp->ov5642_err = ov5642_write_reg(addr, data);
+            if (resp->ov5642_err != OV5642_SUCCESS) {
+                do_write = false;
+            }
+        }
+    }
+    return CMD_SYS_RESP_CODE_SUCCESS;
 }

@@ -10,6 +10,21 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
+// Standard Library
+#include <stdint.h>
+#include <stdbool.h>
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
+
+#define OV5642_SENSOR_WIDTH_PX   2592U
+#define OV5642_SENSOR_HEIGHT_PX  1944U
+
+#define OV5642_IDX_RED           0U
+#define OV5642_IDX_GREEN         1U
+#define OV5642_IDX_BLUE          2U
+
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
@@ -18,10 +33,13 @@
  * @brief Error codes that can be returned by OV5642 driver functions
  */
 typedef enum {
-    OV5642_SUCCESS          = 0,
-    OV5642_ERR_INVALID_ARGS = -1,
-    OV5642_ERR_I2C          = -2,
-    OV5642_ERR_CHIPID       = -3,
+    OV5642_SUCCESS                 = 0,
+    OV5642_ERR_INVALID_ARGS        = -1,
+    OV5642_ERR_I2C                 = -2,
+    OV5642_ERR_CHIPID              = -3,
+    OV5642_ERR_INVALID_WINDOW      = -4,
+    OV5642_ERR_INVALID_OUTPUT_SIZE = -5,
+    OV5642_ERR_INVALID_TOTAL_SIZE  = -6,
 } ov5642_err_t;
 
 /**
@@ -54,5 +72,8 @@ ov5642_err_t ov5642_soft_reset(void);
 
 ov5642_err_t ov5642_set_format(ov5642_format_t format);
 ov5642_err_t ov5642_set_jpeg_size(ov5642_jpeg_size_t jpeg_size);
+
+ov5642_err_t ov5642_write_reg(uint16_t addr, uint8_t data);
+ov5642_err_t ov5642_read_reg(uint16_t addr, uint8_t *data);
 
 #endif // CAM_OV5642_H_

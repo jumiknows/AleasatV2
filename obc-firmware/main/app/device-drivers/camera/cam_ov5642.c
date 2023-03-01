@@ -179,6 +179,49 @@ ov5642_err_t ov5642_set_jpeg_size(ov5642_jpeg_size_t jpeg_size) {
     return err;
 }
 
+/**
+ * @brief Directly write one of the OV5642 registers
+ * 
+ * @param[in] addr Register address
+ * @param[in] data Register value to write
+ * 
+ * @return Status code:
+ *            - OV5642_SUCCESS if the write is successful
+ *            - OV5642_ERR_I2C if an I2C error occurs
+ */
+ov5642_err_t ov5642_write_reg(uint16_t addr, uint8_t data) {
+    ov5642_err_t err = OV5642_SUCCESS;
+    i2c_err_t i2c_err = write_sensor_reg(addr, data);
+    if (i2c_err != I2C_SUCCESS) {
+        err = OV5642_ERR_I2C;
+    }
+    return err;
+}
+
+/**
+ * @brief Directly read one of the OV5642 registers
+ * 
+ * @param[in]  addr Register address
+ * @param[out] data Pointer to where read value will be stored
+ * 
+ * @return Status code:
+ *            - OV5642_SUCCESS if the read is successful
+ *            - OV5642_ERR_I2C if an I2C error occurs
+ *            - OV5642_ERR_INVALID_ARGS if data is NULL
+ */
+ov5642_err_t ov5642_read_reg(uint16_t addr, uint8_t *data) {
+    if (data == NULL) {
+        return OV5642_ERR_INVALID_ARGS;
+    }
+
+    ov5642_err_t err = OV5642_SUCCESS;
+    i2c_err_t i2c_err = read_sensor_reg(addr, data);
+    if (i2c_err != I2C_SUCCESS) {
+        err = OV5642_ERR_I2C;
+    }
+    return err;
+}
+
 /******************************************************************************/
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/

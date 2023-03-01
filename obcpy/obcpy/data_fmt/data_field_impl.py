@@ -237,6 +237,9 @@ class Bytes(data_field.DataField):
             except UnicodeEncodeError:
                 raise exc.OBCEncodeError(f"Failed to encode string (\"{value}\") as ASCII for field: {self.name}")
 
+        if isinstance(value, bytearray):
+            value = bytes(value)
+
         if not isinstance(value, bytes):
             raise exc.OBCEncodeError(f"{str(value)} has invalid data type ({type(value)}) for field: {self.name}")
 

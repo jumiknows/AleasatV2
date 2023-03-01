@@ -44,6 +44,7 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
 
         # Camera
         self.img_data: bytes = None
+        self.img_pixmap: QtGui.QPixmap = None
         self.img_timestamp: datetime = None
         self.last_save_dir: Path = Path("./").resolve()
 
@@ -59,7 +60,14 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         self.set_datetime_button.clicked.connect(self.set_current_datetime)
         self.reset_button.clicked.connect(self.reset_obc)
         self.ping_button.clicked.connect(self.ping)
-        self.take_image_button.clicked.connect(self.camera_capture)
+        self.cam_init_button.clicked.connect(self.cam_init)
+        self.cam_capture_button.clicked.connect(self.cam_capture)
+        self.cam_wr_sreg_button.clicked.connect(self.cam_wr_sreg)
+        self.cam_rd_sreg_button.clicked.connect(self.cam_rd_sreg)
+        self.cam_res_button.clicked.connect(self.cam_res)
+        self.cam_wb_button.clicked.connect(self.cam_white_bal)
+        self.cam_sde_button.clicked.connect(self.cam_sde)
+        self.clear_image_button.clicked.connect(self.clear_image)
         self.save_image_button.clicked.connect(self.save_image)
 
         self.obc_buttons = [
@@ -67,9 +75,48 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
             self.reset_button,
             self.ping_button,
             self.set_datetime_button,
-            self.take_image_button,
-            self.save_image_button,
+            self.cam_init_button,
+            self.cam_capture_button,
+            self.cam_wr_sreg_button,
+            self.cam_rd_sreg_button,
+            self.cam_res_button,
+            self.cam_wb_button,
+            self.cam_sde_button,
         ]
+
+        # Camera Fields
+        cam_sreg_field_width = 50
+        self.cam_sreg_addr_field.setFixedWidth(cam_sreg_field_width)
+        self.cam_sreg_data_field.setFixedWidth(cam_sreg_field_width)
+
+        cam_res_field_width = 50
+        self.cam_res_win_x_field.setFixedWidth(cam_res_field_width)
+        self.cam_res_win_y_field.setFixedWidth(cam_res_field_width)
+        self.cam_res_win_width_field.setFixedWidth(cam_res_field_width)
+        self.cam_res_win_height_field.setFixedWidth(cam_res_field_width)
+        self.cam_res_out_width_field.setFixedWidth(cam_res_field_width)
+        self.cam_res_out_height_field.setFixedWidth(cam_res_field_width)
+        self.cam_res_tot_width_field.setFixedWidth(cam_res_field_width)
+        self.cam_res_tot_height_field.setFixedWidth(cam_res_field_width)
+
+        cam_wb_field_width = 50
+        self.cam_wb_top_lim_field.setFixedWidth(cam_wb_field_width)
+        self.cam_wb_bot_lim_field.setFixedWidth(cam_wb_field_width)
+        self.cam_wb_gain_r_field.setFixedWidth(cam_wb_field_width)
+        self.cam_wb_gain_g_field.setFixedWidth(cam_wb_field_width)
+        self.cam_wb_gain_b_field.setFixedWidth(cam_wb_field_width)
+
+        cam_sde_field_width = 60
+        self.cam_sde_fixed_y_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_fixed_u_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_fixed_v_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_contrast_y_offset_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_contrast_y_gain_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_contrast_y_bright_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_sat_u_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_sat_v_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_hue_cos_field.setFixedWidth(cam_sde_field_width)
+        self.cam_sde_hue_sin_field.setFixedWidth(cam_sde_field_width)
 
         # Connect settings
         self.actionMessage_Level.triggered.connect(self.toggle_msg_lvl)
@@ -82,8 +129,19 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         self.last_msg_shortbut_prev = QShortcut(QtGui.QKeySequence.MoveToNextLine, self)
         self.last_msg_shortbut_prev.activated.connect(self.get_last_command_prev)
 
-        # Update connection state
+        # Event Listeners
+        self.image_label.installEventFilter(self)
+
+        # Update UI
         self.update_connection_state()
+        self.update_img()
+
+    def eventFilter(self, widget: QtCore.QObject, event: QtCore.QEvent):
+        if (event.type() == QtCore.QEvent.Type.Resize) and (widget is self.image_label):
+            self.update_img()
+            return True
+        return QtWidgets.QMainWindow.eventFilter(self, widget, event)
+
 
     def toggle_msg_lvl(self) -> None:
         if globs.toggle_msg_lvl_status():
@@ -208,19 +266,139 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
             self.handle_cmd_resp
         ))
 
-    def camera_capture(self):
-        self.take_image_button.setDisabled(True)
+    def cam_init(self):
+        self.obc_assistant.execute(OBCQTRequest(
+            lambda obc: obc.camera_init(),
+            self.handle_cmd_resp
+        ))
 
-        def req_func(obc: OBC):
-            resp = obc.camera_init()
+    def cam_capture(self):
+        # def req_func(obc: OBC):
+        #     resp = obc.camera_init()
 
-            if resp["arducam_err"] == 0:
-                print(resp)
-                resp = obc.camera_capture()
+        #     if resp["arducam_err"] == 0:
+        #         print(resp)
+        #         resp = obc.camera_capture()
 
-            return resp
+        #     return resp
 
-        self.obc_assistant.execute(OBCQTRequest(req_func, self.handle_img))
+        # self.obc_assistant.execute(OBCQTRequest(req_func, self.handle_img))
+
+        self.obc_assistant.execute(OBCQTRequest(
+            lambda obc: obc.camera_capture(),
+            self.handle_img
+        ))
+
+    def cam_wr_sreg(self):
+        try:
+            addr = int(self.cam_sreg_addr_field.text(), 16)
+            data = int(self.cam_sreg_data_field.text(), 16)
+
+            self.obc_assistant.execute(OBCQTRequest(
+                lambda obc: obc.camera_write_sensor_reg(addr, data),
+                self.handle_cmd_resp
+            ))
+        except ValueError:
+            print("Error parsing addr/data fields")
+
+    def cam_rd_sreg(self):
+        try:
+            addr = int(self.cam_sreg_addr_field.text(), 16)
+
+            self.obc_assistant.execute(OBCQTRequest(
+                lambda obc: obc.camera_read_sensor_reg(addr),
+                self.handle_cmd_resp
+            ))
+        except ValueError:
+            print("Error parsing addr field")
+
+    def cam_res(self):
+        try:
+            win_x      = int(self.cam_res_win_x_field.text(), 0)
+            win_y      = int(self.cam_res_win_y_field.text(), 0)
+            win_width  = int(self.cam_res_win_width_field.text(), 0)
+            win_height = int(self.cam_res_win_height_field.text(), 0)
+            out_width  = int(self.cam_res_out_width_field.text(), 0)
+            out_height = int(self.cam_res_out_height_field.text(), 0)
+            tot_width  = int(self.cam_res_tot_width_field.text(), 0)
+            tot_height = int(self.cam_res_tot_height_field.text(), 0)
+
+            self.obc_assistant.execute(OBCQTRequest(
+                lambda obc: obc.camera_set_resolution(win_x, win_y, win_width, win_height, out_width, out_height, tot_width, tot_height),
+                self.handle_cmd_resp
+            ))
+        except ValueError:
+            print("Error parsing fields")
+
+    def cam_white_bal(self):
+        try:
+            is_auto = self.cam_wb_auto.isChecked()
+            if is_auto:
+                top_limit    = int(self.cam_wb_top_lim_field.text(), 0)
+                bottom_limit = int(self.cam_wb_bot_lim_field.text(), 0)
+
+                self.obc_assistant.execute(OBCQTRequest(
+                    lambda obc: obc.camera_set_white_balance_auto_simple(top_limit, bottom_limit),
+                    self.handle_cmd_resp
+                ))
+            else:
+                gain_r = int(self.cam_wb_gain_r_field.text(), 0)
+                gain_g = int(self.cam_wb_gain_g_field.text(), 0)
+                gain_b = int(self.cam_wb_gain_b_field.text(), 0)
+
+                self.obc_assistant.execute(OBCQTRequest(
+                    lambda obc: obc.camera_set_white_balance_manual(gain_r, gain_g, gain_b),
+                    self.handle_cmd_resp
+                ))
+        except ValueError:
+            print("Error parsing fields")
+
+    def cam_sde(self):
+        try:
+            sde_enable = self.cam_sde_enable.isChecked()
+            fixed_y = (int(self.cam_sde_fixed_y_field.text(), 0)) if self.cam_sde_fixed_y.isChecked() else None
+            fixed_u = (int(self.cam_sde_fixed_u_field.text(), 0)) if self.cam_sde_fixed_u.isChecked() else None
+            fixed_v = (int(self.cam_sde_fixed_v_field.text(), 0)) if self.cam_sde_fixed_v.isChecked() else None
+            neg_y = self.cam_sde_neg_y.isChecked()
+            gray = self.cam_sde_gray.isChecked()
+            solarize = self.cam_sde_solarize.isChecked()
+            contrast = None
+            if self.cam_sde_contrast_en.isChecked():
+                contrast = (
+                    int(self.cam_sde_contrast_y_offset_field.text(), 0),
+                    int(self.cam_sde_contrast_y_gain_field.text(), 0),
+                    int(self.cam_sde_contrast_y_bright_field.text(), 0),
+                )
+            saturation = None
+            if self.cam_sde_sat_en.isChecked():
+                saturation = (
+                    int(self.cam_sde_sat_u_field.text(), 0),
+                    int(self.cam_sde_sat_v_field.text(), 0),
+                )
+            hue = None
+            if self.cam_sde_hue_en.isChecked():
+                hue = (
+                    int(self.cam_sde_hue_cos_field.text(), 0),
+                    int(self.cam_sde_hue_sin_field.text(), 0),
+                )
+
+            self.obc_assistant.execute(OBCQTRequest(
+                lambda obc: obc.camera_set_special_digital_effects(
+                                    enable     = sde_enable,
+                                    fixed_y    = fixed_y,
+                                    neg_y      = neg_y,
+                                    gray       = gray,
+                                    fixed_v    = fixed_v,
+                                    fixed_u    = fixed_u,
+                                    contrast   = obc.CameraContrast(*contrast) if contrast else None,
+                                    saturation = obc.CameraSaturation(*saturation) if saturation else None,
+                                    hue        = obc.CameraHue(*hue) if hue else None,
+                                    solarize   = solarize,
+                            ),
+                self.handle_cmd_resp
+            ))
+        except ValueError:
+            print("Error parsing fields")
 
     def handle_cmd_resp(self, resp: Union[OBCResponse, OBCError]):
         if resp is not None:
@@ -228,8 +406,6 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
             self.add_line_to_text_from_serial(str(resp))
 
     def handle_img(self, resp: Union[OBCResponse, OBCError]):
-        self.take_image_button.setDisabled(False)
-
         # Handle errors
         if resp is None:
             return
@@ -246,10 +422,10 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         self.img_data = resp["image_data"]
         self.img_timestamp = datetime.now()
 
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(self.img_data, 'jpeg')
+        self.img_pixmap = QtGui.QPixmap()
+        self.img_pixmap.loadFromData(self.img_data, 'jpeg')
 
-        self.image_label.setPixmap(pixmap)
+        self.update_img()
 
         self.show()
 
@@ -265,6 +441,18 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
 
         line += bytes_to_hexstr(log.payload, ascii_only=True)
         self.add_line_to_text_from_serial(line)
+
+    def update_img(self):
+        if self.img_pixmap is not None:
+            self.image_label.setPixmap(self.img_pixmap.scaled(
+                self.image_label.width(), self.image_label.height(),
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+            )
+
+    def clear_image(self):
+        self.image_label.clear()
+        self.image_label.setText("No image")
+        self.img_pixmap = None
 
     def save_image(self):
         if self.img_data is None or self.img_timestamp is None:

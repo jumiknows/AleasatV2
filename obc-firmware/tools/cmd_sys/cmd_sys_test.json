@@ -189,5 +189,34 @@
             {"image_size": "u32"},
             {"image_data": "bytes"}
         ]
+    },
+    "TEST_CAM_WR_SREG": {
+        "id": 231,
+        "args": [
+            {"addr": "u16"},
+            {"data": "u8"}
+        ],
+        "resp": [
+            {"ov5642_err": "s8"}
+        ]
+    },
+    "TEST_CAM_RD_SREG": {
+        "id": 230,
+        "args": [
+            {"addr": "u16"}
+        ],
+        "resp": [
+            {"ov5642_err": "s8"},
+            {"data": "u8"}
+        ]
+    },
+    "TEST_CAM_WR_SREGS": {
+        "id": 229,
+        "args": [
+            {"reg_data": "bytes"}
+        ],
+        "resp": [
+            {"ov5642_err": "s8"}
+        ]
     }
 }
