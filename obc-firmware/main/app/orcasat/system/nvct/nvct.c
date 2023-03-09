@@ -10,7 +10,6 @@
 #include "obc_mram.h"
 #include "lfs_util.h"
 #include "logger.h"
-#include "obc_misra.h"
 #include "settings_defs.h"
 #include "obc_settings.h"
 

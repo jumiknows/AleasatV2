@@ -14,14 +14,11 @@
 #include "obc_hardwaredefs.h"
 #include "obc_utils.h"
 #include "obc_watchdog.h"
-#include "obc_misra.h"
 #include "rtos.h"
 #include <string.h>
 #include "sys_common.h"
 #include "system.h"
-OBC_MISRA_CHECK_OFF
 #include "F021.h"
-OBC_MISRA_CHECK_ON
 
 /**
  * @brief Can only do accesses of 16-bytes long at a time, this is limitation

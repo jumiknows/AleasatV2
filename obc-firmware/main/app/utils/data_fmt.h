@@ -13,9 +13,6 @@
 // Utils
 #include "obc_utils.h"
 
-// OBC
-#include "obc_misra.h"
-
 // Standard Library
 #include <stdint.h>
 #include <string.h>
@@ -61,8 +58,6 @@ uint32_t data_fmt_deserialize_field(data_fmt_field_type_t type, void *data, cons
 /******************************************************************************/
 /*                       I N L I N E  F U N C T I O N S                       */
 /******************************************************************************/
-
-OBC_MISRA_CHECK_OFF
 
 /* ----------------------------- SERIALIZATION ------------------------------ */
 
@@ -183,7 +178,5 @@ static inline float64 data_fmt_arr_be_to_f64(const uint8_t *arr) {
     memcpy(&value, &value_int, sizeof(value));
     return value;
 }
-
-OBC_MISRA_CHECK_ON
 
 #endif // DATA_FMT_H_

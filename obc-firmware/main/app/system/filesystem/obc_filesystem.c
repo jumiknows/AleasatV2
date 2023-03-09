@@ -13,7 +13,6 @@
 #include "obc_error.h"
 #include "obc_featuredefs.h"
 #include "obc_flash.h"
-#include "obc_misra.h"
 #include "obc_task_info.h"
 #include "obc_watchdog.h"
 
@@ -21,9 +20,7 @@
 #include "rtos.h"
 
 // Third-Party
-OBC_MISRA_CHECK_OFF
 #include "lfs.h"
-OBC_MISRA_CHECK_ON
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -262,32 +259,19 @@ static void vFileSystemLoggerTask(void* pvParameters) {
                 *(req.err) = create(req.args.open_args.path);
                 break;
             case LS:
-                /*
-                 * AZ: Warning 12.2 is triggered here, it seems to be a consequence of passing in
-                 * more than one argument using items from a struct. It seems unnecessary to break
-                 * each argument out to local variables to avoid this warning.
-                 */
-                OBC_MISRA_CHECK_OFF
                 *(req.err) = ls(req.args.ls_args.path, (char(*)[LFS_NAME_MAX])req.args.ls_args.ls_list);
-                OBC_MISRA_CHECK_ON
                 break;
             case READ:
-                OBC_MISRA_CHECK_OFF
                 *(req.err) = read(req.args.read_args.path, req.args.read_args.off_bytes, req.args.read_args.buf, req.args.read_args.size_bytes);
-                OBC_MISRA_CHECK_ON
                 break;
             case WRITE:
-                OBC_MISRA_CHECK_OFF
                 *(req.err) = write(req.args.write_args.path, req.args.write_args.off_bytes, req.args.write_args.buf, req.args.write_args.size_bytes, req.args.write_args.whence);
-                OBC_MISRA_CHECK_ON
                 break;
             case DELETE:
                 *(req.err) = delete (req.args.open_args.path);
                 break;
             case FILE_SIZE:
-                OBC_MISRA_CHECK_OFF
                 *(req.err) = file_size(req.args.fsize_args.path, req.args.fsize_args.size);
-                OBC_MISRA_CHECK_ON
                 break;
             default:
                 log_str(ERROR, LOG_FS_GENERAL, "Unknown Request: %d", req.type);

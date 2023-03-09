@@ -36,9 +36,6 @@
 #include <stdarg.h>
 #include "sys_common.h"
 
-#include "obc_misra.h"
-OBC_MISRA_CHECK_OFF
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -119,7 +116,5 @@ size_t orca_vsnprintf(char* buffer, size_t buffer_len, const char* format, va_li
 #ifdef __cplusplus
 }
 #endif
-
-OBC_MISRA_CHECK_ON
 
 #endif  // _PRINTF_H_

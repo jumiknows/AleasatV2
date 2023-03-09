@@ -71,8 +71,8 @@ void telem_create_infra(void) {
  * data from the snapshot and save it to files.
  */
 void telem_start_task(void) {
-    TaskHandle_t xTelemCollectTaskHandle = task_create_static(&vTelemCollect, "telem_collect", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_collect_stack, &telem_collect_task_buf);
-    TaskHandle_t xTelemTaskHandle        = task_create_static(&vTelemLoggerTask, "telem_log", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_stack, &telem_task_buf);
+    task_create_static(&vTelemCollect, "telem_collect", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_collect_stack, &telem_collect_task_buf);
+    task_create_static(&vTelemLoggerTask, "telem_log", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_stack, &telem_task_buf);
 }
 
 /**

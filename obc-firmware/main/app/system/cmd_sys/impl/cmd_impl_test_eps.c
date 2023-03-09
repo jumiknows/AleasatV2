@@ -131,8 +131,6 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_SANITY(const cmd_sys_cmd_t *cmd, cmd_
 
     // Run test suite: return on failure
     do {
-        OBC_MISRA_CHECK_OFF /* False positive: MISRA-12.4/R: The right-hand operand of a logical && or || operator shall not contain side effects. */
-
         // Read battery voltage
         err = eps_read_float(EPS_READ_BATTERY_VOLTAGE, &retf);
         ASSERT_EPS_SUCCESS(err)
@@ -248,8 +246,6 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_SANITY(const cmd_sys_cmd_t *cmd, cmd_
         reti = 9999U;
 
         success = true; // Every test passed
-
-        OBC_MISRA_CHECK_ON
     } while (0);
 
     if (success) {
@@ -271,8 +267,6 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_WRITEREAD_SANITY(const cmd_sys_cmd_t *cmd,
 
     // Run test suite: return on failure
     do {
-        OBC_MISRA_CHECK_OFF /* False positive: MISRA-12.4/R: The right-hand operand of a logical && or || operator shall not contain side effects. */
-
         /*
          * Test Vbatt en
          */
@@ -313,8 +307,6 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_WRITEREAD_SANITY(const cmd_sys_cmd_t *cmd,
         ASSERT_INT_EQUAL((uint8_t) (retf / 1.497), 0x30)
 
         success = true; // Every test passed
-
-        OBC_MISRA_CHECK_ON
     } while (0);
 
     if (success) {

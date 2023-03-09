@@ -81,10 +81,7 @@ void log_data(log_level_t lvl, log_identifier_t func_id, uint8_t size, const voi
 void log_str(log_level_t lvl, log_identifier_t func_id, char* format, ...) {
     // format str
     va_list ap;
-    /* Waiving MISRA check due to positive result for 6.3. This is caused by (int) in stdarg.h. (RA) */
-    OBC_MISRA_CHECK_OFF
     va_start(ap, format);
-    OBC_MISRA_CHECK_ON
 
     log_str_internal(lvl, func_id, true, format, ap, true);
     va_end(ap);
@@ -93,10 +90,7 @@ void log_str(log_level_t lvl, log_identifier_t func_id, char* format, ...) {
 void log_str_without_time(log_level_t lvl, log_identifier_t func_id, char* format, ...) {
     // format str
     va_list ap;
-    /* Waiving MISRA check due to positive result for 6.3. This is caused by (int) in stdarg.h. (RA) */
-    OBC_MISRA_CHECK_OFF
     va_start(ap, format);
-    OBC_MISRA_CHECK_ON
 
     log_str_internal(lvl, func_id, true, format, ap, false);
     va_end(ap);
@@ -105,10 +99,7 @@ void log_str_without_time(log_level_t lvl, log_identifier_t func_id, char* forma
 void log_str_without_saving_to_fs(log_level_t lvl, log_identifier_t func_id, char* format, ...) {
     // format str
     va_list ap;
-    /* Waiving MISRA check due to positive result for 6.3. This is caused by (int) in stdarg.h. (RA) */
-    OBC_MISRA_CHECK_OFF
     va_start(ap, format);
-    OBC_MISRA_CHECK_ON
 
     log_str_internal(lvl, func_id, false, format, ap, true);
     va_end(ap);

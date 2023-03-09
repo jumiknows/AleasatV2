@@ -10,9 +10,6 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-// OBC
-#include "obc_misra.h"
-
 // FreeRTOS
 #include "rtos.h"
 
@@ -23,7 +20,6 @@
 /*                               D E F I N E S                                */
 /******************************************************************************/
 
-OBC_MISRA_CHECK_OFF
 /**
  * Source: https://stackoverflow.com/questions/807244/c-compiler-asserts-how-to-implement
  * 
@@ -55,7 +51,6 @@ OBC_MISRA_CHECK_OFF
 #define _impl_PASTE(a,b) a##b
 #define _impl_CASSERT_LINE(predicate, line, file) \
     typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
-OBC_MISRA_CHECK_ON
 
 // Arrays
 #define LEN(array)                  (sizeof((array)) / sizeof((array)[0]))

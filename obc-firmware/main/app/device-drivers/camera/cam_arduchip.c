@@ -14,7 +14,6 @@
 
 // OBC
 #include "obc_hardwaredefs.h"
-#include "obc_misra.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -98,11 +97,8 @@ arduchip_err_t arduchip_init(void) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
 
     // SPI setup
-    // False positive: (MISRA-C:2004 12.2/R) The value of an expression shall be the same under any order of evaluation that the standard permits
-    OBC_MISRA_CHECK_OFF
     mibspiEnableGroupNotification(transfer_group_single.reg, transfer_group_single.transfer_group, CAMERA_RX_INT_LEVEL);
     mibspiEnableGroupNotification(transfer_group_burst.reg, transfer_group_burst.transfer_group, CAMERA_RX_INT_LEVEL);
-    OBC_MISRA_CHECK_ON
 
     do {
         // Reset ArduChip
@@ -454,11 +450,8 @@ static mibspi_err_t read_ardu_burst(uint8_t addr, uint8_t *data) {
     memset(buf, 0, sizeof(buf));
     buf[0] = ((uint16_t)addr << 8U);
 
-    // False positive: (MISRA-C:2004 12.2/R) The value of an expression shall be the same under any order of evaluation that the standard permits
-    OBC_MISRA_CHECK_OFF
     // The same buffer is used for tx and rx since we don't need to preserve the tx data
     mibspi_err_t status = tms_mibspi_tx_rx(&transfer_group_burst, buf, buf, MIBSPI_TIMEOUT_MS);
-    OBC_MISRA_CHECK_ON
 
     if ((status == MIBSPI_NO_ERR) && (data != NULL)) {
         uint8_t *buf_u8 = (uint8_t *)buf; // uint8_t is allowed to alias anything

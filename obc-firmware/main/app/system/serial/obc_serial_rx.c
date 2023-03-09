@@ -17,7 +17,6 @@
 #include "obc_rtos.h"
 #include "obc_task_info.h"
 #include "obc_hardwaredefs.h"
-#include "obc_misra.h"
 
 // Utils
 #include "rtos_stream.h"

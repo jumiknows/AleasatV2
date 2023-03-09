@@ -37,9 +37,7 @@
 #include "printf.h"
 
 
-#include "obc_misra.h"
 #define PRINTF_FLOAT_SUPPORT
-OBC_MISRA_CHECK_OFF
 
 // internal strlen
 // \return The length of the string (excluding the terminating 0)
@@ -597,5 +595,3 @@ int snprintf(char* buffer, size_t count, const char* format, ...)
   va_end(va);
   return (int)ret;
 }
-
-OBC_MISRA_CHECK_ON

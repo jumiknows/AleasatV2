@@ -9,7 +9,6 @@
 
 // OBC
 #include "obc_main.h"
-#include "obc_misra.h"
 
 // Common
 #include "fw_structs.h"
@@ -52,7 +51,6 @@
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
-OBC_MISRA_CHECK_OFF
 void obc_main(void) {
     // This function may result in data aborts due to ECC errors
     // Disable interrupts so we can easily catch and identify these data aborts
@@ -131,4 +129,3 @@ void obc_main(void) {
         }
     }
 }
-OBC_MISRA_CHECK_ON

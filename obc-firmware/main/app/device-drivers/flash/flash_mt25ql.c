@@ -80,13 +80,9 @@ static mibspi_tg_t flash_1byte_tg = {.reg = FLASH_MIBSPI_REG, .transfer_group = 
 
 static mibspi_tg_t flash_2bytes_tg = {.reg = FLASH_MIBSPI_REG, .transfer_group = FLASH_2_BYTE_GROUP, .cs_port = FLASH_CS0_PORT, .cs_pin = FLASH_CS0_PIN};
 
-OBC_MISRA_CHECK_OFF /* ignore MISRA 8.7 as transfer groups should be available to all functions in this file */
 static mibspi_tg_t flash_5bytes_tg = {.reg = FLASH_MIBSPI_REG, .transfer_group = FLASH_5_BYTE_GROUP, .cs_port = FLASH_CS0_PORT, .cs_pin = FLASH_CS0_PIN};
-OBC_MISRA_CHECK_ON
 
-OBC_MISRA_CHECK_OFF /* ignore MISRA 8.7 as transfer groups should be available to all functions in this file */
 static mibspi_tg_t flash_20bytes_tg = {.reg = FLASH_MIBSPI_REG, .transfer_group = FLASH_20_BYTE_GROUP, .cs_port = FLASH_CS0_PORT, .cs_pin = FLASH_CS0_PIN};
-OBC_MISRA_CHECK_ON
 
 static mibspi_tg_t flash_69bytes_tg = {.reg = FLASH_MIBSPI_REG, .transfer_group = FLASH_69_BYTE_GROUP, .cs_port = FLASH_CS0_PORT, .cs_pin = FLASH_CS0_PIN};
 

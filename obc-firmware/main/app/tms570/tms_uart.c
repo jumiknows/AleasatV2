@@ -14,7 +14,6 @@
 // OBC
 #include "obc_hardwaredefs.h"
 #include "obc_watchdog.h"
-#include "obc_misra.h"
 #include "obc_utils.h"
 #include "obc_task_info.h"
 #include "sys_common.h"
@@ -137,8 +136,5 @@ void gps_send(const uint8_t* data, uint32_t size_bytes) {
  * @param uart_port[in]: UART port base address.
  */
 static inline void uart_send_bytes(const uint8_t* data, uint32_t size_bytes, sciBASE_t* uart_port) {
-    // Disable MISRA warning about removing const. sciSend doesn't take a const ptr by design, although it does not modify it. (RA, March 3 2020)
-    OBC_MISRA_CHECK_OFF
     sciSend(uart_port, size_bytes, (uint8_t*)data);
-    OBC_MISRA_CHECK_ON
 }

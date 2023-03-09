@@ -10,7 +10,6 @@
 
 //OBC
 #include "obc_hardwaredefs.h"
-#include "obc_misra.h"
 
 //FreeRTOS
 #include "rtos.h"
@@ -24,88 +23,47 @@
 
 /* Panel 0 gyro */
 ADIS16260_t panel_gyro_0 = {
-OBC_MISRA_CHECK_OFF
-    .dev_id = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .cs_pin = PANEL0_CS_PIN,
-
-    .cs_port = PANEL0_CS_PORT,
-
+    .dev_id   = {0},
+    .cs_pin   = PANEL0_CS_PIN,
+    .cs_port  = PANEL0_CS_PORT,
     .spi_port = PANEL0_SPI_PORT,
-
-    .timer = {0},
-
-OBC_MISRA_CHECK_OFF
-    .s_timer = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .asleep = false
+    .timer    = {0},
+    .s_timer  = {0},
+    .asleep   = false
 };
 
 /* Panel 1 gyro */
 ADIS16260_t panel_gyro_1 = {
-OBC_MISRA_CHECK_OFF
-    .dev_id = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .cs_pin = PANEL1_CS_PIN,
-
-    .cs_port = PANEL1_CS_PORT,
-
+    .dev_id   = {0},
+    .cs_pin   = PANEL1_CS_PIN,
+    .cs_port  = PANEL1_CS_PORT,
     .spi_port = PANEL1_SPI_PORT,
-
-    .timer = {0},
-
-OBC_MISRA_CHECK_OFF
-    .s_timer = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .asleep = false
+    .timer    = {0},
+    .s_timer  = {0},
+    .asleep   = false
 };
 
 /* Panel 2 gyro */
 ADIS16260_t panel_gyro_2 = {
-OBC_MISRA_CHECK_OFF
-    .dev_id = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .cs_pin = PANEL2_CS_PIN,
-
-    .cs_port = PANEL2_CS_PORT,
-
+    .dev_id   = {0},
+    .cs_pin   = PANEL2_CS_PIN,
+    .cs_port  = PANEL2_CS_PORT,
     .spi_port = PANEL2_SPI_PORT,
-
-    .timer = {0},
-
-OBC_MISRA_CHECK_OFF
-    .s_timer = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .asleep = false
+    .timer    = {0},
+    .s_timer  = {0},
+    .asleep   = false
 };
 
 /* Panel 3 gyro */
 ADIS16260_t panel_gyro_3 = {
-OBC_MISRA_CHECK_OFF
-    .dev_id = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .cs_pin = PANEL3_CS_PIN,
-
-    .cs_port = PANEL3_CS_PORT,
-
+    .dev_id   = {0},
+    .cs_pin   = PANEL3_CS_PIN,
+    .cs_port  = PANEL3_CS_PORT,
     .spi_port = PANEL3_SPI_PORT,
-
-    .timer = {0},
-
-OBC_MISRA_CHECK_OFF
-    .s_timer = {0}, /*Remove MISRA 9.2 warning as for some reason it does not understand struct initialization within struct initialization*/
-OBC_MISRA_CHECK_ON
-
-    .asleep = false
+    .timer    = {0},
+    .s_timer  = {0},
+    .asleep   = false
 };
-
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
@@ -115,7 +73,6 @@ static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t* gyro, uint8_t addr, uin
 static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t* gyro, uint8_t addr, uint8_t* buf);
 static ADIS16260_error_t ADIS16260_update_id(ADIS16260_t* gyro);
 static void ADIS16260_timer_cb(xTimerHandle pxTimer);
-
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -141,10 +98,7 @@ ADIS16260_error_t ADIS16260_init(ADIS16260_t* gyro)
     /*Base number of sleep ticks set to 1, this will be updated when ADIS16260_set_sleep is called*/
     ticks = pdMS_TO_TICKS(1*ADIS_SLP_TICKS_MS);
 
-    /* Disabling Rule 12.2 because MISRA seems to not be able to parse something about this function pointer*/
-OBC_MISRA_CHECK_OFF
     gyro->timer = xTimerCreateStatic("ADIS_timer", ticks , pdFALSE, &gyro->dev_id.serial_num, &ADIS16260_timer_cb, &gyro->s_timer);
-OBC_MISRA_CHECK_ON
 
     return ADIS16260_SUCCESS;
 }
@@ -242,12 +196,8 @@ ADIS16260_error_t ADIS16260_read_gyro(ADIS16260_t* gyro, ADIS16260_gdata_t* buf)
 
     /**Convert 14 bit 2's complement value to interpretable 16 bit while preserving sign
      * See: https://stackoverflow.com/questions/34075922/convert-raw-14-bit-twos-complement-to-signed-16-bit-integer
-     *
-     * Remove MISRA check 10.5 as we cannot immediately cast this bitshift to uint16_t or else the operation becomes invalid
      */
-OBC_MISRA_CHECK_OFF
     buf->data_raw = ((int16_t)(rx << 2)) / 4;
-OBC_MISRA_CHECK_ON
 
     /*Calculated rate = raw rate (LSB's) * degrees per LSB * Default scale (LSB'S) * degrees per scale LSB + extra offset*/
     buf->data = (buf->data_raw * ADIS_GYRO_DEG_LSB) * (ADIS_GYRO_SCALE_DEG_LSB * ADIS_GYRO_DEFAULT_SCALE);
@@ -283,12 +233,8 @@ ADIS16260_error_t ADIS16260_read_temp(ADIS16260_t* gyro, ADIS16260_tdata_t* buf)
 
     /**Convert 12 bit 2's complement value to interpretable 16 bit while preserving sign
      * See: https://stackoverflow.com/questions/34075922/convert-raw-14-bit-twos-complement-to-signed-16-bit-integer
-     *
-     * Remove MISRA check 10.5 as we cannot immediately cast this bitshift to uint16_t or else the operation becomes invalid
      */
-OBC_MISRA_CHECK_OFF
     buf->data_raw_temp = ((int16_t)(rx << 4)) / 16;
-OBC_MISRA_CHECK_ON
 
     /*Calculated temperature = raw temp (LSB's) * degrees per LSB + standard offset (25 degrees C)*/
     buf->data_temp = (buf->data_raw_temp * ADIS_TEMP_DEG_LSB) + ADIS_TEMP_DEFAULT_OFFSET;
@@ -369,13 +315,8 @@ ADIS16260_error_t ADIS16260_set_filter(ADIS16260_t* gyro, ADIS_range_t range, AD
             tx[1] |= ADIS_RANGE_80;
             break;
 
-OBC_MISRA_CHECK_OFF
         default:
-            /* Removing MISRA check 15.2 as mandatory break statement is not needed here as
-             * function will return.
-             */
             return ADIS16260_INVALID_ARGUMENT;
-OBC_MISRA_CHECK_ON
     }
 
     switch (bw)
@@ -387,13 +328,8 @@ OBC_MISRA_CHECK_ON
             tx[0] |= ADIS_BW_50;
             break;
 
-OBC_MISRA_CHECK_OFF
         default:
-            /* Removing MISRA check 15.2 as mandatory break statement is not needed here as
-             * function will return.
-             */
             return ADIS16260_INVALID_ARGUMENT;
-OBC_MISRA_CHECK_ON
     }
 
     tx[0] |= taps;

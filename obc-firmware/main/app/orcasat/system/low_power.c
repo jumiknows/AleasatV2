@@ -10,7 +10,6 @@
 #include "obc_featuredefs.h"
 #include "system.h"
 #include "stdbool.h"
-#include "obc_misra.h"
 
 volatile uint8_t enable_sleep;
 
@@ -52,10 +51,6 @@ void enter_idle_sleep(void) {
     }
 }
 
-/* Disabling MISRA checking because for rule 2.1 - this section is compliant but CCS still flags a
- * warning (RA) */
-OBC_MISRA_CHECK_OFF;
 static void asm_dsb(void) {
     asm(" DSB");
 }
-OBC_MISRA_CHECK_ON;

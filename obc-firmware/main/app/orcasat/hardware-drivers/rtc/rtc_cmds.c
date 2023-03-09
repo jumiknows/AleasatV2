@@ -9,7 +9,6 @@
 #include "obc_time.h"
 #include "obc_rtc.h"
 #include "obc_error.h"
-#include "obc_misra.h"
 #include "logger.h"
 #include "obc_utils.h"
 #include "obc_glibc.h"
@@ -181,8 +180,6 @@ bool extract_rtc(const char* argument, active_rtc_t* rtc, bool* set_backup) {
  * @return RTC_REAL_TIME_INVALID if time is not valid, RTC_NO_ERR otherwise
  */
 rtc_err_t extract_time(char* arguments[7], real_time_t* time) {
-    // Waiving MISRA check "atoi should not be used" Richard A, March 8, 2020
-    OBC_MISRA_CHECK_OFF
     uint32_t val = atoi(arguments[1]);
     if (!is_year_valid(val)) {
         return RTC_REAL_TIME_INVALID;
@@ -218,7 +215,6 @@ rtc_err_t extract_time(char* arguments[7], real_time_t* time) {
         return RTC_REAL_TIME_INVALID;
     }
     time->second = val;
-    OBC_MISRA_CHECK_ON
 
     return RTC_NO_ERR;
 }

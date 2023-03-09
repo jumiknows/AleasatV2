@@ -10,9 +10,6 @@
 #include "comms_defs.h"
 #include "comms_utils.h"
 
-// OBC
-#include "obc_misra.h"
-
 // Standard Library
 #include <string.h>
 #include <stdint.h>
@@ -107,10 +104,7 @@ comms_err_t comms_buffer_to_cmd_struct(uint16_t* buf, comms_command_t* cmd_struc
     cmd_struct->header.command = bufp[0];
     bufp += 1;
 
-    // No idea why MISRA complains about this (#1487-D (MISRA-C:2004 12.2/R))
-    OBC_MISRA_CHECK_OFF
     memcpy(cmd_struct->data, bufp, cmd_struct->data_len);
-    OBC_MISRA_CHECK_ON
 
     return COMMS_SUCCESS;
 }

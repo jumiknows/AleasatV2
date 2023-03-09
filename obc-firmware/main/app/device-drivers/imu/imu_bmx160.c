@@ -15,7 +15,6 @@
 #include "logger.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
-#include "obc_misra.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -35,12 +34,6 @@
 /******************************************************************************/
 /*                P U B L I C  G L O B A L  V A R I A B L E S                 */
 /******************************************************************************/
-OBC_MISRA_CHECK_OFF
-/* Ignore MISRA-9.2: Braces shall be used to indicate and match the structure in the
- *  non-zero initialization of arrays and structures
- * 
- * Ignoring because making the structure match will result in large, ugly definitions
- */
 bmx160_t bmx160_imu_1 = {
 	.gyro_settings = { 0 },
 	.accel_settings = { 0 },
@@ -58,10 +51,8 @@ bmx160_t bmx160_imu_1 = {
 
 	.trimming_data = { 0 }
 };
-OBC_MISRA_CHECK_ON
 
 #if IMU_2_EN
-OBC_MISRA_CHECK_OFF
 bmx160_t bmx160_imu_2 = {
 	.gyro_settings = { 0 },
 	.accel_settings = { 0 },
@@ -79,7 +70,6 @@ bmx160_t bmx160_imu_2 = {
 
 	.trimming_data = { 0 }
 };
-OBC_MISRA_CHECK_ON
 #endif // IMU_2_EN
 
 /******************************************************************************/
@@ -153,14 +143,9 @@ imu_error_t bmx160_set_power_mode(bmx160_t* imu, uint8_t power_mode){
 			imu -> gyro_settings.power_state = power_mode;
 			vTaskDelay(pdMS_TO_TICKS(100)); //see datasheet page 90 (table 29)
 			break;
-		OBC_MISRA_CHECK_OFF
-		/*Removing MISRA check 15.2 as mandatory break statement is not needed here as
-        * function will return.
-		*/
 		default:
 			log_str(ERROR, LOG_ADCS_IMU, "Error wrong device mode selected: %d", power_mode);
 			return IMU_ERROR;
-		OBC_MISRA_CHECK_ON
 	}
 
 	imu_error_t result = bmx160_write_reg(imu, BMX160_COMMAND_REG_ADDR, 1, &power_mode);
@@ -369,8 +354,6 @@ imu_error_t bmx160_get_data(bmx160_t* imu, bmx160_data_t* data_out){
 				return IMU_ERROR;
 		}
 
-		/*Turning MISRA off because immediately typecasting shifted value to uint8_t breaks things*/
-		OBC_MISRA_CHECK_OFF
 		/*Capture raw data here*/
 		data_out -> mag.x_raw = (int16_t)(((uint16_t)buff[0]) | (((uint16_t)buff[1]) << 8));
 		data_out -> mag.y_raw = (int16_t)(((uint16_t)buff[2]) | (((uint16_t)buff[3]) << 8));
@@ -397,7 +380,6 @@ imu_error_t bmx160_get_data(bmx160_t* imu, bmx160_data_t* data_out){
 		data_out -> mag.x_proc = mag_comp_x(imu, data_out->rhall, data_out->mag.x_raw) * (imu->mag_cal);
 		data_out -> mag.y_proc = mag_comp_y(imu, data_out->rhall, data_out->mag.y_raw) * (imu->mag_cal);
 		data_out -> mag.z_proc = mag_comp_z(imu, data_out->rhall, data_out->mag.z_raw) * (imu->mag_cal);
-		OBC_MISRA_CHECK_ON
 	}
 	return IMU_SUCCESS;
 }
@@ -551,10 +533,6 @@ static imu_error_t bmx160_init_mag(bmx160_t* imu){
 							{0x4C,BMX160_MAGN_IF_2_ADDR}, {0x42, BMX160_MAGN_IF_1_ADDR},
 							{0x08, BMX160_MAGN_CONFIG_ADDR}, {0x03, BMX160_MAGN_IF_0_ADDR}};
 
-	/*Supressing MISRA 12.2 warning here as there are no order of evaluation violations and
-	* creating a seperate array to hold response buffer would just be a complete waste of memory space
-	*/
-	OBC_MISRA_CHECK_OFF
 	/*Put magnetometer into setup mode*/
 	if (bmx160_write_reg(imu, cmd_array[0][1], 1, &cmd_array[0][0]) == IMU_ERROR){
 		return IMU_ERROR;
@@ -567,7 +545,6 @@ static imu_error_t bmx160_init_mag(bmx160_t* imu){
 			return IMU_ERROR;
 		}
 	}
-	OBC_MISRA_CHECK_ON
 	if (bmx160_set_power_mode(imu, BMX160_MAGN_NORMAL_MODE) == IMU_ERROR){
 		return IMU_ERROR;
 	}
@@ -628,11 +605,6 @@ static imu_error_t bmx160_read_trimming_data(bmx160_t* imu){
 	uint8_t read_addr = BMX160_MAG_DATA_ADDR;
 
 
-	/*Supressing MISRA 12.2 warning here as there are no order of evaluation violations and
-	* creating a seperate array to hold response buffer would just be a complete waste of memory space
-	*/
-	OBC_MISRA_CHECK_OFF
-
 	/*Put magnetometer into setup mode*/
 	if (bmx160_write_reg(imu, cmd_array[0][1], 1, &cmd_array[0][0]) == IMU_ERROR)
 	{
@@ -660,7 +632,6 @@ static imu_error_t bmx160_read_trimming_data(bmx160_t* imu){
 			}
 			vTaskDelay(pdMS_TO_TICKS(10));
 		}
-	OBC_MISRA_CHECK_ON
 		imu->trimming_data.dig_x1 = (int8_t)mag_read_array[0];
 		imu->trimming_data.dig_y1 = (int8_t)mag_read_array[1];
 		imu->trimming_data.dig_x2 = (int8_t)mag_read_array[2];
@@ -668,29 +639,21 @@ static imu_error_t bmx160_read_trimming_data(bmx160_t* imu){
 		imu->trimming_data.dig_xy1 = (uint8_t)mag_read_array[4];
 		imu->trimming_data.dig_xy2 = (int8_t)mag_read_array[5];
 
-		/*Turning MISRA off because immediately typecasting shifted value to uint8_t breaks things*/
-		OBC_MISRA_CHECK_OFF
 		imu->trimming_data.dig_z1 = (uint16_t)((mag_read_array[7] << 8) | mag_read_array[6]);
 		imu->trimming_data.dig_z2 = (int16_t)((mag_read_array[9] << 8) | mag_read_array[8]);
 		imu->trimming_data.dig_z3 = (int16_t)((mag_read_array[11] << 8) | mag_read_array[10]);
 		imu->trimming_data.dig_z4 = (int16_t)((mag_read_array[13] << 8) | mag_read_array[12]);
 		imu->trimming_data.dig_xyz1 = (uint16_t)((mag_read_array[15] << 8) | mag_read_array[14]);
-		OBC_MISRA_CHECK_ON
 	}
 
 	vTaskDelay(pdMS_TO_TICKS(50));
 
-	/*Supressing MISRA 12.2 warning here as there are no order of evaluation violations and
-	* creating a seperate array to hold response buffer would just be a complete waste of memory space
-	*/
-	OBC_MISRA_CHECK_OFF
 	for(i=1; i<6; i++){
 		if ((bmx160_write_reg(imu, cmd_array[i][1], 1, &cmd_array[i][0])) == IMU_ERROR){
 			log_str(ERROR, LOG_ADCS_IMU, "Error init mag step %d", i);
 			return IMU_ERROR;
 		}
 	}
-	OBC_MISRA_CHECK_OFF
 	if (bmx160_set_power_mode(imu, BMX160_MAGN_NORMAL_MODE) == IMU_ERROR){
 		return IMU_ERROR;
 	}

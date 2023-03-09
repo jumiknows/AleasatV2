@@ -26,4 +26,9 @@ target_compile_definitions(platform PUBLIC
     ${PLATFORM_DEFINE}
 )
 
+target_compile_options(platform PRIVATE
+    --diag_suppress=195 # zero used for undefined preprocessing
+    --diag_suppress=880 # parameter was never referenced
+)
+
 include(${PLATFORM_DIRECTORY}/platform.cmake)

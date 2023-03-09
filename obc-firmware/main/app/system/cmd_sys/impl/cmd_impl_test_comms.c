@@ -56,14 +56,7 @@ static void comms_reboot_callback(comms_session_handle_t session_handle, comms_e
  */
 cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_RX(const cmd_sys_cmd_t *cmd, cmd_TEST_COMMS_TX_RX_resp_t *resp) {
     comms_err_t err = COMMS_SUCCESS;
-    // (MISRA-C:2004 9.2/R) Braces shall be used to indicate and match the structure 
-    // in the non-zero initialization of arrays and structures
-    //
-    // MISRA requires each field to be explicitly initialized when any fields are initialized to a non-zero value
-    // Disable the MISRA check here so we don't have to zero out each element of the array in this struct
-    OBC_MISRA_CHECK_OFF
     comms_cmd_resp_t comms_resp = {COMMS_CMD_RESULT_OK, {0}};
-    OBC_MISRA_CHECK_ON
 
     // open a comms session to communicate with the radio card
     if(session < 0) {
@@ -186,15 +179,7 @@ static void comms_reboot_callback(comms_session_handle_t session_handle,
  */
 cmd_sys_resp_code_t cmd_impl_TEST_COMMS_REBOOT(const cmd_sys_cmd_t *cmd) {
     comms_err_t err = COMMS_SUCCESS;
-
-    // (MISRA-C:2004 9.2/R) Braces shall be used to indicate and match the structure 
-    // in the non-zero initialization of arrays and structures
-    //
-    // MISRA requires each field to be explicitly initialized when any fields are initialized to a non-zero value
-    // Disable the MISRA check here so we don't have to zero out each element of the array in this struct
-    OBC_MISRA_CHECK_OFF
     comms_cmd_resp_t comms_resp = {COMMS_CMD_RESULT_OK, {0}};
-    OBC_MISRA_CHECK_ON
 
     static StaticSemaphore_t comms_reboot_sem_buf = {0};
 

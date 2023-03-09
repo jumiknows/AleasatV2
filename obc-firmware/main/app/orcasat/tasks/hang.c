@@ -46,7 +46,7 @@ static void vHangTask(void* pvParameters) {
     set_task_status(wd_task_id, task_asleep);
 
     while (1) {
-        bool err = get_task_status(wd_task_id, &hang_task_status);
+        get_task_status(wd_task_id, &hang_task_status);
         if (hang_task_status == task_alive) {
             while (1) {
                 // Do Nothing, hang task

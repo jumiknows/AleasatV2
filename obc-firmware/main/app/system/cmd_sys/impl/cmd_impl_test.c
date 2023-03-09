@@ -71,7 +71,7 @@ cmd_sys_err_t cmd_impl_TEST_ECHO(
  * @brief Write a value to a CAN pin as a GPIO
  */
 cmd_sys_resp_code_t cmd_impl_TEST_CAN_GPIO(const cmd_sys_cmd_t *cmd, cmd_TEST_CAN_GPIO_args_t *args, cmd_TEST_CAN_GPIO_resp_t *resp) {
-    static gpio_port_t const CAN_PORTS[] = {CAN_PORT(canREG1), CAN_PORT(canREG2), CAN_PORT(canREG3)};
+    static gpio_port_t CAN_PORTS[] = {CAN_PORT(canREG1), CAN_PORT(canREG2), CAN_PORT(canREG3)};
 
     // Validate arguments
     if (args->port >= 3) {

@@ -153,10 +153,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
-    # When changing check_misra, make sure to also update obc_misra.h
-    --check_misra=all,-1.1,-2.2,-5.6,-5.7,-6.1,-8.1,-8.5,-8.7,-10.1,-10.3,-10.6,-11.3,-11.4,-12.2,-12.6,-12.7,-12.13,-13.5,-14.6,-14.7,-16.1,-16.3,-16.7,-17.4,-18.4,-19.4,-19.7,-20.1,-20.6
-    --misra_advisory=error
-    --misra_required=error
+    --diag_suppress=880 # parameter was never referenced
+    --diag_suppress=195 # zero used for undefined preprocessing
 )
 
 include(${MAIN_DIR}/main.cmake)

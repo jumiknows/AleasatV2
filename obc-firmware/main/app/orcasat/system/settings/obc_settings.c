@@ -308,7 +308,7 @@ static int32_t setting_exists(const char* setting_name) {
         return -1;
     }
 
-    int32_t i = 0;
+    uint32_t i = 0;
     for (i = 0; i < num_settings; i++) {
         if (strcmp(settings[i].name, setting_name) == 0) {
             return i;
@@ -325,7 +325,7 @@ static int32_t setting_exists(const char* setting_name) {
  */
 static bool increment_revision_count(void) {
     bool ok = false;
-    if ((revision_count_index != -1) && (revision_count_index < num_settings)) {
+    if ((revision_count_index != -1) && ((uint32_t)revision_count_index < num_settings)) {
         setting_t* revision_setting = &settings[revision_count_index];
         revision_setting->setting_value++;
 

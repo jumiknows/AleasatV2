@@ -133,8 +133,8 @@ const cmd_sys_cmd_spec_t CMD_SPEC_TABLE[CMD_COUNT] = {
 {%- endif %}
 
     // Run Command
-    {% if cmd_spec.resp and cmd_spec.resp.has_variable_field -%} err {% else -%} cmd_sys_resp_code_t resp_code {% endif -%}
-     = cmd_impl_{{ cmd_spec.name }}(cmd
+    {% if cmd_spec.resp %}{% if cmd_spec.resp.has_variable_field -%} err{% else -%} cmd_sys_resp_code_t resp_code{% endif %} = {% endif -%}
+    cmd_impl_{{ cmd_spec.name }}(cmd
         {%- if cmd_spec.has_args_fields -%}, &args
             {%- if cmd_spec.args.has_variable_field -%}, {{ args_size }}{%- endif -%}
         {%- endif -%}

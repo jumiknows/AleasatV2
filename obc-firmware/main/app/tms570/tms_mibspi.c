@@ -24,7 +24,6 @@
 #include "tms_mibspi.h"
 
 // OBC
-#include "obc_misra.h"
 #include "obc_hardwaredefs.h"
 #include "logger.h"
 
@@ -238,8 +237,6 @@ static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
     EventBits_t uxBits;
     const TickType_t xTicksToWait = pdMS_TO_TICKS(timeout);
 
-    /* Waiving MISRA check due to false positive result for 12.2 (AZ) */
-    OBC_MISRA_CHECK_OFF
     // Set up data to be transferred
     mibspiSetData(tg->reg, tg->transfer_group, tx_buffer);
 
@@ -248,7 +245,6 @@ static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
 
     // Transfer Data
     mibspiTransfer(tg->reg, tg->transfer_group);
-    OBC_MISRA_CHECK_ON
 
     // Wait for either a MIBSPI error interrupt or a MIBSPI transfer complete
     // interrupt to signal
@@ -261,10 +257,7 @@ static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
             xTicksToWait);
 
     // Disable CS
-    /* Waiving MISRA check due to false positive result for 12.2 (AZ) */
-    OBC_MISRA_CHECK_OFF
     gioSetBit(tg->cs_port, tg->cs_pin, 1);
-    OBC_MISRA_CHECK_ON
 
     if (uxBits & MIBSPI_ERR_NOTIF) {
         // Read error flag register
@@ -299,11 +292,8 @@ static mibspi_err_t mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
         return err;
     }
 
-    /* Waiving MISRA check due to false positive result for 12.2 (AZ) */
-    OBC_MISRA_CHECK_OFF
 	// Move data from the receive buffer to rx_buffer.
     uint32_t error_flags = mibspiGetData(tg->reg, tg->transfer_group, rx_buffer);
-    OBC_MISRA_CHECK_ON
 
     // check for errors
     return mibspi_error_handler(error_flags);
@@ -332,9 +322,7 @@ static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_ha
     }
 
     // Recv data
-    OBC_MISRA_CHECK_OFF
     uint32_t error_flags = mibspiGetData(tg->reg, tg->transfer_group, rx_buffer);
-    OBC_MISRA_CHECK_ON
 
     return mibspi_error_handler(error_flags);
 }

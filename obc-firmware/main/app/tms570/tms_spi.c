@@ -204,7 +204,7 @@ static void spi_clr_err(spiBASE_t* reg)
     /* Clear SPIFLG registers by writing 1 to each of the error bits as defined in section 25.9.5 in LS07x TRM*/
     reg->FLG = (uint32_t)(0b1011111);
     /* Read SPIBUF following clearing errors in SPIFLG as per 25.9.5 in LS07x TRM*/
-    uint32_t temp = reg->BUF;
+    volatile uint32_t temp = reg->BUF;
 }
 
 /**

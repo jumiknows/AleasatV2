@@ -17,6 +17,11 @@ target_include_directories(FreeRTOS PUBLIC
     portable
 )
 
+target_compile_options(FreeRTOS PRIVATE
+    --diag_suppress=195  # zero used for undefined preprocessing
+    --diag_suppress=2142 # comparison between signed and unsigned operands
+)
+
 target_link_libraries(FreeRTOS PUBLIC
     platform
 )

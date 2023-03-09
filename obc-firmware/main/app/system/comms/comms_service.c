@@ -147,11 +147,6 @@ static TimerHandle_t cmd_timer;
 static SemaphoreHandle_t cmd_sema;
 static comms_command_t cmd_buf;
 
-// (MISRA-C:2004 8.7/R) Objects shall be defined at block scope if they 
-// are only accessed from within a single function
-//
-// These are currently only used in one place, but should be accessible to other functions
-OBC_MISRA_CHECK_OFF
 endpoint_t endpoints[COMMS_ENDPOINT_MAX] = {
     {
         COMMS_HWID,
@@ -184,7 +179,6 @@ static uint8_t command_table[] = {
         COMMS_RADIO_MSG_GET_TELEM,
         COMMS_RADIO_MSG_REBOOT
 };
-OBC_MISRA_CHECK_ON
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -490,9 +484,7 @@ comms_err_t comms_flash_image(
             case COMMS_FWUP_STATE_WRITE_FINAL:
                 command_id = COMMS_BOOTLOADER_MSG_WRITE_PAGE;
                 // final_page has the same scope as payload
-                OBC_MISRA_CHECK_OFF
                 payload = &final_page;
-                OBC_MISRA_CHECK_ON
                 payload_len = 1;
                 break;
             default:
@@ -690,10 +682,7 @@ static void session_handle_command_failure(
         sess->pending = false;
         xSemaphoreGive(cmd_sema);
 
-        // structure member access always takes priority over address-of
-        OBC_MISRA_CHECK_OFF
         session_notify_event(sess, COMMS_EVENT_CMD_FAILURE, (void*) &sess->resp);
-        OBC_MISRA_CHECK_ON
     }
 }
 
@@ -731,10 +720,7 @@ static void session_handle_command_response(
         sess->pending = false;
         xSemaphoreGive(cmd_sema);
 
-        // structure member access always takes priority over address-of
-        OBC_MISRA_CHECK_OFF
         session_notify_event(sess, COMMS_EVENT_CMD_RESP, (void*) &sess->resp);
-        OBC_MISRA_CHECK_ON
     }
 }
 

@@ -16,12 +16,6 @@
 #include <stdbool.h>
 #include "sys_common.h"
 #include "settings_defs.h"
-#include "obc_misra.h"
-
-// Disable MISRA checking because we're defining something in a header.
-// This is done so that Ceedling tests have access to the settings
-// table directly.
-OBC_MISRA_CHECK_OFF
 
 /**
  * @brief Mutable setting callback.
@@ -90,5 +84,4 @@ setting_t settings[] = {
  * @brief The number of settings.
  */
 const uint32_t num_settings = (sizeof(settings) / sizeof(setting_t));
-OBC_MISRA_CHECK_ON
 #endif

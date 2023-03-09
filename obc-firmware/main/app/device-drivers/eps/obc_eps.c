@@ -11,7 +11,6 @@
 
 // OBC
 #include "tms_i2c.h"
-#include "obc_misra.h"
 
 // HAL
 #include "i2c.h"

@@ -45,7 +45,7 @@
  */
 void sequence_init(sequence_t *seq) {
     uint32_t i = 0;
-    for (i = 0; i < (seq->size - 1); i++) {
+    for (i = 0; i < (uint8_t)(seq->size - 1); i++) {
         seq->links[i] = i + 1;
     }
     seq->links[i] = NULL_IDX(seq);

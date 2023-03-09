@@ -17,7 +17,6 @@
 #include "obc_rtos.h"
 #include "obc_task_info.h"
 #include "obc_hardwaredefs.h"
-#include "obc_misra.h"
 
 // Utils
 #include "rtos_stream.h"
@@ -209,10 +208,7 @@ static void send_datagram(obc_serial_datagram_type_t type, const uint8_t *data, 
         sciSend(UART_DEBUG, sizeof(header), header);
 
         // Send data
-        // Disable MISRA warning about the cast to non-const
-        OBC_MISRA_CHECK_OFF
         sciSend(UART_DEBUG, data_len, (uint8_t *)data); // HALCoGen doesn't declare the data argument as const despite the fact that it does not modify it
-        OBC_MISRA_CHECK_ON
 
         // Send CRC
         sciSend(UART_DEBUG, sizeof(crc), crc);

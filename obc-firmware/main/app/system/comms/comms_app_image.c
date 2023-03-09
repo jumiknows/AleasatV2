@@ -9,12 +9,9 @@
 
 // OBC
 #include "obc_featuredefs.h"
-#include "obc_misra.h"
 
 #include <stdint.h>
 
-// false positive of #1391-D (MISRA-C:2004 9.2/R)
-OBC_MISRA_CHECK_OFF
 static const comms_app_image_page_t comms_test_app_image_pages_arr[] = {
 #if INCLUDE_COMMS_FIRMWARE_TEST_IMAGE
     {
@@ -1218,7 +1215,6 @@ static const comms_app_image_page_t comms_test_app_image_pages_arr[] = {
 0
 #endif /* INCLUDE_COMMS_FIRMWARE_TEST_IMAGE */
 };
-OBC_MISRA_CHECK_ON
 
 #if INCLUDE_COMMS_FIRMWARE_TEST_IMAGE
 const uint8_t comms_test_app_image_num_pages = sizeof(comms_test_app_image_pages_arr)/sizeof(comms_test_app_image_pages_arr[0]);

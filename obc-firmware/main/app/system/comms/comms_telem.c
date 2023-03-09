@@ -51,14 +51,7 @@ comms_err_t comms_get_telem(
 ) {
     comms_err_t err;
 
-    // (MISRA-C:2004 9.2/R) Braces shall be used to indicate and match the structure 
-    // in the non-zero initialization of arrays and structures
-    //
-    // MISRA requires each field to be explicitly initialized when any fields are initialized to a non-zero value
-    // Disable the MISRA check here so we don't have to zero out each element of the array in this struct
-    OBC_MISRA_CHECK_OFF
     comms_cmd_resp_t resp = {COMMS_CMD_RESULT_OK, {0}};
-    OBC_MISRA_CHECK_ON
 
     err = comms_send_command(session_handle, COMMS_CMD_GET_TELEM, NULL, 0, 0);
 

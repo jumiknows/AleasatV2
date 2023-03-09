@@ -249,11 +249,8 @@ static EventBits_t get_unblock_conditions(void) {
 static void handle_dev_interrupt(void* param) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    // disable misra check for freertos fns
-    OBC_MISRA_CHECK_OFF
     xEventGroupSetBitsFromISR(evt_group,
             COMMS_RX_CMD_EVENT_BIT, &xHigherPriorityTaskWoken);
-    OBC_MISRA_CHECK_ON
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

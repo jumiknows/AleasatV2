@@ -34,7 +34,7 @@
  */
 typedef struct {
     /**
-     * @brief Maximum number of items in the sequence
+     * @brief Maximum number of items in the sequence. Must be > 0.
      */
     const uint8_t size;
 
