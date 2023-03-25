@@ -141,6 +141,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS
     littlefs
+    DSPLIB
 )
 
 if (USE_F021API EQUAL 1)

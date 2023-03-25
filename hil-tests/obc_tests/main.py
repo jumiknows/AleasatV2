@@ -5,6 +5,7 @@ from systemTest import SystemTest
 from flashTest import FlashTest
 from filesystemTest import FilesystemTest
 from epsTest import EpsTest
+from adcsTest import ADCSTest
 # from gpsTest import GpsTest
 
 if __name__ == "__main__":
@@ -14,5 +15,6 @@ if __name__ == "__main__":
         FlashTest,
         FilesystemTest,
         EpsTest,
+        ADCSTest,
         # GpsTest,
     ])

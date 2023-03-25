@@ -36,6 +36,7 @@ project(${PROJECT_NAME} LANGUAGES C ASM VERSION ${VERSION})
 set(USE_RTOS 0)
 set(USE_F021API 0)
 set(USE_LITTLEFS 0)
+set(USE_DSPLIB 0)
 
 if ("${PLATFORM}" STREQUAL "launchpad")
     set(FW_PLATFORM "FW_PLATFORM_LAUNCHPAD")
@@ -81,6 +82,7 @@ elseif ("${TARGET}" STREQUAL "core")
 
     set(USE_RTOS 1)
     set(USE_LITTLEFS 1)
+    set(USE_DSPLIB 1)
 
     if ("${FLASH_SLOT_NAME}" STREQUAL "A")
         set(FLASH_SLOT 3)
@@ -95,6 +97,7 @@ elseif ("${TARGET}" STREQUAL "ext")
 
     set(USE_RTOS 1)
     set(USE_LITTLEFS 1)
+    set(USE_DSPLIB 1)
 
     if ("${FLASH_SLOT_NAME}" STREQUAL "A")
         set(FLASH_SLOT 4)
@@ -124,6 +127,10 @@ endif()
 
 if (USE_LITTLEFS EQUAL 1)
     add_subdirectory(lib/littlefs-2.4.2)
+endif()
+
+if (USE_DSPLIB EQUAL 1)
+    add_subdirectory(lib/dsplib)
 endif()
 
 ################################################################################
