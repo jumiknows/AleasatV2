@@ -7,6 +7,7 @@ from obcpy.protocol import routing_impl
 
 from obcpy.cmd_sys import spec
 from obcpy.cmd_sys import resp
+from obcpy.log_sys import log_spec
 
 from obcpy.utils import obc_time
 from obcpy.utils import exc
@@ -21,7 +22,7 @@ class OBCSerialProtocol:
     """Implementation of the OBC Serial Protocol stack.
     """
 
-    def __init__(self):
+    def __init__(self, log_specs: log_spec.OBCLogGroupSpecs):
         """Initializes the protocol stack.
         """
         self._cmd_seq_num = 0
@@ -53,7 +54,7 @@ class OBCSerialProtocol:
                                         datalink.OBCSerialDatagram,             #           |                  /                                      
                                         log.OBCLog                              #            \                /                                       
                                     ](                                          #       ---------------      /                                        
-                                        log.OBCAppLogRX(),                      #       | OBCAppLogRX |     /                                         
+                                        log.OBCAppLogRX(log_specs),             #       | OBCAppLogRX |     /                                         
                                         self._rx_app_log_multi                  #       ---------------    /                                          
                                     )                                           #               \         /                                           
         self._rx_datalink_filter  = datalink.OBCSerialDataLinkRXDest(           #                \       /                                            

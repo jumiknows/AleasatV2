@@ -15,6 +15,9 @@
 // FreeRTOS
 #include "rtos.h"
 
+// Standard Library
+#include <string.h>
+
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
@@ -28,7 +31,7 @@
  * @param[in] pcTaskName Name of the task whose stack overflowed
  */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
-    log_str(ERROR, LOG_TASK_OVERFLOW, "%s has overflowed", pcTaskName);
+    log_signal_with_data(ERROR, LOG_TASK_OVERFLOW, LOG_TASK_OVERFLOW__OVERFLOW, strlen(pcTaskName), pcTaskName);
     taskDISABLE_INTERRUPTS();
     while (1) {};
 }

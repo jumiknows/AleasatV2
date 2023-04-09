@@ -120,27 +120,6 @@ typedef enum {
 } fs_err_t;
 
 /**
- * @brief Return values for temperature sensor function.
- */
-typedef enum {
-
-    /**
-     * @brief Indicates that the operation was performed successfully.
-     */
-    TEMP_SUCCESS = 0,
-
-    /**
-     * @brief Indicates problem with temp sensor operation.
-     */
-    TEMP_FAILURE = -1,
-
-    /**
-     * @brief Indicates that an I2C error occurred when communicating with the temperature sensor.
-     */
-    TEMP_I2C_ERR = -2
-} temp_err_t;
-
-/**
  * @brief Return codes from the OBC scheduler in system/scheduler.
  */
 typedef enum {

@@ -69,11 +69,6 @@
 #define SEMAPHORE_IRQ_EDGE   3 // Port with edge notification enabled.
 #define SEMAPHORE_IRQ_REG    hetREG1
 
-/*
- * @brief Temperature sensor I2C address.
- */
-#define OBC_TEMP_ADDR 0x48
-
 /**
  * @brief RTC MIBSPI configuration.
  *

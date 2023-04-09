@@ -16,7 +16,6 @@ telem_snapshot_t snapshot = {
     .obc_fast = {
         .timestamp = 0,
         .telem = {
-            .obc_temperature_c = 0,
             .obc_current_ma = 0}
     },
     .obc_slow = {

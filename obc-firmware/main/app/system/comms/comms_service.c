@@ -510,13 +510,13 @@ comms_err_t comms_flash_image(
 
         // semaphore is "given" after receiving a response to the previous command
         if(!xSemaphoreTake(cmd_sema, pdMS_TO_TICKS(1000))) {
-            log_str(ERROR, LOG_COMMS_GENERAL, "%s: flash timeout, state:%d", __func__, fwup_state);
+            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__FLASH_TIMEOUT, sizeof(fwup_state), &fwup_state);
             err = COMMS_FLASH_FAIL;
             break;
         }
 
         if(sess->resp.result != COMMS_CMD_RESULT_OK) {
-            log_str(ERROR, LOG_COMMS_GENERAL, "%s: error", __func__, err);
+            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__ERROR, sizeof(err), &err);
             err = COMMS_FLASH_FAIL;
             break;
         }
@@ -677,7 +677,7 @@ static void session_handle_command_failure(
         session_handle_retransmission(sess);
     }
     else {
-        log_str(ERROR, LOG_COMMS_GENERAL, "%s: command send failed", __func__);
+        log_signal(ERROR, LOG_COMMS, LOG_COMMS__CMD_SEND_FAILED);
         sess->resp.result = COMMS_CMD_RESULT_ERR;
         sess->pending = false;
         xSemaphoreGive(cmd_sema);
@@ -705,7 +705,7 @@ static void session_handle_command_response(
         sess->resp.result = COMMS_CMD_RESULT_OK;
     }
     else {
-        log_str(ERROR, LOG_COMMS_GENERAL, "%s: command failed: seqnum mismatch or NACK received", __func__);
+        log_signal(ERROR, LOG_COMMS, LOG_COMMS__CMD_FAILED);
         sess->resp.result = COMMS_CMD_RESULT_ERR;
     }
 

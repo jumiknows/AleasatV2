@@ -231,7 +231,7 @@ rtos_err_t get_task_period_from_id(uint8_t id, task_period_t* period_ms) {
         *period_ms = t_params[id].period_ms;
         return OBC_RTOS_OK;
     }
-    log_str(ERROR, LOG_OBC_TASK, "Invalid ID %d", id);
+    log_signal_with_data(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__INVALID_ID, sizeof(id), &id);
     return INVALID_ID; // Invalid ID was provided
 }
 
@@ -269,10 +269,18 @@ rtos_err_t set_task_period(uint8_t id, task_period_t period_ms) {
                 // the old period to be safe.
                 res                    = TASK_NOT_BLOCKED;
                 t_params[id].period_ms = old_period_ms; // Return the period to its original value
-                log_str(ERROR, LOG_OBC_TASK, "ID %d %s", t_params[id].task_id, t_params[id].task_name);
+
+                log_signal_with_data(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__FAILED_TO_CHANGE_TASK_PERIOD, sizeof(t_params[id].task_id), &(t_params[id].task_id));
             } else {
                 res = OBC_RTOS_OK;
-                log_str(INFO, LOG_OBC_TASK, "ID %d %s %d ok.", t_params[id].task_id, t_params[id].task_name, t_params[id].period_ms);
+
+                struct __attribute__((packed)) {
+                    uint8_t       task_id;
+                    task_period_t new_period;
+                } task_info;
+                task_info.task_id = t_params[id].task_id;
+                task_info.new_period = t_params[id].period_ms;
+                log_signal_with_data(INFO, LOG_OBC_TASK, LOG_OBC_TASK__CHANGED_TASK_PERIOD, sizeof(task_info), &task_info);
             }
         } else { // Period not valid
             res = INVALID_PERIOD;
@@ -327,10 +335,10 @@ rtos_err_t suspend_task(const char* task_name, bool suspend) {
     if (task_suspend_resume != NULL) {
         if (suspend) {
             vTaskSuspend(task_suspend_resume);
-            log_str(INFO, LOG_OBC_TASK, "Task %s suspended", task_name);
+            log_signal_with_data(INFO, LOG_OBC_TASK, LOG_OBC_TASK__TASK_RESUMED, strlen(task_name), task_name);
         } else {
             vTaskResume(task_suspend_resume);
-            log_str(INFO, LOG_OBC_TASK, "Task %s resumed", task_name);
+            log_signal_with_data(INFO, LOG_OBC_TASK, LOG_OBC_TASK__TASK_RESUMED, strlen(task_name), task_name);
         }
     } else {
         res = INVALID_NAME;
@@ -345,28 +353,29 @@ rtos_err_t suspend_task(const char* task_name, bool suspend) {
  *
  * @retval OBC_RTOS_OK if the task is successfully checked, otherwise INVALID_NAME.
  */
+#if 0 // TODO ALEA-860 Move this function into a command implementation
 rtos_err_t print_task_state(const char* task_name) {
     rtos_err_t res           = OBC_RTOS_OK;
     TaskHandle_t task_handle = get_task_handle_from_name(task_name);
     if (task_handle != NULL) {
         switch (eTaskGetState(task_handle)) {
             case eReady:
-                log_str(INFO, LOG_OBC_TASK, "Task %s ready", task_name);
+                //log_str(INFO, LOG_OBC_TASK, "Task %s ready", task_name);
                 break;
             case eRunning:
-                log_str(INFO, LOG_OBC_TASK, "Task %s running", task_name);
+                //log_str(INFO, LOG_OBC_TASK, "Task %s running", task_name);
                 break;
             case eBlocked:
-                log_str(INFO, LOG_OBC_TASK, "Task %s blocked", task_name);
+                //log_str(INFO, LOG_OBC_TASK, "Task %s blocked", task_name);
                 break;
             case eSuspended:
-                log_str(INFO, LOG_OBC_TASK, "Task %s suspended", task_name);
+                //log_str(INFO, LOG_OBC_TASK, "Task %s suspended", task_name);
                 break;
             case eDeleted:
-                log_str(INFO, LOG_OBC_TASK, "Task %s deleted", task_name);
+                //log_str(INFO, LOG_OBC_TASK, "Task %s deleted", task_name);
                 break;
             default:
-                log_str(ERROR, LOG_OBC_TASK, "Task %s state error", task_name);
+                //log_str(ERROR, LOG_OBC_TASK, "Task %s state error", task_name);
                 break;
         }
     } else {
@@ -374,18 +383,21 @@ rtos_err_t print_task_state(const char* task_name) {
     }
     return res;
 }
+#endif
 
 /**
  * @brief Prints the task name, period, priority, and ID for all tasks registered in the system.
  */
 void print_tasks(void) {
-    log_str(INFO, LOG_GET_TASKS_CMD, "num_tasks %d", num_tasks);
+#if 0 // TODO ALEA-860 Move this function into a command implementation
+    //log_str(INFO, LOG_GET_TASKS_CMD, "num_tasks %d", num_tasks);
     uint8_t i = 0;
     for (i = 0; i < num_tasks; i++) {
-        log_str(INFO, LOG_GET_TASKS_CMD, "ID %d, %s", t_params[i].task_id, t_params[i].task_name);
-        log_str(INFO, LOG_GET_TASKS_CMD, "per %d, prio %d, HWM %d", t_params[i].period_ms, uxTaskPriorityGet(get_task_handle(i)),
-                uxTaskGetStackHighWaterMark(get_task_handle(i)));
+        //log_str(INFO, LOG_GET_TASKS_CMD, "ID %d, %s", t_params[i].task_id, t_params[i].task_name);
+        //log_str(INFO, LOG_GET_TASKS_CMD, "per %d, prio %d, HWM %d", t_params[i].period_ms, uxTaskPriorityGet(get_task_handle(i)),
+        //        uxTaskGetStackHighWaterMark(get_task_handle(i)));
     }
+#endif
 }
 
 /**
@@ -395,13 +407,13 @@ void print_tasks(void) {
  */
 void print_rtos_status(void) {
     if ((rtos_errors.too_many_tasks == false) && (rtos_errors.rtos_task_create_failed == false)) {
-        log_str(INFO, LOG_OBC_TASK, "OK");
+        log_signal(INFO, LOG_OBC_TASK, LOG_OBC_TASK__RTOS_STATUS_OK);
     } else {
         if (rtos_errors.too_many_tasks) {
-            log_str(ERROR, LOG_OBC_TASK, "Too many tasks.");
+            log_signal(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__RTOS_STATUS_TOO_MANY_TASKS);
         }
         if (rtos_errors.rtos_task_create_failed) {
-            log_str(ERROR, LOG_OBC_TASK, "Task create failed.");
+            log_signal(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__RTOS_STATUS_TASK_CREATE_FAILED);
         }
     }
 }

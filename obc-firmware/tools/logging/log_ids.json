@@ -1,274 +1,998 @@
 {
   "LOG_PRINT_GENERAL": {
-    "id": "1",
-    "description": "General purpose printing"
+    "id": 1,
+    "description": "General purpose printing",
+    "signals": {
+      "STARTUP_COMPLETE": {
+        "id": 0,
+        "description": "Startup complete"
+      },
+      "STATE_FAILED_TO_TAKE_MUTEX": {
+        "id": 1,
+        "description": "State failed to take mutex"
+      },
+      "CURRENT_STATE": {
+        "id": 2,
+        "description": "current_state = %i"
+      },
+      "INVALID_STATE_TRANSITION": {
+        "id": 3,
+        "description": "Invalid state transition"
+      },
+      "RESET_EXPANDER": {
+        "id": 4,
+        "description": "Resetting GPIO expander"
+      }
+    }
   },
   "LOG_HW_TYPE": {
-    "id": "2",
-    "description": "Hardware type at startup"
+    "id": 2,
+    "description": "Hardware type at startup",
+    "signals": {
+      "ALEA_V1": {
+        "id": 0,
+        "description": "ALEASAT OBC v1"
+      },
+      "LAUNCHPAD": {
+        "id": 1,
+        "description": "LaunchPad"
+      }
+    }
   },
   "LOG_START_TYPE": {
-    "id": "3",
-    "description": "Startup type (reason for reset)"
+    "id": 3,
+    "description": "Startup type (reason for reset)",
+    "signals": {
+      "RESET_SRC": {
+        "id": 0,
+        "description": "Reset source"
+      }
+    }
   },
   "LOG_PBIST_STATUS": {
-    "id": "4",
-    "description": "PBIST status"
+    "id": 4,
+    "description": "PBIST status",
+    "signals": {
+      "FAILED": {
+        "id": 0,
+        "description": "PBIST Failed"
+      },
+      "SUCCESS": {
+        "id": 1,
+        "description": "No PBIST Fails"
+      }
+    }
   },
   "LOG_SCHEDULER": {
-    "id": "5",
-    "description": "Scheduler messages"
+    "id": 5,
+    "description": "Scheduler messages",
+    "signals": {
+      "FAILED_TO_READ_RTC_CURRENT_TIME": {
+        "id": 0,
+        "description": "Scheduler failed to read the current time from RTC"
+      }
+    }
   },
   "LOG_ACK_CMD": {
-    "id": "6",
-    "description": "Ack command"
+    "id": 6,
+    "description": "Ack command",
+    "signals": {
+      "ACK": {
+        "id": 0,
+        "description": "Ack!"
+      }
+    }
   },
   "LOG_HELP_CMD": {
-    "id": "7",
+    "id": 7,
     "description": "Help command"
   },
   "LOG_CMD_GENERAL": {
-    "id": "8",
-    "description": "Command system general"
+    "id": 8,
+    "description": "Command system general",
+    "signals": {
+      "MAX_CMD_LEN_EXCEEDED": {
+        "id": 0,
+        "description": "Max command len exceeded"
+      }
+    }
   },
-  "LOG_TEMP_MUTEX": {
-    "id": "9",
-    "description": "Temperature mutex"
+  "LOG_TEST_CMD": {
+    "id": 9,
+    "description": "General test command logs",
+    "signals": {
+      "ECHO": {
+        "id": 0,
+        "description": "%s"
+      },
+      "ECHO_BAD_ARGS": {
+        "id": 1,
+        "description": "Error reading args"
+      }
+    }
   },
   "LOG_ADC": {
-    "id": "10",
-    "description": "ADC"
+    "id": 10,
+    "description": "ADC",
+    "signals": {
+      "NO_ID": {
+        "id": 0,
+        "description": "No ADC ID"
+      },
+      "CONVERSION_TIMEOUT": {
+        "id": 1,
+        "description": "ADC Conversion Timeout"
+      },
+      "MUTEX_ERROR": {
+        "id": 2,
+        "description": "ADC Mutex Error"
+      }
+    }
   },
   "LOG_TASK_OVERFLOW": {
-    "id": "11",
-    "description": "Task overflow"
+    "id": 11,
+    "description": "Task overflow",
+    "signals": {
+      "OVERFLOW": {
+        "id": 0,
+        "description": "%s has overflowed"
+      }
+    }
   },
   "LOG_SUBCMD": {
-    "id": "12",
+    "id": 12,
     "description": "Subcommand processing"
   },
   "LOG_GET_HEAP_CMD": {
-    "id": "13",
+    "id": 13,
     "description": "Get heap command"
   },
   "LOG_GET_RUNTIME_CMD": {
-    "id": "14",
+    "id": 14,
     "description": "Get runtime command"
   },
   "LOG_GET_MINHEAP_CMD": {
-    "id": "15",
+    "id": 15,
     "description": "Get minheap command"
   },
   "LOG_GET_TASKS_CMD": {
-    "id": "16",
+    "id": 16,
     "description": "Get tasks command"
   },
   "LOG_I2C": {
-    "id": "17",
-    "description": "I2c"
+    "id": 17,
+    "description": "I2C",
+    "signals": {
+      "RESET_SUCCESS": {
+        "id": 0,
+        "description": "I2C reset successfully"
+      },
+      "RESET_FAILED": {
+        "id": 1,
+        "description": "I2C reset failed"
+      }
+    }
   },
   "LOG_PING_CMD": {
-    "id": "18",
-    "description": "Ping command for detection by San Antonio"
+    "id": 18,
+    "description": "Ping command for detection by San Antonio",
+    "signals": {
+      "PING": {
+        "id": 0,
+        "description": "Ping"
+      }
+    }
   },
-  "LOG_UNEXPECTED_PAYLOAD_LEN": {
-    "id": "19",
-    "description": "Unexpected payload size error"
+  "LOG_LOGGER": {
+    "id": 19,
+    "description": "Logging System",
+    "signals": {
+      "PAYLOAD_TOO_LARGE": {
+        "id": 0,
+        "description": "Attempted to log payload that is too large"
+      },
+      "INVALID_LOG_ID": {
+        "id": 1,
+        "description": "Attempted to log message with invalid log ID"
+      }
+    }
   },
-  "LOG_UNEXPECTED_MSG_ID": {
-    "id": "20",
-    "description": "Unexpected message ID"
+  "LOG_RESERVED1": {
+    "id": 20,
+    "description": "Reserved - currently unused"
   },
-  "LOG_TEMPERATURE": {
-    "id": "21",
+  "LOG_RESERVED2": {
+    "id": 21,
     "description": "Temperature sensor"
   },
   "LOG_FLASH": {
-    "id": "22",
-    "description": "Flash driver"
+    "id": 22,
+    "description": "Flash driver",
+    "signals": {
+      "IDENTIFIED_AS_MICRON": {
+        "id": 0,
+        "description": "Flash manufacturer identified as Micron Technologies"
+      },
+      "FAILED_TO_IDENTIFY": {
+        "id": 1,
+        "description": "Failed to identify flash chip"
+      },
+      "IDENTIFY_NOT_SUPPORTED": {
+        "id": 2,
+        "description": "Attempted to identify flash chip on unsupported platform"
+      }
+    }
   },
-  "LOG_GET_EPOCH_CMD": {
-    "id": "23",
-    "description": "Get epoch command"
+  "RESERVED2": {
+    "id": 23,
+    "description": "Reserved - currently unused"
   },
-  "LOG_RAMOCCUR_LOG": {
-    "id": "24",
+  "LOG_RAMOCCUR": {
+    "id": 24,
     "description": "ECC register telemetry"
   },
-  "LOG_RTC_A_LOG": {
-    "id": "25",
-    "description": "RTC A"
+  "LOG_RTC": {
+    "id": 25,
+    "description": "RTC",
+    "signals": {
+      "CANNOT_READ_TIME": {
+        "id": 0,
+        "description": "Cannot read time from RTC"
+      },
+      "EPOCH_INVALID": {
+        "id": 1,
+        "description": "Epoch invalid"
+      },
+      "INVALID_TIME": {
+        "id": 2,
+        "description": "Invalid time"
+      },
+      "COMM_ISSUE": {
+        "id": 3,
+        "description": "Comm issue"
+      },
+      "INVALID_TIME_PARAMS": {
+        "id": 4,
+        "description": "Invalid time params"
+      },
+      "SET_TIME_CMD_TOO_FEW_ARGS": {
+        "id": 5,
+        "description": "Too few args. Need: y m d h m s."
+      }
+    }
   },
-  "LOG_RTC_B_LOG": {
-    "id": "26",
-    "description": "RTC B"
+  "LOG_RTC_B": {
+    "id": 26,
+    "description": "RTC B - TODO remove this"
   },
-  "LOG_RTC_REG_SCAN": {
-    "id": "27",
-    "description": "RTC register scan"
+  "LOG_RESERVED3": {
+    "id": 27,
+    "description": "Reserved - currently unused"
   },
-  "LOG_RTC_GENERAL": {
-    "id": "28",
-    "description": "RTC General"
+  "LOG_RESERVED4": {
+    "id": 28,
+    "description": "Reserved - currently unused"
   },
-  "LOG_CMD_ERR_OPCODE": {
-    "id": "29",
-    "description": "Command Invalid"
+  "LOG_RESERVED5": {
+    "id": 29,
+    "description": "Reserved - currently unused"
   },
-  "LOG_CMD_SAFE_INVALID": {
-    "id": "30",
-    "description": "Previously-scheduled command safe mode error"
+  "LOG_RESERVED6": {
+    "id": 30,
+    "description": "Reserved - currently unused"
   },
-  "LOG_CMD_RX": {
-    "id": "31",
-    "description": "Command reception"
+  "LOG_RESERVED7": {
+    "id": 31,
+    "description": "Reserved - currently unused"
   },
-  "LOG_GPIO_EXPAND": {
-    "id": "32",
-    "description": "GPIO Expander"
+  "LOG_GPIO_EXPANDER": {
+    "id": 32,
+    "description": "GPIO Expander",
+    "signals": {
+      "FAILED_TO_CORRECT_REG_VAL": {
+        "id": 0,
+        "description": "Failed to correct register value"
+      },
+      "EXPANDER_SCAN_RESULTS": {
+        "id": 1,
+        "description": "Expander scan: %d/%d passed."
+      },
+      "IRQ_0_CHECK_FAILED": {
+        "id": 2,
+        "description": "Expander IRQ 0 check failed"
+      },
+      "IRQ_1_CHECK_FAILED": {
+        "id": 3,
+        "description": "Expander IRQ 1 check failed"
+      },
+      "READ_FAILED_FROM_IRQ_HANDLER": {
+        "id": 4,
+        "description": "Read failed from expander IRQ handler"
+      },
+      "I2C_WRITE_FAILURE": {
+        "id": 5,
+        "description": "I2C write failure: %d"
+      },
+      "I2C_READ_FAILURE": {
+        "id": 6,
+        "description": "I2C read failure: %d"
+      },
+      "REGISTER_MISMATCH": {
+        "id": 7,
+        "description": "Reg: %02X, Expect: %02X Act: %02X"
+      },
+      "INIT_FAILED": {
+        "id": 8,
+        "description": "Expander init failed"
+      },
+      "BLINK_INIT_FAILED": {
+        "id": 9,
+        "description": "Expander blinky init failed"
+      },
+      "IRQ_INIT_FAILED": {
+        "id": 10,
+        "description": "Expander IRQ init failed"
+      },
+      "VERIFY_FAILED": {
+        "id": 11,
+        "description": "Verify failed"
+      }
+    }
   },
   "LOG_GPIO": {
-    "id": "33",
-    "description": "GPIO"
+    "id": 33,
+    "description": "GPIO",
+    "signals": {
+      "IRQ_QUEUE_RECEIVE_FAILED": {
+        "id": 0,
+        "description": "IRQ queue receive failed."
+      }
+    }
   },
-  "LOG_SCHEDULER_FAILED_TO_READ_RTC_CURRENT_TIME": {
-    "id": "34",
-    "description": "Scheduler Failed to read the current time from RTC"
+  "LOG_RESERVED8": {
+    "id": 35,
+    "description": "Reserved - currently unused"
   },
-  "LOG_GET_BACKUP_EPOCH_CMD": {
-    "id": "35",
-    "description": "Get backup epoch command"
+  "LOG_RESERVED9": {
+    "id": 36,
+    "description": "Reserved - currently unused"
   },
-  "LOG_STATE_LOG": {
-    "id": "36",
-    "description": "State handler"
+  "LOG_RESERVED10": {
+    "id": 37,
+    "description": "Reserved - currently unused"
   },
-  "LOG_CMD_ERR_PARSE": {
-    "id": "37",
-    "description": "Failed to parse command"
-  },
-  "LOG_FS_GENERAL": {
-    "id": "38",
-    "description": "Filesystem log messages"
+  "LOG_FS": {
+    "id": 38,
+    "description": "Filesystem log messages",
+    "signals": {
+      "UNKNOWN_REQUEST": {
+        "id": 0,
+        "description": "Unknown request: %d"
+      }
+    }
   },
   "LOG_WATCHDOG": {
-    "id": "39",
-    "description": "Watchdog"
+    "id": 39,
+    "description": "Watchdog",
+    "signals": {
+      "SUSPENDING_WDPT": {
+        "id": 0,
+        "description": "Suspending watchdog pet task"
+      },
+      "PETTING": {
+        "id": 1,
+        "description": "Petting watchdog"
+      },
+      "UNKNOWN_TASK": {
+        "id": 2,
+        "description": "One or more tasks has UNKNOWN"
+      },
+      "FAILED_TO_TAKE_MUTEX_IN_SET_STATUS": {
+        "id": 3,
+        "description": "Failed to take watchdog mutex"
+      },
+      "FAILED_TO_TAKE_MUTEX_IN_GET_STATUS": {
+        "id": 4,
+        "description": "Failed to take watchdog mutex"
+      },
+      "FAILED_TO_TAKE_MUTEX_IN_SUSPEND": {
+        "id": 5,
+        "description": "Failed to take watchdog mutex"
+      },
+      "FAILED_TO_TAKE_MUTEX_IN_RESUME": {
+        "id": 6,
+        "description": "Failed to take watchdog mutex"
+      },
+      "DID_NOT_CLEAR_UNKNOWN": {
+        "id": 7,
+        "description": "%s did not clear UNKNOWN"
+      }
+    }
   },
-  "LOG_SYS_GENERAL": {
-    "id": "40",
-    "description": "System log"
+  "LOG_SYSTEM": {
+    "id": 40,
+    "description": "System log",
+    "signals": {
+      "REVISION_ROLLOVER": {
+        "id": 0,
+        "description": "Revision Rollover"
+      },
+      "OBC_MINHEAP": {
+        "id": 1,
+        "description": "OBC minheap %d"
+      }
+    }
   },
-  "LOG_TELEM_INFRA": {
-    "id": "41",
-    "description": "Telemetry logging infrastructure"
+  "LOG_TELEM": {
+    "id": 41,
+    "description": "Telemetry logging infrastructure",
+    "signals": {
+      "QUEUE_FULL": {
+        "id": 0,
+        "description": "Queue full"
+      },
+      "INVALID_REQUEST_BIN": {
+        "id": 1,
+        "description": "Invalid telem request bin of %d"
+      },
+      "EPS_BIN_OUT_OF_RANGE": {
+        "id": 2,
+        "description": "EPS bin %d out of range"
+      }
+    }
   },
   "LOG_OBC_TASK": {
-    "id": "42",
-    "description": "OBC RTOS task control"
+    "id": 42,
+    "description": "OBC RTOS task control",
+    "signals": {
+      "INVALID_ID": {
+        "id": 0,
+        "description": "Invalid ID %d"
+      },
+      "TASK_RESUMED": {
+        "id": 1,
+        "description": "Task %s suspended"
+      },
+      "RTOS_STATUS_OK": {
+        "id": 2,
+        "description": "OK"
+      },
+      "RTOS_STATUS_TOO_MANY_TASKS": {
+        "id": 3,
+        "description": "Too many tasks."
+      },
+      "RTOS_STATUS_TASK_CREATE_FAILED": {
+        "id": 4,
+        "description": "Task create failed."
+      },
+      "FAILED_TO_CHANGE_TASK_PERIOD": {
+        "id": 5,
+        "description": "Failed to change period of task: ID %d"
+      },
+      "CHANGED_TASK_PERIOD": {
+        "id": 6,
+        "description": "Changed period of task: ID %d, new period %d"
+      }
+    }
   },
   "LOG_BOARD_ID": {
-    "id": "43",
+    "id": 43,
     "description": "Platform type ID"
   },
-  "LOG_FILE_DOWNLINK": {
-    "id": "44",
-    "description": "Used during file downlink"
+  "LOG_RESERVED11": {
+    "id": 44,
+    "description": "Reserved - currently unused"
   },
-  "LOG_GPS_GENERAL": {
-    "id": "45",
-    "description": "GPS module"
+  "LOG_RESERVED12": {
+    "id": 45,
+    "description": "Reserved - currently unused"
   },
   "LOG_HANG_TASK": {
-    "id": "46",
+    "id": 46,
     "description": "Hang task"
   },
   "LOG_ECHO_CMD": {
-    "id": "47",
+    "id": 47,
     "description": "Echo command"
   },
   "LOG_SEQ_NUM_CMD": {
-    "id": "48",
+    "id": 48,
     "description": "Get sequence number command"
   },
-  "LOG_ADCS_GENERAL": {
-    "id": "49",
-    "description": "ADCS log"
+  "LOG_ADCS_CMD": {
+    "id": 49,
+    "description": "ADCS commands logs",
+    "signals": {
+      "INVALID_MAG_INDEX": {
+        "id": 0,
+        "description": "Invalid magnetorquer index: %d"
+      },
+      "MAG_SELECTED": {
+        "id": 1,
+        "description": "Magnetorquer %d Selected"
+      },
+      "IMU_INIT": {
+        "id": 2,
+        "description": "IMU initialized!"
+      },
+      "IMU_DISABLED": {
+        "id": 3,
+        "description": "IMU disabled"
+      },
+      "MAG_X_VALUE_0": {
+        "id": 4,
+        "description": "mag_x: %f "
+      },
+      "MAG_Y_VALUE_0": {
+        "id": 5,
+        "description": "mag_y: %f "
+      },
+      "MAG_Z_VALUE_0": {
+        "id": 6,
+        "description": "mag_z: %f "
+      },
+      "ACCEL_X_VALUE_0": {
+        "id": 7,
+        "description": "accel_x: %f "
+      },
+      "ACCEL_Y_VALUE_0": {
+        "id": 8,
+        "description": "accel_y: %f "
+      },
+      "ACCEL_Z_VALUE_0": {
+        "id": 9,
+        "description": "accel_z: %f "
+      },
+      "GYRO_X_VALUE_0": {
+        "id": 10,
+        "description": "gyro_x: %f "
+      },
+      "GYRO_Y_VALUE_0": {
+        "id": 11,
+        "description": "gyro_y: %f "
+      },
+      "GYRO_Z_VALUE_0": {
+        "id": 12,
+        "description": "gyro_z: %f "
+      },
+      "FIRST_DATA_PACKET_QUERY_FAILED": {
+        "id": 13,
+        "description": "first data packet query failed"
+      },
+      "AFTER_POWER_DOWN": {
+        "id": 14,
+        "description": "AFTER POWER DOWN"
+      },
+      "MAG_X_VALUE_1": {
+        "id": 15,
+        "description": "mag_x: %f "
+      },
+      "MAG_Y_VALUE_1": {
+        "id": 16,
+        "description": "mag_y: %f "
+      },
+      "MAG_Z_VALUE_1": {
+        "id": 17,
+        "description": "mag_z: %f "
+      },
+      "ACCEL_X_VALUE_1": {
+        "id": 18,
+        "description": "accel_x: %f "
+      },
+      "ACCEL_Y_VALUE_1": {
+        "id": 19,
+        "description": "accel_y: %f "
+      },
+      "ACCEL_Z_VALUE_1": {
+        "id": 20,
+        "description": "accel_z: %f "
+      },
+      "GYRO_X_VALUE_1": {
+        "id": 21,
+        "description": "gyro_x: %f "
+      },
+      "GYRO_Y_VALUE_1": {
+        "id": 22,
+        "description": "gyro_y: %f "
+      },
+      "GYRO_Z_VALUE_1": {
+        "id": 23,
+        "description": "gyro_z: %f "
+      },
+      "SECOND_DATA_PACKET_QUERY_FAILED": {
+        "id": 24,
+        "description": "second data packet query failed"
+      },
+      "INVALID_GYRO_INDEX": {
+        "id": 25,
+        "description": "Invalid gyro index: %d"
+      },
+      "GYRO_SELECTED": {
+        "id": 26,
+        "description": "Gyro %d Selected"
+      },
+      "MAG_TEST_STARTING": {
+        "id": 27,
+        "description": "Magnetorquer Test Starting"
+      },
+      "MAG_STARTING": {
+        "id": 28,
+        "description": "Magnetorquer Starting"
+      },
+      "MAG_STOPPED": {
+        "id": 29,
+        "description": "Magnetorquer Stopped"
+      },
+      "MAG_STARTED_IN_REVERSE": {
+        "id": 30,
+        "description": "Magnetorquer Started in Reverse"
+      },
+      "MAG_TEST_COMPLETED": {
+        "id": 31,
+        "description": "Test Completed"
+      },
+      "GYRO_ID": {
+        "id": 32,
+        "description": "ID is %d "
+      },
+      "GYRO_COMPUTED_RATE_0": {
+        "id": 33,
+        "description": "Computed rate %f"
+      },
+      "GYRO_SLEEPING": {
+        "id": 34,
+        "description": "Sleeping..."
+      },
+      "GYRO_TEMP": {
+        "id": 35,
+        "description": "Temp is %f"
+      },
+      "GYRO_SET_FILTER_TO_330HZ_2TAPS": {
+        "id": 36,
+        "description": "Set filter to 330hz, 2 taps"
+      },
+      "GYRO_COMPUTED_RATE_1": {
+        "id": 37,
+        "description": "Computed rate %f"
+      },
+      "GYRO_SET_FILTER_TO_DEFAULT": {
+        "id": 38,
+        "description": "Set filter to default"
+      },
+      "GYRO_COMPUTED_RATE_2": {
+        "id": 37,
+        "description": "Computed rate %f"
+      },
+      "GYRO_ERROR": {
+        "id": 38,
+        "description": "ERROR -> %d <-"
+      }
+    }
   },
   "LOG_SETTINGS": {
-    "id": "50",
+    "id": 50,
     "description": "Settings"
   },
-  "LOG_ACTION_ID_EXCEEDED": {
-    "id": "51",
-    "description": "Action ID scheduler tried to assign was larger than max allowed action ID"
+  "LOG_RESERVED13": {
+    "id": 51,
+    "description": "Reserved - currently unused"
   },
   "LOG_TEST_ACK_CMD": {
-    "id": "52",
+    "id": 52,
     "description": "ACK Test Command"
   },
   "LOG_TEST_COMMS_CMD": {
-    "id": "53",
-    "description": "Comms Test"
+    "id": 53,
+    "description": "Comms Test",
+    "signals": {
+      "REBOOT_FAIL_1": {
+        "id": 0,
+        "description": "reboot fail 1"
+      },
+      "REBOOT_FAIL_2": {
+        "id": 1,
+        "description": "reboot fail 2 (receiving)"
+      },
+      "REBOOT_FAIL_WAITING": {
+        "id": 2,
+        "description": "failed waiting for reboot"
+      },
+      "REBOOT_PASS": {
+        "id": 3,
+        "description": "reboot pass"
+      },
+      "UNABLE_TO_GET_TELEM": {
+        "id": 4,
+        "description": "Unable to get telemetry!"
+      },
+      "FAILED_TO_START_SESSION_0": {
+        "id": 5,
+        "description": "failed to start a comms session: %d"
+      },
+      "FAILED_TO_START_SESSION_1": {
+        "id": 6,
+        "description": "failed to start a comms session: %d"
+      },
+      "FAILED_TO_START_SESSION_2": {
+        "id": 7,
+        "description": "failed to start a comms session: %d"
+      },
+      "FAILED_TO_SEND_CMD": {
+        "id": 8,
+        "description": "failed to send command: %d"
+      },
+      "FAILED_TO_RECEIVE_CMD_RESPONSE": {
+        "id": 9,
+        "description": "failed to receive command response: %d"
+      },
+      "FAILED_TO_REGISTER_EVENTS": {
+        "id": 10,
+        "description": "failed to register for comms msg events %d"
+      }
+    }
   },
   "LOG_TEST_CAN_GPIO_CMD": {
-    "id": "54",
-    "description": "CAN GPIO Test"
+    "id": 54,
+    "description": "CAN GPIO Test",
+    "signals": {
+      "INVALID_PORT": {
+        "id": 0,
+        "description": "Invalid Port: %d"
+      },
+      "INVALID_PIN": {
+        "id": 1,
+        "description": "Invalid Pin: %d"
+      },
+      "WRITING_TO_CAN": {
+        "id": 2,
+        "description": "Writing %d to CAN %d, pin %d"
+      }
+    }
   },
-  "LOG_PWR_FLT_LOG": {
-    "id": "55",
-    "description": "Power Fault Log"
+  "LOG_RESERVED14": {
+    "id": 55,
+    "description": "Reserved - currently unused"
   },
-  "LOG_TEST_PCMD_GATING_CMD": {
-    "id": "56",
-    "description": "PCMD Power Gating Test"
+  "LOG_RESERVED15": {
+    "id": 56,
+    "description": "Reserved - currently unused"
   },
-  "LOG_COMMS_GENERAL": {
-    "id": "57",
-    "description": "Comms Log"
+  "LOG_COMMS": {
+    "id": 57,
+    "description": "Comms Log",
+    "signals": {
+      "CMD_QUEUE_EMPTY": {
+        "id": 0,
+        "description": "Expected a command but cmd_q is empty"
+      },
+      "FAILED_CONVERTING_PACKET_TO_BUFFER": {
+        "id": 1,
+        "description": "Failed to convert packet to buffer, err: %d"
+      },
+      "FAILED_TO_SEND_CMD": {
+        "id": 2,
+        "description": "Failed to send command, err: %d"
+      },
+      "RX_ERROR": {
+        "id": 3,
+        "description": "Comms rx err %d"
+      },
+      "RX_DATA_ERROR": {
+        "id": 4,
+        "description": "Comms rx data err %d"
+      },
+      "FLASH_TIMEOUT": {
+        "id": 5,
+        "description": "flash timeout, state: %d"
+      },
+      "ERROR": {
+        "id": 6,
+        "description": "error %d"
+      },
+      "CMD_SEND_FAILED": {
+        "id": 7,
+        "description": "command send failed"
+      },
+      "CMD_FAILED": {
+        "id": 8,
+        "description": "command failed: seqnum mismatch or NACK received"
+      }
+    }
   },
-  "LOG_COMMS_ACK_CMD": {
-    "id": "58",
-    "description": "Comms ACK"
+  "LOG_RESERVED16": {
+    "id": 58,
+    "description": "Reserved - currently unused"
   },
   "LOG_ADCS_IMU": {
-    "id": "59",
-    "description": "ADCS IMU Log"
+    "id": 59,
+    "description": "ADCS IMU Log",
+    "signals": {
+      "SOFT_RESET_ERROR": {
+        "id": 0,
+        "description": "Error performing soft reset"
+      },
+      "WRONG_DEVICE_MODE": {
+        "id": 1,
+        "description": "Wrong device mode selected: %d"
+      },
+      "SOFT_RESET_POWERDOWN_ERROR": {
+        "id": 2,
+        "description": "Error performing soft reset for power down"
+      },
+      "SET_ACCEL_POWER_MODE_LOW_ERROR": {
+        "id": 3,
+        "description": "Error setting accel power mode low"
+      },
+      "SET_GYRO_POWER_MODE_LOW_ERROR": {
+        "id": 4,
+        "description": "Error setting gyro power mode low"
+      },
+      "SET_MAGN_POWER_MODE_LOW_ERROR": {
+        "id": 5,
+        "description": "Error setting magn power mode low"
+      },
+      "SOFT_RESET_WAKEUP_ERROR": {
+        "id": 6,
+        "description": "Error performing soft reset for wake up"
+      },
+      "IMU_INIT_WAKEUP_ERROR": {
+        "id": 7,
+        "description": "Error performing IMU init for power up"
+      },
+      "SET_ACCEL_POWER_MODE_NORMAL_ERROR": {
+        "id": 8,
+        "description": "Error setting accel power mode normal"
+      },
+      "SET_GYRO_POWER_MODE_NORMAL_ERROR": {
+        "id": 9,
+        "description": "Error setting gyro power mode normal"
+      },
+      "SET_MAGN_POWER_MODE_NORMAL_ERROR": {
+        "id": 10,
+        "description": "Error setting magn power mode normal"
+      },
+      "ERROR_WRITING_NEW_GYRO_RANGE": {
+        "id": 11,
+        "description": "Error writing new gyro range %d"
+      },
+      "ERROR_WRITING_NEW_ACCEL_RANGE": {
+        "id": 12,
+        "description": "Error writing new accel range %d"
+      },
+      "I2C_WRITE_FAILURE": {
+        "id": 13,
+        "description": "I2C write failure: %d"
+      },
+      "I2C_READ_FAILURE": {
+        "id": 14,
+        "description": "I2C read failure: %d"
+      },
+      "ERROR_DURING_INIT_MAG": {
+        "id": 15,
+        "description": "Error init mag step %d"
+      },
+      "ERROR_READING_MAG_MAN_OP": {
+        "id": 16,
+        "description": "Error reading mag_man_op"
+      },
+      "ERROR_INIT_MAG_IN_READ_TRIMMING": {
+        "id": 17,
+        "description": "Error init mag step %d"
+      },
+      "ERROR_READING_CHIPID": {
+        "id": 18,
+        "description": "Error reading CHIPPID"
+      },
+      "ERROR_READING_DATA_READY": {
+        "id": 19,
+        "description": "Error reading drdy"
+      },
+      "ERROR_DATA_READY": {
+        "id": 20,
+        "description": "Error data ready is %d"
+      },
+      "ERROR_READING_PMU_STATUS": {
+        "id": 21,
+        "description": "Error reading PMU status"
+      },
+      "PMU_STATUS_WRONG": {
+        "id": 22,
+        "description": "Error: PMU status return %d, should be 21"
+      },
+      "WRONG_CHIPID": {
+        "id": 23,
+        "description": "Error: CHIPPID return %d, should be 216"
+      },
+      "ERROR_WRITING_GYRO_CONFIG": {
+        "id": 24,
+        "description": "Error writing gyro config"
+      },
+      "ERROR_WRITING_ACCEL_CONFIG": {
+        "id": 25,
+        "description": "Error writing accel config"
+      }
+    }
   },
   "LOG_ADCS_GYRO": {
-    "id": "60",
-    "description": "ADCS GYRO"
+    "id": 60,
+    "description": "ADCS GYRO",
+    "signals": {
+      "UNHANDLED_CALLBACK": {
+        "id": 0,
+        "description": "Sleep callback triggered on removed handler"
+      }
+    }
   },
   "TEST_EPS_READ_CMD": {
-    "id": "61",
-    "description": "EPS Read Test"
+    "id": 61,
+    "description": "EPS Read Test",
+    "signals": {
+      "READ_FLOAT_INVALID_CMD": {
+        "id": 0,
+        "description": "Invalid read command '%d', must be between 1 and 52"
+      },
+      "READ_FLOAT_RAW_INVALID_CMD": {
+        "id": 1,
+        "description": "Invalid read command '%d', must be between 1 and 52"
+      },
+      "READ_INT_INVALID_CMD": {
+        "id": 2,
+        "description": "Invalid read command '%d', must be between 1 and 52"
+      }
+    }
   },
   "TEST_EPS_WRITE_CMD": {
-    "id": "62",
-    "description": "EPS Write Test"
+    "id": 62,
+    "description": "EPS Write Test",
+    "signals": {
+      "INVALID_WRITE_STATE": {
+        "id": 0,
+        "description": "Invalid write state '%d', must be one of 0,1,2,3"
+      }
+    }
   },
   "LOG_TEST_FLASH_RW_CMD": {
-    "id": "63",
+    "id": 63,
     "description": "Test flash read/write command"
   },
   "LOG_DRIVER_MIBSPI": {
-    "id": "64",
+    "id": 64,
     "description": "MIBSPI Driver"
   },
   "LOG_TEST_FILESYSTEM_CMD": {
-    "id": "65",
+    "id": 65,
     "description": "Test filesystem command"
   },
   "LOG_GPS": {
-    "id": "66",
+    "id": 66,
     "description": "GPS"
   },
   "LOG_CMD_SYS_SCHED_RESP": {
-    "id": "67",
-    "description": "Responses to scheduled commands"
+    "id": 67,
+    "description": "Responses to scheduled commands",
+    "signals": {
+      "RESPONSE": {
+        "id": 0,
+        "description": "Command response"
+      }
+    }
   },
   "LOG_CAMERA": {
-    "id": "68",
-    "description": "Camera"
+    "id": 68,
+    "description": "Camera",
+    "signals": {
+      "INITIALIZING": {
+        "id": 0,
+        "description": "Initializing"
+      },
+      "CAPTURING_IMAGE": {
+        "id": 1,
+        "description": "Capturing image"
+      },
+      "TRANSFERRING_IMAGE": {
+        "id": 2,
+        "description": "Transfering image (%d KB)"
+      }
+    }
   }
 }

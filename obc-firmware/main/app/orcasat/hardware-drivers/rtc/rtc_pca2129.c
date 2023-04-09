@@ -31,10 +31,10 @@
 
 /* External Variable Initializations -----------------------------------------*/
 rtc_t rtc_a = {
-    .prev_rtc_epoch = NO_EPOCH, .start_time = {0}, .cs_port = RTCA_CS0_PORT, .cs_pin = RTCA_CS0_PIN, .alarm_port = RTCA_ALARM_PORT, .alarm_pin = RTCA_ALARM_PIN, .name = "A", .log_id = LOG_RTC_A_LOG};
+    .prev_rtc_epoch = NO_EPOCH, .start_time = {0}, .cs_port = RTCA_CS0_PORT, .cs_pin = RTCA_CS0_PIN, .alarm_port = RTCA_ALARM_PORT, .alarm_pin = RTCA_ALARM_PIN, .name = "A", .log_id = LOG_RTC};
 
 rtc_t rtc_b = {
-    .prev_rtc_epoch = NO_EPOCH, .start_time = {0}, .cs_port = RTCB_CS0_PORT, .cs_pin = RTCB_CS0_PIN, .alarm_port = RTCB_ALARM_PORT, .alarm_pin = RTCB_ALARM_PIN, .name = "B", .log_id = LOG_RTC_B_LOG};
+    .prev_rtc_epoch = NO_EPOCH, .start_time = {0}, .cs_port = RTCB_CS0_PORT, .cs_pin = RTCB_CS0_PIN, .alarm_port = RTCB_ALARM_PORT, .alarm_pin = RTCB_ALARM_PIN, .name = "B", .log_id = LOG_RTC_B};
 
 /* Private Function Prototypes -----------------------------------------------*/
 static rtc_err_t pca2129_alarm_time_valid(real_time_t curr_time, real_time_t alarm_time);

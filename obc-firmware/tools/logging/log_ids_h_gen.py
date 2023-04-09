@@ -41,7 +41,7 @@ def main():
 
     # Add MAX_LOG_ID_VALUE to end of list
     log_ids['MAX_LOG_ID_VALUE'] = {
-        'id': str(max_id),
+        'id': int(max_id),
         'description': 'Maximum log ID value. Should always be equal to the largest log ID.'
     }
 

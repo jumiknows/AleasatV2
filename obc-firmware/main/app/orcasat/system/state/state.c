@@ -22,7 +22,7 @@ typedef struct {
     uint32_t valid_trigger_states : 5; /**<  Valid start states for the transition */
 } state_transition_t;
 
-typedef struct {
+typedef struct __attribute__((__packed__)) {
     uint32_t transition_id : 8;
     uint32_t enabled : 1;
     uint32_t valid_trigger_states : 5;
@@ -231,7 +231,7 @@ void vStateHandlerTask(void* pvParameters) {
             make_state_transition(transition_id);
             xSemaphoreGive(xStateMutex);
         } else {
-            log_str(INFO, LOG_PRINT_GENERAL, "state failed to take mutex");
+            log_signal(INFO, LOG_PRINT_GENERAL, LOG_PRINT_GENERAL__STATE_FAILED_TO_TAKE_MUTEX);
         }
     }
 }
@@ -267,7 +267,7 @@ void make_state_transition(state_transition_id_t transition_id) {
     state_transition_t* state_transition = get_state_transition(transition_id);
     if ((valid_trigger_state(state_transition)) && (state_transition->enabled == STATE_ENABLED)) {
         current_state = (state_t)state_transition->end_state;
-        log_str(INFO, LOG_PRINT_GENERAL, "current_state = %i", (uint8_t)current_state);
+        log_signal_with_data(INFO, LOG_PRINT_GENERAL, LOG_PRINT_GENERAL__CURRENT_STATE, sizeof(current_state), &current_state);
     } else {
         invalid_transition_log_t invalid_transition_log_data = {
             .transition_id        = transition_id,
@@ -276,6 +276,6 @@ void make_state_transition(state_transition_id_t transition_id) {
             .current_state        = current_state,
         };
 
-        log_data(INFO, LOG_PRINT_GENERAL, sizeof(invalid_transition_log_t), (void*)(&invalid_transition_log_data));
+        log_signal_with_data(INFO, LOG_PRINT_GENERAL, LOG_PRINT_GENERAL__INVALID_STATE_TRANSITION, sizeof(invalid_transition_log_t), &invalid_transition_log_data);
     }
 }

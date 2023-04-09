@@ -12,13 +12,16 @@ import xmlrunner
 from obcpy.protocol import routing_impl
 from obcpy.obc_protocol import log
 from obcpy.obc import OBC
-from  obcpy.utils.serial import get_serial_ports
+from obcpy.utils.serial import get_serial_ports
 
 PORT_ENV_VAR = "ALEA_OBC_PORT"
 
+REPO_ROOT_PATH = pathlib.Path(__file__).resolve().parent.parent.parent.parent
+
+LOG_SYS_SPECS_PATH = REPO_ROOT_PATH / "obc-firmware" / "tools" / "logging" / "log_ids.json"
 CMD_SYS_SPECS_PATHS = [
-    pathlib.Path(__file__).parent.parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
-    pathlib.Path(__file__).parent.parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
+    REPO_ROOT_PATH / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
+    REPO_ROOT_PATH / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
 ]
 
 class OBCTest(unittest.TestCase):
@@ -38,7 +41,7 @@ class OBCTest(unittest.TestCase):
         if cls.PORT is None:
             raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
 
-        cls.obc = OBC(*CMD_SYS_SPECS_PATHS)
+        cls.obc = OBC(LOG_SYS_SPECS_PATH, *CMD_SYS_SPECS_PATHS)
         if not cls.obc.start(cls.PORT):
             raise Exception(f"ERROR: Could not connect to {cls.PORT}")
 
@@ -53,7 +56,7 @@ class OBCTest(unittest.TestCase):
     def setUp(self) -> None:
         # Put the OBC in a known state
         self.obc.reset()
-        self.wait_for_keyword("ALEASAT Started", timeout=2) # TODO ALEA-853 use a less ambiguous log message to indicate system is booted
+        self.wait_for_signal("LOG_PRINT_GENERAL", "STARTUP_COMPLETE", timeout=2) # TODO ALEA-853 use a less ambiguous log message to indicate system is booted
         time.sleep(1) # TODO remove once ALEA-853 is implemented
 
     def tearDown(self) -> None:
@@ -74,23 +77,20 @@ class OBCTest(unittest.TestCase):
                 for log in logs:
                     print(log)
 
-    def wait_for_keyword(self, pass_key: str, fail_key: str = None, timeout: float = None) -> log.OBCLog:
+    def wait_for_signal(self, group_name: str, pass_sig: str, fail_sig: str = None, timeout: float = None) -> log.OBCLog:
         start = time.time()
         while 1:
             logs = self.logs.read(0.1)
             if logs:
                 for log in logs:
-                    try:
-                        log_text = log.payload.decode("ascii")
-                        if pass_key in log_text:
+                    if group_name == log.group_name:
+                        if pass_sig == log.signal_name:
                             return log
-                        elif (fail_key is not None) and (fail_key in log_text):
-                            self.fail(f"\"{fail_key}\" observed: test failed.")
-                    except UnicodeDecodeError:
-                        pass
+                        elif (fail_sig != None) and (fail_sig == log.signal_name):
+                            self.fail(f"Signal \"{fail_sig}\" observed: test failed.")
             if timeout is not None:
                 if (time.time() - start) >= timeout:
-                    self.fail("Timed-out waiting for keyword")
+                    self.fail("Timed-out waiting for pass signal")
 
 def main(test_cases: Union[Type[OBCTest],List[Type[OBCTest]]]) -> str:
     env_port = os.getenv(PORT_ENV_VAR)

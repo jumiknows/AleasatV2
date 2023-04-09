@@ -35,7 +35,7 @@
 /******************************************************************************/
 
 cmd_sys_resp_code_t cmd_impl_TEST_CAM_INIT(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_INIT_resp_t *resp) {
-    log_str(INFO, LOG_CAMERA, "%s", "Initializing");
+    log_signal(INFO, LOG_CAMERA, LOG_CAMERA__INITIALIZING);
     arducam_err_t err = arducam_init();
     resp->arducam_err = err;
     return CMD_SYS_RESP_CODE_SUCCESS;
@@ -46,7 +46,7 @@ cmd_sys_err_t cmd_impl_TEST_CAM_CAPTURE(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_C
     uint8_t img_buf[ARDUCAM_READ_SIZE] = { 0 };
 
     // Capture image
-    log_str(INFO, LOG_CAMERA, "%s", "Capturing image");
+    log_signal(INFO, LOG_CAMERA, LOG_CAMERA__CAPTURING_IMAGE);
     arducam_err_t err = arducam_capture(CAPTURE_TIMEOUT_MS);
 
     // Check image size
@@ -71,7 +71,8 @@ cmd_sys_err_t cmd_impl_TEST_CAM_CAPTURE(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_C
     if (cmd_sys_err != CMD_SYS_SUCCESS) return cmd_sys_err;
 
     // Send image data
-    log_str(INFO, LOG_CAMERA, "Transferring image (%d KB)", (img_size / 1024));
+    uint32_t img_size_kb = img_size / 1024;
+    log_signal_with_data(INFO, LOG_CAMERA, LOG_CAMERA__TRANSFERRING_IMAGE, sizeof(img_size_kb), &img_size_kb);
     if (err == ARDUCAM_SUCCESS) {
         bool done = false;
         while (!done) {

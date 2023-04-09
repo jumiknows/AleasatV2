@@ -174,6 +174,6 @@ static void eps_telem_check_slow(void) {
         battery_bus_enabled = BUS_ENABLED;
     } else {
         battery_bus_enabled = BUS_DISABLED;
-        log_str(ERROR, LOG_TELEM_INFRA, "EPS bin %d out of range", EPS_SLOW.sense_temp_bat_1);
+        log_signal_with_data(ERROR, LOG_TELEM, LOG_TELEM__EPS_BIN_OUT_OF_RANGE, sizeof(EPS_SLOW.sense_temp_bat_1), &(EPS_SLOW.sense_temp_bat_1));
     }
 }

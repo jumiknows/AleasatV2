@@ -1,5 +1,6 @@
 from obcpy.device import serial
 from obcpy.obc_protocol import obc_serial_protocol
+from obcpy.log_sys import log_spec
 
 class OBCSerialInterface:
     """Serial interface to the OBC.
@@ -7,8 +8,8 @@ class OBCSerialInterface:
     This class uses the OBCSerialProtocol to send and receive data to/from the OBC.
     """
 
-    def __init__(self):
-        self.protocol = obc_serial_protocol.OBCSerialProtocol()
+    def __init__(self, log_specs : log_spec.OBCLogGroupSpecs):
+        self.protocol = obc_serial_protocol.OBCSerialProtocol(log_specs)
 
         # Serial Device
         self._device = serial.SerialDevice(self.protocol.rx_phy, self.protocol.tx_phy)

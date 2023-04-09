@@ -265,7 +265,6 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
             break;
         } else if (num_retry >= max_retry) {
             xTaskResumeAll();
-            log_str(ERROR, LOG_I2C, "I2C max resets hit");
             return I2C_ERR_RESET;
         } else {
             ++num_retry;
@@ -278,7 +277,6 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
 
     xTaskResumeAll();
 
-    log_str(DEBUG, LOG_I2C, "I2C RESET");
     return I2C_SUCCESS;
 }
 
@@ -313,7 +311,6 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_da
         i2cClearSCD(I2C);
 
         if (err == I2C_ERR_NACK) {
-            log_str(ERROR, LOG_I2C, "NACK from dev 0x%02x", addr);
             i2c_clear_nack();
         }
         return err;
@@ -377,7 +374,6 @@ static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_d
         i2cClearSCD(I2C);
 
         if (err == I2C_ERR_NACK) {
-            log_str(ERROR, LOG_I2C, "NACK from dev 0x%02x", addr);
             i2c_clear_nack();
         }
 

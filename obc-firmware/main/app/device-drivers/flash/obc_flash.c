@@ -43,11 +43,10 @@ void flash_init(void) {
 
 /**
  * @brief Prints the identity of the flash
- * 
  */
 void flash_identify(void) {
 #ifdef PLATFORM_LAUNCHPAD_1224
-    log_str(ERROR, LOG_FLASH, "Flash identification not supported on Launchpad.");
+    log_signal(ERROR, LOG_FLASH, LOG_FLASH__IDENTIFY_NOT_SUPPORTED);
 #endif
 #ifdef PLATFORM_ALEA_V1
     uint8_t device_data[20] = { 0x00 };
@@ -56,14 +55,10 @@ void flash_identify(void) {
     uint8_t manufacturer = device_data[0];
 
     if (manufacturer == MANUFACTURER_ID_JEDEC_MICRON_TECHNOLOGY) {
-        uint8_t mem_type = device_data[1];
-        uint8_t mem_capacity = device_data[2];
-
-        /* Print manufacturer, mem type, and mem capacity */
-        log_str(INFO, LOG_FLASH, "Flash identified: Micron Technology %02x%02x", mem_type, mem_capacity);
+        log_signal_with_data(INFO, LOG_FLASH, LOG_FLASH__IDENTIFIED_AS_MICRON, sizeof(device_data), &device_data);
     }
     else {
-        log_str(ERROR, LOG_FLASH, "Failed to identify flash manufacturer");
+        log_signal(ERROR, LOG_FLASH, LOG_FLASH__FAILED_TO_IDENTIFY);
     }
 #endif
 }

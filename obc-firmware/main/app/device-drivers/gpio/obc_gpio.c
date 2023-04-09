@@ -131,18 +131,18 @@ void gpio_expander_init(void) {
 #if FEATURE_GPIO_EXPANDER
     /* Initialize the expander with reset values */
     if (pcal6416a_init() != GPIO_SUCCESS) {
-        log_str(ERROR, LOG_GPIO_EXPAND, "Expander init failed");
+        log_signal(ERROR, LOG_GPIO_EXPANDER, LOG_GPIO_EXPANDER__INIT_FAILED);
     }
 
     /* Configure the desired pins */
     if (pcal6416a_configure_output(EXPANDER_BLINKY_PORT.reg.exp, EXPANDER_BLINKY_PIN, 1, PULLUP) != GPIO_SUCCESS) {
-        log_str(ERROR, LOG_GPIO, "Expander blink init failed");
+        log_signal(ERROR, LOG_GPIO_EXPANDER, LOG_GPIO_EXPANDER__BLINK_INIT_FAILED);
     }
 
 #ifdef PLATFORM_ORCA_V1
     /* Configure the example input GPIO expander interrupt */
     if (pcal6416a_configure_interrupt(OBC_EXPAND_IN_TEST_PORT, OBC_EXPAND_IN_TEST_PIN, 1, PULLUP, &default_expander_callback) != GPIO_SUCCESS) {
-        log_str(ERROR, LOG_GPIO, "Expander irq init failed");
+        log_signal(ERROR, LOG_GPIO_EXPANDER, LOG_GPIO_EXPANDER__IRQ_INIT_FAILED);
     }
 #endif // PLATFORM_ORCA_V1
 
@@ -152,7 +152,7 @@ void gpio_expander_init(void) {
     /* END MODIFIABLE REGION */
 
     if (pcal6416a_validate_regs() != GPIO_SUCCESS) {
-        log_str(ERROR, LOG_GPIO, "Expander verify failed.");
+        log_signal(ERROR, LOG_GPIO_EXPANDER, LOG_GPIO_EXPANDER__VERIFY_FAILED);
     }
 #endif
 }
@@ -192,7 +192,8 @@ void service_gpio_irq(gpio_irq_t irq_info) {
 
     if (gioInterruptQueue != NULL) {
         if ((xQueueSendToBackFromISR(gioInterruptQueue, (void*)&irq_info, 0)) == errQUEUE_FULL) {
-            log_str(ERROR, LOG_GPIO, "IRQ queue full");
+            // TODO ALEA-774 Should we have a log_from_isr function?
+            //log_str(ERROR, LOG_GPIO, "IRQ queue full");
         }
     }
 
@@ -315,7 +316,7 @@ static void vGPIOServiceTask(void* pvParameters) {
 
         } else {
             set_task_status(wd_task_id, task_alive);
-            log_str(ERROR, LOG_GPIO, "IRQ queue receive failed.");
+            log_signal(ERROR, LOG_GPIO, LOG_GPIO__IRQ_QUEUE_RECEIVE_FAILED);
         }
     }
 }

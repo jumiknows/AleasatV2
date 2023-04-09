@@ -60,7 +60,7 @@ typedef struct {
     /**
      * @brief The log ID to use when logging most messages for this RTC.
      */
-    log_identifier_t log_id;
+    log_id_t log_id;
     /**
      * @brief The most recent error logged by this RTC in this module.
      */

@@ -57,7 +57,7 @@ void wd_start_task(void) {
  */
 void watchdog_reset(void) {
     xSemaphoreTake(watchdog_mutex, portMAX_DELAY); // Take the mutex to ensure WDPT doesn't have it
-    log_str(INFO, LOG_WATCHDOG, "Suspending WDPT");
+    log_signal(INFO, LOG_WATCHDOG, LOG_WATCHDOG__SUSPENDING_WDPT);
     vTaskSuspend(xWatchdogPetTaskHandle);
     xSemaphoreGive(watchdog_mutex);
 }
@@ -73,10 +73,10 @@ void vWatchdogPetTask(void* pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(TASK_PERIOD_MS(pvParameters)));
     while (1) {
         if (tasks_statuses_valid()) {
-            log_str(DEBUG, LOG_WATCHDOG, "Petting watchdog");
+            log_signal(DEBUG, LOG_WATCHDOG, LOG_WATCHDOG__PETTING);
             pet_watchdog();
         } else {
-            log_str(ERROR, LOG_WATCHDOG, "One or more tasks has UNKNOWN");
+            log_signal(ERROR, LOG_WATCHDOG, LOG_WATCHDOG__UNKNOWN_TASK);
         }
         vTaskDelay(pdMS_TO_TICKS(TASK_PERIOD_MS(pvParameters)));
     }
@@ -97,7 +97,7 @@ bool set_task_status(task_id_t task_id, watchdog_task_status_t status) {
         xSemaphoreGive(watchdog_mutex);
         return true;
     } else {
-        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex");
+        log_signal(ERROR, LOG_WATCHDOG, LOG_WATCHDOG__FAILED_TO_TAKE_MUTEX_IN_SET_STATUS);
         return false;
     }
 }
@@ -115,7 +115,7 @@ bool get_task_status(task_id_t task_id, watchdog_task_status_t* task_status) {
         xSemaphoreGive(watchdog_mutex);
         return true;
     } else {
-        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex");
+        log_signal(ERROR, LOG_WATCHDOG, LOG_WATCHDOG__FAILED_TO_TAKE_MUTEX_IN_GET_STATUS);
         return false;
     }
 }
@@ -143,7 +143,7 @@ void task_suspend_wd(TaskHandle_t xTaskToSuspend) {
         }
         xSemaphoreGive(watchdog_mutex);
     } else {
-        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex\n\r");
+        log_signal(ERROR, LOG_WATCHDOG, LOG_WATCHDOG__FAILED_TO_TAKE_MUTEX_IN_SUSPEND);
     }
 }
 
@@ -166,7 +166,7 @@ void task_resume_wd(TaskHandle_t xTaskToResume) {
         }
         xSemaphoreGive(watchdog_mutex);
     } else {
-        log_str(ERROR, LOG_WATCHDOG, "Failed to take watchdog mutex\n\r");
+        log_signal(ERROR, LOG_WATCHDOG, LOG_WATCHDOG__FAILED_TO_TAKE_MUTEX_IN_RESUME);
     }
 }
 
@@ -200,7 +200,7 @@ static bool tasks_statuses_valid(void) {
                 is_correct = false;
             } else if (status == task_unknown) {
                 char* task_name = pcTaskGetName(get_task_handle(i));
-                log_str(ERROR, LOG_WATCHDOG, "%s did not clear UNKNOWN", task_name);
+                log_signal_with_data(ERROR, LOG_WATCHDOG, LOG_WATCHDOG__DID_NOT_CLEAR_UNKNOWN, strlen(task_name), task_name);
                 is_correct = false;
             } else if (status == task_alive) {
                 set_task_status(i, task_unknown);

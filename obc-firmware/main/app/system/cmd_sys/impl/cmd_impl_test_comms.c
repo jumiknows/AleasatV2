@@ -64,14 +64,14 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_RX(const cmd_sys_cmd_t *cmd, cmd_TEST
     }
 
     if (err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to start a comms session: %d ", err);
+        log_signal_with_data(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__FAILED_TO_START_SESSION_0, sizeof(err), &err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
     // send a command to request telemtry 
     err = comms_send_command(session, COMMS_CMD_GET_TELEM, NULL, 0, 0);
     if(err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to send command: %d ", err);
+        log_signal_with_data(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__FAILED_TO_SEND_CMD, sizeof(err), &err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
@@ -79,7 +79,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_RX(const cmd_sys_cmd_t *cmd, cmd_TEST
     err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
 
     if(err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to receive command response: %d ", err);
+        log_signal_with_data(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__FAILED_TO_RECEIVE_CMD_RESPONSE, sizeof(err), &err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
@@ -106,8 +106,8 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_STRESS1(const cmd_sys_cmd_t *cmd, cmd_TE
     }
 
     if (err != COMMS_SUCCESS) {
-           log_str(INFO, LOG_TEST_COMMS_CMD, "failed to start a comms session: %d ", err);
-           return CMD_SYS_RESP_CODE_ERROR;
+        log_signal_with_data(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__FAILED_TO_START_SESSION_1, sizeof(err), &err);
+        return CMD_SYS_RESP_CODE_ERROR;
     }
 
     for (i = 0; i < 1000; ++i) {
@@ -145,7 +145,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_FLASH_APP(const cmd_sys_cmd_t *cmd, cmd_
     }
 
     if (err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to start a comms session: %d ", err);
+        log_signal_with_data(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__FAILED_TO_START_SESSION_2, sizeof(err), &err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
@@ -194,29 +194,29 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_REBOOT(const cmd_sys_cmd_t *cmd) {
 
     err = comms_register_events(session, (1<<COMMS_EVENT_MSG_RCV), &comms_reboot_callback);
     if(err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to register for comms msg events %d", err);
+        log_signal(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__FAILED_TO_REGISTER_EVENTS);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
     err = comms_send_command(session, COMMS_CMD_REBOOT, NULL, 0, 0);
     if(err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "failed to send reboot command %d", err);
+        log_signal(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__REBOOT_FAIL_1);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
     // block and wait for response
-     err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
-     if((err != COMMS_SUCCESS) || (comms_resp.result == COMMS_CMD_RESULT_ERR)) {
-         log_str(INFO, LOG_TEST_COMMS_CMD, "failed to receive reboot response %d", err);
-         return CMD_SYS_RESP_CODE_ERROR;
-     }
+    err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
+    if((err != COMMS_SUCCESS) || (comms_resp.result == COMMS_CMD_RESULT_ERR)) {
+        log_signal(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__REBOOT_FAIL_2);
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
 
     if(xSemaphoreTake(comms_reboot_sem, pdMS_TO_TICKS(2000)) == pdTRUE) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "reboot pass");
+        log_signal(INFO, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__REBOOT_PASS);
         return CMD_SYS_RESP_CODE_SUCCESS;
     }
     else {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "failed waiting for reboot");
+        log_signal(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__REBOOT_FAIL_WAITING);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 }
@@ -236,7 +236,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_GET_TELEM(const cmd_sys_cmd_t *cmd, cmd_
 
     err = comms_get_telem(session, &telem_recv);
     if (err != COMMS_SUCCESS) {
-        log_str(INFO, LOG_TEST_COMMS_CMD, "Unable to get telemetry!");
+        log_signal(ERROR, LOG_TEST_COMMS_CMD, LOG_TEST_COMMS_CMD__UNABLE_TO_GET_TELEM);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 

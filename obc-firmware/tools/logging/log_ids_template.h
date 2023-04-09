@@ -21,7 +21,16 @@ typedef enum {
 {% for entry in log_ids %}
     {{ entry }} = {{ log_ids[entry]['id'] }}, /* {{log_ids[entry]['description']}} */
 {% endfor %}
-} log_identifier_t;
+} log_id_t;
+
+typedef enum {
+{% for entry in log_ids %}
+  /* {{ entry }} */
+  {% for signal in log_ids[entry]['signals'] -%}
+    {{entry}}__{{signal}} = {{ log_ids[entry]['signals'][signal]['id'] }}, /* "{{log_ids[entry]['signals'][signal]['description']}}" */
+  {% endfor %}
+{%- endfor %}
+} signal_id_t;
 
 /*
  * DO NOT MODIFY THIS FILE

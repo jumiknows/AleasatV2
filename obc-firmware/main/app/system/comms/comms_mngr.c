@@ -145,19 +145,19 @@ static void handle_tx_event(void) {
     do {
         if(xQueueReceive(cmd_q,
             (void*)&cmd, 0) != pdPASS) {
-            log_str(ERROR, LOG_COMMS_GENERAL, "%s: Expected a command but cmd_q is empty ", __func__);
+            log_signal(ERROR, LOG_COMMS, LOG_COMMS__CMD_QUEUE_EMPTY);
             err = COMMS_ERR_TIMEOUT;
             break;
         }
 
         if(comms_cmd_struct_to_buffer(cmd, buf) != COMMS_SUCCESS) {
-            log_str(ERROR, LOG_COMMS_GENERAL, "%s: Failed to convert packet to buffer, err:%d", __func__, err);
+            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__FAILED_CONVERTING_PACKET_TO_BUFFER, sizeof(err), &err);
             err = COMMS_ERR_INVALID_ARG;
             break;
         }
 
         if(comms_dev_send(cdev, buf, sizeof(buf)) != COMMS_DEV_SUCCESS) {
-            log_str(ERROR, LOG_COMMS_GENERAL, "%s: Failed to send command, err:%d", __func__, err);
+            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__FAILED_TO_SEND_CMD, sizeof(err), &err);
             err = COMMS_ERR_RFC_TXN_FAIL;
             break;
         }
@@ -183,14 +183,14 @@ static void handle_rx_event(void) {
 
     do {
         if (comms_dev_receive(cdev, buf, sizeof(buf)) != COMMS_DEV_SUCCESS) {
-            log_str(ERROR, LOG_COMMS_GENERAL, "%s: Comms rx err %d", __func__, err);
+            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__RX_ERROR, sizeof(err), &err);
             err = COMMS_ERR_RFC_TXN_FAIL;
             break;
         }
 
         err = comms_buffer_to_cmd_struct(buf, &cmd);
         if (err != COMMS_SUCCESS) {
-            log_str(ERROR, LOG_COMMS_GENERAL, "%s: Comms rx data err %d", __func__, err);
+            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__RX_DATA_ERROR, sizeof(err), &err);
             break;
         }
 

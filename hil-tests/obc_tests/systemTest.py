@@ -52,7 +52,7 @@ class SystemTest(obc_test.OBCTest):
     def test_get_rtos_info(self):
         resp = self.obc.send_cmd("RTOS_INFO")
         self.assertTrue(resp.is_success)
-        self.wait_for_keyword("OK")
+        self.wait_for_signal("LOG_OBC_TASK", "RTOS_STATUS_OK");
 
 """
 This section is required if you want to run these tests independently.

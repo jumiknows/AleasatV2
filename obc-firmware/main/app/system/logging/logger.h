@@ -29,15 +29,6 @@
  */
 #define MAX_PAYLOAD_SIZE            245U                    /* bytes */
 
-/**
- * @brief Maximum number of bytes in a string that can be logged in a single message
- * 
- * Is one byte larger than @ref MAX_PAYLOAD_SIZE to account for the null terminator,
- *  which is ignored and not logged.
- * 
- */
-#define MAX_PAYLOAD_STRING_SIZE     MAX_PAYLOAD_SIZE + 1U    /* bytes */
-
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
@@ -58,46 +49,50 @@ typedef enum {
 /******************************************************************************/
 
 /**
- * @brief Logs arbitrary data.
- *
- * @param[in] lvl       The log level to use (@ref log_level_t)
- * @param[in] func_id   The message ID to use.
- * @param[in] size      The size of the payload data (bytes).
- * @param[in] data      The data to log.
- */
-void log_data(log_level_t lvl, log_identifier_t func_id, uint8_t size, const void* data);
-
-/**
- * @brief Logs a string
+ * Creates the logging system infrastructure
  * 
- * @note Ignores and does not log the null terminator. Adds PDU header with transaction id of 0 (all logs use id = 0)
- *
- * @param[in] lvl       The log level to use (@ref log_level_t)
- * @param[in] func_id   The message ID to use.
- * @param[in] format    The string to log. Supports printf-style format specifiers such as %d, %i, etc.
+ * @note must be called before calling any other functions in the logger API
  */
-void log_str(log_level_t lvl, log_identifier_t func_id, char* format, ...);
+void logger_create_infra(void);
 
 /**
- * @brief Logs a string without reading the RTC as a side effect (i.e. without timestamp). Ignores and does not
- * log the null terminator.
+ * @brief Logs a signal, without reading time from the RTC
  *
- * This is suitable for logging errors from within the RTC module, where the time may be known to be
- * bad.
- *
- * @param[in] lvl       The log level to use (@ref log_level_t)
- * @param[in] func_id   The message ID to use.
- * @param[in] format    The string to log. Supports printf-style format specifiers such as %d, %i, etc.
+ * @param[in] lvl               The log level to use (@ref log_level_t)
+ * @param[in] log_id            The message ID to use.
+ * @param[in] sig_id            The signal to log.
  */
-void log_str_without_time(log_level_t lvl, log_identifier_t func_id, char* format, ...);
+void log_signal_without_time(log_level_t lvl, log_id_t log_id, signal_id_t sig_id);
 
 /**
- * @brief Logs a string without saving it to the filesystem
+ * @brief Logs a signal without time, with data payload
  *
- * @param[in] lvl       The log level to use (@ref log_level_t)
- * @param[in] func_id   The message ID to use.
- * @param[in] format    The string to log. Supports printf-style format specifiers such as %d, %i, etc.
+ * @param[in] lvl               The log level to use (@ref log_level_t)
+ * @param[in] log_id            The message ID to use.
+ * @param[in] sig_id            The signal to log.
+ * @param[in] payload_len       The payload length in bytes
+ * @param[in] payload_ptr       Pointer to the payload
  */
-void log_str_without_saving_to_fs(log_level_t lvl, log_identifier_t func_id, char* format, ...);
+void log_signal_without_time_with_data(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t payload_len, void* payload_ptr);
+
+/**
+ * @brief Logs a signal
+ *
+ * @param[in] lvl               The log level to use (@ref log_level_t)
+ * @param[in] log_id            The message ID to use.
+ * @param[in] sig_id            The signal to log.
+ */
+void log_signal(log_level_t lvl, log_id_t log_id, signal_id_t sig_id);
+
+/**
+ * @brief Logs a signal with data payload
+ *
+ * @param[in] lvl               The log level to use (@ref log_level_t)
+ * @param[in] log_id            The message ID to use.
+ * @param[in] sig_id            The signal to log.
+ * @param[in] payload_len       The payload length in bytes
+ * @param[in] payload_ptr       Pointer to the payload
+ */
+void log_signal_with_data(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t payload_len, const void* payload_ptr);
 
 #endif // LOGGER_H_

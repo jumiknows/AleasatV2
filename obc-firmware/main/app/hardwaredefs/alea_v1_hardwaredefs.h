@@ -262,18 +262,6 @@
 // =============================================================================
 
 /**
- * @brief Temperature sensor I2C and reset pin configuration.
- */
-#define OBC_TEMP_RESET_PORT gioPORTA
-#define OBC_TEMP_RESET_PIN  0
-#define OBC_TEMP_ADDR       0x48
-#define OBC_TEMP_IRQ_PORT   EXP_PORT(GPIO_EXP_PORT_1)
-#define OBC_TEMP_IRQ_PIN    2
-
-#define OBC_TEMP_PWR_EN_PORT gioPORTA
-#define OBC_TEMP_PWR_EN_PIN  0
-
-/**
  * @brief IMU
  */
 #define IMU_PWR_EN_PORT GIO_PORT(hetPORT1)

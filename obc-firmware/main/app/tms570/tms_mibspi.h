@@ -79,9 +79,19 @@ typedef enum {
     MIBSPI_MUTEX_GRAB_ERR = -5,
 
     /**
+     * @brief No mutex exists for the given MIBSPI transfer group
+     */
+    MIBSPI_MUTEX_INVALID_ERR = -6,
+
+    /**
+     * @brief No event group handle exists for the given MIBSPI transfer group
+     */
+    MIBSPI_EVENTGROUP_INVALID_ERR = -7,
+
+    /**
      * @brief Unknown error occurred.
      */
-    MIBSPI_UNKNOWN_ERR = -6
+    MIBSPI_UNKNOWN_ERR = -8
 } mibspi_err_t;
 
 /**

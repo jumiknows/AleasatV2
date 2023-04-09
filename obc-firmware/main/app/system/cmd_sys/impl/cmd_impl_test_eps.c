@@ -40,9 +40,10 @@
 cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_FLOAT_args_t *args, cmd_TEST_EPS_READ_FLOAT_resp_t *resp) {
     // Validate arguments
     if ((args->read_cmd < 1) || (args->read_cmd > 52)) {
-        log_str(INFO, TEST_EPS_READ_CMD,
-            "Invalid read command '%d', must be between 1 and 52",
-            args->read_cmd
+        log_signal_with_data(INFO, TEST_EPS_READ_CMD,
+            TEST_EPS_READ_CMD__READ_FLOAT_INVALID_CMD,
+            sizeof(args->read_cmd),
+            &(args->read_cmd)
         );
         return CMD_SYS_RESP_CODE_ERROR;
     }
@@ -62,9 +63,10 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT(const cmd_sys_cmd_t *cmd, cmd_T
 cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT_RAW(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_FLOAT_RAW_args_t *args, cmd_TEST_EPS_READ_FLOAT_RAW_resp_t *resp) {
     // Validate arguments
     if ((args->read_cmd < 1) || (args->read_cmd > 52)) {
-        log_str(INFO, TEST_EPS_READ_CMD,
-            "Invalid read command '%d', must be between 1 and 52",
-            args->read_cmd
+        log_signal_with_data(INFO, TEST_EPS_READ_CMD,
+            TEST_EPS_READ_CMD__READ_FLOAT_RAW_INVALID_CMD,
+            sizeof(args->read_cmd),
+            &(args->read_cmd)
         );
         return CMD_SYS_RESP_CODE_ERROR;
     }
@@ -84,9 +86,10 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT_RAW(const cmd_sys_cmd_t *cmd, c
 cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_INT(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_INT_args_t *args, cmd_TEST_EPS_READ_INT_resp_t *resp) {
     // Validate arguments
     if ((args->read_cmd < 1) || (args->read_cmd > 52)) {
-        log_str(INFO, TEST_EPS_READ_CMD,
-            "Invalid read command '%d', must be between 1 and 52",
-            args->read_cmd
+        log_signal_with_data(INFO, TEST_EPS_READ_CMD,
+            TEST_EPS_READ_CMD__READ_INT_INVALID_CMD,
+            sizeof(args->read_cmd),
+            &(args->read_cmd)
         );
         return CMD_SYS_RESP_CODE_ERROR;
     }
@@ -106,9 +109,10 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_WRITE(const cmd_sys_cmd_t *cmd, cmd_TEST_E
     // Validate arguments
     //   no need to validate write command, as it can be any non-negative integer
     if (args->state > 3) {
-        log_str(INFO, TEST_EPS_WRITE_CMD,
-            "Invalid write state '%d', must be one of 0,1,2,3",
-            args->state
+        log_signal_with_data(INFO, TEST_EPS_WRITE_CMD,
+            TEST_EPS_WRITE_CMD__INVALID_WRITE_STATE,
+            sizeof(args->state),
+            &(args->state)
         );
         return CMD_SYS_RESP_CODE_ERROR;
     }

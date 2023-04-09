@@ -80,10 +80,5 @@
  */
 #define INCLUDE_COMMS_FIRMWARE_TEST_IMAGE 0
 
-/**
- * @brief The message to be used for reply of board type through the command system
- */
-#define BOARD_TYPE_MSG "ALEASAT OBC v1"
-
 #endif /* PLATFORM_ALEA_V1 */
 #endif /* ALEA_V1_FEATUREDEFS_H_ */

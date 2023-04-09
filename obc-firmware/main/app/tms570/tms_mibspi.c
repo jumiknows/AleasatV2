@@ -112,7 +112,16 @@ mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint32_t 
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+    if (mutex == NULL) {
+        err = MIBSPI_MUTEX_INVALID_ERR;
+        return err;
+    }
+
     EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+    if (eventgroup == NULL) {
+        err = MIBSPI_EVENTGROUP_INVALID_ERR;
+        return err;
+    }
 
     if (xSemaphoreTake(mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
         err = mibspi_tx(tg, eventgroup, tx_buffer, timeout);
@@ -141,7 +150,16 @@ mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, uint16_t* rx_buffer, uint32_t 
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+    if (mutex == NULL) {
+        err = MIBSPI_MUTEX_INVALID_ERR;
+        return err;
+    }
+
     EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+    if (eventgroup == NULL) {
+        err = MIBSPI_EVENTGROUP_INVALID_ERR;
+        return err;
+    }
 
     if (xSemaphoreTake(mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
         err = mibspi_rx(tg, eventgroup, rx_buffer, timeout);
@@ -172,7 +190,16 @@ mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint16
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+    if (mutex == NULL) {
+        err = MIBSPI_MUTEX_INVALID_ERR;
+        return err;
+    }
+
     EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+    if (eventgroup == NULL) {
+        err = MIBSPI_EVENTGROUP_INVALID_ERR;
+        return err;
+    }
 
     if (xSemaphoreTake(mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
         err = mibspi_tx_rx(tg, eventgroup, tx_buffer, rx_buffer, SPI_TIMEOUT_MS);
@@ -192,7 +219,7 @@ mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint16
  * @return EventGroupHandle_t: the relevant event group
  */
 EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg) {
-    EventGroupHandle_t handle;
+    EventGroupHandle_t handle = NULL;
 
     switch ((intptr_t)reg) {
         case (intptr_t)mibspiREG1: {
@@ -208,7 +235,6 @@ EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg) {
             break;
         }
         default: {
-            log_str(ERROR, LOG_DRIVER_MIBSPI, "Cannot get eventgroup handle: transfer group has invalid mibspi reg");
             break;
         }
     }
@@ -363,7 +389,7 @@ static mibspi_err_t mibspi_error_handler(uint32_t error_flags) {
  * @return SemaphorHandle_t: the relevant mutex
  */
 static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg) {
-    SemaphoreHandle_t handle;
+    SemaphoreHandle_t handle = NULL;
 
     switch ((intptr_t)reg) {
         case (intptr_t)mibspiREG1: {
@@ -379,7 +405,6 @@ static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg) {
             break;
         }
         default: {
-            log_str(ERROR, LOG_DRIVER_MIBSPI, "Cannot get mutex handle: transfer group has invalid mibspi reg");
             break;
         }
     }

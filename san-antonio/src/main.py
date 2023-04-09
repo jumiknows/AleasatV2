@@ -18,9 +18,12 @@ from obcpy.obc_protocol.log import OBCLog
 import san_antonio, history, config, constants
 from obcqt import OBCQT, OBCQTRequest
 
+REPO_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
+
+LOGS_PATH = REPO_ROOT_PATH / "obc-firmware" / "tools" / "logging" / "log_ids.json"
 CMDS_PATHS = [
-    Path(__file__).resolve().parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
-    Path(__file__).resolve().parent.parent.parent / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
+    REPO_ROOT_PATH / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
+    REPO_ROOT_PATH / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
 ]
 
 class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
@@ -35,7 +38,7 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         self.textEdit.setTextColor(QColor(0,0,0))
 
         # Get assistants
-        self.obc_assistant = OBCQT(OBC(*CMDS_PATHS))
+        self.obc_assistant = OBCQT(OBC(LOGS_PATH, *CMDS_PATHS))
         self.history_assistant = history.HistoryHandler()
         self.config_assistant = config.ConfigHandler()
         self.command_assistant = history.CommandHistoryHandler(self.config_assistant.get_command_history())
@@ -437,9 +440,9 @@ class SanAntonio(QtWidgets.QMainWindow, san_antonio.Ui_MainWindow):
         if globs.timestamp_status == constants.TIMESTAMPS_ON:
             line += f"[{str(log.date_time)}] "
         if globs.func_id_status == constants.FUNC_ID_ON:
-            line += f"[ID: {str(log.func_id)}] "
+            line += f"[ID: {str(log.log_id)}] "
 
-        line += bytes_to_hexstr(log.payload, ascii_only=True)
+        line += log.signal_desc
         self.add_line_to_text_from_serial(line)
 
     def update_img(self):

@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Union, Dict, List
 import pathlib
 import json
 import threading
@@ -6,8 +6,10 @@ import queue
 
 from obcpy.interface import obc_serial_interface
 from obcpy.obc_protocol import cmd_sys
+from obcpy.obc_protocol import log
 from obcpy.cmd_sys import spec
 from obcpy.cmd_sys import resp
+from obcpy.log_sys import log_spec
 from obcpy.utils import obc_time
 from obcpy.utils import exc
 
@@ -73,7 +75,7 @@ class OBCBase:
     """Base API for interacting with an OBC.
     """
 
-    def __init__(self, *cmd_sys_specs_paths: pathlib.Path):
+    def __init__(self, log_sys_specs_path: pathlib.Path, *cmd_sys_specs_paths: pathlib.Path):
         """Initializes a new OBC instance.
 
         Sets up a serial interface to the OBC but does not open the connection.
@@ -82,11 +84,12 @@ class OBCBase:
         Multiple paths to command system specification JSON files can be passed to this constructor.
         All of the files will be loaded at initialization time.
 
-        The loaded specifications can be replaced at any time by calling `OBC.load_cmd_sys_specs`.
+        The loaded specifications can be replaced at any time by calling `OBC.load_log_sys_specs` and `OBC.load_cmd_sys_specs`.
         """
+        self._log_specs: log_spec.OBCLogGroupSpecs = None
         self._specs: spec.OBCCmdSysSpecs = None
         self.load_cmd_sys_specs(*cmd_sys_specs_paths)
-        self.interface = obc_serial_interface.OBCSerialInterface()
+        self.interface = obc_serial_interface.OBCSerialInterface(self.load_log_sys_specs(log_sys_specs_path))
 
         # Listen to responses to scheduled commands
         self._pending_responses: Dict[int, OBCPendingResponse] = {}
@@ -101,8 +104,23 @@ class OBCBase:
         return self.interface.connected
 
     @property
+    def log_specs(self) -> log_spec.OBCLogGroupSpecs:
+        return self._log_specs
+
+    @property
     def specs(self) -> spec.OBCCmdSysSpecs:
         return self._specs
+
+    def load_log_sys_specs(self, specs_path: pathlib.Path) -> log_spec.OBCLogGroupSpecs:
+        """Load a set of log system specifications from the filesystem.
+        """
+        json_blob = None
+
+        with open(specs_path, "r") as specs_file:
+            specs_json = json.load(specs_file)
+            json_blob = specs_json
+
+        return log_spec.OBCLogGroupSpecs.from_json(json_blob)
 
     def load_cmd_sys_specs(self, *specs_paths: pathlib.Path):
         """Load a set of command system specifications from the filesystem.
@@ -212,7 +230,7 @@ class OBCBase:
                 continue
 
             for recvd_log in recvd_logs:
-                if recvd_log.func_id != LOG_CMD_SYS_SCHED_RESP:
+                if recvd_log.log_id != LOG_CMD_SYS_SCHED_RESP:
                     # Ignore logs that aren't coming from the command system scheduled task
                     continue
 

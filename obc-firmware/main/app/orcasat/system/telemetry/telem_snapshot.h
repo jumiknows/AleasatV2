@@ -39,8 +39,8 @@ extern telem_snapshot_t snapshot;
 /**
  * @brief Definitions for accessing snapshot data bin fields in a concise way.
  *
- * For example, to access the .obc_temperature_c member of @ref obc_fast_telem,
- * use OBC_FAST.obc_temperature_c.
+ * For example, to access the .obc_current_ma member of @ref obc_fast_telem,
+ * use OBC_FAST.obc_current_ma.
  */
 #define OBC_FAST   snapshot.obc_fast.telem
 #define OBC_SLOW   snapshot.obc_slow.telem

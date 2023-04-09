@@ -106,6 +106,7 @@ void mibspiGroupNotification(mibspiBASE_t* mibspi, uint32 group) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     EventGroupHandle_t eg = get_eventgroup_handle(mibspi);
+    // TODO ALEA-774 Should we have a log_from_isr function to log if this returns NULL?
 
     xEventGroupSetBitsFromISR(eg,                         /* The event group being updated. */
                               (EventBits_t)(1 << group),  /* The bits being set. */
@@ -130,6 +131,7 @@ void mibspiNotification(mibspiBASE_t* mibspi, uint32 flags) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     EventGroupHandle_t eg = get_eventgroup_handle(mibspi);
+    // TODO ALEA-774 Should we have a log_from_isr function to log if this returns NULL?
 
     xEventGroupSetBitsFromISR(eg,                             /* The event group being updated. */
                               (EventBits_t)MIBSPI_ERR_NOTIF,  /* The bits being set. */

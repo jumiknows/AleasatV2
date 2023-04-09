@@ -1,7 +1,13 @@
 class OBCError(Exception):
     pass
 
+class OBCLogSysSpecError(OBCError):
+    pass
+
 class OBCCmdSysSpecError(OBCError):
+    pass
+
+class OBCLogNotFoundError(OBCError):
     pass
 
 class OBCCmdNotFoundError(OBCError):

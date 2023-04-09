@@ -12,7 +12,6 @@
 #include "het.h"
 #include "low_power.h"
 #include "obc_rtos.h"
-#include "obc_temperature.h"
 #include "obc_task_info.h"
 #include "obc_featuredefs.h"
 #include "obc_rtc.h"
@@ -72,6 +71,7 @@ static void obc_main_task(void* pvParameters) {
     rtc_scheduler_create_infra();
     cmd_sys_exec_create_infra();
     cmd_sys_sched_create_infra();
+    logger_create_infra();
 
     // Start the backup epoch so we have a timestamp before initializing the hardware RTCs.
     // If errors occur in subsequent steps, they will be able to properly log the error because
@@ -126,13 +126,11 @@ static void obc_main_task(void* pvParameters) {
     // with startup, it might stop blinking.
     blinky_start_task();
 
-    // Print now that enough features have been initialized to make it happen.
-    log_str_without_time(INFO, LOG_PRINT_GENERAL, "Startup");
-
     // Initialize the complex external hardware.
     // The RTC requires MIBSPI to be working before it can be initialized.
     // The GPIO expander requires I2C to be working before it can be initialized.
     rtc_init();
+
     gpio_expander_init();
 
     // Start the hang task.
@@ -156,8 +154,14 @@ static void obc_main_task(void* pvParameters) {
     telem_start_task();
 
     // Hardware is ready to go now. Print out some information about startup.
-    log_str(INFO, LOG_PRINT_GENERAL, "ALEASAT Started");
-    log_str(INFO, LOG_HW_TYPE, BOARD_TYPE_MSG);
+    log_signal(INFO, LOG_PRINT_GENERAL, LOG_PRINT_GENERAL__STARTUP_COMPLETE);
+#if defined(PLATFORM_ALEA_V1)
+    log_signal(INFO, LOG_HW_TYPE, LOG_HW_TYPE__ALEA_V1);
+#elif defined(PLATFORM_LAUNCHPAD_1224)
+    log_signal(INFO, LOG_HW_TYPE, LOG_HW_TYPE__LAUNCHPAD);
+#else // Neither platform is defined: this should never happen
+    CASSERT(false, obc_main_c);
+#endif
     // TODO: Re-design startup
     // print_startup_type();
     // log_PBIST_fails();

@@ -51,7 +51,7 @@
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
-static void vFileSystemLoggerTask(void* pvParameters);
+static void vFileSystemTask(void* pvParameters);
 
 static int32_t bd_read(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, void* buffer, lfs_size_t size_bytes);
 static int32_t bd_prog(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, const void* buffer, lfs_size_t size_bytes);
@@ -97,6 +97,7 @@ static const struct lfs_config cfg = {
 
 static TaskHandle_t xFileSystemLoggerTaskHandle;
 
+
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
@@ -132,7 +133,7 @@ fs_err_t fs_init(void) {
 
     // Start tasks
     xFileSystemLoggerTaskHandle = task_create_static(
-        &vFileSystemLoggerTask,
+        &vFileSystemTask,
         "fs_logger",
         FS_LOGGER_TASK_STACK_SIZE,
         NULL,
@@ -227,15 +228,19 @@ fs_err_t fs_self_test(void) {
     return FS_OK;
 }
 
+//fs_err_t fs_logger_save_message(log_level_t level, uint8_t group_id, log_id_t msg_id, uint8_t payload_len, void * payload_ptr) {
+//    return FS_OK;
+//}
+
 /******************************************************************************/
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/
 
 /**
- * @brief Task that handles all logger-based filesystem activity
+ * @brief Task that handles all filesystem activity
  *
  */
-static void vFileSystemLoggerTask(void* pvParameters) {
+static void vFileSystemTask(void* pvParameters) {
     //fs_request_t req     = {};
     task_id_t wd_task_id = WD_TASK_ID(pvParameters);
 
@@ -243,7 +248,7 @@ static void vFileSystemLoggerTask(void* pvParameters) {
     vTaskSuspend(NULL); // Suspend itself
 
     while (1) {
-#if 0 // TODO: enable as part of logger refactor (ALEA-774)
+#if 0 // TODO ALEA-572
         // Wait for a request
         set_task_status(wd_task_id, task_asleep);
         xQueueReceive(xFSRequestQueueHandle, (void*)&req, portMAX_DELAY);
@@ -274,7 +279,7 @@ static void vFileSystemLoggerTask(void* pvParameters) {
                 *(req.err) = file_size(req.args.fsize_args.path, req.args.fsize_args.size);
                 break;
             default:
-                log_str(ERROR, LOG_FS_GENERAL, "Unknown Request: %d", req.type);
+                log_signal(ERROR, LOG_FS, LOG_FS__UNKNOWN_REQUEST, sizeof(req.type), &req.type);
                 *(req.err) = FS_UNKNOWN_REQUEST_ERR;
                 break;
         }

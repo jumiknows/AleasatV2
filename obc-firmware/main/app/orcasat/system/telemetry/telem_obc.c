@@ -18,7 +18,6 @@
 #include "sys_common.h"
 #include "reg_tcram.h"
 #include "logger.h"
-#include "obc_temperature.h"
 #include "obc_rtc.h"
 
 // Private Function Prototypes
@@ -55,12 +54,6 @@ void obc_slow_telem_collect(void) {
  * Reads OBC fast rate telemetry values.
  */
 void obc_fast_telem_collect(void) {
-    // Read the temperature
-    temp_err_t temp_err = read_temp(&OBC_FAST.obc_temperature_c);
-    if (temp_err != TEMP_SUCCESS) {
-        log_str(ERROR, LOG_TEMPERATURE, "Temp IO err: %d", temp_err);
-    }
-
     // TODO: current readings
 
     OBC_FAST_TS = get_epoch_time();
@@ -78,9 +71,9 @@ void obc_fast_telem_collect(void) {
  */
 static void obc_telem_check_slow(void) {
     if (OBC_SLOW.minheap < 2000) {
-        log_str(INFO, LOG_SYS_GENERAL, "OBC minheap %d", OBC_SLOW.minheap);
+        log_signal_with_data(INFO, LOG_SYSTEM, LOG_SYSTEM__OBC_MINHEAP, sizeof(OBC_SLOW.minheap), &(OBC_SLOW.minheap));
     } else if (OBC_SLOW.minheap == 0) {
-        log_str(ERROR, LOG_SYS_GENERAL, "OBC minheap %d", OBC_SLOW.minheap);
+        log_signal_with_data(ERROR, LOG_SYSTEM, LOG_SYSTEM__OBC_MINHEAP, sizeof(OBC_SLOW.minheap), &(OBC_SLOW.minheap));
     } else {
         // Heap is fine, do nothing.
     }
@@ -93,9 +86,9 @@ static void obc_telem_check_slow(void) {
  * telemetry values are out of range.
  */
 static void obc_telem_check_fast(void) {
-    if ((OBC_FAST.obc_temperature_c > 30) || (OBC_FAST.obc_temperature_c < 20)) {
-        log_str(ERROR, LOG_TEMPERATURE, "OBC temp %d out of range", OBC_FAST.obc_temperature_c);
-    }
+    //if ((OBC_FAST.obc_temperature_c > 30) || (OBC_FAST.obc_temperature_c < 20)) {
+    //    log_str(ERROR, LOG_TEMPERATURE, "OBC temp %d out of range", OBC_FAST.obc_temperature_c);
+    //}
 }
 
 //-------- Telemetry Collection Functions -----------
