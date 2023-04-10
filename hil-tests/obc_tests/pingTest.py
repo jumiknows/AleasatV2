@@ -21,8 +21,8 @@ class PingTest(obc_test.OBCTest):
         message = "Hello ALEASAT"
         resp = self.obc.send_cmd("TEST_ECHO", number, message)
         self.assertTrue(resp.is_success)
-        self.assertEqual(number, resp["number"])
-        self.assertEqual(message, resp["message"])
+        self.assertEqual(number, resp.data["number"])
+        self.assertEqual(message, resp.data["message"])
 
 """
 This section is required if you want to run these tests independently.

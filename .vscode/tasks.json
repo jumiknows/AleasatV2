@@ -33,9 +33,19 @@
         {
             "label": "San Antonio",
             "type": "shell",
-            "command": "pipenv run python src/main.py",
+            "command": "pipenv run python main.py",
             "options": {
                 "cwd": "${workspaceFolder}/san-antonio"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "San Antonio - Build UI",
+            "type": "shell",
+            "command": "./build_ui.sh ${input:sa_ui_file}",
+            "options": {
+                "cwd": "${workspaceFolder}/san-antonio/sanantonio/ui"
             },
             "isBackground": true,
             "problemMatcher": []
@@ -50,24 +60,6 @@
             "label": "WSL Detach USB",
             "type": "shell",
             "command": "usbipd.exe wsl detach --busid ${input:busid} && usbipd.exe wsl list | sed '1p;$p;/${input:busid}/!d'",
-            "problemMatcher": []
-        },
-        {
-            "label": "San Antonio (Windows from WSL) - experimental",
-            "type": "shell",
-            "options": {
-                "shell": {
-                    "executable": "powershell.exe",
-                    "args": [
-                        "-NoProfile",
-                        "-ExecutionPolicy",
-                        "Bypass",
-                        "-Command"
-                    ]
-                }
-            },
-            "command": "cd san-antonio; pipenv install; pipenv run python src/main.py",
-            "isBackground": true,
             "problemMatcher": []
         },
         {
@@ -122,6 +114,18 @@
                 "",
             ],
             "default": "--standalone"
+        },
+        {
+            "id": "sa_ui_file",
+            "type": "command",
+            // Need to have the Task Shell Input extension installed:
+            // https://marketplace.visualstudio.com/items?itemName=augustocdias.tasks-shell-input
+            "command": "shellCommand.execute",
+            "args": {
+                "command": "find * -iname '*.ui' | sed 's/.ui$//'",
+                "cwd": "${workspaceFolder}/san-antonio/sanantonio/ui",
+                "description": "Select UI to build"
+            }
         },
         {
             "id": "busid",

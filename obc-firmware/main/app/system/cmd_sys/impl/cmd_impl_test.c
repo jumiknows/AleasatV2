@@ -46,7 +46,7 @@ cmd_sys_err_t cmd_impl_TEST_ECHO(
     }
 
     // Log the message
-    log_signal_with_data(INFO, LOG_TEST_CMD, LOG_TEST_CMD__ECHO, sizeof(message), &(message[0]));
+    log_signal_with_data(INFO, LOG_TEST_CMD, LOG_TEST_CMD__ECHO, message_len, &(message[0]));
     resp->number = args->number;
 
     // Send response

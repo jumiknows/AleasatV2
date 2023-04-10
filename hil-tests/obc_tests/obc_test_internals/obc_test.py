@@ -10,29 +10,30 @@ import pathlib
 import xmlrunner
 
 from obcpy.protocol import routing_impl
-from obcpy.obc_protocol import log
+from obcpy.obc.interface.protocol import app_log
 from obcpy.obc import OBC
 from obcpy.utils.serial import get_serial_ports
 
 PORT_ENV_VAR = "ALEA_OBC_PORT"
 
 REPO_ROOT_PATH = pathlib.Path(__file__).resolve().parent.parent.parent.parent
+TOOLS_DIR_PATH = REPO_ROOT_PATH / "obc-firmware" / "tools"
 
-LOG_SYS_SPECS_PATH = REPO_ROOT_PATH / "obc-firmware" / "tools" / "logging" / "log_ids.json"
 CMD_SYS_SPECS_PATHS = [
-    REPO_ROOT_PATH / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys.json",
-    REPO_ROOT_PATH / "obc-firmware" / "tools" / "cmd_sys" / "cmd_sys_test.json",
+    TOOLS_DIR_PATH / "cmd_sys" / "cmd_sys.json",
+    TOOLS_DIR_PATH / "cmd_sys" / "cmd_sys_test.json",
 ]
+LOG_SPECS_PATH = TOOLS_DIR_PATH / "logging" / "log_specs.json"
 
 class OBCTest(unittest.TestCase):
     PORT = os.getenv(PORT_ENV_VAR)
 
     # For use by test case subclass
     obc : OBC = None
-    logs : routing_impl.QueuePacketBridge[log.OBCLog] = None
+    logs : routing_impl.QueuePacketBridge[app_log.OBCLog] = None
 
     # For internal use only
-    _logs_print: routing_impl.QueuePacketBridge[log.OBCLog] = None
+    _logs_print: routing_impl.QueuePacketBridge[app_log.OBCLog] = None
     _logs_print_thread: threading.Thread = None
     _logs_print_stop: threading.Event = None
 
@@ -41,7 +42,7 @@ class OBCTest(unittest.TestCase):
         if cls.PORT is None:
             raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
 
-        cls.obc = OBC(LOG_SYS_SPECS_PATH, *CMD_SYS_SPECS_PATHS)
+        cls.obc = OBC(CMD_SYS_SPECS_PATHS, LOG_SPECS_PATH)
         if not cls.obc.start(cls.PORT):
             raise Exception(f"ERROR: Could not connect to {cls.PORT}")
 
@@ -77,7 +78,7 @@ class OBCTest(unittest.TestCase):
                 for log in logs:
                     print(log)
 
-    def wait_for_signal(self, group_name: str, pass_sig: str, fail_sig: str = None, timeout: float = None) -> log.OBCLog:
+    def wait_for_signal(self, group_name: str, pass_sig: str, fail_sig: str = None, timeout: float = None) -> app_log.OBCLog:
         start = time.time()
         while 1:
             logs = self.logs.read(0.1)

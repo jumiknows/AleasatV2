@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-import obcpy.utils.data
+from obcpy.utils import data as data_utils
 
 class Packet(ABC):
     """Abstract base class for representing a packet.
@@ -59,7 +59,7 @@ class Packet(ABC):
         Subclasses should override this method to provide a more useful string
         representation.
         """
-        return f"[{self.__class__.__name__}] {obcpy.utils.data.bytes_to_hexstr(self.serialize())}"
+        return f"[{self.__class__.__name__}] {data_utils.bytes_to_hexstr(self.serialize())}"
 
 class RawPacket(Packet):
     """The simplest type of Packet: raw data.

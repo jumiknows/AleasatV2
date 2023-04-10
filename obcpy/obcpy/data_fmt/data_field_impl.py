@@ -195,6 +195,8 @@ class Bool(PyStructDataField):
         if not isinstance(value, bool):
             raise exc.OBCEncodeError(f"{str(value)} has invalid data type ({type(value)}) for field: {self.name}")
 
+        return value
+
     def post_decode(self, value: int) -> bool:
         return (value == 0x01)
 

@@ -15,8 +15,8 @@ class ADCSTest(obc_test.OBCTest):
         resp = self.obc.send_cmd("TEST_DSPLIB", x, y)
 
         self.assertTrue(resp.is_success)
-        self.assertAlmostEqual(abs(x), resp["x_abs"], places=4)
-        self.assertAlmostEqual(abs(y), resp["y_abs"], places=4)
+        self.assertAlmostEqual(abs(x), resp.data["x_abs"], places=4)
+        self.assertAlmostEqual(abs(y), resp.data["y_abs"], places=4)
 
 """
 This section is required if you want to run these tests independently.

@@ -11,7 +11,7 @@
 /******************************************************************************/
 
 // OBC
-#include "log_ids.h"
+#include "log_gen.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -62,7 +62,7 @@ void logger_create_infra(void);
  * @param[in] log_id            The message ID to use.
  * @param[in] sig_id            The signal to log.
  */
-void log_signal_without_time(log_level_t lvl, log_id_t log_id, signal_id_t sig_id);
+void log_signal_without_time(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id);
 
 /**
  * @brief Logs a signal without time, with data payload
@@ -73,7 +73,7 @@ void log_signal_without_time(log_level_t lvl, log_id_t log_id, signal_id_t sig_i
  * @param[in] payload_len       The payload length in bytes
  * @param[in] payload_ptr       Pointer to the payload
  */
-void log_signal_without_time_with_data(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t payload_len, void* payload_ptr);
+void log_signal_without_time_with_data(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, size_t payload_len, void* payload_ptr);
 
 /**
  * @brief Logs a signal
@@ -82,7 +82,7 @@ void log_signal_without_time_with_data(log_level_t lvl, log_id_t log_id, signal_
  * @param[in] log_id            The message ID to use.
  * @param[in] sig_id            The signal to log.
  */
-void log_signal(log_level_t lvl, log_id_t log_id, signal_id_t sig_id);
+void log_signal(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id);
 
 /**
  * @brief Logs a signal with data payload
@@ -93,6 +93,6 @@ void log_signal(log_level_t lvl, log_id_t log_id, signal_id_t sig_id);
  * @param[in] payload_len       The payload length in bytes
  * @param[in] payload_ptr       Pointer to the payload
  */
-void log_signal_with_data(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t payload_len, const void* payload_ptr);
+void log_signal_with_data(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, size_t payload_len, const void* payload_ptr);
 
 #endif // LOGGER_H_

@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 obcpy = {path = "./../obcpy", editable = true}
+sanantonio = {path = "./", editable = true}
 pyserial = "*"
 pyqt5 = "*"
 

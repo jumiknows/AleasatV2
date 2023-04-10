@@ -63,8 +63,8 @@ static SemaphoreHandle_t logger_mutex = NULL;
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void log_signal_internal(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t raw_payload_len, const void* payload_ptr, bool use_rtc);
-static void encode_header(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, uint8_t size, uint8_t header_ptr[HEADER_SIZE], bool use_rtc);
+static void log_signal_internal(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, size_t raw_payload_len, const void* payload_ptr, bool use_rtc);
+static void encode_header(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, uint8_t size, uint8_t header_ptr[HEADER_SIZE], bool use_rtc);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -75,19 +75,19 @@ void logger_create_infra(void) {
     logger_mutex = xSemaphoreCreateRecursiveMutexStatic(&static_logger_mutex);
 }
 
-void log_signal_without_time(log_level_t lvl, log_id_t log_id, signal_id_t sig_id) {
+void log_signal_without_time(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id) {
     log_signal_internal(lvl, log_id, sig_id, 0, NULL, false);
 }
 
-void log_signal_without_time_with_data(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t payload_len, void* payload_ptr) {
+void log_signal_without_time_with_data(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, size_t payload_len, void* payload_ptr) {
     log_signal_internal(lvl, log_id, sig_id, payload_len, payload_ptr, false);
 }
 
-void log_signal(log_level_t lvl, log_id_t log_id, signal_id_t sig_id) {
+void log_signal(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id) {
     log_signal_internal(lvl, log_id, sig_id, 0, NULL, true);
 }
 
-void log_signal_with_data(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t payload_len, const void* payload_ptr) {
+void log_signal_with_data(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, size_t payload_len, const void* payload_ptr) {
     log_signal_internal(lvl, log_id, sig_id, payload_len, payload_ptr, true);
 }
 
@@ -95,7 +95,7 @@ void log_signal_with_data(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, 
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/
 
-static void log_signal_internal(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, size_t raw_payload_len, const void* payload_ptr, bool use_rtc) {
+static void log_signal_internal(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, size_t raw_payload_len, const void* payload_ptr, bool use_rtc) {
     // Ensure log ID is valid
     if (log_id > MAX_LOG_ID_VALUE) {
         log_signal(ERROR, LOG_LOGGER, LOG_LOGGER__INVALID_LOG_ID);
@@ -142,7 +142,7 @@ static void log_signal_internal(log_level_t lvl, log_id_t log_id, signal_id_t si
  * @param[in]  size The size of the payload (bytes).
  * @param[out] header_ptr Pointer to the top of the message buffer. The header will be placed here.
  */
-static void encode_header(log_level_t lvl, log_id_t log_id, signal_id_t sig_id, uint8_t size, uint8_t header_ptr[HEADER_SIZE], bool use_rtc) {
+static void encode_header(log_level_t lvl, log_id_t log_id, log_signal_id_t sig_id, uint8_t size, uint8_t header_ptr[HEADER_SIZE], bool use_rtc) {
     epoch_t current_epoch = 0;
 
     // Grab a timestamp if the logger is configured to read from the RTC.

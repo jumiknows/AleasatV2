@@ -3,4 +3,6 @@ venv/
 .idea/
 .vscode/
 .qt_for_python/
-src/.san_antoniorc
+.san_antoniorc
+*.egg-info/
+build/

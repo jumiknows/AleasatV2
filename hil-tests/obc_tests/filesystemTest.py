@@ -18,7 +18,7 @@ class FilesystemTest(obc_test.OBCTest):
     def test_fs_cmd(self):
         resp = self.obc.send_cmd("TEST_FILESYSTEM")
         self.assertTrue(resp.is_success)
-        self.assertEqual(resp["fs_err"], 0)
+        self.assertEqual(resp.data["fs_err"], 0)
 
 """
 This section is required if you want to run these tests independently.

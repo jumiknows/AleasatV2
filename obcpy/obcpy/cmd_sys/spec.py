@@ -60,7 +60,7 @@ class OBCCmdSysSpec:
             The serialized arguments as a byte array.
         """
         if len(args) != len(self.args):
-            raise exc.OBCEncodeError(f"Incorrect number of arguments ({len(args)}) for command: {self.name}\nUsage: {str(self)}")
+            raise exc.OBCEncodeError(f"Incorrect number of arguments ({len(args)}) for command: {self.name}")
 
         data = bytearray()
         for i in range(len(args)):

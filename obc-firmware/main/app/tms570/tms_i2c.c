@@ -20,7 +20,6 @@
 #include "obc_hardwaredefs.h"
 #include "obc_utils.h"
 #include "logger.h"
-#include "log_ids.h"
 
 // FreeRTOS
 #include "rtos.h"

@@ -75,22 +75,23 @@ foreach(SRC_DIR IN LISTS
 
 endforeach()
 
-# Generate Log IDs
+# Generate Logging Files
 
 add_custom_command(
-    OUTPUT              generated/log_ids.h
+    OUTPUT              generated/log_gen.h
     WORKING_DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMAND             pwd && python3 tools/logging/log_ids_h_gen.py
-                            -i ${CMAKE_CURRENT_SOURCE_DIR}/tools/logging/log_ids.json
-                            -t ${CMAKE_CURRENT_SOURCE_DIR}/tools/logging/log_ids_template.h
-                            -o ${CMAKE_CURRENT_BINARY_DIR}/generated/log_ids.h
-    DEPENDS             ./tools/logging/log_ids.json    ./tools/logging/log_ids_template.h
+    COMMAND             pwd && python3 tools/logging/log_gen.py
+                            -i ${CMAKE_CURRENT_SOURCE_DIR}/tools/logging/log_specs.json
+                            -t ${CMAKE_CURRENT_SOURCE_DIR}/tools/logging/log_gen_template.h
+                            -o ${CMAKE_CURRENT_BINARY_DIR}/generated/log_gen.h
+    DEPENDS             ./tools/logging/log_specs.json
+                        ./tools/logging/log_gen_template.h
 )
 list(APPEND SRC_FILES
-    generated/log_ids.h
+    generated/log_gen.h
 )
 
-# Generate Command System
+# Generate Command System Files
 
 add_custom_command(
     OUTPUT              generated/cmd_sys_gen.h

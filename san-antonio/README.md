@@ -1,6 +1,6 @@
 # San Antonio
 
-San Antonio is a serial terminal and test interface for the ALEASAT OBC firmware.
+San Antonio is a GUI for interacting with the ALEASAT OBC firmware.
 
 Documentation can be found on the [wiki](https://wiki.aleasat.space/en/space-segment/cdh/san-antonio)
 
@@ -9,5 +9,5 @@ Documentation can be found on the [wiki](https://wiki.aleasat.space/en/space-seg
 From the `san-antonio` directory:
 ```console
 pipenv install
-pipenv run python src/main.py
+pipenv run python main.py
 ```
