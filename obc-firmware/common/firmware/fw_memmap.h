@@ -14,11 +14,18 @@
 
 /******************************************************************************/
 
-#define FW_MEMMAP_EXCFLASH_SIZE   0x00000040
-#define FW_MEMMAP_EXCRAM_SIZE     0x00000040
-#define FW_MEMMAP_HEADER_SIZE     0x00000010
-#define FW_MEMMAP_ENTRYPOINT_SIZE 0x00000010
-#define FW_MEMMAP_INFO_SIZE       0x00000010
+// Vectors
+#define FW_MEMMAP_EXCFLASH_SIZE   0x00000040 /* 64 bytes */
+#define FW_MEMMAP_EXCRAM_SIZE     0x00000040 /* 64 bytes */
+
+/*
+ * FW Structs (64 bytes total)
+ *   - The total size of the FW structs must match the size used in the MPU configuration
+ *     in the FreeRTOS prvSetupDefaultMPU function (in port.c).
+ */
+#define FW_MEMMAP_HEADER_SIZE     0x00000010 /* 16 bytes */
+#define FW_MEMMAP_ENTRYPOINT_SIZE 0x00000010 /* 16 bytes */
+#define FW_MEMMAP_INFO_SIZE       0x00000020 /* 32 bytes */
 
 /******************************************************************************/
 

@@ -240,13 +240,21 @@ extern void vPortTaskUsesFPU(void);
 #define portMPU_SIZE_4GB                        ( 0x1FUL << 1UL )
 
 /* Default MPU regions */
+/*
+ * The number of configurable MPU regions is effectively hard-coded in the portMax_MPU_Region constant in portASM.asm.
+ * If the defines below are modified to change the number of configurable MPU regions, the portMax_MPU_Region constant
+ * must be updated accordingly such that:
+ * 
+ *     portMax_MPU_Region = portLAST_CONFIGURABLE_REGION + 1
+ */
 #define portUNPRIVILEGED_FLASH_REGION           ( 0UL )
 #define portPRIVILEGED_FLASH_REGION             ( 1UL )
 #define portPRIVILEGED_RAM_REGION               ( 2UL )
 #define portGENERAL_PERIPHERALS_REGION          ( 3UL )
 #define portSTACK_REGION                        ( 5UL - 1UL )
 #define portFIRST_CONFIGURABLE_REGION           ( 6UL - 1UL )
-#define portLAST_CONFIGURABLE_REGION            ( portMPU_TOTAL_REGIONS - 2 )
+#define portLAST_CONFIGURABLE_REGION            ( portMPU_TOTAL_REGIONS - 3 )
+#define portUNPRIVILEGED_FW_STRUCTS_REGION      ( portMPU_TOTAL_REGIONS - 2 )
 #define portPRIVILEGED_SYSTEM_REGION            ( portMPU_TOTAL_REGIONS - 1 )
 #define portNUM_CONFIGURABLE_REGIONS            ( ( portLAST_CONFIGURABLE_REGION - portFIRST_CONFIGURABLE_REGION ) + 1 )
 #define portTOTAL_NUM_REGIONS                   ( portNUM_CONFIGURABLE_REGIONS + 1 ) /* Plus one to make space for the stack region. */

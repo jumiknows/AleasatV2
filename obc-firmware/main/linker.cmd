@@ -35,11 +35,22 @@ MEMORY
     EXCFLASH   : origin=0x00000000                  length=FW_MEMMAP_EXCFLASH_SIZE
 #endif
 
+    /*
+     * WARNING: The FW_HEADER must start at a 32 KB (0x8000) aligned address if an RTOS is used in this firmware image.
+     *          This ensures the FW_HEADER up to KERNEL regions all fit within one 32 KB aligned region.
+     *
+     * This effectively means that the firmware image at the beginning of the flash space (immediately following the
+     * EXCFLASH region) cannot use an RTOS.
+     */
     FW_HEADER  : origin=FW_MEMMAP_FLASH_START_ADDR  length=FW_MEMMAP_HEADER_SIZE
     ENTRYPOINT : origin=END(FW_HEADER)              length=FW_MEMMAP_ENTRYPOINT_SIZE
     FW_INFO    : origin=END(ENTRYPOINT)             length=FW_MEMMAP_INFO_SIZE
 
 #if (CFG_USE_RTOS == 1)
+    /*
+     * The FreeRTOS MPU configuration assumes the total size of the FW_HEADER up to KERNEL regions is 32 KB (0x8000).
+     * If this changes, the MPU configuration in prvSetupDefaultMPU must be updated accordingly.
+     */
     KERNEL     : origin=END(FW_INFO)                length=(0x00008000 - (END(FW_INFO) - START(FW_HEADER)))
 
     #define USER_CODE_START END(KERNEL)
@@ -60,6 +71,11 @@ MEMORY
     STACKS     : origin=0x08000000  length=0x00000800
 
 #if (CFG_USE_RTOS == 1)
+    /*
+     * The FreeRTOS MPU configuration has the total size of the STACKS and KRAM
+     * memory regions hard-coded as 4 KB (0x1000). If this changes, the MPU
+     * configuration in vPortStoreTaskMPUSettings must be updated accordingly.
+     */
     KRAM       : origin=END(STACKS) length=0x00000800
 
     #define USER_RAM_START  END(KRAM)

@@ -20,6 +20,8 @@
 #include "obc_heartbeat.h"
 #include "obc_gps.h"
 #include "obc_featuredefs.h"
+#include "fw_structs.h"
+#include "fw_memmap.h"
 
 // Utils
 #include "obc_utils.h"
@@ -125,4 +127,20 @@ cmd_sys_resp_code_t cmd_impl_GPS_RESTART(const cmd_sys_cmd_t *cmd) {
     } else {
         return CMD_SYS_RESP_CODE_ERROR;
     }
+}
+
+cmd_sys_resp_code_t cmd_impl_FW_INFO(const cmd_sys_cmd_t *cmd, cmd_FW_INFO_resp_t *resp) {
+    // Copy the FW structs object onto the stack so every access isn't volatile (and later ECC errors
+    // only have to be handled once).
+    const fw_structs_t fw_structs = *(FW_STRUCTS[CFG_FLASH_SLOT]);
+
+    memcpy(resp->fw_version, fw_structs.info.version, sizeof(fw_structs.info.version));
+    resp->fw_hash       = fw_structs.info.githash;    
+    resp->flash_address = fw_structs.entrypoint.flash_addr;
+    resp->platform      = fw_structs.info.platform;
+    resp->target        = fw_structs.info.target;
+    resp->size          = fw_structs.header.size;
+    resp->crc32         = fw_structs.header.crc32;
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
 }

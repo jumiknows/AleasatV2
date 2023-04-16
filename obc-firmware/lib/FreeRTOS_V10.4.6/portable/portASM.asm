@@ -184,7 +184,7 @@ portRESTORE_CONTEXT .macro
 
         .endm
 
-portMax_MPU_Region       .word   12 - 1
+portMax_MPU_Region       .word   12 - 2
 
 ;/*-----------------------------------------------------------*/
 ; Start the first task by restoring its context.

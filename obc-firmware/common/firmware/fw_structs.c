@@ -16,10 +16,6 @@
 #include "fw_memmap.h"
 
 /******************************************************************************/
-/*                               D E F I N E S                                */
-/******************************************************************************/
-
-/******************************************************************************/
 /*                P U B L I C  G L O B A L  V A R I A B L E S                 */
 /******************************************************************************/
 
@@ -32,11 +28,11 @@ const volatile fw_info_t FW_INFO __attribute__ ((section (".fwinfo"), retain)) =
     .flags     = FW_FLAGS,
 };
 
-const volatile fw_structs* FW_STRUCTS[FLASH_SLOT_COUNT] = {
-    (const volatile fw_structs *)FW_MEMMAP_FLASH0_START_ADDR,
-    (const volatile fw_structs *)FW_MEMMAP_FLASH1_START_ADDR,
-    (const volatile fw_structs *)FW_MEMMAP_FLASH2_START_ADDR,
-    (const volatile fw_structs *)FW_MEMMAP_FLASH3_START_ADDR,
-    (const volatile fw_structs *)FW_MEMMAP_FLASH4_START_ADDR,
-    (const volatile fw_structs *)FW_MEMMAP_FLASH5_START_ADDR,
+const volatile fw_structs_t* FW_STRUCTS[FLASH_SLOT_COUNT] = {
+    (const volatile fw_structs_t *)FW_MEMMAP_FLASH0_START_ADDR,
+    (const volatile fw_structs_t *)FW_MEMMAP_FLASH1_START_ADDR,
+    (const volatile fw_structs_t *)FW_MEMMAP_FLASH2_START_ADDR,
+    (const volatile fw_structs_t *)FW_MEMMAP_FLASH3_START_ADDR,
+    (const volatile fw_structs_t *)FW_MEMMAP_FLASH4_START_ADDR,
+    (const volatile fw_structs_t *)FW_MEMMAP_FLASH5_START_ADDR,
 };

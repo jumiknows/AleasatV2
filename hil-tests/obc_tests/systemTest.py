@@ -11,6 +11,11 @@ Should you want to change the default SetUp or tearDown you can implement it her
 class SystemTest(obc_test.OBCTest):
 
     @timeout.timeout(5)
+    def test_fw_info(self):
+        resp = self.obc.send_cmd("FW_INFO")
+        self.assertTrue(resp.is_success)
+
+    @timeout.timeout(5)
     def test_get_time(self):
         timestamp = self.obc.get_time()
         # Should be within the first 2 seconds

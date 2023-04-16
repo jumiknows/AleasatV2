@@ -272,9 +272,20 @@ void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, const struct xMEMOR
 /*----------------------------------------------------------------------------*/
 
 /**
- * @brief Linker-defined symbol whose address is the start of the kernel code
+ * @brief Linker-defined symbol whose address is the start of the kernel code.
+ * 
+ * This address will be aligned to 32 KB before configuring the MPU region, which
+ * means it will absorb the FW structs that precede it in the flash. This is why
+ * an additional MPU region must be configured to restore user read access to the
+ * FW structs.
  */
 extern void * KERNEL_START;
+
+/**
+ * @brief Linker-defined symbol whose address is the start of the FW header
+ * (which coincides with the start of the FW structs).
+ */
+extern void * FW_HEADER;
 
 static void prvSetupDefaultMPU( void )
 {
@@ -295,6 +306,10 @@ static void prvSetupDefaultMPU( void )
     prvMpuSetRegion(portGENERAL_PERIPHERALS_REGION,  0xF0000000,
                     portMPU_SIZE_256MB | portMPU_REGION_ENABLE | portMPU_SUBREGION_1_DISABLE | portMPU_SUBREGION_2_DISABLE | portMPU_SUBREGION_3_DISABLE | portMPU_SUBREGION_4_DISABLE,
                     portMPU_PRIV_RW_USER_RW_NOEXEC | portMPU_DEVICE_NONSHAREABLE);
+
+    /* Unprivileged FW structs region setup */
+    uint32_t fw_structs_mask = ~(0x40 - 1); // align to 64 bytes
+    prvMpuSetRegion(portUNPRIVILEGED_FW_STRUCTS_REGION,  (((uintptr_t)&FW_HEADER) & fw_structs_mask), portMPU_SIZE_64B | portMPU_REGION_ENABLE, portMPU_PRIV_RO_USER_RO_EXEC | portMPU_NORMAL_OIWTNOWA_SHARED);
 
     /* Privilege System Region setup */
     prvMpuSetRegion(portPRIVILEGED_SYSTEM_REGION,  0xFFF80000, portMPU_SIZE_512KB | portMPU_REGION_ENABLE, portMPU_PRIV_RW_USER_RO_NOEXEC | portMPU_DEVICE_NONSHAREABLE);

@@ -74,7 +74,7 @@ void obc_main(void) {
             dabort_FUNC_ERR_set_nonfatal();
 
             do {
-                const volatile fw_structs *structs = FW_STRUCTS[i];
+                const volatile fw_structs_t *structs = FW_STRUCTS[i];
 
                 // Read header magic
                 uint32_t headerMagic = structs->header.magic;
