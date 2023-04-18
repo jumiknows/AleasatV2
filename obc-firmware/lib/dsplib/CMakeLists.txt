@@ -48,3 +48,7 @@ target_compile_definitions(DSPLIB PUBLIC
 target_include_directories(DSPLIB PUBLIC
     include
 )
+
+target_compile_options(DSPLIB PRIVATE
+    --diag_suppress=2142 # comparison between signed and unsigned operands
+)
