@@ -47,7 +47,11 @@ cmd_sys_err_t cmd_impl_TEST_ECHO(
 
     // Log the message
     log_signal_with_data(INFO, LOG_TEST_CMD, LOG_TEST_CMD__ECHO, message_len, &(message[0]));
+
+    // Populate the response
     resp->number = args->number;
+    memcpy(resp->array, args->array, sizeof(resp->array));
+    memcpy(resp->arrayf, args->arrayf, sizeof(resp->arrayf));
 
     // Send response
     cmd_sys_err_t err = CMD_SYS_SUCCESS;

@@ -4,6 +4,8 @@ This file shows how you can create an alea unitest
 # The following imports are required
 from obc_test_internals import obc_test, timeout
 
+import numpy as np
+
 """
 You want to inherit the Setup and Teardown of OBCTest so add it as the Parent Class.
 Should you want to change the default SetUp or tearDown you can implement it here.
@@ -18,10 +20,18 @@ class PingTest(obc_test.OBCTest):
     @timeout.timeout(5)
     def test_echo(self):
         number = 0xA113311A
+        array = np.array([[1, 2, 3],
+                          [4, 5, 6]])
+        arrayf = np.array([[1.5, 2.5, 3.5],
+                           [4.5, 5.5, 6.5]])
         message = "Hello ALEASAT"
-        resp = self.obc.send_cmd("TEST_ECHO", number, message)
+
+        resp = self.obc.send_cmd("TEST_ECHO", number, array, arrayf, message)
+
         self.assertTrue(resp.is_success)
         self.assertEqual(number, resp.data["number"])
+        np.testing.assert_array_equal(array, resp.data["array"])
+        np.testing.assert_array_equal(arrayf, resp.data["arrayf"]) # Arrays should be exactly equal because no operations are performed
         self.assertEqual(message, resp.data["message"])
 
 """

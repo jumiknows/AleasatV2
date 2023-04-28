@@ -3,10 +3,14 @@
         "id": 255,
         "args": [
             {"number": "u32"},
+            {"array": "u32[2][3]"},
+            {"arrayf": "f32[2][3]"},
             {"message": "string"}
         ],
         "resp": [
             {"number": "u32"},
+            {"array": "u32[2][3]"},
+            {"arrayf": "f32[2][3]"},
             {"message": "string"}
         ]
     },

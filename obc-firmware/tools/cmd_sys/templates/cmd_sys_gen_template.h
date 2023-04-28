@@ -48,7 +48,7 @@ typedef enum {
 typedef struct {
     {%- for arg in cmd_spec.args %}
     {% if arg.size > 0 -%}
-    {{ arg.c_type.type_name }} {{ arg.name }}{% if arg.is_array %}[{{ arg.array_len }}]{% endif %};
+    {{ arg.c_type.type_name }} {{ arg.name }}{% if arg.is_array %}{% for dim in arg.array_shape %}[{{ dim }}]{% endfor %}{% endif %};
     {%- else -%}
     // {{ field_to_str(arg) }}
     {%- endif %}
@@ -59,7 +59,7 @@ typedef struct {
 typedef struct {
     {%- for resp_field in cmd_spec.resp %}
     {% if resp_field.size > 0 -%}
-    {{ resp_field.c_type.type_name }} {{ resp_field.name }}{% if resp_field.is_array %}[{{ resp_field.array_len }}]{% endif %};
+    {{ resp_field.c_type.type_name }} {{ resp_field.name }}{% if resp_field.is_array %}{% for dim in resp_field.array_shape %}[{{ dim }}]{% endfor %}{% endif %};
     {%- else -%}
     // {{ field_to_str(resp_field) }}
     {%- endif %}

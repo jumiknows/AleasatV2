@@ -2,6 +2,13 @@ from typing import Any, Type
 from collections import abc
 from enum import Enum
 import struct
+import re
+
+# Optionally import numpy for advanced array encoding/decoding (including multi-dimensional support)
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 from obcpy.utils import exc
 from obcpy.utils import obc_time
@@ -88,8 +95,32 @@ class PyStructDataField(data_field.DataField):
         """
         return value
 
-class IntegerDataField(PyStructDataField):
-    """Implementation of `data_field.DataField` for integer data types that supports
+class NumericalDataField(PyStructDataField):
+    """Partial implementation of `data_field.DataField` for numerical data types that
+    can encode and decode numpy arrays (including multi-dimensional arrays)
+    """
+
+    def encode(self, value: Any) -> bytes:
+        # numpy support
+        if np is not None:
+            if isinstance(value, np.ndarray):
+                # View array as flattened for encoding
+                value = value.flat
+
+        return super().encode(value)
+
+    def decode(self, data: bytes) -> Any:
+        decoded = super().decode(data)
+
+        # numpy support
+        if np is not None:
+            if self.is_array:
+                return np.array(decoded).reshape(self.array_shape)
+
+        return decoded
+
+class IntegerDataField(NumericalDataField):
+    """Partial implementation of `data_field.DataField` for integer data types that supports
     converting strings to integers before encoding.
     """
 
@@ -101,13 +132,18 @@ class IntegerDataField(PyStructDataField):
             except ValueError:
                 raise exc.OBCEncodeError(f"Failed to encode string (\"{value}\") as integer for field: {self.name}")
 
-        if not isinstance(value, int):
+        accepted_types = int
+        # Allow numpy integer types
+        if np is not None:
+            accepted_types = (int, np.integer)
+
+        if not isinstance(value, accepted_types):
             raise exc.OBCEncodeError(f"{str(value)} has invalid data type ({type(value)}) for field: {self.name}")
 
         return value
 
-class FloatDataField(PyStructDataField):
-    """Implementation of `data_field.DataField` for integer data types that supports
+class FloatDataField(NumericalDataField):
+    """Partial implementation of `data_field.DataField` for floating point data types that supports
     converting strings to integers before encoding.
     """
 
@@ -118,8 +154,19 @@ class FloatDataField(PyStructDataField):
                 value = float(value)
             except ValueError:
                 raise exc.OBCEncodeError(f"Failed to encode string (\"{value}\") as float for field: {self.name}")
+        # Handle ints
+        elif isinstance(value, int):
+            value = float(value)
+        elif np is not None:
+            if isinstance(value, np.integer):
+                value = float(value)
 
-        if not isinstance(value, float):
+        accepted_types = float
+        # Allow numpy integer types
+        if np is not None:
+            accepted_types = (float, np.floating)
+
+        if not isinstance(value, accepted_types):
             raise exc.OBCEncodeError(f"{str(value)} has invalid data type ({type(value)}) for field: {self.name}")
 
         return value
@@ -202,7 +249,7 @@ class Bool(PyStructDataField):
 
 class DateTime(U32):
     """Implementation of `data_field.DataField` for date/time data that accepts strings in the format
-    %Y-%m-%d %H:%M:%S for encoding.
+    %Y-%m-%d@%H:%M:%S for encoding.
     """
 
     def pre_encode(self, value: Any) -> int:
@@ -301,28 +348,27 @@ class DataFieldImpl(Enum):
             A new `data_field.DataField` instance.
         """
 
-        array_len = 1
-        base_type_str = type_str
+        TYPE_PATTERN  = r"([A-Za-z0-9]+)((\[[0-9]+\])*)"
+        ARRAY_PATTERN = r"\[([0-9]+)\]"
 
-        # Check for array
-        open_bracket_idx = type_str.find("[")
-        close_bracket_idx = type_str.find("]")
+        array_shape = (1,)
 
-        if open_bracket_idx > 0:
-            if close_bracket_idx > open_bracket_idx:
-                base_type_str = type_str[:open_bracket_idx]
-                array_len_str = type_str[(open_bracket_idx + 1) : close_bracket_idx]
+        # Parse type_str
+        match = re.fullmatch(TYPE_PATTERN, type_str)
+        if match is None:
+            raise exc.OBCDataFieldError(f"Invalid type string (\"{type_str}\") for field: {name}")
+        
+        base_type_str = match.group(1)
 
-                try:
-                    array_len = int(array_len_str, 0)
-                except ValueError:
-                    raise exc.OBCDataFieldError(f"Invalid array length (\"{array_len_str}\") in type string (\"{type_str}\") for field: {name}")
-            else:
-                raise exc.OBCDataFieldError(f"Invalid type string (\"{type_str}\") for field: {name}")
+        # Check for array type
+        array_spec = match.group(2)
+        if array_spec:
+            array_dims = re.findall(ARRAY_PATTERN, array_spec)
+            array_shape = tuple(map(int, array_dims))
 
         try:
             data_field_cls: Type[data_field.DataField] = cls[base_type_str].value
         except KeyError:
             raise exc.OBCDataFieldError(f"Invalid type string (\"{type_str}\") for field: {name}")
 
-        return data_field_cls(name, array_len=array_len)
+        return data_field_cls(name, array_shape = array_shape)

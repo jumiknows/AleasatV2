@@ -10,4 +10,7 @@ setup(name='obcpy',
       install_requires=[
           'pyserial',
       ],
+      extras_require={
+        'ndarrays': ['numpy'],
+      },
       zip_safe=False)

@@ -136,7 +136,7 @@ class OBCDateTime:
 
     @classmethod
     def from_string(cls, datetime_str: str) -> "OBCDateTime":
-        """Constructs an OBCDateTime from a string in the format %Y-%m-%d %H:%M:%S.
+        """Constructs an OBCDateTime from a string in the format %Y-%m-%d@%H:%M:%S.
 
         Args:
             datetime_str: A date/time in string format.

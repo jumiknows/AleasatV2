@@ -1,5 +1,6 @@
-from typing import Any, List, Iterator, Union
+from typing import Any, List, Iterator, Union, Tuple
 from abc import ABC, abstractmethod
+import functools
 
 from obcpy.utils import exc
 
@@ -43,11 +44,16 @@ class DataField(ABC):
 
     _c_type: CTypeInfo = None
 
-    def __init__(self, name: str, array_len: int = 1):
-        self._name      = name
-        self._array_len = array_len
+    def __init__(self, name: str, array_shape: Union[Tuple, int] = 1):
+        self._name = name
 
-        if self.array_len == 0:
+        if isinstance(array_shape, int):
+            # Convert to tuple
+            self._array_shape = (array_shape,)
+        else:
+            self._array_shape = array_shape
+
+        if self.array_len <= 0:
             raise exc.OBCDataFieldError(f"Field ({self.name}) cannot have array_len == 0")
 
         if self.is_array and (self.size == 0):
@@ -60,10 +66,14 @@ class DataField(ABC):
         return self._name
 
     @property
+    def array_shape(self) -> Tuple:
+        return self._array_shape
+
+    @property
     def array_len(self) -> int:
-        """Length of the array if this is an array field, otherwise 0.
+        """Length of the array if this is an array field, otherwise 1.
         """
-        return self._array_len
+        return functools.reduce(lambda x, y: x * y, self.array_shape)
 
     @property
     def is_array(self) -> bool:
@@ -112,7 +122,7 @@ class DataField(ABC):
     def __str__(self) -> str:
         array_str = ""
         if self.is_array:
-            array_str = f"[{self.array_len}]"
+            array_str = "".join([f"[{dim}]" for dim in self._array_shape])
         return f"{self.name}: {self.__class__.__name__.lower()}{array_str}"
 
 class DataFieldList:
