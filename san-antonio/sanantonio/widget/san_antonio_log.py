@@ -17,8 +17,12 @@ class SanAntonioLog(QtWidgets.QWidget, san_antonio_log_ui.Ui_SanAntonioLog):
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
         self.sa_log_text: QtWidgets.QTextEdit
+        self.sa_log_clear_btn: QtWidgets.QPushButton
 
         self.setupUi(self)
+
+        # Connect signals / slots
+        self.sa_log_clear_btn.clicked.connect(self.clear_output)
 
     @QtCore.pyqtSlot(str)
     def handle_stdout(self, message: str):
@@ -53,3 +57,8 @@ class SanAntonioLog(QtWidgets.QWidget, san_antonio_log_ui.Ui_SanAntonioLog):
 
         self.sa_log_text.setHtml(self._text)
         self.sa_log_text.verticalScrollBar().setValue(self.sa_log_text.verticalScrollBar().maximum())
+
+    @QtCore.pyqtSlot()
+    def clear_output(self):
+        self._text = ""
+        self.sa_log_text.setHtml(self._text)

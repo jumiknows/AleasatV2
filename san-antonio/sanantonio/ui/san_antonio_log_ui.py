@@ -32,6 +32,9 @@ class Ui_SanAntonioLog(object):
         self.sa_log_text.setAcceptRichText(True)
         self.sa_log_text.setObjectName("sa_log_text")
         self.gridLayout_6.addWidget(self.sa_log_text, 0, 0, 1, 1)
+        self.sa_log_clear_btn = QtWidgets.QPushButton(self.sa_log_box)
+        self.sa_log_clear_btn.setObjectName("sa_log_clear_btn")
+        self.gridLayout_6.addWidget(self.sa_log_clear_btn, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.sa_log_box, 0, 0, 1, 1)
 
         self.retranslateUi(SanAntonioLog)
@@ -41,3 +44,4 @@ class Ui_SanAntonioLog(object):
         _translate = QtCore.QCoreApplication.translate
         SanAntonioLog.setWindowTitle(_translate("SanAntonioLog", "Form"))
         self.sa_log_box.setTitle(_translate("SanAntonioLog", "San Antonio Log"))
+        self.sa_log_clear_btn.setText(_translate("SanAntonioLog", "Clear Output"))
