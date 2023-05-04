@@ -1,7 +1,9 @@
 from typing import List
 import sys
+import platform
 import contextlib
 import pathlib
+import ctypes
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt
@@ -13,11 +15,22 @@ from sanantonio.widget import main_window
 from sanantonio.utils import console as console_utils
 
 class SanAntonio:
+    APP_ID = 'aleasat.sanantonio.0'
+
     def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path):
         self._obc = obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path))
 
     def run(self):
         app = QtWidgets.QApplication(sys.argv)
+
+        if platform.system() == "Windows":
+            # Make Windows use our icon for the taskbar
+            # See https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7
+            try:
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(SanAntonio.APP_ID)
+            except:
+                # Allow this to fail in case our platform test wasn't enough
+                pass
 
         # Force the style to be the same on all OSs
         app.setStyle("Fusion")

@@ -96,7 +96,8 @@ class ImagePanel(QtWidgets.QWidget, image_panel_ui.Ui_ImagePanel):
                 # dimensions which prevents the image_label from resizing afterwards and triggering
                 # the recursion.
                 int(self.image_label.width() * self.IMAGE_SCALE_PCNT), int(self.image_label.height() * self.IMAGE_SCALE_PCNT),
-                QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                QtCore.Qt.TransformationMode.SmoothTransformation)
             )
             self.updated.emit()
 

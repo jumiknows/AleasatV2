@@ -1,4 +1,5 @@
 from typing import Union
+import pathlib
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
@@ -15,8 +16,13 @@ from sanantonio.widget import control_panels
 from sanantonio.widget import obc_cmd_resp_panel
 from sanantonio.widget import san_antonio_log
 from sanantonio.widget import obc_serial_log
+from sanantonio.widget import image_label
 
 from sanantonio.utils import console as console_utils
+
+GRAPHICS_DIR = pathlib.Path(__file__).resolve().parent.parent / "graphics"
+ALEASAT_LOGO_PATH = GRAPHICS_DIR / "ALEASAT_logo.png"
+ALEASAT_ICON_PATH = GRAPHICS_DIR / "ALEASAT_icon.png"
 
 class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, obc_base.OBCEventListener):
     """Top-level San Antonio window
@@ -38,9 +44,13 @@ class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, obc_base.O
         self.setupUi(self)
 
         self.setWindowTitle("San Antonio")
+        self.setWindowIcon(QtGui.QIcon(str(ALEASAT_ICON_PATH)))
+
+        self.logo = image_label.ImageLabel(str(ALEASAT_LOGO_PATH), self.centralwidget)
+        self.gridLayout.addWidget(self.logo, 0, 0, 1, 1)
 
         self.sat_interface = sat_interface.SatInterface(self._obc, self.centralwidget)
-        self.gridLayout.addWidget(self.sat_interface, 0, 0, 1, 3)
+        self.gridLayout.addWidget(self.sat_interface, 0, 1, 1, 2)
 
         self.control_panels = control_panels.ControlPanels(self._obc, self.centralwidget)
         self.gridLayout.addWidget(self.control_panels, 1, 0, 1, 3)
