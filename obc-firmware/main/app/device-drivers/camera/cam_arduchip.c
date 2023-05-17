@@ -116,7 +116,7 @@ arduchip_err_t arduchip_init(void) {
         if (err != ARDUCHIP_SUCCESS) {
             break;
         } else {
-            if (fw_ver != ARDUCHIP_FW_VER) {
+            if ((fw_ver != ARDUCHIP_FW_VER_E) && (fw_ver != ARDUCHIP_FW_VER_F)) {
                 err = ARDUCHIP_ERR_FW_VER;
                 break;
             }

@@ -41,7 +41,8 @@
 
 /****************************** REGISTER VALUES *******************************/
 
-#define ARDUCHIP_FW_VER 0x73 // (Mini 5MP Plus - UC-367 Rev. E)
+#define ARDUCHIP_FW_VER_E 0x73 // (Mini 5MP Plus - UC-367 Rev. E)
+#define ARDUCHIP_FW_VER_F 0x80 // (Mini 5MP Plus - UC-268 Rev. F)
 
 #define ARDUCHIP_REG_RESET_RESET                     UINT8_BIT(7)
 
