@@ -130,7 +130,7 @@ class SerialDevice:
     Attributes:
         connected (readonly): If True the serial device is currently connected.
     """
-    def __init__(self, rx_dest: routing.PacketDest[packet.RawPacket], tx_src: routing.PacketSource[packet.Packet]):
+    def __init__(self, rx_dest: routing.PacketDest[packet.Packet], tx_src: routing.PacketSource[packet.Packet]):
         """Initializes (but does not connect to) a new SerialDevice instance.
 
         Args:
@@ -196,10 +196,12 @@ class SerialDevice:
         if self._rx_worker is not None:
             print("Stopping serial RX worker")
             self._rx_worker.stop()
+            self._rx_worker = None
 
         if self._tx_worker is not None:
             print("Stopping serial TX worker")
             self._tx_worker.stop()
+            self._tx_worker = None
 
         self._disconnect()
 
@@ -216,6 +218,9 @@ class SerialDevice:
             )
             if not device.is_open:
                 device.open()
+
+            device.reset_output_buffer()
+            device.reset_input_buffer()
 
             self._device = device
             return True

@@ -93,3 +93,6 @@ class RawPacket(Packet):
     @classmethod
     def deserialize(cls, data: bytes) -> "RawPacket":
         return cls(data)
+
+class PacketError(Exception):
+    pass

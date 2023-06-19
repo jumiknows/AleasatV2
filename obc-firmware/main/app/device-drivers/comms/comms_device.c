@@ -8,10 +8,14 @@
 /******************************************************************************/
 /*                              I N C L U D E S                               */
 /******************************************************************************/
-#include <stddef.h>
+
 #include "comms_device.h"
+
+// Logger
 #include "logger.h"
 
+// Standard Library
+#include <stddef.h>
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -21,22 +25,23 @@
  * @brief Transfer a block of data to a comms device
  *
  * @param[in] cdev_hdl comms device handle
- * @param[in] buffer   pointer to data buffer to be transferred. Size of the transfer
- *                     is specified in the device specific implementation file.
+ * @param[in] buffer   pointer to data buffer to be transferred, must be at least
+ *                     COMMS_DEV_MIN_BUFFER_SIZE bytes
+ * @param[in] msg_len  length of the message (i.e. number of bytes to transmit)
  *
  * @return COMMS_DEV_SUCCESS if the transfer was successful.
  *         COMMS_DEV_BUS_FAILURE if communication to the comms device failed
  */
 comms_dev_err_type_t comms_dev_send(
         comms_dev_handle_t cdev_hdl,
-        uint16_t* buffer,
-        uint16_t num_bytes
+        const uint16_t* buffer,
+        uint16_t msg_len
 ) {
     comms_dev_err_type_t ret = COMMS_DEV_SUCCESS;
 
     comms_device_t* cdev = (comms_device_t*) cdev_hdl;
 
-    ret = cdev->tx(buffer, num_bytes);
+    ret = cdev->tx(buffer, msg_len);
 
     return ret;
 }

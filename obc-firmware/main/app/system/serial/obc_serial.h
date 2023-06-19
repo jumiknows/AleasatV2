@@ -20,8 +20,8 @@
 /*                               D E F I N E S                                */
 /******************************************************************************/
 
-#define OBC_SERIAL_FRAME_MAX_DATA_SIZE    ((uint8_t)234U)
-#define OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE ((uint8_t)233U)
+#define OBC_SERIAL_FRAME_MAX_DATA_SIZE    ((uint8_t)237U)
+#define OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE ((uint8_t)236U)
 
 #define OBC_SERIAL_SYNC_0_VALUE           ((uint8_t)0xABU)
 #define OBC_SERIAL_SYNC_1_VALUE           ((uint8_t)0xCDU)

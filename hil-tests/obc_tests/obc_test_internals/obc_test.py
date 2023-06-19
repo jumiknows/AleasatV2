@@ -9,8 +9,8 @@ import pathlib
 
 import xmlrunner
 
-from obcpy.protocol import routing_impl
-from obcpy.obc.interface.protocol import app_log
+from obcpy.protocol import routing
+from obcpy.obc.protocol.app import app_log
 from obcpy.obc import OBC
 from obcpy.utils.serial import get_serial_ports
 
@@ -30,10 +30,10 @@ class OBCTest(unittest.TestCase):
 
     # For use by test case subclass
     obc : OBC = None
-    logs : routing_impl.QueuePacketBridge[app_log.OBCLog] = None
+    logs : routing.PacketSource[app_log.OBCLog] = None
 
     # For internal use only
-    _logs_print: routing_impl.QueuePacketBridge[app_log.OBCLog] = None
+    _logs_print: routing.PacketSource[app_log.OBCLog] = None
     _logs_print_thread: threading.Thread = None
     _logs_print_stop: threading.Event = None
 
@@ -46,9 +46,9 @@ class OBCTest(unittest.TestCase):
         if not cls.obc.start(cls.PORT):
             raise Exception(f"ERROR: Could not connect to {cls.PORT}")
 
-        cls.logs = cls.obc.interface.protocol.add_log_listener(queue_size=100)
+        cls.logs = cls.obc.add_log_listener(queue_size=100)
 
-        cls._logs_print = cls.obc.interface.protocol.add_log_listener(queue_size=100)
+        cls._logs_print = cls.obc.add_log_listener(queue_size=100)
         cls._logs_print_stop = threading.Event()
         cls._logs_print_thread = threading.Thread(target=cls.bg_logs_run, daemon=True)
         print("Starting log printing thread")

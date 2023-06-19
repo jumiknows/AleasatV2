@@ -29,6 +29,7 @@ list(APPEND SRC_DIRS
     ${.}/system/cmd_sys/impl
     ${.}/system/comms
     ${.}/system/filesystem
+    ${.}/system/gndstn
     ${.}/system/logging
     ${.}/system/rtc_scheduler
     ${.}/system/serial

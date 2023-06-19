@@ -1,6 +1,5 @@
 from typing import Generic, TypeVar, List
 from abc import ABC, abstractmethod
-from enum import Enum
 
 from . import packet
 
@@ -24,7 +23,7 @@ class ProtocolLayer(Generic[AnyPacket], ABC):
 
     The abstract methods defined by `packet.Packet` allow a ProtocolLayer to handle any incoming packet
     since the packet itself know how to serialize itself into bytes for TX (`Packet.serialize()`) or
-    extract its own "data" field for TX (`Packet.extract_data()`).
+    extract its own "data" field for RX (`Packet.extract_data()`).
     """
 
     @abstractmethod
@@ -51,3 +50,8 @@ class ProtocolLayer(Generic[AnyPacket], ABC):
             A list of packets flushed from the internal buffer.
         """
         return []
+
+    def reset(self):
+        """Reset any internal state. Default implementation does nothing.
+        """
+        pass

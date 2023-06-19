@@ -994,5 +994,23 @@
         "description": "Transfering image (%d KB)"
       }
     }
+  },
+  "LOG_GNDSTN_DOWNLINK": {
+    "id": 69,
+    "description": "Ground Station Downlink",
+    "signals": {
+      "COMMS_SESS_INIT_ERR": {
+        "id": 0,
+        "description": "Error initializing COMMS session: %d"
+      },
+      "COMMS_SEND_CMD_ERR": {
+        "id": 1,
+        "description": "Error sending COMMS command: %d"
+      },
+      "COMMS_WAIT_RESP_ERR": {
+        "id": 2,
+        "description": "Error waiting for COMMS response: %d"
+      }
+    }
   }
 }

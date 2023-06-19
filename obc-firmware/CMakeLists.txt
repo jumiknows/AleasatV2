@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Uncomment to print out compile commands
-# set(CMAKE_VERBOSE_MAKEFILE on)
+if (VERBOSE EQUAL 1)
+    set(CMAKE_VERBOSE_MAKEFILE on)
+endif()
 
 message(STATUS "Toolchain:  ${CMAKE_TOOLCHAIN_FILE}")
 message(STATUS "Platform:   ${PLATFORM}")
@@ -20,6 +21,12 @@ if (STANDALONE EQUAL 1)
     message(STATUS "Standalone: Yes")
 else()
     message(STATUS "Standalone: No")
+endif()
+
+if (COMMS_OVER_SERIAL EQUAL 1)
+    message(STATUS "COMMS Mode: OBC Serial")
+else()
+    message(STATUS "COMMS Mode: SPI")
 endif()
 
 ################################################################################
@@ -157,6 +164,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     _DEBUG
     CFG_FLASH_SLOT=${FLASH_SLOT}
+    COMMS_OVER_SERIAL=${COMMS_OVER_SERIAL}
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE

@@ -10,12 +10,12 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
+#include "comms_api.h"
+#include "comms_device.h"
+
 // Standard Library
 #include <stdint.h>
 #include <stdbool.h>
-
-#include "comms_api.h"
-#include "comms_device.h"
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -41,9 +41,9 @@
 #define COMMS_MAX_PKT_LEN_VAL    (COMMS_MAX_PKT_SIZE_BYTES - COMMS_PKT_START_NUM_BYTES)
 #define COMMS_MIN_PKT_LEN_VAL    (COMMS_MIN_PKT_SIZE_BYTES - COMMS_PKT_START_NUM_BYTES)
 
-#define OBC_HWID 0x7000
-#define COMMS_HWID 0x0107
-#define GROUND_HWID 0x0000
+#define OBC_HWID    0x7000
+#define COMMS_HWID  0x0107
+#define GROUND_HWID 0x8000
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
@@ -70,6 +70,7 @@ typedef enum {
   COMMS_COMMON_MSG_ACK = 0x10,
   COMMS_COMMON_MSG_NACK = 0xff,
   COMMS_COMMON_MSG_ASCII = 0x11,
+  COMMS_CUSTOM_MSG_OBC_DATA = 0x60,
   COMMS_CUSTOM_ALEA_ACK = 0xee
 } comms_common_msg_no_t;
 
@@ -122,11 +123,11 @@ void comms_service_packet_input(
 );
 
 void comms_mngr_start_task(
-        comms_dev_handle_t cdev_hdl
+    comms_dev_handle_t cdev_hdl
 );
 
 void comms_mngr_create_infra(
-        void
+    void
 );
 
 #endif /* COMMS_DEFS_H_ */

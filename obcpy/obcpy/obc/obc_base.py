@@ -8,10 +8,16 @@ from obcpy import log_sys
 from obcpy.utils import obc_time
 from obcpy.utils import exc
 
-from .interface import serial_interface
-from .interface.protocol import app_cmd_sys
+from obcpy.protocol import routing
 
-DEFAULT_CMD_TIMEOUT = 5
+from .protocol import obc_upper_protocol
+from .protocol.app import app_protocol
+from .protocol.app import app_cmd_sys
+from .protocol.app import app_log
+
+from .interface import obc_serial_interface
+
+DEFAULT_CMD_TIMEOUT = 30
 
 LOG_CMD_SYS_SCHED_RESP = 67
 
@@ -76,11 +82,13 @@ class OBCBase:
 
         The loaded specifications can be replaced at any time by calling `OBC.load_cmd_sys_specs`.
         """
+        self._upper_protocol = obc_upper_protocol.OBCUpperProtocol(log_specs=None) # Log specs will be loaded afterwards
+        self._interface = obc_serial_interface.OBCSerialInterface(self._upper_protocol)
+
         self._cmd_sys_specs: cmd_sys.spec.OBCCmdSysSpecs = None
         self.load_cmd_sys_specs(cmd_sys_specs_paths)
 
         self._log_specs: log_sys.log_spec.OBCLogGroupSpecs = None
-        self.interface = serial_interface.OBCSerialInterface(None)
         self.load_log_specs(log_specs_path)
 
         # Unique ID counter for instances of commands (currently this is unique only during a single run of San Antonio).
@@ -89,7 +97,7 @@ class OBCBase:
 
         # Listen to responses to scheduled commands
         self._pending_responses: Dict[int, cmd_sys.resp.OBCPendingResponse] = {}
-        self._sched_resp_source = self.interface.protocol.add_log_listener(queue_size=100)
+        self._sched_resp_source = self.add_log_listener(queue_size=100)
         self._sched_resp_event = threading.Event()
         self._sched_resp_thread: threading.Thread = None
 
@@ -99,7 +107,7 @@ class OBCBase:
     def connected(self) -> bool:
         """True if the interface to the OBC is currently connected.
         """
-        return self.interface.connected
+        return self._interface.connected
 
     @property
     def cmd_sys_specs(self) -> cmd_sys.spec.OBCCmdSysSpecs:
@@ -108,6 +116,10 @@ class OBCBase:
     @property
     def log_specs(self) -> log_sys.log_spec.OBCLogGroupSpecs:
         return self._log_specs
+
+    @property
+    def _app_protocol(self) -> app_protocol.OBCAppProtocol:
+        return self._upper_protocol.app
 
     def load_cmd_sys_specs(self, specs_paths: List[pathlib.Path]):
         """Load one or more collections of command system specifications from the filesystem.
@@ -132,7 +144,7 @@ class OBCBase:
 
         self._log_specs = log_sys.log_spec.OBCLogGroupSpecs.from_json(json_blob)
 
-        self.interface.update_log_specs(self._log_specs)
+        self._app_protocol.update_log_specs(self._log_specs)
 
     def start(self, serial_port: str) -> bool:
         """Open a connection to the OBC on the provided serial port.
@@ -145,10 +157,15 @@ class OBCBase:
         Returns:
             True if the connection was opened successfully, otherwise False.
         """
+        # Reset protocols
+        self._app_protocol.reset()       # Resets from the top-down
+        self._interface.protocol.reset() # Resets from the bottom up
+
+        # Start scheduled response thread
         self._sched_resp_thread = threading.Thread(target=self._run_sched_resp, daemon=True)
         self._sched_resp_event.clear()
         self._sched_resp_thread.start()
-        return self.interface.start(serial_port)
+        return self._interface.start(serial_port)
 
     def stop(self):
         """Closes a connection to the OBC and terminates the background threads.
@@ -157,7 +174,17 @@ class OBCBase:
             self._sched_resp_event.set()
             self._sched_resp_thread.join()
             self._sched_resp_thread = None
-        return self.interface.stop()
+        return self._interface.stop()
+
+    def _check_connected(self):
+        if not self.connected:
+            raise exc.OBCError("Disconnected from OBC")
+
+    def add_log_listener(self, queue_size: int) -> routing.PacketSource[app_log.OBCLog]:
+        return self._app_protocol.add_log_listener(queue_size=queue_size)
+
+    def remove_log_listener(self, listener: routing.PacketSource[app_log.OBCLog]):
+        self._app_protocol.remove_log_listener(listener)
 
     def add_event_listener(self, listener: OBCEventListener):
         """Register a listener for commands/response events on this OBC interface.
@@ -221,6 +248,8 @@ class OBCBase:
         Returns:
             The response to the command (if immediate) or an OBCPendingResponse (if scheduled).
         """
+        self._check_connected()
+
         cmd_sys_spec = self.cmd_sys_specs.get(cmd_name)
 
         if date_time.is_immediate:
@@ -230,7 +259,7 @@ class OBCBase:
             # TODO This is a very bad HACK right now to make the UUID act like an instance ID
             # since the instance ID is not currently part of the packet
             cmd_inst_id = app_cmd_sys.OBCCmdSysMsgHeader(
-                seq_num = self.interface.protocol._cmd_seq_num, # No accessing private members - straight to jail
+                seq_num = self._app_protocol._cmd_seq_num, # No accessing private members - straight to jail
                 cmd_id = cmd_sys_spec.id,
                 date_time = date_time,
                 flags = 0,
@@ -241,7 +270,7 @@ class OBCBase:
 
         # Actually send the command
         try:
-            imm_resp = self.interface.protocol.send_cmd_recv_resp(cmd, timeout=timeout)
+            imm_resp = self._app_protocol.send_cmd_recv_resp(cmd, timeout=timeout)
         except exc.OBCError as e:
             self._notify_error(cmd, e)
             raise e

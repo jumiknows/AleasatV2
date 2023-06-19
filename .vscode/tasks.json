@@ -6,7 +6,7 @@
         {
             "label": "Build Firmware",
             "type": "shell",
-            "command": "./fw_build.sh ${input:platform} ${input:target} ${input:slot} ${input:standalone}",
+            "command": "./fw_build.sh ${input:platform} ${input:target} ${input:slot} ${input:standalone} ${input:comms_over_serial}",
             "options": {
                 "cwd": "${workspaceFolder}/obc-firmware"
             },
@@ -114,6 +114,16 @@
                 "",
             ],
             "default": "--standalone"
+        },
+        {
+            "id": "comms_over_serial",
+            "type": "pickString",
+            "description": "COMMS over serial?",
+            "options": [
+                "--comms-over-serial",
+                "",
+            ],
+            "default": "--comms-over-serial"
         },
         {
             "id": "sa_ui_file",

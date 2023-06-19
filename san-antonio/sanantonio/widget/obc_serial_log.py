@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 
-from obcpy.obc.interface.protocol import app_log
+from obcpy.obc.protocol.app import app_log
 from obcpy.utils import data as data_utils
 
 from sanantonio.backend import obcqt

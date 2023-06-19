@@ -26,6 +26,11 @@ class PacketSource(ABC, Generic[AnyPacket]):
         """
         pass
 
+    def reset(self):
+        """Reset any internal state. Default implementation does nothing.
+        """
+        pass
+
 class PacketDest(ABC, Generic[AnyPacket]):
     """Abstract base class for any object that acts as a destination for packets.
 
@@ -55,10 +60,10 @@ class PacketDest(ABC, Generic[AnyPacket]):
         """
         pass
 
-# class PacketRouter(ABC, Generic[AnyPacket]):
-#     @abstractmethod
-#     def get_packet_dest(self, packet: AnyPacket) -> PacketDest[AnyPacket]:
-#         pass
+    def reset(self):
+        """Reset any internal state. Default implementation does nothing.
+        """
+        pass
 
 class StreamSource(ABC):
     """Abstract base class for any object that acts as a source of a stream of bytes.
@@ -77,5 +82,10 @@ class StreamSource(ABC):
         Returns:
             The bytes read from the stream up to a maximum of num_bytes.
             Fewer than num_bytes may be returned if the operation timed-out.
+        """
+        pass
+
+    def reset(self):
+        """Reset any internal state. Default implementation does nothing.
         """
         pass

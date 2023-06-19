@@ -13,8 +13,8 @@
 #include "cmd_sys.h"
 #include "cmd_sys_sched.h"
 
-// Serial
-#include "obc_serial_socket.h"
+// Ground Station
+#include "gndstn_link.h"
 
 // OBC
 #include "obc_task_info.h"
@@ -74,8 +74,8 @@ static void cmd_sys_imm_task(void* pvParameters) {
     static uint8_t buf[CMD_SYS_SCHED_MAX_DATA_SIZE] = { 0 };
 
     static cmd_sys_cmd_t cmd = { 0 };
-    cmd.input = &obc_serial_socket_in;
-    cmd.output = &obc_serial_socket_out;
+    cmd.input = &gndstn_uplink_socket;
+    cmd.output = &gndstn_downlink_socket;
 
     // TODO: ALEA-862 eventually mark task awake
     set_task_status(wd_task_id, task_asleep);

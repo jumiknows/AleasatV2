@@ -8,18 +8,19 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-#include <string.h>
-
+// COMMS
 #include "comms_api.h"
 #include "comms_utils.h"
 #include "comms_flash.h"
 
-#include "rtos.h"
-#include "queue.h"
-#include "semphr.h"
-#include "timers.h"
-
+// Logger
 #include "logger.h"
+
+// FreeRTOS
+#include "rtos.h"
+
+// Standard Library
+#include <string.h>
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -92,6 +93,11 @@ static void handle_ack_nack_command(
     comms_command_t* cmd_resp
 );
 
+static void handle_obc_data_command(
+    comms_command_t* cmd_in,
+    comms_command_t* cmd_resp
+);
+
 static void handle_timer_expiry(
     TimerHandle_t timer
 );
@@ -148,36 +154,22 @@ static SemaphoreHandle_t cmd_sema;
 static comms_command_t cmd_buf;
 
 endpoint_t endpoints[COMMS_ENDPOINT_MAX] = {
-    {
-        COMMS_HWID,
-        0,
-    },
-    {
-        GROUND_HWID,
-        0,
-    },
-    {
-        0,
-        0,
-    },
+    [COMMS_ENDPOINT_RADIO]  = { .hwid = COMMS_HWID,  .seqnum = 0 },
+    [COMMS_ENDPOINT_GROUND] = { .hwid = GROUND_HWID, .seqnum = 0 },
+    [COMMS_ENDPOINT_ARO]    = { .hwid = 0,           .seqnum = 0 },
 };
 
 static command_handler_t cmd_handlers[] = {
-    {
-        COMMS_COMMON_MSG_ACK,
-        &handle_ack_nack_command
-    },
-    {
-        COMMS_COMMON_MSG_NACK,
-        &handle_ack_nack_command
-    }
+    { .command = COMMS_COMMON_MSG_ACK,      .func = &handle_ack_nack_command },
+    { .command = COMMS_COMMON_MSG_NACK,     .func = &handle_ack_nack_command },
+    { .command = COMMS_CUSTOM_MSG_OBC_DATA, .func = &handle_obc_data_command },
 };
 
 static uint8_t command_table[] = {
-        COMMS_COMMON_MSG_ACK,
-        0, // TODO
-        COMMS_RADIO_MSG_GET_TELEM,
-        COMMS_RADIO_MSG_REBOOT
+    [COMMS_CMD_PING]      = COMMS_COMMON_MSG_ACK,
+    [COMMS_CMD_APP_DATA]  = COMMS_CUSTOM_MSG_OBC_DATA,
+    [COMMS_CMD_GET_TELEM] = COMMS_RADIO_MSG_GET_TELEM,
+    [COMMS_CMD_REBOOT]    = COMMS_RADIO_MSG_REBOOT,
 };
 
 /******************************************************************************/
@@ -729,7 +721,6 @@ static void session_handle_command_response(
  *
  * @param[in] cmd_req   pointer to input command
  * @param[in] cmd_resp  pointer to command response
-
  */
 static void handle_ack_nack_command(
     comms_command_t* cmd_in,
@@ -745,4 +736,23 @@ static void handle_ack_nack_command(
         cmd_resp->header.seqnum = cmd_in->header.seqnum;
         cmd_resp->header.is_response = 1;
     }
+}
+
+/**
+ * @brief Handle an OBC data command
+ *
+ * @param[in] cmd_req   pointer to input command
+ * @param[in] cmd_resp  pointer to command response
+ */
+static void handle_obc_data_command(
+    comms_command_t* cmd_in,
+    comms_command_t* cmd_resp
+) {
+    memset((void*)cmd_resp, 0, sizeof(comms_command_t));
+
+    cmd_resp->header.dest_hwid = cmd_in->header.src_hwid;
+    cmd_resp->header.src_hwid = OBC_HWID;
+    cmd_resp->header.command = COMMS_COMMON_MSG_ACK;
+    cmd_resp->header.seqnum = cmd_in->header.seqnum;
+    cmd_resp->header.is_response = 1;
 }

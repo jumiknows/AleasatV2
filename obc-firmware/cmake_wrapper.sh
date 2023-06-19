@@ -7,24 +7,85 @@ set -e
 
 start=`date +%s`
 
-if [[ $# -lt 3 ]]; then
-    echo "Usage: $0 <launchpad|alea-v1> <startup|boot|core|ext> <A|B> [--standalone]"
+################################################################################
+# Argument Parsing
+################################################################################
+
+# Reference: https://stackoverflow.com/a/29754866
+
+# More safety, by turning some bugs into errors.
+# Without `errexit` you don’t need ! and can replace
+# ${PIPESTATUS[0]} with a simple $?, but I prefer safety.
+set -o errexit -o pipefail -o noclobber -o nounset
+
+# -allow a command to fail with !’s side effect on errexit
+# -use return value from ${PIPESTATUS[0]}, because ! hosed $?
+! getopt --test > /dev/null 
+if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
+    echo 'Sorry, `getopt --test` failed in this environment.'
     exit 1
 fi
 
-# Setup environment
-export PYTHONPATH=../obcpy
+LONGOPTS=standalone,comms-over-serial,verbose
+OPTIONS=scv
 
-# Process arguments
+# -regarding ! and PIPESTATUS see above
+# -temporarily store output to be able to check for errors
+# -activate quoting/enhanced mode (e.g. by writing out “--options”)
+# -pass arguments only via   -- "$@"   to separate them correctly
+! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
+if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+    # e.g. return value is 1
+    #  then getopt has complained about wrong arguments to stdout
+    exit 2
+fi
+# read getopt’s output this way to handle the quoting right:
+eval set -- "$PARSED"
+
+STANDALONE=0
+COMMS_OVER_SERIAL=0
+VERBOSE=0
+
+# now enjoy the options in order and nicely split until we see --
+while true; do
+    case "$1" in
+        -s|--standalone)
+            STANDALONE=1
+            shift
+            ;;
+        -c|--comms-over-serial)
+            COMMS_OVER_SERIAL=1
+            shift
+            ;;
+        -v|--verbose)
+            VERBOSE=1
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Programming error"
+            exit 3
+            ;;
+    esac
+done
+
+# Handle positional arguments
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 <launchpad|alea-v1> <startup|boot|core|ext> <A|B> [-s|--standalone] [-c|--comms-over-serial] [-v|--verbose]"
+    exit 4
+fi
+
 PLATFORM=$1
 TARGET=$2
 FLASH_SLOT_NAME=$3
 
-if [[ "$4" == "--standalone" ]]; then
-    STANDALONE=1
-else
-    STANDALONE=0
-fi
+################################################################################
+
+# Setup environment
+export PYTHONPATH=../obcpy
 
 # Get githash, tag and dirty status
 GITHASH_FULL=$(git rev-parse HEAD)
@@ -44,7 +105,6 @@ if [[ $GIT_DIRTY -eq 0 ]]; then
 else
     GIT_DIRTY=1
 fi
-echo "GIT_DIRTY=$GIT_DIRTY"
 
 # Directories
 BUILD_DIR="./build/${PLATFORM}/${TARGET}/${FLASH_SLOT_NAME}"
@@ -71,6 +131,8 @@ cmake                                             \
     -DGIT_DIRTY=${GIT_DIRTY}                      \
     -DVERSION=${VERSION}                          \
     -DSTANDALONE=${STANDALONE}                    \
+    -DCOMMS_OVER_SERIAL=${COMMS_OVER_SERIAL}      \
+    -DVERBOSE=${VERBOSE}                          \
     "${SOURCE_DIR}"
 
 cmake --build .

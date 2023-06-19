@@ -5,9 +5,9 @@ from PyQt5 import QtCore
 
 import obcpy.obc
 from obcpy.obc import obc_base
-from obcpy.obc.interface.protocol import app_log
+from obcpy.obc.protocol.app import app_log
 from obcpy import cmd_sys
-from obcpy.protocol import routing_impl
+from obcpy.protocol import routing
 from obcpy.utils import exc
 
 class OBCQTRequest:
@@ -258,10 +258,10 @@ class OBCLogWorker(OBCWorker):
     def __init__(self, obc: obcpy.obc.OBC, **kwargs):
         super().__init__(obc, **kwargs)
 
-        self._logs: routing_impl.QueuePacketBridge[app_log.OBCLog] = None
+        self._logs: routing.PacketSource[app_log.OBCLog] = None
 
     def setup(self, obc: obcpy.obc.OBC):
-        self._logs = obc.interface.protocol.add_log_listener(queue_size=100)
+        self._logs = obc.add_log_listener(queue_size=100)
 
     def loop(self, obc: obcpy.obc.OBC) -> bool:
         if self._logs is None:
@@ -274,7 +274,7 @@ class OBCLogWorker(OBCWorker):
         return True
 
     def teardown(self, obc: obcpy.obc.OBC):
-        obc.interface.protocol.remove_log_listener(self._logs)
+        obc.remove_log_listener(self._logs)
 
 class OBCQT(QtCore.QObject):
     """Wrapper object for managing an `OBC` object in a QT environment.

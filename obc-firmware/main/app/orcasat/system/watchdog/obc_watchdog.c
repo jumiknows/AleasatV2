@@ -43,7 +43,7 @@ void wd_start_task(void) {
     static StaticTask_t wd_task_buf                        = {NULL};
     static StackType_t wd_task_stack[WDPT_TASK_STACK_SIZE] = {NULL};
 
-    xWatchdogPetTaskHandle = task_create_periodic_static(&vWatchdogPetTask, "WD", WDPT_TASK_STACK_SIZE, NULL, WATCHDOG_TASK_DEFAULT_PRIORITY, wd_task_stack, &wd_task_buf, WD_PET_PERIOD_MS);
+    xWatchdogPetTaskHandle = task_create_periodic_static(&vWatchdogPetTask, "WD", WDPT_TASK_STACK_SIZE, NULL, WATCHDOG_TASK_PRIORITY, wd_task_stack, &wd_task_buf, WD_PET_PERIOD_MS);
 }
 
 /**

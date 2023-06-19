@@ -118,4 +118,15 @@ bool buffered_io_flush(void *handle, uint32_t timeout, uint32_t *timeout_left);
 
 uint32_t buffered_io_read(void *handle, uint8_t *buf, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left);
 
+/******************************************************************************/
+/*                       I N L I N E  F U N C T I O N S                       */
+/******************************************************************************/
+
+/**
+ * @brief Wrapper for buffered_block_istream_t->read_block() that automatically passes the handle
+ */
+static inline uint32_t buffered_block_istream_read_block(const buffered_block_istream_t *stream, uint8_t *buf, uint32_t buf_len, uint32_t timeout, uint32_t *timeout_left) {
+    return stream->read_block(stream->handle, buf, buf_len, timeout, timeout_left);
+}
+
 #endif // BUFFERED_IO_H_

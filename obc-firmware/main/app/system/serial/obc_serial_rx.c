@@ -9,6 +9,9 @@
 
 #include "obc_serial_rx.h"
 
+// COMMS
+#include "comms_obc_serial.h"
+
 // OBC Serial
 #include "obc_serial.h"
 
@@ -254,6 +257,11 @@ static bool handle_datagram(const uint8_t *datagram_buf, uint8_t len, uint32_t t
     switch (type) {
         case OBC_SERIAL_DATAGRAM_COMMS:
             success = (xMessageBufferSend(comms_msg_buffer, &datagram_buf[1], data_len, timeout_ticks) == data_len);
+            if (success) {
+                // Notify COMMS device-level driver that a message is available
+                // (emulating the behaviour of the RX interrupt line from an actual COMMS board)
+                comms_obc_serial_invoke_cb();
+            }
             break;
 
         default:

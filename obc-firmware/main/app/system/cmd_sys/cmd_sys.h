@@ -22,8 +22,8 @@
 /*                               D E F I N E S                                */
 /******************************************************************************/
 
-#define CMD_SYS_INPUT_READ_TIMEOUT_MS    100U
-#define CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS  100U
+#define CMD_SYS_INPUT_READ_TIMEOUT_MS    5000U
+#define CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS  5000U
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */

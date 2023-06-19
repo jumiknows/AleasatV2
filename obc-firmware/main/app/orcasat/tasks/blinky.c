@@ -29,7 +29,7 @@ void expander_blinky(void* pvParameters);
 void blinky_start_task(void) {
     static StaticTask_t blinky_task_buf                          = {NULL};
     static StackType_t blinky_task_stack[BLINKY_TASK_STACK_SIZE] = {NULL};
-    xHerculesBlinkyTaskHandle = task_create_periodic_static(&hercules_blinky, "blinky", BLINKY_TASK_STACK_SIZE, NULL, BLINKY_TASK_DEFAULT_PRIORITY, blinky_task_stack, &blinky_task_buf, 200);
+    xHerculesBlinkyTaskHandle = task_create_periodic_static(&hercules_blinky, "blinky", BLINKY_TASK_STACK_SIZE, NULL, BLINKY_TASK_PRIORITY, blinky_task_stack, &blinky_task_buf, 200);
 }
 
 /**
@@ -43,7 +43,7 @@ void expander_blinky_start_task(void) {
     static StaticTask_t blinky_task_buf                                   = {NULL};
     static StackType_t blinky_task_stack[EXPANDER_BLINKY_TASK_STACK_SIZE] = {NULL};
     xExpanderBlinkyTaskHandle =
-        task_create_periodic_static(&expander_blinky, "exp_blinky", EXPANDER_BLINKY_TASK_STACK_SIZE, NULL, BLINKY_TASK_DEFAULT_PRIORITY, blinky_task_stack, &blinky_task_buf, 200);
+        task_create_periodic_static(&expander_blinky, "exp_blinky", EXPANDER_BLINKY_TASK_STACK_SIZE, NULL, BLINKY_TASK_PRIORITY, blinky_task_stack, &blinky_task_buf, 200);
 #endif
 }
 

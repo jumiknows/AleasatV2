@@ -129,7 +129,8 @@ class BufferedProtocolLayer(DirectionalProtocolLayer[packet.RawPacket]):
         super().__init__(direction)
 
         self._buf_size = buf_size
-        self._buffer = bytearray()
+
+        self.reset()
 
     def transform_packet(self, packet_in: packet.Packet) -> List[packet.RawPacket]:
         data = self.packet_to_bytes(packet_in)
@@ -147,6 +148,10 @@ class BufferedProtocolLayer(DirectionalProtocolLayer[packet.RawPacket]):
         packet_data = self._read_buffer(len(self._buffer))
         flush_packet = packet.RawPacket(packet_data)
         return [flush_packet]
+
+    def reset(self):
+        self._buffer = bytearray()
+        super().reset()
 
     def _read_buffer(self, num_bytes: int) -> bytes:
         data = self._buffer[:num_bytes]
@@ -201,9 +206,7 @@ class StreamToPacketProtocolLayer(Generic[AnyPacket], DirectionalProtocolLayer[A
         self._default_state = default_state
         self._packet_cls = packet_cls
 
-        self._state = self._default_state
-        self._packet = self._packet_cls()
-        self._buffer = bytearray()
+        self.reset()
 
     def transform_packet(self, packet_in: packet.Packet) -> List[AnyPacket]:
         # Add new data to the internal buffer
@@ -230,6 +233,12 @@ class StreamToPacketProtocolLayer(Generic[AnyPacket], DirectionalProtocolLayer[A
                 self._packet = self._packet_cls()
 
         return packets
+
+    def reset(self):
+        self._state = self._default_state
+        self._packet = self._packet_cls()
+        self._buffer = bytearray()
+        super().reset()
 
     @abstractmethod
     def _handle_state(self, state: int, data: bytes) -> Tuple[int, int, bool]:

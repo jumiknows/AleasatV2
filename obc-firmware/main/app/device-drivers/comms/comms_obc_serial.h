@@ -1,28 +1,24 @@
 /**
- * @file comms_utils.h
- * @brief Comms related utility functions
+ * @file comms_obc_serial.h
+ * @brief COMMS device implementation using the OBC serial port
  */
 
-#ifndef COMMS_UTILS_H_
-#define COMMS_UTILS_H_
+#ifndef COMMS_OBC_SERIAL_H_
+#define COMMS_OBC_SERIAL_H_
 
 /******************************************************************************/
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-#include "comms_defs.h"
-
-// Standard Library
-#include <stdint.h>
-#include <stdbool.h>
+// COMMS
+#include "comms_device.h"
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-comms_err_t comms_check_cmd_struct(comms_command_t* cmd_struct);
+void comms_obc_serial_init(void);
+comms_dev_handle_t comms_obc_serial_get_handle(void);
+void comms_obc_serial_invoke_cb(void);
 
-comms_err_t comms_buffer_to_cmd_struct(const uint8_t* buf, comms_command_t* cmd_struct);
-comms_err_t comms_cmd_struct_to_buffer(comms_command_t* cmd_struct, uint8_t* buf, uint16_t *msg_len);
-
-#endif /* COMMS_UTILS_H_ */
+#endif // COMMS_OBC_SERIAL_H_

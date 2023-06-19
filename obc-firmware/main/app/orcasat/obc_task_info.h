@@ -32,6 +32,7 @@
 #define HANG_TASK_STACK_SIZE            (128)
 #define COMMS_IRQ_TASK_STACK_SIZE       (400)
 #define RTC_MOCK_STACK_SIZE             (128)
+#define GNDSTN_LINK_TASK_STACK_SIZE     (256)
 
 /**
  * @brief Maximum priority that any task may have.
@@ -39,46 +40,30 @@
 #define MAX_PRIORITY (configMAX_PRIORITIES - 1)
 
 /**
- * @brief Task default priorities.
+ * @brief Task Priorities
  */
-#define MAIN_TASK_PRIORITY               2
-#define BLINKY_TASK_DEFAULT_PRIORITY     3
-#define SCHEDULER_TEST_TASK_PRIORITY     4
-#define STATE_HANDLER_TEST_TASK_PRIORITY 4
+#define GPIO_IRQ_SERVICE_PRIORITY        5
+#define COMMS_IRQ_SERVICE_PRIORITY       5
 #define SERIAL_RX_TASK_PRIORITY          5
-#define SERIAL_TX_COMMS_TASK_PRIORITY    3
-#define SERIAL_TX_LOGS_TASK_PRIORITY     2
+#define RTC_MOCK_TASK_PRIORITY           5
+
 #define CMD_SYS_IMM_TASK_PRIORITY        4
 #define CMD_SYS_SCHED_TASK_PRIORITY      4
 #define CMD_SYS_EXEC_TASK_PRIORITY       4
-#define WATCHDOG_TASK_DEFAULT_PRIORITY   1
-#define STATE_HANDLER_TASK_PRIORITY      5
+
+#define SERIAL_TX_COMMS_TASK_PRIORITY    3
+#define GNDSTN_LINK_TASK_PRIORITY        3
+
+#define SERIAL_TX_LOGS_TASK_PRIORITY     2
+
+#define WATCHDOG_TASK_PRIORITY           1
+#define BLINKY_TASK_PRIORITY             1
+#define MAIN_TASK_PRIORITY               1
+
+// TBD
+#define STATE_HANDLER_TASK_PRIORITY      1
+#define FS_LOGGER_PRIORITY               1
+#define TELEM_LOG_TASK_PRIORITY          1
 #define HANG_TASK_DEFAULT_PRIORITY       1
-#define RTC_MOCK_TASK_PRIORITY           5
-
-/**
- * @brief I2C FreeRTOS priorities.
- */
-#define I2C_WORKER_DEFAULT_PRIORITY 5
-
-/**
- * @brief GPIO interrupt handling priority.
- */
-#define GPIO_IRQ_SERVICE_PRIORITY 4
-
-/**
- * @brief Comms interrupt handling priority.
- */
-#define COMMS_IRQ_SERVICE_PRIORITY 3
-
-/**
- * @brief Telemetry logger priority.
- */
-#define TELEM_LOG_TASK_PRIORITY 4
-
-/**
- * @brief Filesystem priorities.
- */
-#define FS_LOGGER_PRIORITY    3
 
 #endif /* OBC_TASK_INFO_H_ */

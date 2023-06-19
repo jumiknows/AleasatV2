@@ -48,7 +48,7 @@ class OBCSerialPhyRX(layer_impl.StreamToPacketProtocolLayer[OBCSerialFrame]):
         DATA   = 3,
         CRC    = 4,
 
-    MAX_DATA_SIZE = 234
+    MAX_DATA_SIZE = 237
 
     def __init__(self):
         super().__init__(layer_impl.DirectionalProtocolLayer.Direction.RX, self.State.SYNC_0, OBCSerialFrame)
