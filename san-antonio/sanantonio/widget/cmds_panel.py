@@ -7,10 +7,10 @@ from sanantonio.backend import obcqt
 from sanantonio.ui.control_panels import cmds_panel_ui
 
 class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
-    def __init__(self, obc: obcqt.OBCQT, parent=None):
+    def __init__(self, obc_provider: obcqt.OBCInterfaceProvider, parent=None):
         super().__init__(parent)
 
-        self._obc = obc
+        self._obc_provider = obc_provider
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
         self.reset_btn: QtWidgets.QPushButton
@@ -29,7 +29,7 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
 
         self.setupUi(self)
 
-        cmd_names = list(map(lambda cmd_sys_spec: cmd_sys_spec.name, self._obc.cmd_sys_specs))
+        cmd_names = list(map(lambda cmd_sys_spec: cmd_sys_spec.name, self.obc.cmd_sys_specs))
         cmd_name_completer = QtWidgets.QCompleter(cmd_names, self)
         cmd_name_completer.setCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
         cmd_name_completer.setCompletionMode(QtWidgets.QCompleter.CompletionMode.PopupCompletion)
@@ -45,21 +45,25 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
         self.cmd_name_edit.textChanged.connect(self.handle_cmd_name_changed)
         self.custom_cmd_now_btn.clicked.connect(self.handle_now_clicked)
 
+    @property
+    def obc(self) -> obcqt.OBCQT:
+        return self._obc_provider.obc
+
     @QtCore.pyqtSlot()
     def handle_reset(self):
-        self._obc.execute(obcqt.OBCQTRequest(
+        self.obc.execute(obcqt.OBCQTRequest(
             lambda obc: obc.reset()
         ))
 
     @QtCore.pyqtSlot()
     def handle_ping(self):
-        self._obc.execute(obcqt.OBCQTRequest(
+        self.obc.execute(obcqt.OBCQTRequest(
             lambda obc: obc.ping()
         ))
 
     @QtCore.pyqtSlot()
     def handle_sync_time(self):
-        self._obc.execute(obcqt.OBCQTRequest(
+        self.obc.execute(obcqt.OBCQTRequest(
             lambda obc: obc.set_time()
         ))
 
@@ -70,7 +74,7 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
     @QtCore.pyqtSlot(str)
     def handle_cmd_name_changed(self, cmd_name: str):
         try:
-            cmd_sys_spec = self._obc.cmd_sys_specs.get(cmd_name)
+            cmd_sys_spec = self.obc.cmd_sys_specs.get(cmd_name)
             self.custom_cmd_help_label.setText(str(cmd_sys_spec))
         except exc.OBCCmdNotFoundError:
             self.custom_cmd_help_label.setText("")
@@ -90,6 +94,6 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
         else:
             cmd_date_time = obc_time.IMMEDIATE
 
-        self._obc.execute(obcqt.OBCQTRequest(
+        self.obc.execute(obcqt.OBCQTRequest(
             lambda obc, cmd_str=cmd_str: obc.send_cmd_str(cmd_str, date_time = cmd_date_time)
         ))

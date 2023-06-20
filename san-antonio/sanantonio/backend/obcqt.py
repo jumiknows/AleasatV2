@@ -293,6 +293,10 @@ class OBCQT(QtCore.QObject):
         self._request_thread.obc_error.connect(self.obc_error)
 
     @property
+    def interface_type(self) -> obc_base.OBCBase.InterfaceType:
+        return self._obc.interface_type
+
+    @property
     def cmd_sys_specs(self) -> cmd_sys.spec.OBCCmdSysSpecs:
         return self._obc.cmd_sys_specs
 
@@ -301,7 +305,7 @@ class OBCQT(QtCore.QObject):
         return self._obc.connected
 
     @property
-    def logs(self) -> QtCore.pyqtSignal:
+    def logs(self) -> QtCore.pyqtBoundSignal:
         """QT signal that sends `OBCLog` objects as they are received.
         """
         return self._log_thread.data
@@ -316,18 +320,18 @@ class OBCQT(QtCore.QObject):
         """
         self._obc.remove_event_listener(listener)
 
+    def clear_event_listeners(self):
+        self._obc.clear_event_listeners()
+
     def execute(self, request: OBCQTRequest):
         """Run an operation using the OBC in a background thread.
         """
         self._request_thread.request.emit(request)
 
-    def start(self, serial_port: str) -> bool:
-        """Open a connection to the OBC on the provided serial port.
+    def start(self, *args, **kwargs) -> bool:
+        """Open a connection to the OBC.
 
-        This spawns several background threads to manage communication with the OBC.
-
-        Args:
-            serial_port: A name of a serial port (e.g. "COM7", "/dev/ttyS0")
+        This may spawn background threads to manage communication with the OBC.
 
         Returns:
             True if the connection was opened successfully, otherwise False.
@@ -337,7 +341,7 @@ class OBCQT(QtCore.QObject):
             return False
 
         # Start the OBC
-        if not self._obc.start(serial_port):
+        if not self._obc.start(*args, **kwargs):
             return False
 
         # Start threads
@@ -352,3 +356,16 @@ class OBCQT(QtCore.QObject):
         self._log_thread.stop()
         self._request_thread.stop()
         self._obc.stop()
+
+class OBCInterfaceProvider:
+    @property
+    def obc(self) -> OBCQT:
+        raise NotImplementedError()
+
+    @property
+    def conn_state_changed(self) -> QtCore.pyqtBoundSignal:
+        raise NotImplementedError()
+
+    @property
+    def obc_interface_changed(self) -> QtCore.pyqtBoundSignal:
+        raise NotImplementedError()

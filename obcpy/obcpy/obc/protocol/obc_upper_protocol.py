@@ -15,12 +15,12 @@ class OBCUpperProtocol:
     This includes the application layer, the COMMS datalink layer, and a layer of packet buffers.
     """
 
-    def __init__(self, log_specs: log_sys.log_spec.OBCLogGroupSpecs):
+    def __init__(self, hwid: comms_datalink.HWID, log_specs: log_sys.log_spec.OBCLogGroupSpecs):
         """Initializes the protocol stack.
         """
         # Instantiate protocols
         self._app = app_protocol.OBCAppProtocol(log_specs, serial_protocol.MAX_DATA_SIZE)
-        self._comms_datalink = comms_datalink.CommsDataLink()
+        self._comms_datalink = comms_datalink.CommsDataLink(hwid)
 
         # Instantiate bridges (packet buffers)
         self._tx_bridge = routing_impl.QueuePacketBridge[packet.Packet](maxsize=100)

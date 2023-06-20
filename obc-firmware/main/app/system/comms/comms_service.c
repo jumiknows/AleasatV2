@@ -157,6 +157,7 @@ endpoint_t endpoints[COMMS_ENDPOINT_MAX] = {
     [COMMS_ENDPOINT_RADIO]  = { .hwid = COMMS_HWID,  .seqnum = 0 },
     [COMMS_ENDPOINT_GROUND] = { .hwid = GROUND_HWID, .seqnum = 0 },
     [COMMS_ENDPOINT_ARO]    = { .hwid = 0,           .seqnum = 0 },
+    [COMMS_ENDPOINT_LOCAL]  = { .hwid = LOCAL_HWID,  .seqnum = 0 },
 };
 
 static command_handler_t cmd_handlers[] = {

@@ -8,9 +8,10 @@ class Color(Enum):
     GREEN  = "green"
     BLACK  = "black"
     YELLOW = "yellow"
+    WHITE  = "white"
 
-    def as_stylesheet(self) -> str:
-        return f"color: {self.value}"
+    def as_stylesheet(self, label: str = "color") -> str:
+        return f"{label}: {self.value}"
 
     def as_qcolor(self) -> QtGui.QColor:
         return QtGui.QColor(self.value)

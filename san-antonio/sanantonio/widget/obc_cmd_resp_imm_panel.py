@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Callable
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -15,10 +15,8 @@ from . import obc_cmd_resp_base_panel
 class OBCCmdRespImmPanel(QtWidgets.QWidget, obc_cmd_resp_imm_panel_ui.Ui_OBCCmdRespImmPanel, obc_cmd_resp_base_panel.OBCCmdRespBasePanel):
     updated = QtCore.pyqtSignal()
 
-    def __init__(self, obc: obcqt.OBCQT, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-
-        self._obc = obc
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
         self.obc_cmd_resp_imm_table: QtWidgets.QTableWidget

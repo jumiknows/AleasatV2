@@ -6,7 +6,9 @@ from obcpy.obc.protocol import obc_upper_protocol
 from obcpy.obc.protocol.serial import serial_protocol
 from obcpy.obc.protocol.comms import comms_phy
 
-class OBCSerialInterface:
+from . import obc_interface
+
+class OBCSerialInterface(obc_interface.OBCInterface):
     """Serial interface to the OBC.
 
     This class uses the OBCSerialProtocol to send and receive data to/from the OBC over a SerialDevice.
@@ -34,12 +36,19 @@ class OBCSerialInterface:
     @property
     def connected(self) -> bool:
         return self._device.connected
-    
-    @property
-    def protocol(self) -> serial_protocol.OBCSerialProtocol:
-        return self._serial_protocol
 
     def start(self, serial_port: str) -> bool:
+        """Open a connection to the OBC on the provided serial port.
+
+        This spawns several background threads to manage communication with the OBC.
+
+        Args:
+            serial_port: A name of a serial port (e.g. "COM7", "/dev/ttyS0")
+
+        Returns:
+            True if the connection was opened successfully, otherwise False.
+        """
+        self._serial_protocol.reset()
         return self._device.start(serial_port)
 
     def stop(self):

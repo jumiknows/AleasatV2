@@ -1,4 +1,5 @@
-from typing import List, Union, Dict, Callable
+from typing import List, Union, Type, Dict, Callable, Tuple
+from enum import Enum
 import pathlib
 import json
 import threading
@@ -15,10 +16,13 @@ from .protocol import obc_upper_protocol
 from .protocol.app import app_protocol
 from .protocol.app import app_cmd_sys
 from .protocol.app import app_log
+from .protocol.comms import comms_datalink
 
+from .interface import obc_interface
 from .interface import obc_serial_interface
+from .interface import comms_serial_interface
 
-DEFAULT_CMD_TIMEOUT = 30
+DEFAULT_CMD_TIMEOUT = 10
 
 LOG_CMD_SYS_SCHED_RESP = 67
 
@@ -67,10 +71,26 @@ class OBCBase:
     """Base API for interacting with an OBC.
     """
 
-    def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path):
+    class InterfaceType(Enum):
+        OBC_SERIAL   = (0, obc_serial_interface.OBCSerialInterface, comms_datalink.HWID.GROUND)
+        COMMS_SERIAL = (1, comms_serial_interface.CommsSerialInterface, comms_datalink.HWID.LOCAL)
+
+        @property
+        def id(self) -> int:
+            return self.value[0]
+
+        @property
+        def class_(self) -> Type[obc_interface.OBCInterface]:
+            return self.value[1]
+
+        @property
+        def hwid(self) -> comms_datalink.HWID:
+            return self.value[2]
+
+    def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path, interface_type: InterfaceType):
         """Initializes a new OBC instance.
 
-        Sets up a serial interface to the OBC but does not open the connection.
+        Sets up ether a Serial or RF interface to the OBC but does not open the connection.
         You must call `OBC.start()` to open the connection.
 
         The provided command system and log specifications will be loaded at initialization time.
@@ -83,8 +103,9 @@ class OBCBase:
 
         The loaded specifications can be replaced at any time by calling `OBC.load_cmd_sys_specs`.
         """
-        self._upper_protocol = obc_upper_protocol.OBCUpperProtocol(log_specs=None) # Log specs will be loaded afterwards
-        self._interface = obc_serial_interface.OBCSerialInterface(self._upper_protocol)
+        self._upper_protocol = obc_upper_protocol.OBCUpperProtocol(interface_type.hwid, log_specs=None) # Log specs will be loaded afterwards
+        self._interface = interface_type.class_(self._upper_protocol)
+        self._interface_type = interface_type
 
         self._cmd_sys_specs: cmd_sys.spec.OBCCmdSysSpecs = None
         self.load_cmd_sys_specs(cmd_sys_specs_paths)
@@ -103,6 +124,10 @@ class OBCBase:
         self._sched_resp_thread: threading.Thread = None
 
         self._event_listeners: List[OBCEventListener] = []
+
+    @property
+    def interface_type(self) -> InterfaceType:
+        return self._interface_type
 
     @property
     def connected(self) -> bool:
@@ -147,26 +172,16 @@ class OBCBase:
 
         self._app_protocol.update_log_specs(self._log_specs)
 
-    def start(self, serial_port: str) -> bool:
-        """Open a connection to the OBC on the provided serial port.
-
-        This spawns several background threads to manage communication with the OBC.
-
-        Args:
-            serial_port: A name of a serial port (e.g. "COM7", "/dev/ttyS0")
-
-        Returns:
-            True if the connection was opened successfully, otherwise False.
-        """
+    def start(self, *args, **kwargs) -> bool:
         # Reset protocols
-        self._app_protocol.reset()       # Resets from the top-down
-        self._interface.protocol.reset() # Resets from the bottom up
+        self._app_protocol.reset()
 
         # Start scheduled response thread
         self._sched_resp_thread = threading.Thread(target=self._run_sched_resp, daemon=True)
         self._sched_resp_event.clear()
         self._sched_resp_thread.start()
-        return self._interface.start(serial_port)
+
+        return self._interface.start(*args, **kwargs)
 
     def stop(self):
         """Closes a connection to the OBC and terminates the background threads.
@@ -175,6 +190,7 @@ class OBCBase:
             self._sched_resp_event.set()
             self._sched_resp_thread.join()
             self._sched_resp_thread = None
+
         return self._interface.stop()
 
     def _check_connected(self):
@@ -202,6 +218,9 @@ class OBCBase:
             listener: An instance of OBCEventListener that was previously passed to self.add_event_listener(...)
         """
         self._event_listeners.remove(listener)
+
+    def clear_event_listeners(self):
+        self._event_listeners.clear()
 
     def send_cmd_str(self, cmd_str: str, date_time: obc_time.OBCDateTime = obc_time.IMMEDIATE, timeout: int = DEFAULT_CMD_TIMEOUT) -> Union[cmd_sys.resp.OBCResponse, cmd_sys.resp.OBCPendingResponse]:
         """Parses a command string and sends it to the OBC.

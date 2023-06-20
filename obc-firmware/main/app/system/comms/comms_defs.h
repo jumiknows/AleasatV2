@@ -44,6 +44,7 @@
 #define OBC_HWID    0x7000
 #define COMMS_HWID  0x0107
 #define GROUND_HWID 0x8000
+#define LOCAL_HWID  0xFFFF
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */

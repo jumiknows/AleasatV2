@@ -15,10 +15,10 @@ from . import obc_cmd_resp_base_panel
 class OBCCmdRespSchedPanel(QtWidgets.QWidget, obc_cmd_resp_sched_panel_ui.Ui_OBCCmdRespSchedPanel, obc_cmd_resp_base_panel.OBCCmdRespBasePanel):
     updated = QtCore.pyqtSignal()
 
-    def __init__(self, obc: obcqt.OBCQT, parent=None):
+    def __init__(self, obc_provider: obcqt.OBCInterfaceProvider, parent=None):
         super().__init__(parent)
 
-        self._obc = obc
+        self._obc_provider = obc_provider
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
         self.obc_cmd_resp_sched_tree: QtWidgets.QTreeWidget
@@ -41,6 +41,10 @@ class OBCCmdRespSchedPanel(QtWidgets.QWidget, obc_cmd_resp_sched_panel_ui.Ui_OBC
         self.obc_cmd_resp_sched_tree.setStyleSheet("QTreeWidget::item { padding: 8px }")
 
         self._pending_cmds: Dict = {int: int} # Maps cmd unique IDs to rows
+
+    @property
+    def obc(self) -> obcqt.OBCQT:
+        return self._obc_provider.obc
 
     @QtCore.pyqtSlot(cmd_sys.cmd.OBCCmd)
     def handle_cmd_sent(self, cmd: cmd_sys.cmd.OBCCmd):
@@ -75,7 +79,7 @@ class OBCCmdRespSchedPanel(QtWidgets.QWidget, obc_cmd_resp_sched_panel_ui.Ui_OBC
         self.obc_cmd_resp_sched_tree.scrollToItem(item, QtWidgets.QAbstractItemView.ScrollHint.EnsureVisible)
 
         # Check if the actual command has no response
-        if self._obc.cmd_sys_specs.get(id=resp.sched_resp.cmd_id).resp is None:
+        if self.obc.cmd_sys_specs.get(id=resp.sched_resp.cmd_id).resp is None:
             del self._pending_cmds[resp.sched_resp.cmd_inst_id]
         else:
             # Check if the actual response is available

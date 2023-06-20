@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from typing import Union
 import datetime
 
 from PyQt5 import QtWidgets, QtCore
@@ -17,10 +17,10 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
     captured_image = QtCore.pyqtSignal(image_utils.CapturedImage)
     image_transfer_progress = QtCore.pyqtSignal(data_utils.DataProgress)
 
-    def __init__(self, obc: obcqt.OBCQT, parent=None):
+    def __init__(self, obc_provider: obcqt.OBCInterfaceProvider, parent=None):
         super().__init__(parent)
 
-        self._obc = obc
+        self._obc_provider = obc_provider
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
 
@@ -101,6 +101,10 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
         # Configure UI
         self.configure_progress_bar(initializing=False, capturing=False)
 
+    @property
+    def obc(self) -> obcqt.OBCQT:
+        return self._obc_provider.obc
+
     def configure_progress_bar(self, initializing: bool, capturing: bool):
         self.progress_bar.setVisible(initializing or capturing)
 
@@ -114,7 +118,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
     @QtCore.pyqtSlot()
     def handle_init(self):
         self.configure_progress_bar(initializing=True, capturing=False)
-        self._obc.execute(obcqt.OBCQTRequest(
+        self.obc.execute(obcqt.OBCQTRequest(
             lambda obc: obc.camera_init(),
             self._init_callback
         ))
@@ -127,7 +131,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
         self.configure_progress_bar(initializing=False, capturing=True)
 
         progress_callback = lambda progress: self.image_transfer_progress.emit(progress)
-        self._obc.execute(obcqt.OBCQTRequest(
+        self.obc.execute(obcqt.OBCQTRequest(
             lambda obc: obc.camera_capture(progress_callback=progress_callback),
             self._capture_callback
         ))
@@ -156,7 +160,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
         try:
             addr = int(self.sreg_addr_edit.text(), 16)
 
-            self._obc.execute(obcqt.OBCQTRequest(
+            self.obc.execute(obcqt.OBCQTRequest(
                 lambda obc: obc.camera_read_sensor_reg(addr),
                 self._sreg_read_callback
             ))
@@ -176,7 +180,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
             addr = int(self.sreg_addr_edit.text(), 16)
             data = int(self.sreg_data_edit.text(), 16)
 
-            self._obc.execute(obcqt.OBCQTRequest(
+            self.obc.execute(obcqt.OBCQTRequest(
                 lambda obc: obc.camera_write_sensor_reg(addr, data)
             ))
         except ValueError:
@@ -194,7 +198,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
             tot_width  = int(self.res_tot_width_edit.text(), 0)
             tot_height = int(self.res_tot_height_edit.text(), 0)
 
-            self._obc.execute(obcqt.OBCQTRequest(
+            self.obc.execute(obcqt.OBCQTRequest(
                 lambda obc: obc.camera_set_resolution(win_x, win_y, win_width, win_height, out_width, out_height, tot_width, tot_height)
             ))
         except ValueError:
@@ -208,7 +212,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
                 top_limit    = int(self.wb_top_lim_edit.text(), 0)
                 bottom_limit = int(self.wb_bot_lim_edit.text(), 0)
 
-                self._obc.execute(obcqt.OBCQTRequest(
+                self.obc.execute(obcqt.OBCQTRequest(
                     lambda obc: obc.camera_set_white_balance_auto_simple(top_limit, bottom_limit)
                 ))
             else:
@@ -216,7 +220,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
                 gain_g = int(self.wb_gain_g_edit.text(), 0)
                 gain_b = int(self.wb_gain_b_edit.text(), 0)
 
-                self._obc.execute(obcqt.OBCQTRequest(
+                self.obc.execute(obcqt.OBCQTRequest(
                     lambda obc: obc.camera_set_white_balance_manual(gain_r, gain_g, gain_b)
                 ))
         except ValueError:
@@ -252,7 +256,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
                     int(self.sde_hue_sin_edit.text(), 0),
                 )
 
-            self._obc.execute(obcqt.OBCQTRequest(
+            self.obc.execute(obcqt.OBCQTRequest(
                 lambda obc: obc.camera_set_special_digital_effects(
                                     enable     = sde_enable,
                                     fixed_y    = fixed_y,

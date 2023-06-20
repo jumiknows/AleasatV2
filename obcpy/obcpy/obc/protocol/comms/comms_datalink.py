@@ -14,6 +14,7 @@ class HWID(IntEnum):
     OBC    = 0x7000
     COMMS  = 0x0107
     GROUND = 0x8000
+    LOCAL  = 0xFFFF
 
 class CommsCommand(IntEnum):
     ACK      = 0x10
@@ -86,11 +87,11 @@ class CommsDataLinkTX(layer.ProtocolLayer[CommsDatagram]):
 class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[CommsDatagram]):
     RESP_QUEUE_SIZE = 100 # Allow 100 in flight packets (should be plenty)
 
-    def __init__(self, rx_dest: routing.PacketDest[CommsDatagram] = None, tx_src: routing.PacketSource[packet.Packet] = None):
+    def __init__(self, src_hwid: HWID, rx_dest: routing.PacketDest[CommsDatagram] = None, tx_src: routing.PacketSource[packet.Packet] = None):
         self._rx_protocol_layer = CommsDataLinkRX()
         self._rx_dest = rx_dest
 
-        self._tx_protocol_layer = CommsDataLinkTX(HWID.GROUND, HWID.OBC, CommsCommand.OBC_DATA)
+        self._tx_protocol_layer = CommsDataLinkTX(src_hwid, HWID.OBC, CommsCommand.OBC_DATA)
         self._tx_src = tx_src
 
         self._ack_sent = threading.Event()

@@ -25,10 +25,8 @@ class OBCCmdRespPanel(QtWidgets.QWidget, obc_cmd_resp_panel_ui.Ui_OBCCmdRespPane
     sched_resp_recvd = QtCore.pyqtSignal(cmd_sys.resp.OBCPendingResponse)
     sched_cmd_error = QtCore.pyqtSignal(object)
 
-    def __init__(self, obc: obcqt.OBCQT, parent=None):
+    def __init__(self, obc_provider: obcqt.OBCInterfaceProvider, parent=None):
         super().__init__(parent)
-
-        self._obc = obc
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
         self.obc_cmd_resp_tabs: QtWidgets.QTabWidget
@@ -36,15 +34,15 @@ class OBCCmdRespPanel(QtWidgets.QWidget, obc_cmd_resp_panel_ui.Ui_OBCCmdRespPane
         self.setupUi(self)
 
         # Immediate Panel
-        self.immediate = obc_cmd_resp_imm_panel.OBCCmdRespImmPanel(self._obc)
+        self.immediate = obc_cmd_resp_imm_panel.OBCCmdRespImmPanel()
         self.obc_cmd_resp_tabs.insertTab(self.TAB_IMMEDIATE, self.immediate, "Immediate")
 
         # Scheduled Panel
-        self.scheduled = obc_cmd_resp_sched_panel.OBCCmdRespSchedPanel(self._obc)
+        self.scheduled = obc_cmd_resp_sched_panel.OBCCmdRespSchedPanel(obc_provider)
         self.obc_cmd_resp_tabs.insertTab(self.TAB_SCHEDULED, self.scheduled, "Scheduled")
 
         # Image Panel
-        self.image_panel = image_panel.ImagePanel(self._obc)
+        self.image_panel = image_panel.ImagePanel()
         self.obc_cmd_resp_tabs.insertTab(self.TAB_IMAGE, self.image_panel, "Camera Image")
 
         self.obc_cmd_resp_tabs.setCurrentIndex(self.TAB_IMMEDIATE)

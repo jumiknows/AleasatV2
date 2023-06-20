@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Callable
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -9,10 +9,9 @@ class SanAntonioLog(QtWidgets.QWidget, san_antonio_log_ui.Ui_SanAntonioLog):
     MAX_LOG_LEN = 65536
     SEP_CHAR = "\n"
 
-    def __init__(self, obc: obcqt.OBCQT, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._obc = obc
         self._text = ""
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()

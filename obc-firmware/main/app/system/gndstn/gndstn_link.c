@@ -197,7 +197,9 @@ static void gndstn_link_task(void *pvParameters) {
         .data   = {0},
     };
 
-    err = comms_session_init(COMMS_ENDPOINT_GROUND, &comms_session);
+    // TODO ALEA-900
+    // err = comms_session_init(COMMS_ENDPOINT_GROUND, &comms_session);
+    err = comms_session_init(COMMS_ENDPOINT_LOCAL, &comms_session);
     if (err != COMMS_SUCCESS) {
         log_signal_with_data(ERROR, LOG_GNDSTN_DOWNLINK, LOG_GNDSTN_DOWNLINK__COMMS_SESS_INIT_ERR, sizeof(err), &err);
         return;

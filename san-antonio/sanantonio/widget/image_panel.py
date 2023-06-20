@@ -1,4 +1,5 @@
 import pathlib
+from typing import Callable
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 
@@ -12,10 +13,8 @@ class ImagePanel(QtWidgets.QWidget, image_panel_ui.Ui_ImagePanel):
 
     updated = QtCore.pyqtSignal()
 
-    def __init__(self, obc: obcqt.OBCQT, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-
-        self._obc = obc
 
         self._image: image_utils.CapturedImage = None
         self._last_save_dir: pathlib.Path = pathlib.Path("./").resolve()

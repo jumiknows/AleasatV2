@@ -101,6 +101,7 @@ typedef enum comms_endpoint_id {
     COMMS_ENDPOINT_RADIO,
     COMMS_ENDPOINT_GROUND,
     COMMS_ENDPOINT_ARO,
+    COMMS_ENDPOINT_LOCAL,
     COMMS_ENDPOINT_MAX,
 } comms_endpoint_id_t;
 

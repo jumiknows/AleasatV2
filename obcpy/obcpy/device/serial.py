@@ -88,6 +88,7 @@ class SerialRXWorker(SerialWorker):
             self._dest.write(packet.RawPacket(rx_data))
         return True
 
+# Not snake case ---> snek sad
 class SerialTXWorker(SerialWorker):
     """Implementation of `SerialWorker` for sending bytes on the serial port.
     """

@@ -42,7 +42,7 @@ class OBCTest(unittest.TestCase):
         if cls.PORT is None:
             raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
 
-        cls.obc = OBC(CMD_SYS_SPECS_PATHS, LOG_SPECS_PATH)
+        cls.obc = OBC(CMD_SYS_SPECS_PATHS, LOG_SPECS_PATH, OBC.InterfaceType.OBC_SERIAL)
         if not cls.obc.start(cls.PORT):
             raise Exception(f"ERROR: Could not connect to {cls.PORT}")
 

@@ -9,6 +9,7 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
 import obcpy.obc
+from obcpy.obc import obc_base
 
 from sanantonio.backend import obcqt
 from sanantonio.widget import main_window
@@ -18,7 +19,10 @@ class SanAntonio:
     APP_ID = 'aleasat.sanantonio.0'
 
     def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path):
-        self._obc = obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path))
+        self._obcs = {
+            obc_base.OBCBase.InterfaceType.OBC_SERIAL.id   : obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path, obc_base.OBCBase.InterfaceType.OBC_SERIAL)),
+            obc_base.OBCBase.InterfaceType.COMMS_SERIAL.id : obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path, obc_base.OBCBase.InterfaceType.COMMS_SERIAL)),
+        }
 
     def run(self):
         app = QtWidgets.QApplication(sys.argv)
@@ -52,7 +56,7 @@ class SanAntonio:
         palette.setColor(QtGui.QPalette.HighlightedText, Qt.black)
         app.setPalette(palette)
 
-        self._window = main_window.MainWindow(self._obc)
+        self._window = main_window.MainWindow(self._obcs)
         self._window.showMaximized()
 
         # Capture all stdout output and send it on the self._window.handle_stdout signal
