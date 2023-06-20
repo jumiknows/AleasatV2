@@ -1,6 +1,21 @@
 """Utilities related to raw data manipulation.
 """
 
+from dataclasses import dataclass
+
+@dataclass
+class DataProgress:
+    complete: int
+    total: int
+
+    @property
+    def remaining(self) -> int:
+        return (self.total - self.complete)
+
+    @property
+    def percent(self) -> float:
+        return (self.complete / self.total) * 100
+
 def bytes_to_hexstr(data: bytes, ascii_only: bool = False, try_decode: bool = True) -> str:
     """Convert a bytes object to a string
 

@@ -1,3 +1,4 @@
+from typing import Callable
 from collections import namedtuple
 
 from obcpy import cmd_sys
@@ -5,6 +6,7 @@ from obcpy import cmd_sys
 from obcpy.obc import obc_base
 from obcpy.obc.obc_base import DEFAULT_CMD_TIMEOUT
 
+from obcpy.utils import data as data_utils
 from obcpy.utils.data import get_byte
 
 from . import OV5642
@@ -16,8 +18,8 @@ class OBCCameraFeature(obc_base.OBCBase):
     def camera_init(self, timeout: float = DEFAULT_CMD_TIMEOUT) -> cmd_sys.resp.OBCResponse:
         return self.send_cmd("TEST_CAM_INIT", timeout=timeout)
 
-    def camera_capture(self, timeout: float = DEFAULT_CMD_TIMEOUT) -> cmd_sys.resp.OBCResponse:
-        return self.send_cmd("TEST_CAM_CAPTURE", timeout=timeout)
+    def camera_capture(self, timeout: float = DEFAULT_CMD_TIMEOUT, progress_callback: Callable[[data_utils.DataProgress], None] = None) -> cmd_sys.resp.OBCResponse:
+        return self.send_cmd("TEST_CAM_CAPTURE", timeout=timeout, progress_callback=progress_callback)
 
     def camera_write_sensor_reg(self, addr: int, data: int, timeout: float = DEFAULT_CMD_TIMEOUT) -> cmd_sys.resp.OBCResponse:
         return self.send_cmd("TEST_CAM_WR_SREG", addr, data, timeout=timeout)

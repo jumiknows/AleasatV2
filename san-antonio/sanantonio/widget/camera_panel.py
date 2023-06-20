@@ -1,10 +1,11 @@
-from typing import Union
+from typing import Union, Tuple
 import datetime
 
 from PyQt5 import QtWidgets, QtCore
 
 from obcpy import cmd_sys
 from obcpy.utils import exc
+from obcpy.utils import data as data_utils
 
 from sanantonio.backend import obcqt
 from sanantonio.ui.control_panels import camera_panel_ui
@@ -14,6 +15,7 @@ from sanantonio.utils import obc as obc_utils
 
 class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
     captured_image = QtCore.pyqtSignal(image_utils.CapturedImage)
+    image_transfer_progress = QtCore.pyqtSignal(data_utils.DataProgress)
 
     def __init__(self, obc: obcqt.OBCQT, parent=None):
         super().__init__(parent)
@@ -24,6 +26,7 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
 
         self.init_btn: QtWidgets.QPushButton
         self.capture_btn: QtWidgets.QPushButton
+        self.progress_bar: QtWidgets.QProgressBar
 
         # Sensor Registers
         self.sreg_addr_edit: QtWidgets.QLineEdit
@@ -93,20 +96,49 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
         self.wb_set_btn.clicked.connect(self.handle_wb_set)
         self.sde_set_btn.clicked.connect(self.handle_sde_set)
 
+        self.image_transfer_progress.connect(self.handle_image_transfer_progress)
+
+        # Configure UI
+        self.configure_progress_bar(initializing=False, capturing=False)
+
+    def configure_progress_bar(self, initializing: bool, capturing: bool):
+        self.progress_bar.setVisible(initializing or capturing)
+
+        if initializing:
+            self.progress_bar.setRange(0, 0)
+        if capturing:
+            self.progress_bar.setRange(0, 100)
+
+        self.progress_bar.setValue(0)
+
     @QtCore.pyqtSlot()
     def handle_init(self):
+        self.configure_progress_bar(initializing=True, capturing=False)
         self._obc.execute(obcqt.OBCQTRequest(
-            lambda obc: obc.camera_init()
+            lambda obc: obc.camera_init(),
+            self._init_callback
         ))
+
+    def _init_callback(self, resp: Union[cmd_sys.resp.OBCResponse, exc.OBCError]):
+        self.configure_progress_bar(initializing=False, capturing=False)
 
     @QtCore.pyqtSlot()
     def handle_capture(self):
+        self.configure_progress_bar(initializing=False, capturing=True)
+
+        progress_callback = lambda progress: self.image_transfer_progress.emit(progress)
         self._obc.execute(obcqt.OBCQTRequest(
-            lambda obc: obc.camera_capture(),
+            lambda obc: obc.camera_capture(progress_callback=progress_callback),
             self._capture_callback
         ))
 
+    @QtCore.pyqtSlot(data_utils.DataProgress)
+    def handle_image_transfer_progress(self, progress: data_utils.DataProgress):
+        self.progress_bar.setValue(int(progress.percent))
+
     def _capture_callback(self, resp: Union[cmd_sys.resp.OBCResponse, exc.OBCError]):
+        self.configure_progress_bar(initializing=False, capturing=False)
+
         if not obc_utils.check_cmd_sys_resp(resp, "image_size", "image_data"):
             return
 
@@ -234,5 +266,5 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
                                     solarize   = solarize,
                             )
             ))
-        except ValueError:
-            console_utils.print_err("Error parsing camera special digital effects fields")
+        except ValueError as e:
+            console_utils.print_err(f"Error parsing camera special digital effects fields: {e}")

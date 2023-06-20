@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CameraPanel(object):
     def setupUi(self, CameraPanel):
         CameraPanel.setObjectName("CameraPanel")
-        CameraPanel.resize(1041, 413)
+        CameraPanel.resize(1041, 420)
         self.verticalLayout = QtWidgets.QVBoxLayout(CameraPanel)
         self.verticalLayout.setObjectName("verticalLayout")
         self.init_btn = QtWidgets.QPushButton(CameraPanel)
@@ -388,6 +388,10 @@ class Ui_CameraPanel(object):
         self.capture_btn.setMinimumSize(QtCore.QSize(0, 30))
         self.capture_btn.setObjectName("capture_btn")
         self.verticalLayout.addWidget(self.capture_btn)
+        self.progress_bar = QtWidgets.QProgressBar(CameraPanel)
+        self.progress_bar.setProperty("value", 24)
+        self.progress_bar.setObjectName("progress_bar")
+        self.verticalLayout.addWidget(self.progress_bar)
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem2)
 

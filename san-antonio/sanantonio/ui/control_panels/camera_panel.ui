@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1041</width>
-    <height>413</height>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -828,6 +828,13 @@
      </property>
      <property name="text">
       <string>Capture Image</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progress_bar">
+     <property name="value">
+      <number>24</number>
      </property>
     </widget>
    </item>

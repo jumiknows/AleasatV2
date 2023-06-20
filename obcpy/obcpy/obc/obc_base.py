@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Callable
 import pathlib
 import json
 import threading
@@ -7,6 +7,7 @@ from obcpy import cmd_sys
 from obcpy import log_sys
 from obcpy.utils import obc_time
 from obcpy.utils import exc
+from obcpy.utils import data as data_utils
 
 from obcpy.protocol import routing
 
@@ -236,7 +237,7 @@ class OBCBase:
 
         return self.send_cmd(cmd_name, *cmd_fields, date_time=date_time, timeout=timeout)
 
-    def send_cmd(self, cmd_name: str, *args, date_time: obc_time.OBCDateTime = obc_time.IMMEDIATE, timeout: int = DEFAULT_CMD_TIMEOUT) -> Union[cmd_sys.resp.OBCResponse, cmd_sys.resp.OBCPendingResponse]:
+    def send_cmd(self, cmd_name: str, *args, date_time: obc_time.OBCDateTime = obc_time.IMMEDIATE, timeout: int = DEFAULT_CMD_TIMEOUT, progress_callback: Callable[[data_utils.DataProgress], None] = None) -> Union[cmd_sys.resp.OBCResponse, cmd_sys.resp.OBCPendingResponse]:
         """Sends a command and waits for a response (if the command is configured to have a response).
 
         Args:
@@ -270,7 +271,7 @@ class OBCBase:
 
         # Actually send the command
         try:
-            imm_resp = self._app_protocol.send_cmd_recv_resp(cmd, timeout=timeout)
+            imm_resp = self._app_protocol.send_cmd_recv_resp(cmd, timeout=timeout, progress_callback=progress_callback)
         except exc.OBCError as e:
             self._notify_error(cmd, e)
             raise e

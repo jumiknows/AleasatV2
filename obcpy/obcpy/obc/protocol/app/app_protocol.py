@@ -1,3 +1,5 @@
+from typing import Callable
+
 from obcpy.protocol import packet
 from obcpy.protocol import layer_impl
 from obcpy.protocol import routing
@@ -5,6 +7,7 @@ from obcpy.protocol import routing_impl
 
 from obcpy.utils import obc_time
 from obcpy.utils import exc
+from obcpy.utils import data as data_utils
 
 from obcpy import cmd_sys
 from obcpy import log_sys
@@ -15,6 +18,8 @@ from . import app_cmd_sys
 class OBCAppProtocol:
     """Application layer of the OBC protocol stack
     """
+
+    CHUNK_SIZE = 256
 
     def __init__(self, log_specs: log_sys.log_spec.OBCLogGroupSpecs, tx_cmd_buf_size: int):
         """Initializes the protocol stack.
@@ -84,12 +89,13 @@ class OBCAppProtocol:
 
     # Send Command + Receive Response ------------------------------------------------------------------
 
-    def send_cmd_recv_resp(self, cmd: cmd_sys.cmd.OBCCmd, timeout: float = None) -> cmd_sys.resp.OBCResponse:
+    def send_cmd_recv_resp(self, cmd: cmd_sys.cmd.OBCCmd, timeout: float = None, progress_callback: Callable[[data_utils.DataProgress], None] = None) -> cmd_sys.resp.OBCResponse:
         """Sends a command (with automatic argument encoding) and waits for the response (with automatic data decoding).
 
         Args:
             cmd: The command, its arguments and when it should be executed.
             timeout: Timeout to send the command and receive the response (None waits indefinitely if necessary). Defaults to None.
+            progress_callback: Optional callback that will be called after every `CHUNK_SIZE` bytes of response data is transferred.
 
         Raises:
             exc.OBCEncodeError: If the incorrect number of arguments is provided or one of the arguments has an invalid type or value.
@@ -112,7 +118,19 @@ class OBCAppProtocol:
                 raise exc.OBCCmdSysResponseError(f"No response header received for command: {cmd.cmd_sys_spec.name}")
 
             # Read Response Data
-            resp_data = self.recv_resp_data(resp_header.data_len, timeout=timeout)
+            if progress_callback is None:
+                # Read data all at once
+                resp_data = self.recv_resp_data(resp_header.data_len, timeout=timeout)
+            else:
+                # Read data in chunks
+                resp_data = bytearray()
+                bytes_left = resp_header.data_len
+                while bytes_left > 0:
+                    new_data = self.recv_resp_data(min(self.CHUNK_SIZE, bytes_left), timeout=timeout)
+                    resp_data.extend(new_data)
+                    bytes_left -= len(new_data)
+
+                    progress_callback(data_utils.DataProgress(len(resp_data), resp_header.data_len))
 
             if len(resp_data) != resp_header.data_len:
                 raise exc.OBCCmdSysResponseError(f"Insufficient response data received (received {len(resp_data)} bytes, expected {resp_header.data_len} bytes) for command: {cmd.cmd_sys_spec.name}")
