@@ -99,5 +99,31 @@
             {"size": "u32"},
             {"crc32": "u32"}
         ]
+    },
+    "WMM_INIT": {
+        "id": 16,
+        "args": [],
+        "resp": []
+    },
+    "WMM_IS_INIT": {
+        "id": 17,
+        "args": [],
+        "resp": [
+            {"is_init": "bool"}
+        ]
+    },
+    "WMM_GET_MAG_REF": {
+        "id": 18,
+        "args": [
+            {"lon": "f32"},
+            {"lat": "f32"},
+            {"alt": "f32"},
+            {"year": "u8"},
+            {"month": "u8"},
+            {"day": "u8"}
+        ],
+        "resp": [
+            {"mag_ref": "f32[3]"}
+        ]
     }
 }

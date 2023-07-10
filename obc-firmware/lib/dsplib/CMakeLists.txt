@@ -7,7 +7,7 @@ list(APPEND SRC_DIRS
     # source/CommonTables
     # source/ComplexMathFunctions
     # source/ControllerFunctions
-    # source/FastMathFunctions
+    source/FastMathFunctions
     # source/FilteringFunctions
     # source/MatrixFunctions
     # source/StatisticsFunctions

@@ -16,6 +16,14 @@
         ]
     },
     "default": {
+        "ahrs": {
+            "hashes": [
+                "sha256:20caf8c76f206ce757594f25f0f017834b8154084cd0a1a39a072753a93d03d8",
+                "sha256:710999319828bd8f34e40851b6aab553798afb15aa1cc0a2a95abd15ed080691"
+            ],
+            "index": "pypi",
+            "version": "==0.3.1"
+        },
         "lxml": {
             "hashes": [
                 "sha256:01d36c05f4afb8f7c20fd9ed5badca32a2029b93b1750f571ccc0b142531caf7",
@@ -139,6 +147,14 @@
                 "ndarrays"
             ],
             "path": "./../obcpy"
+        },
+        "parameterized": {
+            "hashes": [
+                "sha256:41bbff37d6186430f77f900d777e5bb6a24928a1c46fb1de692f8b52b8833b5c",
+                "sha256:9cbb0b69a03e8695d68b3399a8a5825200976536fe1cb79db60ed6a4c8c9efe9"
+            ],
+            "index": "pypi",
+            "version": "==0.8.1"
         },
         "pyserial": {
             "hashes": [

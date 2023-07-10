@@ -6,6 +6,7 @@ import argparse
 import sys
 import threading
 import pathlib
+from unittest.util import safe_repr
 
 import xmlrunner
 
@@ -13,6 +14,8 @@ from obcpy.protocol import routing
 from obcpy.obc.protocol.app import app_log
 from obcpy.obc import OBC
 from obcpy.utils.serial import get_serial_ports
+
+import numpy as np
 
 PORT_ENV_VAR = "ALEA_OBC_PORT"
 
@@ -92,6 +95,48 @@ class OBCTest(unittest.TestCase):
             if timeout is not None:
                 if (time.time() - start) >= timeout:
                     self.fail("Timed-out waiting for pass signal")
+
+    def assertEqualRelative(self, actual:float, expected:float, percent_tol:float=0.1, msg=None):
+        """ Assert that two floats are relatively equal within a certain percentage difference tolerance
+
+        Error is calculated as a percentage of expected.
+
+        Args:
+            actual: Actual value
+            expected: Expected value
+            percent_tol: Allowable percentage error tolerance
+            msg: optional message for error
+
+        Raises:
+            failureException: Type[BaseException]
+        """
+        ratio = actual/expected
+        percent_diff = abs(1-ratio)*100
+        if percent_diff > percent_tol:
+            standardMsg = f'{safe_repr(actual)} != {safe_repr(expected)} within {safe_repr(percent_tol)} percent difference'
+            msg = self._formatMessage(msg, standardMsg)
+            raise self.failureException(msg)
+
+    def assertEqualRelativeVector(self, actual_vec:np.ndarray, expected_vec:np.ndarray, tolerance:float=0.001, msg=None):
+        """Asserts if relative error of vectors <= tolerance. Raises error if assertion fails.
+
+        Calculate relative error of the norm of the differece of the 
+        expected vector and actual vector with the norm of the actual vector.
+
+        Args:
+            actual_vec: Actual vector
+            expected_vec: Expected vector
+            tolerance: Allowable error tolerance
+            msg: optional message for error
+
+        Raises:
+            failureException: Type[BaseException]
+        """
+        error = np.linalg.norm(actual_vec - expected_vec) / np.linalg.norm(expected_vec)
+        if error > tolerance:
+            standardMsg = f'error ({error}) > tolerance ({tolerance}). Expected vector: {safe_repr(expected_vec)}. Actual vector: {safe_repr(actual_vec)}'
+            msg = self._formatMessage(msg, standardMsg)
+            raise self.failureException(msg)
 
 def main(test_cases: Union[Type[OBCTest],List[Type[OBCTest]]]) -> str:
     env_port = os.getenv(PORT_ENV_VAR)

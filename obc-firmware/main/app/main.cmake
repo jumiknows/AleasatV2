@@ -25,6 +25,7 @@ list(APPEND SRC_DIRS
     ${.}/rtos
 
     ${.}/system
+    ${.}/system/adcs/wmm
     ${.}/system/cmd_sys
     ${.}/system/cmd_sys/impl
     ${.}/system/comms
