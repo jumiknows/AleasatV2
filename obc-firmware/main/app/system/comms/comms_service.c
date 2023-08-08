@@ -503,13 +503,13 @@ comms_err_t comms_flash_image(
 
         // semaphore is "given" after receiving a response to the previous command
         if(!xSemaphoreTake(cmd_sema, pdMS_TO_TICKS(1000))) {
-            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__FLASH_TIMEOUT, sizeof(fwup_state), &fwup_state);
+            LOG_COMMS__FLASH_TIMEOUT(fwup_state);
             err = COMMS_FLASH_FAIL;
             break;
         }
 
         if(sess->resp.result != COMMS_CMD_RESULT_OK) {
-            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__ERROR, sizeof(err), &err);
+            LOG_COMMS__ERROR(err);
             err = COMMS_FLASH_FAIL;
             break;
         }
@@ -670,7 +670,7 @@ static void session_handle_command_failure(
         session_handle_retransmission(sess);
     }
     else {
-        log_signal(ERROR, LOG_COMMS, LOG_COMMS__CMD_SEND_FAILED);
+        LOG_COMMS__CMD_SEND_FAILED();
         sess->resp.result = COMMS_CMD_RESULT_ERR;
         sess->pending = false;
         xSemaphoreGive(cmd_sema);
@@ -698,7 +698,7 @@ static void session_handle_command_response(
         sess->resp.result = COMMS_CMD_RESULT_OK;
     }
     else {
-        log_signal(ERROR, LOG_COMMS, LOG_COMMS__CMD_FAILED);
+        LOG_COMMS__CMD_FAILED();
         sess->resp.result = COMMS_CMD_RESULT_ERR;
     }
 

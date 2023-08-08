@@ -71,9 +71,7 @@ void obc_fast_telem_collect(void) {
  */
 static void obc_telem_check_slow(void) {
     if (OBC_SLOW.minheap < 2000) {
-        log_signal_with_data(INFO, LOG_SYSTEM, LOG_SYSTEM__OBC_MINHEAP, sizeof(OBC_SLOW.minheap), &(OBC_SLOW.minheap));
-    } else if (OBC_SLOW.minheap == 0) {
-        log_signal_with_data(ERROR, LOG_SYSTEM, LOG_SYSTEM__OBC_MINHEAP, sizeof(OBC_SLOW.minheap), &(OBC_SLOW.minheap));
+        LOG_SYSTEM__OBC_MINHEAP(OBC_SLOW.minheap);
     } else {
         // Heap is fine, do nothing.
     }

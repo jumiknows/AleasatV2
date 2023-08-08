@@ -1,6 +1,16 @@
 from typing import Union, List, Tuple, Iterator, Any, Dict, Type
+from enum import IntEnum
+
+from obcpy.data_fmt import data_field
+from obcpy.data_fmt import data_field_impl
 
 from obcpy.utils import exc
+
+class OBCLogLevel(IntEnum):
+    DEBUG   = 0
+    INFO    = 1
+    WARNING = 2
+    ERROR   = 3
 
 class OBCLogSignalSpec:
     """A logging system signal specification
@@ -11,10 +21,16 @@ class OBCLogSignalSpec:
         description (readonly): Descriptor string of the signal
     """
 
-    def __init__(self, name: str, id: int, desc: str):
+    def __init__(self, level: OBCLogLevel, name: str, id: int, desc: str, data: data_field.DataFieldList):
+        self._level = level
         self._name = name
         self._id = id
         self._desc = desc
+        self._data = data
+
+    @property
+    def level(self) -> OBCLogLevel:
+        return self._level
 
     @property
     def name(self) -> str:
@@ -27,6 +43,81 @@ class OBCLogSignalSpec:
     @property
     def desc(self) -> str:
         return self._desc
+    
+    @property
+    def data(self) -> data_field.DataFieldList:
+        return self._data
+
+    @property
+    def has_data_fields(self) -> bool:
+        return (self._data and (self._data.fixed_field_count > 0))
+    
+    def encode_data(self, *data) -> bytes:
+        """Serializes the provided data to an array of bytes according to this signal specification.
+
+        Raises:
+            exc.OBCEncodeError: If an incorrect number of data fields is provided or one of the data fields
+                                has an invalid type or value.
+
+        Returns:
+            The serialized data fields as a byte array.
+        """
+        if len(data) != len(self.data):
+            raise exc.OBCEncodeError(f"Incorrect number of data fields ({len(data)}) for signal {self.name}")
+
+        raw_bytes = bytearray()
+        for i in range(len(data)):
+            raw_bytes.extend(self.data[i].encode(data[i]))
+
+        return raw_bytes
+
+    def decode_data(self, data_bytes: bytes) -> Union[bytes, Dict[str, Any]]:
+        """Deserializes data from a byte array.
+
+        Args:
+            data_bytes: The raw bytes of the signal data.
+
+        Raises:
+            exc.OBCDecodeError: If this signal is specified to have no response or a raw response.
+                                If the number of bytes in data_bytes does not match the expected number of bytes.
+                                If an error occurs decoding a data field.
+
+        Returns:
+            If this signal is specified to have no data fields, an empty dictionary is returned.
+            If this signal is specified to have data fields, the deserialized fields are returned
+            as a dictionary mapping field names to values.
+        """
+
+        if self.data is None:
+            raise exc.OBCDecodeError(f"No data fields specified for signal: {self.name}")
+
+        fields = {}
+
+        if (len(data_bytes) < self.data.size) or (not self.data.has_variable_field and (len(data_bytes) != self.data.size)):
+            # If there's less data than expected -> raise an error
+            # OR
+            # If there's no variable fields AND there isn't exactly as much data as we expect -> raise an error
+            raise exc.OBCDecodeError(f"Invalid data length ({len(data_bytes)} bytes) for signal: {self.name}")
+
+        offset = 0
+        for i in range(len(self.data)):
+            field_name = self.data[i].name
+            field_size = self.data[i].size
+
+            if field_size > 0:
+                # Fixed-size field
+                field_data = data_bytes[offset:(offset + field_size)]
+            else:
+                # Variable-size field
+                field_data = data_bytes[offset:]
+
+            field_value = self.data[i].decode(field_data)
+
+            offset += len(field_data)
+
+            fields[field_name] = field_value
+
+        return fields
 
     def __str__(self) -> str:
         return f"(ID={self.id}) {self.name}: {str(self.desc)}"
@@ -99,7 +190,7 @@ class OBCLogGroupSpecs:
     def count(self) -> int:
         """Number of available log group specs
         """
-        return len(self._specs)
+        return len(self._log_specs)
 
     def get(self, group_name: str = None, group_id: int = None, signal_name: str = None, signal_id: int = None) -> Tuple[OBCLogGroupSpec, OBCLogSignalSpec]:
         """Retrieves a log group and signal spec by name or by id.
@@ -159,7 +250,7 @@ class OBCLogGroupSpecs:
         return group_spec, signal_spec
 
     def __iter__(self) -> Iterator[OBCLogGroupSpec]:
-        return self._specs.__iter__()
+        return self._log_specs.__iter__()
 
     def __getitem__(self, val: Union[int, slice]) -> Union[OBCLogGroupSpec, List[OBCLogGroupSpec]]:
         return self._log_specs[val]
@@ -214,6 +305,22 @@ class OBCLogGroupSpecs:
             if "signals" in log.keys():
                 for signal_name in log["signals"]:
                     signal = log["signals"][signal_name]
+                    
+                    if "level" in signal:
+                        level = OBCLogLevel[signal["level"]]
+                    else:
+                        raise exc.OBCLogSysSpecError(f"No level field found in signal \"{signal}\"")
+                    
+                    # Data
+                    if not ("data" in signal):
+                        data = None
+                    else:
+                        fields = []
+                        for field in signal["data"]:
+                            for field_name in field:
+                                field_type = field[field_name]
+                                fields.append(data_field_impl.DataFieldImpl.create_data_field(field_name, field_type))
+                        data = data_field.DataFieldList(fields)
 
                     # Signal ID
                     signal_id = signal["id"]
@@ -222,7 +329,7 @@ class OBCLogGroupSpecs:
 
                     signal_desc = signal["description"]
 
-                    log_signals.append(OBCLogSignalSpec(signal_name, signal_id, signal_desc))
+                    log_signals.append(OBCLogSignalSpec(level, signal_name, signal_id, signal_desc, data))
 
             specs.append(OBCLogGroupSpec(log_name, log_id, log_desc, log_signals))
 

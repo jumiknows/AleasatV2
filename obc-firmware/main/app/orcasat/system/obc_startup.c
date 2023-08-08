@@ -40,7 +40,7 @@ void print_startup_type(void) {
      */
     //const char* startup_string[] = {"DEFAULT_START", "PORRST_START", "DEBUG_START", "SOFT_RESET_INTERNAL_START", "SOFT_RESET_EXTERNAL_START", "OSCFAIL_START", "WATCHDOG_START", "CPU_RESET_START"};
 
-    log_signal_with_data(INFO, LOG_START_TYPE, LOG_START_TYPE__RESET_SRC, sizeof(start_data.reset_src), &start_data.reset_src);
+    LOG_START_TYPE__RESET_SRC(start_data.reset_src);
 }
 
 /* log_PBIST_fails
@@ -70,8 +70,7 @@ void log_PBIST_fails(void) {
 
     if (failure_detected) {
         bool was_reset = false;
-        const uint8_t log_pbist_failed = pbist_failed;
-        log_signal_with_data(ERROR, LOG_PBIST_STATUS, LOG_PBIST_STATUS__FAILED, sizeof(log_pbist_failed), &log_pbist_failed);
+        LOG_PBIST_STATUS__FAILED(pbist_failed);
 
         /* TODO: read was_reset from flag file
          * 	was_reset = read from flag file
@@ -86,7 +85,7 @@ void log_PBIST_fails(void) {
         }
     } else {
         /* TODO: set was_reset flag = false in flag file so that it can be used next time */
-        log_signal(INFO, LOG_PBIST_STATUS, LOG_PBIST_STATUS__SUCCESS);
+        LOG_PBIST_STATUS__SUCCESS();
     }
 }
 

@@ -41,12 +41,12 @@ cmd_sys_err_t cmd_impl_TEST_ECHO(
     uint32_t message_len = MIN((sizeof(message) - 1), (cmd->header.data_len - args_len)); // - 1 to keep NULL terminator
     uint32_t bytes_read = io_stream_read(cmd->input, message, message_len, pdMS_TO_TICKS(CMD_SYS_INPUT_READ_TIMEOUT_MS), NULL);
     if (bytes_read != message_len) {
-        log_signal(ERROR, LOG_TEST_CMD, LOG_TEST_CMD__ECHO_BAD_ARGS);
+        LOG_TEST_CMD__ECHO_BAD_ARGS();
         return CMD_SYS_ERR_READ_TIMEOUT;
     }
 
     // Log the message
-    log_signal_with_data(INFO, LOG_TEST_CMD, LOG_TEST_CMD__ECHO, message_len, &(message[0]));
+    LOG_TEST_CMD__ECHO(message);
 
     // Populate the response
     resp->number = args->number;
@@ -79,17 +79,15 @@ cmd_sys_resp_code_t cmd_impl_TEST_CAN_GPIO(const cmd_sys_cmd_t *cmd, cmd_TEST_CA
 
     // Validate arguments
     if (args->port >= 3) {
-        const int32_t log_port = args->port + 1;
-        log_signal_with_data(INFO, LOG_TEST_CAN_GPIO_CMD, LOG_TEST_CAN_GPIO_CMD__INVALID_PORT, sizeof(log_port), &(log_port));
+        LOG_TEST_CAN_GPIO_CMD__INVALID_PORT(args->port+1);
         return CMD_SYS_RESP_CODE_ERROR;
     }
     if ((args->pin != CAN_PIN_RX) && (args->pin != CAN_PIN_TX)) {
-        log_signal_with_data(INFO, LOG_TEST_CAN_GPIO_CMD, LOG_TEST_CAN_GPIO_CMD__INVALID_PIN, sizeof(args->pin), &(args->pin));
+        LOG_TEST_CAN_GPIO_CMD__INVALID_PIN(args->pin);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-    uint8_t log_data[] = { args->value, args->port + 1, args->pin };
-    log_signal_with_data(INFO, LOG_TEST_CAN_GPIO_CMD, LOG_TEST_CAN_GPIO_CMD__WRITING_TO_CAN, sizeof(log_data), &log_data[0]);
+    LOG_TEST_CAN_GPIO_CMD__WRITING_TO_CAN(args->value, args->port+1, args->pin);
 
     gpio_err_t err = obc_gpio_write(CAN_PORTS[args->port], args->pin, args->value);
 
@@ -111,17 +109,11 @@ cmd_sys_resp_code_t cmd_impl_TEST_FLASH_RW(const cmd_sys_cmd_t *cmd, cmd_TEST_FL
     }
 
     if (args->len > sizeof(write_data)) {
-        // TODO ALEA-774 Re-enable when better argument passing has been implemented
-        //log_str(INFO, LOG_TEST_FLASH_RW_CMD,
-        //    "Bad len: %d > %d",
-        //    args->len,
-        //    sizeof(write_data)
-        //);
+        LOG_TEST_FLASH_RW_CMD__BAD_LEN(args->len, sizeof(write_data));
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-    // TODO ALEA-774 Re-enable when better argument passing has been implemented
-    //log_str(INFO, LOG_TEST_FLASH_RW_CMD, "Performing rw test at 0x%08x for %d bytes", args->addr, args->len);
+    LOG_TEST_FLASH_RW_CMD__PERFORMING_TEST(args->addr, args->len);
 
     flash_err_t erase_err = flash_erase(args->addr, FULL_CHIP);
     flash_err_t write_err = flash_write(args->addr, args->len, write_data);

@@ -31,7 +31,7 @@
  * @param[in] pcTaskName Name of the task whose stack overflowed
  */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
-    log_signal_with_data(ERROR, LOG_TASK_OVERFLOW, LOG_TASK_OVERFLOW__OVERFLOW, strlen(pcTaskName), pcTaskName);
+    LOG_TASK_OVERFLOW__OVERFLOW((uint8_t*)pcTaskName);
     taskDISABLE_INTERRUPTS();
     while (1) {};
 }

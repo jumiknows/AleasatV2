@@ -90,7 +90,7 @@ void telem_start_task(void) {
 void log_telem(data_bin_t bin) {
     if (telem_queue != 0) {
         if (!xQueueSend(telem_queue, (void*)&bin, 0)) {
-            log_signal(ERROR, LOG_TELEM, LOG_TELEM__QUEUE_FULL);
+            LOG_TELEM__QUEUE_FULL();
         }
     }
 }
@@ -174,7 +174,7 @@ static void vTelemLoggerTask(void* pvParameters) {
                     log_file(bin, "EPS_CONDN_FILENAME", (const void*)&snapshot.eps_condn, sizeof(snapshot.eps_condn));
                     break;
                 default:
-                    log_signal_with_data(ERROR, LOG_TELEM, LOG_TELEM__INVALID_REQUEST_BIN, sizeof(bin), &bin);
+                    LOG_TELEM__INVALID_REQUEST_BIN(bin);
                     break;
             }
         }

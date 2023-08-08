@@ -154,19 +154,19 @@ static void handle_tx_event(void) {
     do {
         if(xQueueReceive(cmd_q,
             (void*)&cmd, 0) != pdPASS) {
-            log_signal(ERROR, LOG_COMMS, LOG_COMMS__CMD_QUEUE_EMPTY);
+            LOG_COMMS__CMD_QUEUE_EMPTY();
             err = COMMS_ERR_TIMEOUT;
             break;
         }
 
         if(comms_cmd_struct_to_buffer(cmd, buf_u8, &msg_len) != COMMS_SUCCESS) {
-            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__FAILED_CONVERTING_PACKET_TO_BUFFER, sizeof(err), &err);
+            LOG_COMMS__FAILED_CONVERTING_PACKET_TO_BUFFER(err);
             err = COMMS_ERR_INVALID_ARG;
             break;
         }
 
         if(comms_dev_send(cdev, buf, msg_len) != COMMS_DEV_SUCCESS) {
-            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__FAILED_TO_SEND_CMD, sizeof(err), &err);
+            LOG_COMMS__FAILED_TO_SEND_CMD(err);
             err = COMMS_ERR_RFC_TXN_FAIL;
             break;
         }
@@ -194,14 +194,14 @@ static void handle_rx_event(void) {
 
     do {
         if (comms_dev_receive(cdev, buf, sizeof(buf)) != COMMS_DEV_SUCCESS) {
-            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__RX_ERROR, sizeof(err), &err);
+            LOG_COMMS__RX_ERROR(err);
             err = COMMS_ERR_RFC_TXN_FAIL;
             break;
         }
 
         err = comms_buffer_to_cmd_struct(buf_u8, &cmd);
         if (err != COMMS_SUCCESS) {
-            log_signal_with_data(ERROR, LOG_COMMS, LOG_COMMS__RX_DATA_ERROR, sizeof(err), &err);
+            LOG_COMMS__RX_DATA_ERROR(err);
             break;
         }
 

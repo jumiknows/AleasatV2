@@ -279,7 +279,7 @@ static void vFileSystemTask(void* pvParameters) {
                 *(req.err) = file_size(req.args.fsize_args.path, req.args.fsize_args.size);
                 break;
             default:
-                log_signal(ERROR, LOG_FS, LOG_FS__UNKNOWN_REQUEST, sizeof(req.type), &req.type);
+                LOG_FS__UNKNOWN_REQUEST(req.type);
                 *(req.err) = FS_UNKNOWN_REQUEST_ERR;
                 break;
         }

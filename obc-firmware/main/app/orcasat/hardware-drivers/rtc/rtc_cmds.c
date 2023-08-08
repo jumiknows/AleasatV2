@@ -45,7 +45,7 @@ void command_update_rtc_time(char** arguments) {
         real_time_t set_time = orca_time_init;
         rtc_err_t err        = extract_time(arguments, &set_time);
         if (err != RTC_NO_ERR) {
-            log_signal_without_time_with_data(ERROR, LOG_RTC, LOG_RTC__INVALID_TIME, sizeof(err), &err); // Indicates an error with the params
+            LOG_RTC__INVALID_TIME(err); // Indicates an error with the params
             return;
         }
 
@@ -54,15 +54,13 @@ void command_update_rtc_time(char** arguments) {
             //log_str(INFO, LOG_RTC_GENERAL, "Updated time on %s", get_time_source_name(rtc_to_use));
         } else {
             if ((err == RTC_REAL_TIME_INVALID) || (err == RTC_EPOCH_INVALID)) {
-                log_signal_without_time_with_data(ERROR, LOG_RTC, LOG_RTC__INVALID_TIME,
-                                sizeof(err), &err); // Indicates an error with the params
+                LOG_RTC__INVALID_TIME(err); // Indicates an error with the params
             } else {
-                log_signal_without_time_with_data(ERROR, LOG_RTC, LOG_RTC__COMM_ISSUE,
-                                sizeof(err), &err); // Otherwise, it's an RTC comms issue
+                LOG_RTC__COMM_ISSUE(err); // Otherwise, it's an RTC comms issue
             }
         }
     } else {
-        log_signal(ERROR, LOG_RTC, LOG_RTC__INVALID_TIME_PARAMS); // Invalid RTC param was passed in.
+        LOG_RTC__INVALID_TIME_PARAMS(); // Invalid RTC param was passed in.
     }
 }
 
@@ -97,7 +95,7 @@ void command_update_active_rtc(char** arguments) {
                 //log_str_without_time(ERROR, LOG_RTC_GENERAL, "Active RTC set err: %i", rtc_err);
             }
         } else {
-            log_signal_without_time(ERROR, LOG_RTC, LOG_RTC__INVALID_TIME_PARAMS);
+            LOG_RTC__INVALID_TIME_PARAMS();
         }
     }
 }

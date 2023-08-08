@@ -4,6 +4,9 @@ import json
 import pathlib
 import datetime
 
+from obcpy.log_sys import log_spec
+from obcpy.utils import exc
+
 from jinja2 import Environment, FileSystemLoader
 
 """
@@ -26,21 +29,16 @@ def main():
 
 
     # Open and parse json file
-    with open(args.inputFile, 'r') as log_specs_json:
-        log_specs = json.load(log_specs_json)
+    with open(args.inputFile, 'r') as specs_file:
+        specs_json = json.load(specs_file)
 
-    # Find the maximum log ID value
-    max_id = 0
-    for entry in log_specs:
-        this_id = int(log_specs[entry]['id'])
-        if this_id > max_id:
-            max_id = this_id
-
-    # Add MAX_LOG_ID_VALUE to end of list
-    log_specs['MAX_LOG_ID_VALUE'] = {
-        'id': int(max_id),
-        'description': 'Maximum log ID value. Should always be equal to the largest log ID.'
-    }
+    # Build logging system specifications
+    try:
+        log_specs = log_spec.OBCLogGroupSpecs.from_json(specs_json)
+        print(f"Loaded {log_specs.count} log group specifications")
+    except (exc.OBCLogSysSpecError, exc.OBCDataFieldError) as e:
+        print(e)
+        exit(1)
 
     # Create file dirs
     pathlib.Path(args.outputFile).parent.mkdir(parents=True, exist_ok=True)
@@ -61,7 +59,7 @@ def main():
         timestamp = datetime.datetime.now()
     ).dump(args.outputFile)
 
-    print(f"Finished generating log header file. Number of log specs: {len(log_specs)}")
+    print(f"Finished generating log header file.")
 
 if __name__ == '__main__':
     print("ALEASAT Log Header Generator")

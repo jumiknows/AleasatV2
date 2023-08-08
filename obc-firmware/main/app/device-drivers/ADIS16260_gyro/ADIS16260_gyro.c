@@ -510,6 +510,6 @@ static void ADIS16260_timer_cb(xTimerHandle pxTimer)
     }
     else
     {
-        log_signal(ERROR, LOG_ADCS_GYRO, LOG_ADCS_GYRO__UNHANDLED_CALLBACK);
+        LOG_ADCS_GYRO__UNHANDLED_CALLBACK();
     }
 }

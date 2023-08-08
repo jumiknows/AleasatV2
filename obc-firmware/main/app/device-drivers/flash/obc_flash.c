@@ -46,7 +46,7 @@ void flash_init(void) {
  */
 void flash_identify(void) {
 #ifdef PLATFORM_LAUNCHPAD_1224
-    log_signal(ERROR, LOG_FLASH, LOG_FLASH__IDENTIFY_NOT_SUPPORTED);
+    LOG_FLASH__IDENTIFY_NOT_SUPPORTED();
 #endif
 #ifdef PLATFORM_ALEA_V1
     uint8_t device_data[20] = { 0x00 };
@@ -55,10 +55,10 @@ void flash_identify(void) {
     uint8_t manufacturer = device_data[0];
 
     if (manufacturer == MANUFACTURER_ID_JEDEC_MICRON_TECHNOLOGY) {
-        log_signal_with_data(INFO, LOG_FLASH, LOG_FLASH__IDENTIFIED_AS_MICRON, sizeof(device_data), &device_data);
+        LOG_FLASH__IDENTIFIED_AS_MICRON();
     }
     else {
-        log_signal(ERROR, LOG_FLASH, LOG_FLASH__FAILED_TO_IDENTIFY);
+        LOG_FLASH__FAILED_TO_IDENTIFY();
     }
 #endif
 }

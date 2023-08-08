@@ -231,7 +231,7 @@ rtos_err_t get_task_period_from_id(uint8_t id, task_period_t* period_ms) {
         *period_ms = t_params[id].period_ms;
         return OBC_RTOS_OK;
     }
-    log_signal_with_data(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__INVALID_ID, sizeof(id), &id);
+    LOG_OBC_TASK__INVALID_ID(id);
     return INVALID_ID; // Invalid ID was provided
 }
 
@@ -270,17 +270,11 @@ rtos_err_t set_task_period(uint8_t id, task_period_t period_ms) {
                 res                    = TASK_NOT_BLOCKED;
                 t_params[id].period_ms = old_period_ms; // Return the period to its original value
 
-                log_signal_with_data(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__FAILED_TO_CHANGE_TASK_PERIOD, sizeof(t_params[id].task_id), &(t_params[id].task_id));
+                LOG_OBC_TASK__FAILED_TO_CHANGE_TASK_PERIOD(t_params[id].task_id);
             } else {
                 res = OBC_RTOS_OK;
 
-                struct __attribute__((packed)) {
-                    uint8_t       task_id;
-                    task_period_t new_period;
-                } task_info;
-                task_info.task_id = t_params[id].task_id;
-                task_info.new_period = t_params[id].period_ms;
-                log_signal_with_data(INFO, LOG_OBC_TASK, LOG_OBC_TASK__CHANGED_TASK_PERIOD, sizeof(task_info), &task_info);
+                LOG_OBC_TASK__CHANGED_TASK_PERIOD(t_params[id].task_id, period_ms);
             }
         } else { // Period not valid
             res = INVALID_PERIOD;
@@ -335,10 +329,10 @@ rtos_err_t suspend_task(const char* task_name, bool suspend) {
     if (task_suspend_resume != NULL) {
         if (suspend) {
             vTaskSuspend(task_suspend_resume);
-            log_signal_with_data(INFO, LOG_OBC_TASK, LOG_OBC_TASK__TASK_RESUMED, strlen(task_name), task_name);
+            LOG_OBC_TASK__TASK_RESUMED((uint8_t*)task_name);
         } else {
             vTaskResume(task_suspend_resume);
-            log_signal_with_data(INFO, LOG_OBC_TASK, LOG_OBC_TASK__TASK_RESUMED, strlen(task_name), task_name);
+            LOG_OBC_TASK__TASK_SUSPENDED((uint8_t*)task_name);
         }
     } else {
         res = INVALID_NAME;
@@ -407,13 +401,13 @@ void print_tasks(void) {
  */
 void print_rtos_status(void) {
     if ((rtos_errors.too_many_tasks == false) && (rtos_errors.rtos_task_create_failed == false)) {
-        log_signal(INFO, LOG_OBC_TASK, LOG_OBC_TASK__RTOS_STATUS_OK);
+        LOG_OBC_TASK__RTOS_STATUS_OK();
     } else {
         if (rtos_errors.too_many_tasks) {
-            log_signal(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__RTOS_STATUS_TOO_MANY_TASKS);
+            LOG_OBC_TASK__RTOS_STATUS_TOO_MANY_TASKS();
         }
         if (rtos_errors.rtos_task_create_failed) {
-            log_signal(ERROR, LOG_OBC_TASK, LOG_OBC_TASK__RTOS_STATUS_TASK_CREATE_FAILED);
+            LOG_OBC_TASK__RTOS_STATUS_TASK_CREATE_FAILED();
         }
     }
 }

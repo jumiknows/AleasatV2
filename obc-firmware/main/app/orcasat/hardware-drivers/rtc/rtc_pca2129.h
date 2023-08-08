@@ -58,10 +58,6 @@ typedef struct {
      */
     const char* name;
     /**
-     * @brief The log ID to use when logging most messages for this RTC.
-     */
-    log_id_t log_id;
-    /**
      * @brief The most recent error logged by this RTC in this module.
      */
     rtc_err_t most_recent_low_level_err;

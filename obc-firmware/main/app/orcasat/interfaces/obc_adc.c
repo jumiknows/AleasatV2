@@ -47,7 +47,7 @@ uint16_t adc_get_channel_val(uint8_t adc_chan) {
             return adc_data[i].value;
         }
     }
-    log_signal(ERROR, LOG_ADC, LOG_ADC__NO_ID);
+    LOG_ADC__NO_ID();
     return 0;
 }
 
@@ -64,14 +64,14 @@ bool adc_update(void) {
         adcStartConversion(adcREG1, adcGROUP1); // sample all channels on ADC1
         while (!adcIsConversionComplete(adcREG1, adcGROUP1)) {
             if ((uint32_t)(xTaskGetTickCount() - start) > 5U) { // ADC Timeout
-                log_signal(ERROR, LOG_ADC, LOG_ADC__CONVERSION_TIMEOUT);
+                LOG_ADC__CONVERSION_TIMEOUT();
                 adc_ok = false;
                 break;
             }
         }
         adcGetData(adcREG1, adcGROUP1, &adc_data[0]);
     } else {
-        log_signal(ERROR, LOG_ADC, LOG_ADC__MUTEX_ERROR);
+        LOG_ADC__MUTEX_ERROR();
         adc_ok = false;
     }
     xSemaphoreGive(xADCMutex);

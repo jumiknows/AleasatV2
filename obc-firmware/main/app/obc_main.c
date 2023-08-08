@@ -174,11 +174,11 @@ static void obc_main_task(void* pvParameters) {
     telem_start_task();
 
     // Hardware is ready to go now. Print out some information about startup.
-    log_signal(INFO, LOG_PRINT_GENERAL, LOG_PRINT_GENERAL__STARTUP_COMPLETE);
+    LOG_PRINT_GENERAL__STARTUP_COMPLETE();
 #if defined(PLATFORM_ALEA_V1)
-    log_signal(INFO, LOG_HW_TYPE, LOG_HW_TYPE__ALEA_V1);
+    LOG_HW_TYPE__ALEA_V1();
 #elif defined(PLATFORM_LAUNCHPAD_1224)
-    log_signal(INFO, LOG_HW_TYPE, LOG_HW_TYPE__LAUNCHPAD);
+    LOG_HW_TYPE__LAUNCHPAD();
 #else // Neither platform is defined: this should never happen
     CASSERT(false, obc_main_c);
 #endif

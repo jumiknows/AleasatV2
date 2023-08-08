@@ -1,25 +1,53 @@
 {
+  "LOG_PRINTF": {
+    "id": 0,
+    "description": "Debug printf",
+    "signals": {
+      "reserved": {
+        "level": "DEBUG",
+        "id": 0,
+        "description": "Debug printf",
+        "data": [
+          {"message": "u8[128]"}
+        ]
+      }
+    }
+  },
   "LOG_PRINT_GENERAL": {
     "id": 1,
     "description": "General purpose printing",
     "signals": {
       "STARTUP_COMPLETE": {
+        "level": "INFO",
         "id": 0,
         "description": "Startup complete"
       },
       "STATE_FAILED_TO_TAKE_MUTEX": {
+        "level": "ERROR",
         "id": 1,
         "description": "State failed to take mutex"
       },
       "CURRENT_STATE": {
+        "level": "DEBUG",
         "id": 2,
-        "description": "current_state = %i"
+        "description": "Current state",
+        "data": [
+          {"current_state": "u8"}
+        ]
       },
       "INVALID_STATE_TRANSITION": {
+        "level": "ERROR",
         "id": 3,
-        "description": "Invalid state transition"
+        "description": "Invalid state transition",
+        "data": [
+          {"transition_id": "u8"},
+          {"enabled": "u32"},
+          {"valid_trigger_states": "u32"},
+          {"current_state": "u8"}
+        ]
       },
       "RESET_EXPANDER": {
+        "level": "INFO",
         "id": 4,
         "description": "Resetting GPIO expander"
       }
@@ -30,10 +58,12 @@
     "description": "Hardware type at startup",
     "signals": {
       "ALEA_V1": {
+        "level": "DEBUG",
         "id": 0,
         "description": "ALEASAT OBC v1"
       },
       "LAUNCHPAD": {
+        "level": "DEBUG",
         "id": 1,
         "description": "LaunchPad"
       }
@@ -44,8 +74,12 @@
     "description": "Startup type (reason for reset)",
     "signals": {
       "RESET_SRC": {
+        "level": "DEBUG",
         "id": 0,
-        "description": "Reset source"
+        "description": "Reset source",
+        "data": [
+          {"reset_src": "u8"}
+        ]
       }
     }
   },
@@ -54,10 +88,15 @@
     "description": "PBIST status",
     "signals": {
       "FAILED": {
+        "level": "ERROR",
         "id": 0,
-        "description": "PBIST Failed"
+        "description": "PBIST Failed",
+        "data": [
+          {"reg_val": "u8"}
+        ]
       },
       "SUCCESS": {
+        "level": "DEBUG",
         "id": 1,
         "description": "No PBIST Fails"
       }
@@ -68,6 +107,7 @@
     "description": "Scheduler messages",
     "signals": {
       "FAILED_TO_READ_RTC_CURRENT_TIME": {
+        "level": "ERROR",
         "id": 0,
         "description": "Scheduler failed to read the current time from RTC"
       }
@@ -78,20 +118,34 @@
     "description": "Ack command",
     "signals": {
       "ACK": {
+        "level": "INFO",
         "id": 0,
         "description": "Ack!"
       }
     }
   },
-  "LOG_HELP_CMD": {
+  "LOG_LOGGING_SYS": {
     "id": 7,
-    "description": "Help command"
+    "description": "Logging system",
+    "signals": {
+      "ATTEMPTED_TO_LOG_DATA_NULL": {
+        "level": "ERROR",
+        "id": 0,
+        "description": "Attempted to log data with either null buffer or descriptor"
+      },
+      "DATA_FMT_WRONG_DATA_LEN": {
+        "level": "ERROR",
+        "id": 1,
+        "description": "Wrong data length returned from data_fmt serialize function"
+      }
+    }
   },
   "LOG_CMD_GENERAL": {
     "id": 8,
     "description": "Command system general",
     "signals": {
       "MAX_CMD_LEN_EXCEEDED": {
+        "level": "ERROR",
         "id": 0,
         "description": "Max command len exceeded"
       }
@@ -102,10 +156,15 @@
     "description": "General test command logs",
     "signals": {
       "ECHO": {
+        "level": "INFO",
         "id": 0,
-        "description": "%s"
+        "description": "Echo",
+        "data": [
+          {"message": "u8[244]"}
+        ]
       },
       "ECHO_BAD_ARGS": {
+        "level": "ERROR",
         "id": 1,
         "description": "Error reading args"
       }
@@ -116,14 +175,17 @@
     "description": "ADC",
     "signals": {
       "NO_ID": {
+        "level": "ERROR",
         "id": 0,
         "description": "No ADC ID"
       },
       "CONVERSION_TIMEOUT": {
+        "level": "WARNING",
         "id": 1,
         "description": "ADC Conversion Timeout"
       },
       "MUTEX_ERROR": {
+        "level": "ERROR",
         "id": 2,
         "description": "ADC Mutex Error"
       }
@@ -134,8 +196,12 @@
     "description": "Task overflow",
     "signals": {
       "OVERFLOW": {
+        "level": "ERROR",
         "id": 0,
-        "description": "%s has overflowed"
+        "description": "Task overflowed",
+        "data": [
+          {"task_name": "u8[17]"}
+        ]
       }
     }
   },
@@ -164,10 +230,12 @@
     "description": "I2C",
     "signals": {
       "RESET_SUCCESS": {
+        "level": "INFO",
         "id": 0,
         "description": "I2C reset successfully"
       },
       "RESET_FAILED": {
+        "level": "ERROR",
         "id": 1,
         "description": "I2C reset failed"
       }
@@ -178,6 +246,7 @@
     "description": "Ping command for detection by San Antonio",
     "signals": {
       "PING": {
+        "level": "INFO",
         "id": 0,
         "description": "Ping"
       }
@@ -188,10 +257,12 @@
     "description": "Logging System",
     "signals": {
       "PAYLOAD_TOO_LARGE": {
+        "level": "ERROR",
         "id": 0,
         "description": "Attempted to log payload that is too large"
       },
       "INVALID_LOG_ID": {
+        "level": "ERROR",
         "id": 1,
         "description": "Attempted to log message with invalid log ID"
       }
@@ -210,14 +281,17 @@
     "description": "Flash driver",
     "signals": {
       "IDENTIFIED_AS_MICRON": {
+        "level": "INFO",
         "id": 0,
         "description": "Flash manufacturer identified as Micron Technologies"
       },
       "FAILED_TO_IDENTIFY": {
+        "level": "ERROR",
         "id": 1,
         "description": "Failed to identify flash chip"
       },
       "IDENTIFY_NOT_SUPPORTED": {
+        "level": "WARNING",
         "id": 2,
         "description": "Attempted to identify flash chip on unsupported platform"
       }
@@ -236,26 +310,38 @@
     "description": "RTC",
     "signals": {
       "CANNOT_READ_TIME": {
+        "level": "WARNING",
         "id": 0,
         "description": "Cannot read time from RTC"
       },
       "EPOCH_INVALID": {
+        "level": "ERROR",
         "id": 1,
         "description": "Epoch invalid"
       },
       "INVALID_TIME": {
+        "level": "ERROR",
         "id": 2,
-        "description": "Invalid time"
+        "description": "Invalid time",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "COMM_ISSUE": {
+        "level": "ERROR",
         "id": 3,
-        "description": "Comm issue"
+        "description": "Comm issue",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "INVALID_TIME_PARAMS": {
+        "level": "ERROR",
         "id": 4,
         "description": "Invalid time params"
       },
       "SET_TIME_CMD_TOO_FEW_ARGS": {
+        "level": "WARNING",
         "id": 5,
         "description": "Too few args. Need: y m d h m s."
       }
@@ -290,50 +376,77 @@
     "description": "GPIO Expander",
     "signals": {
       "FAILED_TO_CORRECT_REG_VAL": {
+        "level": "ERROR",
         "id": 0,
         "description": "Failed to correct register value"
       },
       "EXPANDER_SCAN_RESULTS": {
+        "level": "INFO",
         "id": 1,
-        "description": "Expander scan: %d/%d passed."
+        "description": "Expander scan: %d/%d passed.",
+        "data": [
+          {"correct_regs": "u8"},
+          {"total_regs": "u8"}
+        ]
       },
       "IRQ_0_CHECK_FAILED": {
+        "level": "ERROR",
         "id": 2,
         "description": "Expander IRQ 0 check failed"
       },
       "IRQ_1_CHECK_FAILED": {
+        "level": "ERROR",
         "id": 3,
         "description": "Expander IRQ 1 check failed"
       },
       "READ_FAILED_FROM_IRQ_HANDLER": {
+        "level": "ERROR",
         "id": 4,
         "description": "Read failed from expander IRQ handler"
       },
       "I2C_WRITE_FAILURE": {
+        "level": "ERROR",
         "id": 5,
-        "description": "I2C write failure: %d"
+        "description": "I2C write failure",
+        "data": [
+          {"err_code": "u8"}
+        ]
       },
       "I2C_READ_FAILURE": {
+        "level": "ERROR",
         "id": 6,
-        "description": "I2C read failure: %d"
+        "description": "I2C read failure",
+        "data": [
+          {"err_code": "u8"}
+        ]
       },
       "REGISTER_MISMATCH": {
+        "level": "ERROR",
         "id": 7,
-        "description": "Reg: %02X, Expect: %02X Act: %02X"
+        "description": "Reg: %02X, Expect: %02X Act: %02X",
+        "data": [
+          {"reg_addr": "u8"},
+          {"predicted_val": "u8"},
+          {"actual_val": "u8"}
+        ]
       },
       "INIT_FAILED": {
+        "level": "ERROR",
         "id": 8,
         "description": "Expander init failed"
       },
       "BLINK_INIT_FAILED": {
+        "level": "ERROR",
         "id": 9,
         "description": "Expander blinky init failed"
       },
       "IRQ_INIT_FAILED": {
+        "level": "ERROR",
         "id": 10,
         "description": "Expander IRQ init failed"
       },
       "VERIFY_FAILED": {
+        "level": "ERROR",
         "id": 11,
         "description": "Verify failed"
       }
@@ -344,6 +457,7 @@
     "description": "GPIO",
     "signals": {
       "IRQ_QUEUE_RECEIVE_FAILED": {
+        "level": "ERROR",
         "id": 0,
         "description": "IRQ queue receive failed."
       }
@@ -366,8 +480,9 @@
     "description": "Filesystem log messages",
     "signals": {
       "UNKNOWN_REQUEST": {
+        "level": "ERROR",
         "id": 0,
-        "description": "Unknown request: %d"
+        "description": "Unknown request"
       }
     }
   },
@@ -376,36 +491,47 @@
     "description": "Watchdog",
     "signals": {
       "SUSPENDING_WDPT": {
+        "level": "WARNING",
         "id": 0,
         "description": "Suspending watchdog pet task"
       },
       "PETTING": {
+        "level": "INFO",
         "id": 1,
         "description": "Petting watchdog"
       },
       "UNKNOWN_TASK": {
+        "level": "ERROR",
         "id": 2,
         "description": "One or more tasks has UNKNOWN"
       },
       "FAILED_TO_TAKE_MUTEX_IN_SET_STATUS": {
+        "level": "ERROR",
         "id": 3,
         "description": "Failed to take watchdog mutex"
       },
       "FAILED_TO_TAKE_MUTEX_IN_GET_STATUS": {
+        "level": "ERROR",
         "id": 4,
         "description": "Failed to take watchdog mutex"
       },
       "FAILED_TO_TAKE_MUTEX_IN_SUSPEND": {
+        "level": "ERROR",
         "id": 5,
         "description": "Failed to take watchdog mutex"
       },
       "FAILED_TO_TAKE_MUTEX_IN_RESUME": {
+        "level": "ERROR",
         "id": 6,
         "description": "Failed to take watchdog mutex"
       },
       "DID_NOT_CLEAR_UNKNOWN": {
+        "level": "ERROR",
         "id": 7,
-        "description": "%s did not clear UNKNOWN"
+        "description": "Task did not clear UNKNOWN",
+        "data": [
+          {"task_name": "u8[17]"}
+        ]
       }
     }
   },
@@ -414,12 +540,17 @@
     "description": "System log",
     "signals": {
       "REVISION_ROLLOVER": {
+        "level": "WARNING",
         "id": 0,
         "description": "Revision Rollover"
       },
       "OBC_MINHEAP": {
+        "level": "WARNING",
         "id": 1,
-        "description": "OBC minheap %d"
+        "description": "OBC minheap",
+        "data": [
+          {"minheap": "u32"}
+        ]
       }
     }
   },
@@ -428,16 +559,25 @@
     "description": "Telemetry logging infrastructure",
     "signals": {
       "QUEUE_FULL": {
+        "level": "WARNING",
         "id": 0,
         "description": "Queue full"
       },
       "INVALID_REQUEST_BIN": {
+        "level": "ERROR",
         "id": 1,
-        "description": "Invalid telem request bin of %d"
+        "description": "Invalid telem request bin",
+        "data": [
+          {"data_bin": "u8"}
+        ]
       },
       "EPS_BIN_OUT_OF_RANGE": {
+        "level": "ERROR",
         "id": 2,
-        "description": "EPS bin %d out of range"
+        "description": "EPS bin temperature out of range",
+        "data": [
+          {"sense_temp_bat_1": "u16"}
+        ]
       }
     }
   },
@@ -446,32 +586,60 @@
     "description": "OBC RTOS task control",
     "signals": {
       "INVALID_ID": {
+        "level": "ERROR",
         "id": 0,
-        "description": "Invalid ID %d"
+        "description": "Invalid ID",
+        "data": [
+          {"id": "u8"}
+        ]
       },
       "TASK_RESUMED": {
+        "level": "DEBUG",
         "id": 1,
-        "description": "Task %s suspended"
+        "description": "Task resumed",
+        "data": [
+          {"task_name": "u8[17]"}
+        ]
+      },
+      "TASK_SUSPENDED": {
+        "level": "DEBUG",
+        "id": 2,
+        "description": "Task suspended",
+        "data": [
+          {"task_name": "u8[17]"}
+        ]
       },
       "RTOS_STATUS_OK": {
-        "id": 2,
+        "level": "INFO",
+        "id": 3,
         "description": "OK"
       },
       "RTOS_STATUS_TOO_MANY_TASKS": {
-        "id": 3,
+        "level": "ERROR",
+        "id": 4,
         "description": "Too many tasks."
       },
       "RTOS_STATUS_TASK_CREATE_FAILED": {
-        "id": 4,
+        "level": "ERROR",
+        "id": 5,
         "description": "Task create failed."
       },
       "FAILED_TO_CHANGE_TASK_PERIOD": {
-        "id": 5,
-        "description": "Failed to change period of task: ID %d"
+        "level": "ERROR",
+        "id": 6,
+        "description": "Failed to change period of task",
+        "data": [
+          {"id": "u8"}
+        ]
       },
       "CHANGED_TASK_PERIOD": {
-        "id": 6,
-        "description": "Changed period of task: ID %d, new period %d"
+        "level": "DEBUG",
+        "id": 7,
+        "description": "Changed period of task",
+        "data": [
+          {"id": "u8"},
+          {"new_period": "u32"}
+        ]
       }
     }
   },
@@ -504,168 +672,293 @@
     "description": "ADCS commands logs",
     "signals": {
       "INVALID_MAG_INDEX": {
+        "level": "ERROR",
         "id": 0,
-        "description": "Invalid magnetorquer index: %d"
+        "description": "Invalid magnetorquer index",
+        "data": [
+          {"index": "u8"}
+        ]
       },
       "MAG_SELECTED": {
+        "level": "DEBUG",
         "id": 1,
-        "description": "Magnetorquer %d Selected"
+        "description": "Magnetorquer Selected",
+        "data": [
+          {"index": "u8"}
+        ]
       },
       "IMU_INIT": {
+        "level": "INFO",
         "id": 2,
         "description": "IMU initialized!"
       },
       "IMU_DISABLED": {
+        "level": "INFO",
         "id": 3,
         "description": "IMU disabled"
       },
       "MAG_X_VALUE_0": {
+        "level": "DEBUG",
         "id": 4,
-        "description": "mag_x: %f "
+        "description": "mag_x",
+        "data": [
+          {"mag_x": "f32"}
+        ]
       },
       "MAG_Y_VALUE_0": {
+        "level": "DEBUG",
         "id": 5,
-        "description": "mag_y: %f "
+        "description": "mag_y",
+        "data": [
+          {"mag_y": "f32"}
+        ]
       },
       "MAG_Z_VALUE_0": {
+        "level": "DEBUG",
         "id": 6,
-        "description": "mag_z: %f "
+        "description": "mag_z",
+        "data": [
+          {"mag_z": "f32"}
+        ]
       },
       "ACCEL_X_VALUE_0": {
+        "level": "DEBUG",
         "id": 7,
-        "description": "accel_x: %f "
+        "description": "accel_x",
+        "data": [
+          {"accel_x": "f32"}
+        ]
       },
       "ACCEL_Y_VALUE_0": {
+        "level": "DEBUG",
         "id": 8,
-        "description": "accel_y: %f "
+        "description": "accel_y",
+        "data": [
+          {"accel_y": "f32"}
+        ]
       },
       "ACCEL_Z_VALUE_0": {
+        "level": "DEBUG",
         "id": 9,
-        "description": "accel_z: %f "
+        "description": "accel_z",
+        "data": [
+          {"accel_z": "f32"}
+        ]
       },
       "GYRO_X_VALUE_0": {
+        "level": "DEBUG",
         "id": 10,
-        "description": "gyro_x: %f "
+        "description": "gyro_x",
+        "data": [
+          {"gyro_x": "f32"}
+        ]
       },
       "GYRO_Y_VALUE_0": {
+        "level": "DEBUG",
         "id": 11,
-        "description": "gyro_y: %f "
+        "description": "gyro_y",
+        "data": [
+          {"gyro_y": "f32"}
+        ]
       },
       "GYRO_Z_VALUE_0": {
+        "level": "DEBUG",
         "id": 12,
-        "description": "gyro_z: %f "
+        "description": "gyro_z",
+        "data": [
+          {"gyro_z": "f32"}
+        ]
       },
       "FIRST_DATA_PACKET_QUERY_FAILED": {
+        "level": "ERROR",
         "id": 13,
         "description": "first data packet query failed"
       },
       "AFTER_POWER_DOWN": {
+        "level": "DEBUG",
         "id": 14,
         "description": "AFTER POWER DOWN"
       },
       "MAG_X_VALUE_1": {
-        "id": 15,
-        "description": "mag_x: %f "
+        "level": "DEBUG",
+        "id": 4,
+        "description": "mag_x",
+        "data": [
+          {"mag_x": "f32"}
+        ]
       },
       "MAG_Y_VALUE_1": {
-        "id": 16,
-        "description": "mag_y: %f "
+        "level": "DEBUG",
+        "id": 5,
+        "description": "mag_y",
+        "data": [
+          {"mag_y": "f32"}
+        ]
       },
       "MAG_Z_VALUE_1": {
-        "id": 17,
-        "description": "mag_z: %f "
+        "level": "DEBUG",
+        "id": 6,
+        "description": "mag_z",
+        "data": [
+          {"mag_z": "f32"}
+        ]
       },
       "ACCEL_X_VALUE_1": {
-        "id": 18,
-        "description": "accel_x: %f "
+        "level": "DEBUG",
+        "id": 7,
+        "description": "accel_x",
+        "data": [
+          {"accel_x": "f32"}
+        ]
       },
       "ACCEL_Y_VALUE_1": {
-        "id": 19,
-        "description": "accel_y: %f "
+        "level": "DEBUG",
+        "id": 8,
+        "description": "accel_y",
+        "data": [
+          {"accel_y": "f32"}
+        ]
       },
       "ACCEL_Z_VALUE_1": {
-        "id": 20,
-        "description": "accel_z: %f "
+        "level": "DEBUG",
+        "id": 9,
+        "description": "accel_z",
+        "data": [
+          {"accel_z": "f32"}
+        ]
       },
       "GYRO_X_VALUE_1": {
-        "id": 21,
-        "description": "gyro_x: %f "
+        "level": "DEBUG",
+        "id": 10,
+        "description": "gyro_x",
+        "data": [
+          {"gyro_x": "f32"}
+        ]
       },
       "GYRO_Y_VALUE_1": {
-        "id": 22,
-        "description": "gyro_y: %f "
+        "level": "DEBUG",
+        "id": 11,
+        "description": "gyro_y",
+        "data": [
+          {"gyro_y": "f32"}
+        ]
       },
       "GYRO_Z_VALUE_1": {
-        "id": 23,
-        "description": "gyro_z: %f "
+        "level": "DEBUG",
+        "id": 12,
+        "description": "gyro_z",
+        "data": [
+          {"gyro_z": "f32"}
+        ]
       },
       "SECOND_DATA_PACKET_QUERY_FAILED": {
+        "level": "ERROR",
         "id": 24,
         "description": "second data packet query failed"
       },
       "INVALID_GYRO_INDEX": {
+        "level": "ERROR",
         "id": 25,
-        "description": "Invalid gyro index: %d"
+        "description": "Invalid gyro index",
+        "data": [
+          {"index": "u8"}
+        ]
       },
       "GYRO_SELECTED": {
+        "level": "DEBUG",
         "id": 26,
-        "description": "Gyro %d Selected"
+        "description": "Gyro Selected",
+        "data": [
+          {"index": "u8"}
+        ]
       },
       "MAG_TEST_STARTING": {
+        "level": "DEBUG",
         "id": 27,
         "description": "Magnetorquer Test Starting"
       },
       "MAG_STARTING": {
+        "level": "INFO",
         "id": 28,
         "description": "Magnetorquer Starting"
       },
       "MAG_STOPPED": {
+        "level": "INFO",
         "id": 29,
         "description": "Magnetorquer Stopped"
       },
       "MAG_STARTED_IN_REVERSE": {
+        "level": "INFO",
         "id": 30,
         "description": "Magnetorquer Started in Reverse"
       },
       "MAG_TEST_COMPLETED": {
+        "level": "DEBUG",
         "id": 31,
         "description": "Test Completed"
       },
       "GYRO_ID": {
+        "level": "DEBUG",
         "id": 32,
-        "description": "ID is %d "
+        "description": "ID",
+        "data": [
+          {"id": "u8"}
+        ]
       },
       "GYRO_COMPUTED_RATE_0": {
+        "level": "DEBUG",
         "id": 33,
-        "description": "Computed rate %f"
+        "description": "Computed rate",
+        "data": [
+          {"computed_rate": "f32"}
+        ]
       },
       "GYRO_SLEEPING": {
+        "level": "INFO",
         "id": 34,
         "description": "Sleeping..."
       },
       "GYRO_TEMP": {
+        "level": "INFO",
         "id": 35,
-        "description": "Temp is %f"
+        "description": "Temp",
+        "data": [
+          {"temperature": "f32"}
+        ]
       },
       "GYRO_SET_FILTER_TO_330HZ_2TAPS": {
+        "level": "DEBUG",
         "id": 36,
         "description": "Set filter to 330hz, 2 taps"
       },
       "GYRO_COMPUTED_RATE_1": {
+        "level": "DEBUG",
         "id": 37,
-        "description": "Computed rate %f"
+        "description": "Computed rate",
+        "data": [
+          {"computed_rate": "f32"}
+        ]
       },
       "GYRO_SET_FILTER_TO_DEFAULT": {
+        "level": "ERROR",
         "id": 38,
         "description": "Set filter to default"
       },
       "GYRO_COMPUTED_RATE_2": {
+        "level": "DEBUG",
         "id": 37,
-        "description": "Computed rate %f"
+        "description": "Computed rate",
+        "data": [
+          {"computed_rate": "f32"}
+        ]
       },
       "GYRO_ERROR": {
+        "level": "ERROR",
         "id": 38,
-        "description": "ERROR -> %d <-"
+        "description": "ERROR",
+        "data": [
+          {"error_code": "u8"}
+        ]
       }
     }
   },
@@ -686,48 +979,83 @@
     "description": "Comms Test",
     "signals": {
       "REBOOT_FAIL_1": {
+        "level": "ERROR",
         "id": 0,
-        "description": "reboot fail 1"
+        "description": "reboot fail 1",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "REBOOT_FAIL_2": {
+        "level": "ERROR",
         "id": 1,
-        "description": "reboot fail 2 (receiving)"
+        "description": "reboot fail 2 (receiving)",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "REBOOT_FAIL_WAITING": {
+        "level": "ERROR",
         "id": 2,
         "description": "failed waiting for reboot"
       },
       "REBOOT_PASS": {
+        "level": "INFO",
         "id": 3,
         "description": "reboot pass"
       },
       "UNABLE_TO_GET_TELEM": {
+        "level": "WARNING",
         "id": 4,
         "description": "Unable to get telemetry!"
       },
       "FAILED_TO_START_SESSION_0": {
+        "level": "ERROR",
         "id": 5,
-        "description": "failed to start a comms session: %d"
+        "description": "failed to start a comms session",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "FAILED_TO_START_SESSION_1": {
+        "level": "ERROR",
         "id": 6,
-        "description": "failed to start a comms session: %d"
+        "description": "failed to start a comms session",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "FAILED_TO_START_SESSION_2": {
+        "level": "ERROR",
         "id": 7,
-        "description": "failed to start a comms session: %d"
+        "description": "failed to start a comms session",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "FAILED_TO_SEND_CMD": {
+        "level": "ERROR",
         "id": 8,
-        "description": "failed to send command: %d"
+        "description": "failed to send command",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "FAILED_TO_RECEIVE_CMD_RESPONSE": {
+        "level": "ERROR",
         "id": 9,
-        "description": "failed to receive command response: %d"
+        "description": "failed to receive command response",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "FAILED_TO_REGISTER_EVENTS": {
+        "level": "ERROR",
         "id": 10,
-        "description": "failed to register for comms msg events %d"
+        "description": "failed to register for comms msg events",
+        "data": [
+          {"error_code": "u8"}
+        ]
       }
     }
   },
@@ -736,16 +1064,30 @@
     "description": "CAN GPIO Test",
     "signals": {
       "INVALID_PORT": {
+        "level": "ERROR",
         "id": 0,
-        "description": "Invalid Port: %d"
+        "description": "Invalid Port",
+        "data": [
+          {"port": "u32"}
+        ]
       },
       "INVALID_PIN": {
+        "level": "ERROR",
         "id": 1,
-        "description": "Invalid Pin: %d"
+        "description": "Invalid Pin: %d",
+        "data": [
+          {"pin": "u8"}
+        ]
       },
       "WRITING_TO_CAN": {
+        "level": "DEBUG",
         "id": 2,
-        "description": "Writing %d to CAN %d, pin %d"
+        "description": "Writing to CAN",
+        "data": [
+          {"value": "u8"},
+          {"port": "u8"},
+          {"pin": "u8"}
+        ]
       }
     }
   },
@@ -762,38 +1104,65 @@
     "description": "Comms Log",
     "signals": {
       "CMD_QUEUE_EMPTY": {
+        "level": "WARNING",
         "id": 0,
         "description": "Expected a command but cmd_q is empty"
       },
       "FAILED_CONVERTING_PACKET_TO_BUFFER": {
+        "level": "ERROR",
         "id": 1,
-        "description": "Failed to convert packet to buffer, err: %d"
+        "description": "Failed to convert packet to buffer",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "FAILED_TO_SEND_CMD": {
+        "level": "ERROR",
         "id": 2,
-        "description": "Failed to send command, err: %d"
+        "description": "Failed to send command",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "RX_ERROR": {
+        "level": "ERROR",
         "id": 3,
-        "description": "Comms rx err %d"
+        "description": "Comms rx err",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "RX_DATA_ERROR": {
+        "level": "ERROR",
         "id": 4,
-        "description": "Comms rx data err %d"
+        "description": "Comms rx data err",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "FLASH_TIMEOUT": {
+        "level": "WARNING",
         "id": 5,
-        "description": "flash timeout, state: %d"
+        "description": "flash timeout",
+        "data": [
+          {"state": "u8"}
+        ]
       },
       "ERROR": {
+        "level": "ERROR",
         "id": 6,
-        "description": "error %d"
+        "description": "error",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "CMD_SEND_FAILED": {
+        "level": "ERROR",
         "id": 7,
         "description": "command send failed"
       },
       "CMD_FAILED": {
+        "level": "ERROR",
         "id": 8,
         "description": "command failed: seqnum mismatch or NACK received"
       }
@@ -808,106 +1177,162 @@
     "description": "ADCS IMU Log",
     "signals": {
       "SOFT_RESET_ERROR": {
+        "level": "ERROR",
         "id": 0,
         "description": "Error performing soft reset"
       },
       "WRONG_DEVICE_MODE": {
+        "level": "ERROR",
         "id": 1,
-        "description": "Wrong device mode selected: %d"
+        "description": "Wrong device mode selected",
+        "data": [
+          {"power_mode": "u8"}
+        ]
       },
       "SOFT_RESET_POWERDOWN_ERROR": {
+        "level": "ERROR",
         "id": 2,
         "description": "Error performing soft reset for power down"
       },
       "SET_ACCEL_POWER_MODE_LOW_ERROR": {
+        "level": "ERROR",
         "id": 3,
         "description": "Error setting accel power mode low"
       },
       "SET_GYRO_POWER_MODE_LOW_ERROR": {
+        "level": "ERROR",
         "id": 4,
         "description": "Error setting gyro power mode low"
       },
       "SET_MAGN_POWER_MODE_LOW_ERROR": {
+        "level": "ERROR",
         "id": 5,
         "description": "Error setting magn power mode low"
       },
       "SOFT_RESET_WAKEUP_ERROR": {
+        "level": "ERROR",
         "id": 6,
         "description": "Error performing soft reset for wake up"
       },
       "IMU_INIT_WAKEUP_ERROR": {
+        "level": "ERROR",
         "id": 7,
         "description": "Error performing IMU init for power up"
       },
       "SET_ACCEL_POWER_MODE_NORMAL_ERROR": {
+        "level": "ERROR",
         "id": 8,
         "description": "Error setting accel power mode normal"
       },
       "SET_GYRO_POWER_MODE_NORMAL_ERROR": {
+        "level": "ERROR",
         "id": 9,
         "description": "Error setting gyro power mode normal"
       },
       "SET_MAGN_POWER_MODE_NORMAL_ERROR": {
+        "level": "ERROR",
         "id": 10,
         "description": "Error setting magn power mode normal"
       },
       "ERROR_WRITING_NEW_GYRO_RANGE": {
+        "level": "ERROR",
         "id": 11,
-        "description": "Error writing new gyro range %d"
+        "description": "Error writing new gyro range",
+        "data": [
+          {"new_gyro_range": "u8"}
+        ]
       },
       "ERROR_WRITING_NEW_ACCEL_RANGE": {
+        "level": "ERROR",
         "id": 12,
-        "description": "Error writing new accel range %d"
+        "description": "Error writing new accel range",
+        "data": [
+          {"new_accel_range": "u8"}
+        ]
       },
       "I2C_WRITE_FAILURE": {
+        "level": "ERROR",
         "id": 13,
-        "description": "I2C write failure: %d"
+        "description": "I2C write failure",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "I2C_READ_FAILURE": {
+        "level": "ERROR",
         "id": 14,
-        "description": "I2C read failure: %d"
+        "description": "I2C read failure",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "ERROR_DURING_INIT_MAG": {
+        "level": "ERROR",
         "id": 15,
-        "description": "Error init mag step %d"
+        "description": "Error init mag step",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "ERROR_READING_MAG_MAN_OP": {
+        "level": "ERROR",
         "id": 16,
         "description": "Error reading mag_man_op"
       },
       "ERROR_INIT_MAG_IN_READ_TRIMMING": {
+        "level": "ERROR",
         "id": 17,
-        "description": "Error init mag step %d"
+        "description": "Error init mag step",
+        "data": [
+          {"error_code": "u8"}
+        ]
       },
       "ERROR_READING_CHIPID": {
+        "level": "ERROR",
         "id": 18,
         "description": "Error reading CHIPPID"
       },
       "ERROR_READING_DATA_READY": {
+        "level": "ERROR",
         "id": 19,
         "description": "Error reading drdy"
       },
       "ERROR_DATA_READY": {
+        "level": "ERROR",
         "id": 20,
-        "description": "Error data ready is %d"
+        "description": "Error data ready",
+        "data": [
+          {"error_data_ready": "u8"}
+        ]
       },
       "ERROR_READING_PMU_STATUS": {
+        "level": "ERROR",
         "id": 21,
         "description": "Error reading PMU status"
       },
       "PMU_STATUS_WRONG": {
+        "level": "ERROR",
         "id": 22,
-        "description": "Error: PMU status return %d, should be 21"
+        "description": "Error: PMU status returned incorrect status, should be 21",
+        "data": [
+          {"status": "u8"}
+        ]
       },
       "WRONG_CHIPID": {
+        "level": "ERROR",
         "id": 23,
-        "description": "Error: CHIPPID return %d, should be 216"
+        "description": "Error: CHIPPID returned incorrect status, should be 216",
+        "data": [
+          {"status": "u8"}
+        ]
       },
       "ERROR_WRITING_GYRO_CONFIG": {
+        "level": "ERROR",
         "id": 24,
         "description": "Error writing gyro config"
       },
       "ERROR_WRITING_ACCEL_CONFIG": {
+        "level": "ERROR",
         "id": 25,
         "description": "Error writing accel config"
       }
@@ -918,6 +1343,7 @@
     "description": "ADCS GYRO",
     "signals": {
       "UNHANDLED_CALLBACK": {
+        "level": "ERROR",
         "id": 0,
         "description": "Sleep callback triggered on removed handler"
       }
@@ -928,16 +1354,28 @@
     "description": "EPS Read Test",
     "signals": {
       "READ_FLOAT_INVALID_CMD": {
+        "level": "ERROR",
         "id": 0,
-        "description": "Invalid read command '%d', must be between 1 and 52"
+        "description": "Invalid read command, must be between 1 and 52",
+        "data": [
+          {"read_cmd": "u8"}
+        ]
       },
       "READ_FLOAT_RAW_INVALID_CMD": {
+        "level": "ERROR",
         "id": 1,
-        "description": "Invalid read command '%d', must be between 1 and 52"
+        "description": "Invalid read command, must be between 1 and 52",
+        "data": [
+          {"read_cmd": "u8"}
+        ]
       },
       "READ_INT_INVALID_CMD": {
+        "level": "ERROR",
         "id": 2,
-        "description": "Invalid read command '%d', must be between 1 and 52"
+        "description": "Invalid read command, must be between 1 and 52",
+        "data": [
+          {"read_cmd": "u8"}
+        ]
       }
     }
   },
@@ -946,14 +1384,38 @@
     "description": "EPS Write Test",
     "signals": {
       "INVALID_WRITE_STATE": {
+        "level": "ERROR",
         "id": 0,
-        "description": "Invalid write state '%d', must be one of 0,1,2,3"
+        "description": "Invalid write state, must be one of 0,1,2,3",
+        "data": [
+          {"write_state": "u8"}
+        ]
       }
     }
   },
   "LOG_TEST_FLASH_RW_CMD": {
     "id": 63,
-    "description": "Test flash read/write command"
+    "description": "Test flash read/write command",
+    "signals": {
+      "BAD_LEN": {
+        "level": "ERROR",
+        "id": 0,
+        "description": "Bad len arg: %d > %d",
+        "data": [
+          {"arg_len": "u16"},
+          {"size_of_write_data": "u16"}
+        ]
+      },
+      "PERFORMING_TEST": {
+        "level": "DEBUG",
+        "id": 1,
+        "description": "Performing rw test",
+        "data": [
+          {"starting_addr": "u32"},
+          {"data_len": "u16"}
+        ]
+      }
+    }
   },
   "LOG_DRIVER_MIBSPI": {
     "id": 64,
@@ -971,7 +1433,8 @@
     "id": 67,
     "description": "Responses to scheduled commands",
     "signals": {
-      "RESPONSE": {
+      "reserved": {
+        "level": "INFO",
         "id": 0,
         "description": "Command response"
       }
@@ -982,16 +1445,22 @@
     "description": "Camera",
     "signals": {
       "INITIALIZING": {
+        "level": "INFO",
         "id": 0,
         "description": "Initializing"
       },
       "CAPTURING_IMAGE": {
+        "level": "DEBUG",
         "id": 1,
         "description": "Capturing image"
       },
       "TRANSFERRING_IMAGE": {
+        "level": "DEBUG",
         "id": 2,
-        "description": "Transfering image (%d KB)"
+        "description": "Transfering image",
+        "data": [
+          {"size_kb": "u32"}
+        ]
       }
     }
   },
@@ -1000,16 +1469,28 @@
     "description": "Ground Station Downlink",
     "signals": {
       "COMMS_SESS_INIT_ERR": {
+        "level": "ERROR",
         "id": 0,
-        "description": "Error initializing COMMS session: %d"
+        "description": "Error initializing COMMS session",
+        "data": [
+          {"err": "u8"}
+        ]
       },
       "COMMS_SEND_CMD_ERR": {
+        "level": "ERROR",
         "id": 1,
-        "description": "Error sending COMMS command: %d"
+        "description": "Error sending COMMS command",
+        "data": [
+          {"err": "u8"}
+        ]
       },
       "COMMS_WAIT_RESP_ERR": {
+        "level": "ERROR",
         "id": 2,
-        "description": "Error waiting for COMMS response: %d"
+        "description": "Error waiting for COMMS response",
+        "data": [
+          {"err": "u8"}
+        ]
       }
     }
   }

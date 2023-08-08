@@ -186,7 +186,7 @@ static uint32_t write_log(void *handle, const uint8_t *data, uint32_t num_bytes,
     // In reality the responses should be stored to the filesystem.
     // See ALEA-858
     // TODO ALEA-572 Write this to filesystem
-    log_signal_with_data(INFO, LOG_CMD_SYS_SCHED_RESP, LOG_CMD_SYS_SCHED_RESP__RESPONSE, num_bytes, data);
+    LOG_CMD_SYS_SCHED_RESP(num_bytes, data);
     if (timeout_left != NULL) {
         *timeout_left = timeout;
     }

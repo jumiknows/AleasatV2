@@ -201,7 +201,7 @@ static void gndstn_link_task(void *pvParameters) {
     // err = comms_session_init(COMMS_ENDPOINT_GROUND, &comms_session);
     err = comms_session_init(COMMS_ENDPOINT_LOCAL, &comms_session);
     if (err != COMMS_SUCCESS) {
-        log_signal_with_data(ERROR, LOG_GNDSTN_DOWNLINK, LOG_GNDSTN_DOWNLINK__COMMS_SESS_INIT_ERR, sizeof(err), &err);
+        LOG_GNDSTN_DOWNLINK__COMMS_SESS_INIT_ERR(err);
         return;
     }
 
@@ -217,14 +217,14 @@ static void gndstn_link_task(void *pvParameters) {
             // Send the command
             err = comms_send_command(comms_session, COMMS_CMD_APP_DATA, data_buf, data_len, pdMS_TO_TICKS(COMMS_TIMEOUT_MS));
             if (err != COMMS_SUCCESS) {
-                log_signal_with_data(ERROR, LOG_GNDSTN_DOWNLINK, LOG_GNDSTN_DOWNLINK__COMMS_SEND_CMD_ERR, sizeof(err), &err);
+                LOG_GNDSTN_DOWNLINK__COMMS_SEND_CMD_ERR(err);
                 continue;
             }
 
             // Wait for a response
             err = comms_wait_cmd_resp(comms_session, &comms_resp, pdMS_TO_TICKS(COMMS_TIMEOUT_MS));
             if (err != COMMS_SUCCESS) {
-                log_signal_with_data(ERROR, LOG_GNDSTN_DOWNLINK, LOG_GNDSTN_DOWNLINK__COMMS_WAIT_RESP_ERR, sizeof(err), &err);
+                LOG_GNDSTN_DOWNLINK__COMMS_WAIT_RESP_ERR(err);
                 continue;
             }
         }

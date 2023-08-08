@@ -359,8 +359,10 @@ class OBCBase:
                     print(f"CMD_SYS_SCHED_RESP log payload length too short: {recvd_log.payload_len} bytes (must be >= {app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE} bytes)")
                     continue
 
+                payload = recvd_log.data['data']
+
                 # Parse the command header
-                resp_header = app_cmd_sys.OBCCmdSysMsgHeader.deserialize(recvd_log.payload[:app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE])
+                resp_header = app_cmd_sys.OBCCmdSysMsgHeader.deserialize(payload[:app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE])
                 cmd_inst_id = resp_header.uuid
                 if cmd_inst_id in self._pending_responses:
                     # Parse the response
@@ -371,7 +373,7 @@ class OBCBase:
                         print(f"[OBCCmdNotFoundError] {str(e)}")
                         continue
 
-                    resp_data = recvd_log.payload[app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE:]
+                    resp_data = payload[app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE:]
 
                     try:
                         # TODO UUID is not unique enough (see docs for resp_header.uuid)
