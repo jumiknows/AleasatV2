@@ -20,14 +20,15 @@
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
 #include "tms_mibspi.h"
-#include "tms_uart.h"
 #include "obc_featuredefs.h"
 #include "rtos.h"
 #include "het.h"
 #include "logger.h"
 #include "gio.h"
 #include "obc_serial_rx.h"
+#include "gps_serial_rx.h"
 #include "comms_mibspi.h"
+#include "sci.h"
 
 /**
  * @brief Callback for all TMS570 GIO interrupts.
@@ -82,9 +83,7 @@ void sciNotification(sciBASE_t* sci, uint32 flags) {
         if (sci == UART_DEBUG) {
             obc_serial_rx_isr(&xHigherPriorityTaskWoken);
         } else if (sci == UART_GPS) {
-            // TODO replace with GPS handler func after GPS serial is upgraded
-            xQueueSendToBackFromISR(xGpsSerialRXQueue, &curr_gps_char, &xHigherPriorityTaskWoken);
-            sciReceive(sci, 1, &curr_gps_char); /* Place back into receive mode */
+            gps_serial_rx_isr(&xHigherPriorityTaskWoken);
         }
     }
 

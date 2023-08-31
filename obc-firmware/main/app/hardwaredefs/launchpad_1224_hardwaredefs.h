@@ -205,6 +205,8 @@
 #define GPS_PWR_FLT_PORT GIO_PORT(gioPORTA)
 #define GPS_PWR_FLT_PIN  7
 
+#define GPS_BAUD_RATE 9600
+
 /**
  * @brief Magnetorquers
  */

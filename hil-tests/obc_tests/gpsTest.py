@@ -1,103 +1,40 @@
+"""
+Test the read and write functions of the GPS driver
+"""
+# The following imports are required
 from obc_test_internals import obc_test, timeout
-import argparse, unittest, serial, threading, time, queue
+import time
 
-class GpsMock():
-    ser = None
-    def connect(self, serial_port: str) -> bool:
-        try:
-            self.ser = serial.Serial(
-                port=serial_port,
-                baudrate=9600,
-                timeout=0,
-                parity=serial.PARITY_NONE,
-                stopbits=serial.STOPBITS_ONE,
-                bytesize=serial.EIGHTBITS
-            )
+"""
+You want to inherit the Setup and Teardown of OBCTest so add it as the Parent Class.
+Should you want to change the default SetUp or tearDown you can implement it here.
+"""
+class GpsTest(obc_test.OBCTest):
 
-            return True
+    @timeout.timeout(20)
+    def test_query_sw_ver(self):
+        resp = self.obc.send_cmd("GPS_QUERY_SW_VER")
+        self.assertTrue(resp.is_success)
+        self.assertEqual(resp["gps_software_version"], [2,1,5,0,1,7,15,1,27])
 
-        except Exception as e:
-            return False
+    @timeout.timeout(20)
+    def test_power_mode(self):
+        # Set it to power save.
+        resp = self.obc.send_cmd("GPS_CONFIGURE_POWER_MODE", 0x02, True)
+        self.assertTrue(resp.is_success)
+        time.sleep(0.5)
+        # Get the power mode
+        resp = self.obc.send_cmd("GPS_QUERY_POWER_MODE")
+        self.assertTrue(resp.is_success)
 
-    def run(self):
-        try:
-            while 1:
-                if not self.ser.is_open:
-                    raise Exception("GPS Port Closed!")
-                
-                while self.ser.in_waiting > 0:
-                    time.sleep(0.001)
-                    msg = self.ser.readline()
-                    while b'\r\n' not in msg:
-                        time.sleep(0.001)
-                        temp = self.ser.readline()
-                        if temp:
-                            msg+=temp
-                    print(msg)
-                    self.gps_recv_q.put(msg)
-                    print("bleh")
-
-                    if not self.ser.is_open:
-                        return
-
-        except Exception as e:
-            return
-
-
-class GpsTestClass(obc_test.OBCTest):
-    gps = None
-    connect_thread = None
-    gps_recv_q = None
-    gps_send_q = None
-    def setUp(self) -> None:
-        super().setUp()
-        self.gps_recv_q = queue.Queue()
-        self.gps_send_q = queue.Queue()
-        self.gps = GpsMock()
-        if self.gps.connect("COM3"):
-            print("SUCCESS: Connected through GPS port")
-        else:
-            print("ERROR: Could not connect to GPS port")
-        self.connect_thread = threading.Thread(target=self.gps.run)
-        self.connect_thread.start()
-    
-    def tearDown(self) -> None:
-        self.connect_thread.join(timeout=1)
-        self.gps.ser.close()
-
-class GpsTest(GpsTestClass):
-
-    @timeout.timeout(10)
-    def test_gps_restart(self):
-        self.obc.send_q.put("0 restart_gps * *")
-        while 1:
-            print(self.gps_recv_q)
-            msg_b = self.gps_recv_q.get(block=True)
-            msg_b.hex()
-            print(msg)
-            if msg[0:4] == 'a0a1' and msg[4:8] == '000f' \
-                and msg[8:10] == '01' and msg[10:12] == '03' \
-                and msg[12:16] == '07e7' and msg[16:18] == '01' \
-                and msg[18:20] == '01' \
-                and msg[26:38] == 'b1c4e11000df' \
-                and msg[40:] == '0d0a':
-                return
+    @timeout.timeout(20)
+    def test_query_crc_info(self):
+        resp = self.obc.send_cmd("GPS_QUERY_SW_CRC")
+        self.assertTrue(resp.is_success)
+        print(resp["software_crc"])
 
 """
 This section is required if you want to run these tests independently.
 """
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--listports", default="False")
-    parser.add_argument("--port", default="COM8")
-    args = vars(parser.parse_args())
-
-    if args["listports"] == "True":
-        print(obc_test.get_serial_ports())
-        exit(0)
-
-    GpsTest.PORT = args["port"]
-    try:
-        unittest.main()
-    except Exception as e:
-        print("Test timed out!")
+    obc_test.main(GpsTest)

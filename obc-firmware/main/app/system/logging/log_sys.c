@@ -22,9 +22,6 @@
 // FreeRTOS
 #include "rtos.h"
 
-// HAL
-#include "tms_uart.h"
-
 // Third-Party
 #include "printf.h"
 

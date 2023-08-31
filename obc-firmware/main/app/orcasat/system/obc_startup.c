@@ -14,7 +14,6 @@
 #include "obc_startup.h"
 #include "can.h"
 #include "reg_system.h"
-#include "tms_uart.h"
 #include "obc_utils.h"
 #include "obc_flash.h"
 #include "logger.h"

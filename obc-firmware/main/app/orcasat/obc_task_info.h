@@ -65,5 +65,8 @@
 #define FS_LOGGER_PRIORITY               1
 #define TELEM_LOG_TASK_PRIORITY          1
 #define HANG_TASK_DEFAULT_PRIORITY       1
+#define GPS_RX_TASK_PRIORITY             5
+#define GPS_TX_TASK_PRIORITY             5
+
 
 #endif /* OBC_TASK_INFO_H_ */

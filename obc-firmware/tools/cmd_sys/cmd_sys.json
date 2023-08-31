@@ -84,7 +84,7 @@
     },
     "GPS_RESTART": {
         "id": 14,
-        "args": [],
+        "args": [{"start_mode": "u8"}],
         "resp": []
     },
     "FW_INFO": {
@@ -100,7 +100,7 @@
             {"crc32": "u32"}
         ]
     },
-    "WMM_INIT": {
+        "WMM_INIT": {
         "id": 16,
         "args": [],
         "resp": []
@@ -125,5 +125,86 @@
         "resp": [
             {"mag_ref": "f32[3]"}
         ]
+    },
+    "GPS_QUERY_SW_VER": {
+        "id": 19,
+        "args": [],
+        "resp": [{"gps_software_version": "u8[9]"}]
+    },
+    "GPS_SET_FACTORY_SETTINGS": {
+        "id": 20,
+        "args": [],
+        "resp": []
+    },
+    "GPS_CONFIGURE_POWER_MODE": {
+        "id": 21,
+        "args": [
+            {"write_settings": "u8"},
+            {"enable_power_save": "bool"}
+        ],
+        "resp": []
+    },
+    "GPS_QUERY_POWER_MODE": {
+        "id": 22,
+        "args": [],
+        "resp": [{"gps_in_power_save_mode": "bool"}]
+    },
+    "GPS_QUERY_SW_CRC": {
+        "id": 23,
+        "args": [],
+        "resp": [{"software_crc": "u16"}]
+    },
+    "GPS_CONFIGURE_POSITION_UPATE_RATE": {
+        "id": 24,
+        "args": [
+            {"write_settings": "u8"},
+            {"position_update_rate": "u8"}
+        ],
+        "resp": []
+    },
+    "GPS_QUERY_POSITION_UPDATE_RATE": {
+        "id": 25,
+        "args": [],
+        "resp": [{"update_rate": "u8"}]
+    },
+    "GPS_CONFIGURE_NMEA_MESSGES": {
+        "id": 26,
+        "args": [
+            {"write_settings": "u8"},
+            {"gga_interval": "u8"},
+            {"gsa_interval": "u8"},
+            {"gsv_interval": "u8"},
+            {"gll_interval": "u8"},
+            {"rmc_interval": "u8"},
+            {"vtg_interval": "u8"},
+            {"zda_interval": "u8"}
+        ],
+        "resp": []
+    },
+    "GPS_QUERY_NMEA_MESSGES": {
+        "id": 27,
+        "args": [],
+        "resp": [
+            {"gga_interval": "u8"},
+            {"gsa_interval": "u8"},
+            {"gsv_interval": "u8"},
+            {"gll_interval": "u8"},
+            {"rmc_interval": "u8"},
+            {"vtg_interval": "u8"},
+            {"zda_interval": "u8"}
+        ]
+    },
+    "GPS_CONFIGURE_SERIAL_PORT": {
+        "id": 28,
+        "args": [{"baud_rate": "u8"}],
+        "resp": []
+    },
+    "GPS_CONFIGURE_NAV_MSG_INTERVAL": {
+        "id": 29,
+        "args": [
+            {"write_settings": "u8"},
+            {"navigation_msg_int": "u8"}
+        ],
+        "resp": []
     }
 }

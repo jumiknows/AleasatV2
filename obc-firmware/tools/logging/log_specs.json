@@ -1427,7 +1427,57 @@
   },
   "LOG_GPS": {
     "id": 66,
-    "description": "GPS"
+    "description": "GPS",
+    "signals": {
+      "NMEA_PARSER_OVERFLOW": {
+        "level": "ERROR",
+        "id": 0,
+        "description": "GPS parser recieved a NMEA message larger than our buffer"
+      },
+      "PACKET_PARSER_OVERFLOW": {
+        "level": "ERROR",
+        "id": 1,
+        "description": "GPS parser recieved a control message larger than our buffer",
+        "data": [
+          {"overflow_data_length": "u16"}
+        ]
+      },
+      "INVALID_CHECKSUM_CONTROL_MSG": {
+        "level": "ERROR",
+        "id": 2,
+        "description": "GPS control packet had a bad checksum."
+      },
+      "INTERNAL_RTC_ERROR": {
+        "level": "ERROR",
+        "id": 3,
+        "description": "GPS recieved an error from the RTC."
+      },
+      "RECV_NACK": {
+        "level": "ERROR",
+        "id": 4,
+        "description": "GPS recieved a NACK from the RTC."
+      },
+      "TIMEOUT": {
+        "level": "ERROR",
+        "id": 5,
+        "description": "GPS message timed out."
+      },
+      "BAD_RESPONSE": {
+        "level": "ERROR",
+        "id": 6,
+        "description": "GPS message timed out."
+      },
+      "BAD_ARGUMENTS": {
+        "level": "ERROR",
+        "id": 7,
+        "description": "GPS message timed out."
+      },
+      "MUTEX_TIMEOUT": {
+        "level": "ERROR",
+        "id": 8,
+        "description": "GPS Blocking mutex timed out."
+      }
+    }
   },
   "LOG_CMD_SYS_SCHED_RESP": {
     "id": 67,

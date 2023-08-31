@@ -120,15 +120,6 @@ cmd_sys_resp_code_t cmd_impl_HEARTBEAT(const cmd_sys_cmd_t *cmd, cmd_HEARTBEAT_a
 #endif
 }
 
-cmd_sys_resp_code_t cmd_impl_GPS_RESTART(const cmd_sys_cmd_t *cmd) {
-    gps_err_t err = gps_restart_receiver(GPS_RST_COLD_START);
-    if (err == GPS_SUCCESS) {
-        return CMD_SYS_RESP_CODE_SUCCESS;
-    } else {
-        return CMD_SYS_RESP_CODE_ERROR;
-    }
-}
-
 cmd_sys_resp_code_t cmd_impl_FW_INFO(const cmd_sys_cmd_t *cmd, cmd_FW_INFO_resp_t *resp) {
     // Copy the FW structs object onto the stack so every access isn't volatile (and later ECC errors
     // only have to be handled once).

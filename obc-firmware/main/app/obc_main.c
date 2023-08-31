@@ -15,7 +15,6 @@
 #include "obc_task_info.h"
 #include "obc_featuredefs.h"
 #include "obc_rtc.h"
-#include "tms_uart.h"
 #include "tms_mibspi.h"
 #include "tms_mibspi.h"
 #include "obc_startup.h"
@@ -48,6 +47,9 @@
 #include "cmd_sys_sched.h"
 #include "cmd_sys_exec.h"
 #include "gndstn_link.h"
+#include "gps_serial_rx.h"
+#include "obc_gps.h"
+#include "obc_serial.h"
 
 // Private Functions
 static void obc_main_task(void* pvParameters);
@@ -68,14 +70,15 @@ static void obc_main_task(void* pvParameters) {
     // to do things like push to the UART TX queue, which is done when logging errors.
     // None of this code relies on other application features.
     wd_create_infra();
-    uart_create_infra();
     obc_serial_create_infra();
+    gps_serial_rx_create_infra();
     tms_i2c_create_infra();
     gpio_create_infra();
     tms_mibspi_create_infra();
     rtc_create_infra();
     obc_rtos_create_infra();
     telem_create_infra();
+    gps_create_infra();
     tms_spi_create_infra();
     rtc_scheduler_create_infra();
     cmd_sys_exec_create_infra();
@@ -92,7 +95,6 @@ static void obc_main_task(void* pvParameters) {
     // features yet. Interrupts cannot be safely enabled until the tasks that deal with handling the
     // interrupts have been created. Hardware features where interrupts are enabled during
     // init are tagged with "_irq" in the init function name.
-    uart_init_hw();
     tms_i2c_init();
     gpio_init_hw();
     tms_mibspi_init_hw();
@@ -131,6 +133,7 @@ static void obc_main_task(void* pvParameters) {
     cmd_sys_imm_start_task();
     cmd_sys_sched_start_task();
     obc_serial_start_tasks();
+    gps_serial_rx_start_task();
     gpio_start_task();
 
 #if COMMS_OVER_SERIAL
@@ -160,15 +163,20 @@ static void obc_main_task(void* pvParameters) {
     // started.
     gpio_init_irq();
 
+    // Enable SciDriver. The GPS and Serial drivers require this to be called before their setup functions.
+    sciInit();
+
     // Enable interrupts for the UART. This should only be done after the scheduler is started,
     // because the scheduler processes commands received from the UART.
     obc_serial_init_irqs();
-    uart_init_irq();
+    gps_serial_rx_init_irq();
 
     // Filesystem initialization requires flash, and takes a couple of seconds because we erase it
     // at startup.
     flash_init();
     fs_init();
+
+    gps_init();
 
     // Create the telemetry logging task. This requires that the filesystem is ready to go.
     telem_start_task();

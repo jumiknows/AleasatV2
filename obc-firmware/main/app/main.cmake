@@ -144,6 +144,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS
     littlefs
     DSPLIB
+    minmea
 )
 
 if (USE_F021API EQUAL 1)
