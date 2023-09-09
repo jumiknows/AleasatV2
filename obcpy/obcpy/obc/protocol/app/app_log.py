@@ -45,6 +45,20 @@ class OBCLog(packet.Packet):
     def deserialize(cls, data: bytes) -> "OBCLog":
         raise NotImplementedError()
 
+    def data_as_string(self) -> str:
+        data_str = ""
+        if self.data is not None:
+            for name in self.data:
+                entry = self.data[name]
+                if isinstance(entry, list):
+                    try:
+                        data_str += f"{name}: {bytearray(entry).decode()} "
+                    except (UnicodeDecodeError, AttributeError):
+                        data_str += f"{name}: {entry} "
+                else:
+                    data_str += f"{name}: {entry} "
+        return data_str
+
     def __str__(self) -> str:
         line = "[LOG] "
         line += f"[{self.signal_level.name:7s}] "

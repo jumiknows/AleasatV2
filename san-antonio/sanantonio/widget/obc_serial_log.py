@@ -63,6 +63,6 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
         if log.log_id == PRINTF_LOG_ID:
             self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{bytes(log.data['message']).decode()}"))
         else:
-            self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{log.data}"))
+            self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{log.data_as_string()}"))
 
         self.obc_log_table.scrollToBottom()
