@@ -159,6 +159,7 @@ static void gps_serial_rx_task(void* pvParameters) {
         switch (state) {
             case GPS_NMEA_MSG:
                 xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+                set_task_status(wd_task_id, task_asleep);
                 if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
                     set_task_status(wd_task_id, task_alive);
                     if (buf_idx >= sizeof(data_buf)) {
@@ -184,6 +185,7 @@ static void gps_serial_rx_task(void* pvParameters) {
                 rx_char     = 0;
                 payload_len = 0;
                 xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+                set_task_status(wd_task_id, task_asleep);
                 if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
                     set_task_status(wd_task_id, task_alive);
                     // Check if its NMEA or GPS msg.
@@ -197,6 +199,7 @@ static void gps_serial_rx_task(void* pvParameters) {
                 }
                 break;
             case GPS_SERIAL_RX_STATE_START_SYNC_1:
+                set_task_status(wd_task_id, task_asleep);
                 xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
                 if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
                     set_task_status(wd_task_id, task_alive);
@@ -211,6 +214,7 @@ static void gps_serial_rx_task(void* pvParameters) {
                 break;
             case GPS_SERIAL_RX_STATE_LENGTH:
                 xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+                set_task_status(wd_task_id, task_asleep);
                 if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
                     set_task_status(wd_task_id, task_alive);
                     payload_len       = (uint16_t)rx_char << 8;
@@ -218,6 +222,7 @@ static void gps_serial_rx_task(void* pvParameters) {
                     buf_idx++;
                 }
                 xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+                set_task_status(wd_task_id, task_asleep);
                 if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
                     set_task_status(wd_task_id, task_alive);
                     state             = GPS_SERIAL_RX_STATE_LENGTH_1;
@@ -234,19 +239,21 @@ static void gps_serial_rx_task(void* pvParameters) {
                 break;
             case GPS_SERIAL_RX_STATE_DATA:
                 for (int i = 0; i < (payload_len+3); i++) {
+                    set_task_status(wd_task_id, task_asleep);
                     xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
                     if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
                         data_buf[buf_idx] = rx_char;
                         buf_idx++;
-                    } else {
-                        break;
-                    }
+                    } 
+                    set_task_status(wd_task_id, task_alive);
+                    break;
                 }
                 set_task_status(wd_task_id, task_alive);
                 gps_handle_control_msg((uint8_t*)&data_buf, buf_idx);
                 state = GPS_SERIAL_RX_STATE_START_SYNC_0;
                 break;
             default:
+                set_task_status(wd_task_id, task_alive);
                 state = GPS_SERIAL_RX_STATE_START_SYNC_0;
                 break;
         }
