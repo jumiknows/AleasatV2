@@ -48,7 +48,7 @@ def main():
     templateName = pathlib.Path(args.templateFile).name
 
     # Generate the header file
-    file_loader = FileSystemLoader(templateParent)
+    file_loader = FileSystemLoader(str(templateParent.resolve()))
     env = Environment(
         loader=file_loader,
         keep_trailing_newline=True

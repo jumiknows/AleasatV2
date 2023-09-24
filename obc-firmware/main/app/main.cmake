@@ -80,7 +80,7 @@ endforeach()
 # Generate Logging Files
 
 add_custom_command(
-    OUTPUT              generated/log_gen.h
+    OUTPUT              generated/logger.h
     WORKING_DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}
     COMMAND             pwd && python3 tools/logging/log_gen.py
                             -i ${CMAKE_CURRENT_SOURCE_DIR}/tools/logging/log_specs.json
@@ -90,7 +90,7 @@ add_custom_command(
                         ./tools/logging/templates/log_gen_template.h
 )
 list(APPEND SRC_FILES
-    generated/log_gen.h
+    generated/logger.h
 )
 
 # Generate Command System Files
