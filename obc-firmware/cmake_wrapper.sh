@@ -88,6 +88,8 @@ FLASH_SLOT_NAME=$3
 export PYTHONPATH=../obcpy
 
 # Get githash, tag and dirty status
+git update-index --refresh
+
 GITHASH_FULL=$(git rev-parse HEAD)
 GITHASH=${GITHASH_FULL:0:8}
 
