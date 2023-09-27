@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
-FROM ubuntu:20.04
+
+# The TI compiler is only available for AMD64 (x86_64) architecture
+FROM --platform=linux/amd64 ubuntu:20.04
 
 # Update and install packages
 RUN apt-get update \

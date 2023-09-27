@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+FW_DIR="$(dirname "$SCRIPT_DIR")"
+
 PROJECT_NAME="ALEA_OBC"
 
 # exit when any command fails
@@ -109,9 +112,9 @@ else
 fi
 
 # Directories
-BUILD_DIR="./build/${PLATFORM}/${TARGET}/${FLASH_SLOT_NAME}"
+BUILD_DIR="${FW_DIR}/build/${PLATFORM}/${TARGET}/${FLASH_SLOT_NAME}"
 SOURCE_DIR="../../../../" # Relative to BUILD_DIR
-BIN_DIR="./build/_bin"
+BIN_DIR="${FW_DIR}/build/_bin"
 
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${BIN_DIR}"

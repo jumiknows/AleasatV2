@@ -6,7 +6,7 @@
         {
             "label": "Build Firmware",
             "type": "shell",
-            "command": "./fw_build.sh ${input:platform} ${input:target} ${input:slot} ${input:standalone} ${input:comms_over_serial}",
+            "command": "./scripts/fw_build.sh ${input:platform} ${input:target} ${input:slot} ${input:standalone} ${input:comms_over_serial}",
             "options": {
                 "cwd": "${workspaceFolder}/obc-firmware"
             },
@@ -65,7 +65,7 @@
         {
             "label": "Test Firmware",
             "type": "shell",
-            "command": "./fw_test.sh",
+            "command": "./scripts/fw_test.sh",
             "options": {
                 "cwd": "${workspaceFolder}/obc-firmware"
             },

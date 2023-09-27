@@ -63,22 +63,22 @@
 build-launchpad-ext:
   extends: .build
   script:
-    - ./cmake_wrapper.sh launchpad ext A --standalone --comms-over-serial
+    - ./scripts/cmake_wrapper.sh launchpad ext A --standalone --comms-over-serial
 
 build-alea-v1-startup:
   extends: .build
   script:
-    - ./cmake_wrapper.sh alea-v1 startup A --standalone
+    - ./scripts/cmake_wrapper.sh alea-v1 startup A --standalone
 
 build-alea-v1-ext-comms:
   extends: .build
   script:
-    - ./cmake_wrapper.sh alea-v1 ext A
+    - ./scripts/cmake_wrapper.sh alea-v1 ext A
 
 build-alea-v1-ext:
   extends: .build
   script:
-    - ./cmake_wrapper.sh alea-v1 ext A --comms-over-serial
+    - ./scripts/cmake_wrapper.sh alea-v1 ext A --comms-over-serial
 
 build-alea-v1:
   extends: .build
