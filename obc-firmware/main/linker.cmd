@@ -107,31 +107,31 @@ SECTIONS
 
 #if (CFG_USE_RTOS == 1)
     /* FreeRTOS Kernel in protected region of Flash */
-    privileged_functions  : {} > KERNEL
-    .cinit                : {} > KERNEL
+    privileged_functions  : {} > KERNEL,    ALIGN(8)
+    .cinit                : {} > KERNEL,    ALIGN(8)
 #else
-    .cinit                : {} > USER_CODE
+    .cinit                : {} > USER_CODE, ALIGN(8)
 #endif
 
     /* Copy tables other than boot time (.binit) copy tables. This is a read-only section. */
-    .ovly                 : {} > USER_CODE
+    .ovly                 : {} > USER_CODE, ALIGN(8)
 
     /* Rest of code to user mode flash region */
 #if (CFG_USE_RTOS == 1)
-    freertos_system_calls : {} > USER_CODE
+    freertos_system_calls : {} > USER_CODE, ALIGN(8)
 #endif
-    .text                 : {} > USER_CODE
-    .const                : {} > USER_CODE
+    .text                 : {} > USER_CODE, ALIGN(8)
+    .const                : {} > USER_CODE, ALIGN(8)
 
 #if (CFG_USE_RTOS == 1)
     /* FreeRTOS Kernel data in protected region of RAM */
-    privileged_data       : {} > KRAM
-    .kernelHEAP           : {} > USER_RAM
+    privileged_data       : {} > KRAM,      ALIGN(8)
+    .kernelHEAP           : {} > USER_RAM,  ALIGN(8)
 #endif
 
-    .bss                  : {} > USER_RAM
-    .data                 : {} > USER_RAM
-    .sysmem               : {} > USER_RAM
+    .bss                  : {} > USER_RAM,  ALIGN(8)
+    .data                 : {} > USER_RAM,  ALIGN(8)
+    .sysmem               : {} > USER_RAM,  ALIGN(8)
 
     .exc_ram              : {} load=USER_CODE, run=EXCRAM, palign=8, table(EXCRAM_COPY_TABLE)
 }

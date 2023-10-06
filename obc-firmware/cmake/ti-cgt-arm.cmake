@@ -17,7 +17,7 @@ set(CMAKE_EXECUTABLE_SUFFIX_C   .elf)
 set(CMAKE_EXECUTABLE_SUFFIX_ASM .elf)
 
 # Compiler Flags
-set(CMAKE_C_FLAGS_INIT "-mv7R4 --code_state=32 --float_support=VFPv3D16 --c99 --abi=eabi --enum_type=packed --gen_func_subsections=on --gen_data_subsections=on -g --emit_warnings_as_errors --issue_remarks --verbose_diagnostics --display_error_number")
+set(CMAKE_C_FLAGS_INIT "-mv7R4 --code_state=16 --float_support=VFPv3D16 --c99 --abi=eabi --enum_type=packed --gen_func_subsections=on --gen_data_subsections=on -g --emit_warnings_as_errors --issue_remarks --verbose_diagnostics --display_error_number")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_INIT}" CACHE STRING "" FORCE)
 set(CMAKE_ASM_FLAGS_INIT ${CMAKE_C_FLAGS_INIT})
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS_INIT}" CACHE STRING "" FORCE)

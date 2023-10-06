@@ -117,7 +117,7 @@ void obc_main(void) {
 
                 // TODO deinitialize hardware
 
-                // Try to boot (use jump_instr2 to bypass device initialization)
+                // Try to boot
                 uint32_t jump_instr_addr = (uint32_t)&(structs->entrypoint.jump_instr);
                 asm_jump_to_addr(jump_instr_addr);
 

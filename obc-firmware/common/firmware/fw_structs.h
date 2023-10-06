@@ -31,7 +31,7 @@ typedef struct __attribute__((__packed__)) {
     uint32_t magic;
     uint32_t flash_addr;
     uint32_t jump_instr;
-    uint32_t jump_instr2;
+    uint32_t _reserved;
 } fw_entrypoint_t;
 
 typedef struct __attribute__((__packed__)) {
