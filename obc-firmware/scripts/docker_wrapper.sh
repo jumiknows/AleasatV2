@@ -14,7 +14,7 @@ docker run --rm -it                       \
     -e HOST_GID=$(id -g)                  \
     -e REPO_ROOT=${MOUNT_DIR}             \
     -e FW_DIR=${FW_DIR_MOUNT}             \
-    -v ${FW_DIR}/..:${MOUNT_DIR}          \
+    -v ${FW_DIR}/..:${MOUNT_DIR}:z        \
     --workdir ${MOUNT_DIR}/${FW_DIR_NAME} \
     obc-fw-build-tools:latest             \
     ${FW_DIR_MOUNT}/scripts/docker_user.sh "$@"
