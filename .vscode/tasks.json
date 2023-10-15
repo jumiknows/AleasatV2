@@ -38,7 +38,10 @@
                 "cwd": "${workspaceFolder}/san-antonio"
             },
             "isBackground": true,
-            "problemMatcher": []
+            "problemMatcher": [],
+            "osx": {
+                "command": "arch -x86_64 pipenv run python3 main.py"
+            }
         },
         {
             "label": "San Antonio - Build UI",
