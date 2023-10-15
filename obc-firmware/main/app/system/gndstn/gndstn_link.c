@@ -162,7 +162,11 @@ static void gndstn_uplink_handle_data(comms_session_handle_t session_handle, com
 
     const comms_command_t *cmd_in = (const comms_command_t *)arg;
 
-    if ((cmd_in->header.src_hwid != GROUND_HWID) || (cmd_in->header.command != COMMS_CUSTOM_MSG_OBC_DATA)) {
+    if (!((cmd_in->header.src_hwid == GROUND_HWID) || (cmd_in->header.src_hwid == LOCAL_HWID))) {
+        // Return if the src is ground or a local pkt (From San Antonio) or from the ground station.
+        return;
+    }
+    if (cmd_in->header.command != COMMS_CUSTOM_MSG_OBC_DATA) {
         return;
     }
 
@@ -197,9 +201,13 @@ static void gndstn_link_task(void *pvParameters) {
         .data   = {0},
     };
 
-    // TODO ALEA-900
-    // err = comms_session_init(COMMS_ENDPOINT_GROUND, &comms_session);
+    // TODO ALEA-900: We need another flag for RF comms.
+    #if COMMS_OVER_SERIAL
+    err = comms_session_init(COMMS_ENDPOINT_GROUND, &comms_session);
+    #else
     err = comms_session_init(COMMS_ENDPOINT_LOCAL, &comms_session);
+    #endif
+
     if (err != COMMS_SUCCESS) {
         LOG_GNDSTN_DOWNLINK__COMMS_SESS_INIT_ERR(err);
         return;
