@@ -51,26 +51,26 @@ void test_parse_control_packet(void) {
     uint8_t valid_gps_msg[10] = {GPS_MSG_START_SEQ_0, GPS_MSG_START_SEQ_1, 0x00, 0x03, 0x01, 0x02, 0x03, 0x02, GPS_MSG_END_SEQ_0, GPS_MSG_END_SEQ_1};
     gps_packet_t gps_pkt;
     uint8_t buf[10] = {0};
-    gps_pkt.payload = &buf;
-    TEST_ASSERT_TRUE(parse_control_packet((uint8_t*)&valid_gps_msg, 10, &gps_pkt) == GPS_PARSE_OK);
+    gps_pkt.payload = buf;
+    TEST_ASSERT_EQUAL(GPS_PARSE_OK, parse_control_packet((uint8_t*)&valid_gps_msg, 10, &gps_pkt));
     TEST_ASSERT_TRUE(gps_pkt.ack);
     TEST_ASSERT_EQUAL_UINT8(gps_pkt.id, (uint8_t)1);
     TEST_ASSERT_EQUAL_UINT16(gps_pkt.len, (uint16_t)2);
 
     // Message too short.
     uint8_t short_gps_msg[8] = {0x00, 0x03, 0x01, 0x02, 0x03, 0x02, GPS_MSG_END_SEQ_0, GPS_MSG_END_SEQ_1};
-    TEST_ASSERT_TRUE(parse_control_packet((uint8_t*)&short_gps_msg, 8, &gps_pkt) == GPS_PARSE_TOO_SHORT);
+    TEST_ASSERT_EQUAL(GPS_PARSE_TOO_SHORT, parse_control_packet((uint8_t*)&short_gps_msg, 8, &gps_pkt));
 
     // Only Ack.
     uint8_t ack_gps_msg[9] = {GPS_MSG_START_SEQ_0, GPS_MSG_START_SEQ_1, 0x00, 0x02, GPS_SYS_MSG_ACK, 0x02, 0x81, GPS_MSG_END_SEQ_0, GPS_MSG_END_SEQ_1};
-    TEST_ASSERT_TRUE(parse_control_packet((uint8_t*)&ack_gps_msg, 9, &gps_pkt) == GPS_PARSE_OK);
+    TEST_ASSERT_EQUAL(GPS_PARSE_OK, parse_control_packet((uint8_t*)&ack_gps_msg, 9, &gps_pkt));
     TEST_ASSERT_TRUE(gps_pkt.ack);
     TEST_ASSERT_EQUAL_UINT8(gps_pkt.id, (uint8_t)GPS_SYS_MSG_ACK);
     TEST_ASSERT_EQUAL_UINT16(gps_pkt.len, (uint16_t)0);
 
     // Only Nack.
     uint8_t nack_gps_msg[9] = {GPS_MSG_START_SEQ_0, GPS_MSG_START_SEQ_1, 0x00, 0x02, GPS_SYS_MSG_NACK, 0x02, GPS_MSG_END_SEQ_0, GPS_MSG_END_SEQ_1};
-    TEST_ASSERT_TRUE(parse_control_packet((uint8_t*)&nack_gps_msg, 9, &gps_pkt) == GPS_PARSE_OK);
+    TEST_ASSERT_EQUAL(GPS_PARSE_OK, parse_control_packet((uint8_t*)&nack_gps_msg, 9, &gps_pkt));
     TEST_ASSERT_FALSE(gps_pkt.ack);
     TEST_ASSERT_EQUAL_UINT8(gps_pkt.id, (uint8_t)GPS_SYS_MSG_NACK);
     TEST_ASSERT_EQUAL_UINT16(gps_pkt.len, (uint16_t)0);
