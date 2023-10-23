@@ -10,6 +10,16 @@
         "data": [
           {"message": "u8[128]"}
         ]
+      },
+      "PRINT_DEBUG": {
+        "level": "DEBUG",
+        "id": 1,
+        "description": "Debug file and line",
+        "data": [
+          {"filename": "u8[32]"},
+          {"length": "u8"},
+          {"line": "u16"}
+        ]
       }
     }
   },

@@ -7,6 +7,7 @@ from sanantonio.backend import obcqt
 from sanantonio.ui import obc_serial_log_ui
 
 PRINTF_LOG_ID = 0
+PRINT_DEBUG = 1
 
 class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
     MAX_LOGS = 256
@@ -61,7 +62,13 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
         self.obc_log_table.setItem(new_idx, 2, QtWidgets.QTableWidgetItem(f"{log.group_name} ({log.log_id})"))
         self.obc_log_table.setItem(new_idx, 3, QtWidgets.QTableWidgetItem(f"{log.signal_name} ({log.signal_id})"))
         if log.log_id == PRINTF_LOG_ID:
-            self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{bytes(log.data['message']).decode()}"))
+            try:
+                if log.signal_id == PRINT_DEBUG:
+                    self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{bytes(log.data['filename'][:log.data['length']]).decode()}:{log.data['line']}"))
+                else:
+                    self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{bytes(log.data['message']).decode()}"))
+            except Exception as e:
+                print(e)
         else:
             self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{log.data_as_string()}"))
 
