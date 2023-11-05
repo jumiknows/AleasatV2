@@ -147,7 +147,7 @@ static void handle_tx_event(void) {
     static uint8_t *buf_u8 = (uint8_t *)&buf[0];
 
     comms_command_t* cmd;
-    comms_err_t err;
+    comms_err_t err = COMMS_SUCCESS;
 
     uint16_t msg_len = 0;
 
