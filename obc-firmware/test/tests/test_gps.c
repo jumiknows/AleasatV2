@@ -52,6 +52,8 @@ void test_parse_control_packet(void) {
     gps_packet_t gps_pkt;
     uint8_t buf[10] = {0};
     gps_pkt.payload = buf;
+    gps_pkt.payload_len = sizeof(buf);
+
     TEST_ASSERT_EQUAL(GPS_PARSE_OK, parse_control_packet((uint8_t*)&valid_gps_msg, 10, &gps_pkt));
     TEST_ASSERT_TRUE(gps_pkt.ack);
     TEST_ASSERT_EQUAL_UINT8(gps_pkt.id, (uint8_t)1);
