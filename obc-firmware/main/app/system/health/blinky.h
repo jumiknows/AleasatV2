@@ -9,6 +9,5 @@
 #define ORCASAT_TASKS_BLINKY_H_
 
 void blinky_start_task(void);
-void expander_blinky_start_task(void);
 
 #endif /* ORCASAT_TASKS_BLINKY_H_ */

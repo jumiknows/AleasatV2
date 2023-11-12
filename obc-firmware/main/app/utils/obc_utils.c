@@ -9,18 +9,9 @@
 
 #include "obc_utils.h"
 
-// OBC
-#include "obc_hardwaredefs.h"
-#include "gio.h"
-#include "reg_system.h"
-
-// FreeRTOS
-#include "rtos.h"
-
 // Standard library
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -71,17 +62,12 @@ void busy_wait(uint32_t ticks_to_wait) {
 */
 void obc_delay_us(uint32_t us)
 {
-    uint32_t init_time = portCPU_CLOCK_US();
+    uint32_t init_time = SYSTEM_TIME_US();
 
-    while ((portCPU_CLOCK_US() - init_time) > us) {
+    while (true) {
+        uint32_t now = SYSTEM_TIME_US();
+        if ((now - init_time) >= us) {
+            break;
+        }
     }
-}
-
-// ---------------------------------- SYSTEM -----------------------------------
-
-/**
- * @brief Immediate software reset
- */
-void restart_software(void) {
-    systemREG1->SYSECR = systemREG1->SYSECR | ((uint32_t)1U << 15);
 }

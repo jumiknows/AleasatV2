@@ -27,6 +27,9 @@ CMD_SYS_SPECS_PATHS = [
     TOOLS_DIR_PATH / "cmd_sys" / "cmd_sys_test.json",
 ]
 LOG_SPECS_PATH = TOOLS_DIR_PATH / "logging" / "log_specs.json"
+TASK_SPECS_PATHS = [
+    TOOLS_DIR_PATH / "rtos" / "obc_tasks.json"
+]
 
 class OBCTest(unittest.TestCase):
     PORT = os.getenv(PORT_ENV_VAR)
@@ -45,7 +48,7 @@ class OBCTest(unittest.TestCase):
         if cls.PORT is None:
             raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
 
-        cls.obc = OBC(CMD_SYS_SPECS_PATHS, LOG_SPECS_PATH, OBC.InterfaceType.OBC_SERIAL)
+        cls.obc = OBC(CMD_SYS_SPECS_PATHS, LOG_SPECS_PATH, TASK_SPECS_PATHS, OBC.InterfaceType.OBC_SERIAL)
         if not cls.obc.start(cls.PORT):
             raise Exception(f"ERROR: Could not connect to {cls.PORT}")
 
@@ -83,7 +86,7 @@ class OBCTest(unittest.TestCase):
 
     def wait_for_signal(self, group_name: str, pass_sig: str, fail_sig: str = None, timeout: float = None) -> app_log.OBCLog:
         start = time.time()
-        while 1:
+        while True:
             logs = self.logs.read(0.1)
             if logs:
                 for log in logs:

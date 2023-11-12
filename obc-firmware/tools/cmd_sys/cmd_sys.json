@@ -60,11 +60,6 @@
             {"idle_time_us": "u32"}
         ]
     },
-    "WD_RESET": {
-        "id": 10,
-        "args": [],
-        "resp": []
-    },
     "GPIO_EXP_RESET": {
         "id": 11,
         "args": [],

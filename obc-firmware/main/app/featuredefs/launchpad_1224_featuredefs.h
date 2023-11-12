@@ -85,5 +85,10 @@
  */
 #define INCLUDE_COMMS_FIRMWARE_TEST_IMAGE 0
 
+/**
+ * @brief Enable if hardware watchdog is present and must be pet periodically
+ */
+#define FEATURE_HW_WATCHDOG 0
+
 #endif /* PLATFORM_LAUNCHPAD_1224 */
 #endif /* LAUNCHPAD_1224_FEATUREDEFS_H_ */

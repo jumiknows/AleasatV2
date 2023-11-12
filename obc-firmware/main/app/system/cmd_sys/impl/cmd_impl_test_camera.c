@@ -17,6 +17,9 @@
 #include "cam_arducam.h"
 #include "cam_ov5642.h"
 
+// OBC
+#include "obc_watchdog.h"
+
 // Utils
 #include "io_stream.h"
 #include "data_fmt.h"
@@ -76,6 +79,8 @@ cmd_sys_err_t cmd_impl_TEST_CAM_CAPTURE(const cmd_sys_cmd_t *cmd, cmd_TEST_CAM_C
     if (err == ARDUCAM_SUCCESS) {
         bool done = false;
         while (!done) {
+            obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_EXEC);
+
             // Read buffer of image data from ArduCAM
             uint32_t data_len = 0;
             err = arducam_transfer_img_data(img_buf, sizeof(img_buf), &data_len);

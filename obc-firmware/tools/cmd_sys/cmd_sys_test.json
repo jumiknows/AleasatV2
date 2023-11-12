@@ -14,6 +14,13 @@
             {"message": "string"}
         ]
     },
+    "TEST_HANG": {
+        "id": 254,
+        "args": [
+            {"duration_us": "u32"}
+        ],
+        "resp": []
+    },
     "TEST_COMMS_TX_RX" : {
         "id": 252,
         "args": [],

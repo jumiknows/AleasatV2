@@ -12,10 +12,19 @@
 /******************************************************************************/
 
 #include "rtc_mock.h"
-#include "obc_task_info.h"
-#include "rtos.h"
+
+// OBC
+#include "obc_rtos.h"
+#include "obc_watchdog.h"
 #include "obc_time.h"
+
+// Logging
 #include "logger.h"
+
+// FreeRTOS
+#include "rtos.h"
+
+// Standard Library
 #include <string.h>
 
 /******************************************************************************/
@@ -65,16 +74,13 @@ static alarm_info_t next_alarm = {
  * The RTC mock task increments @ref mock_real_time in the same pattern as the RTC hardware does.
  */
 void rtc_init_mock(void) {
-    static StaticTask_t step_mock_rtc_task_buf = { 0 };
-    static StackType_t step_mock_rtc_task_stack[RTC_MOCK_STACK_SIZE];
-
     static StaticSemaphore_t alarm_mutex_buf = { 0 };
 
     rtc_set_current_time_mock(&orca_time_init);
 
     alarm_mutex = xSemaphoreCreateMutexStatic(&alarm_mutex_buf);
 
-    xTaskCreateStatic(&xStepMockRealTimeTask, "rtc_mock", RTC_MOCK_STACK_SIZE, NULL, RTC_MOCK_TASK_PRIORITY, step_mock_rtc_task_stack, &step_mock_rtc_task_buf);
+    obc_rtos_create_task(OBC_TASK_ID_RTC_MOCK, &xStepMockRealTimeTask, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**
@@ -133,6 +139,7 @@ static void xStepMockRealTimeTask(void* pvParameters) {
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (1) {
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1000));
+        obc_watchdog_pet(OBC_TASK_ID_RTC_MOCK);
         increment_real_time(&mock_real_time);
         handle_alarm();
     }

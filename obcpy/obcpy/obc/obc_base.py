@@ -6,6 +6,7 @@ import threading
 
 from obcpy import cmd_sys
 from obcpy import log_sys
+from obcpy import rtos
 from obcpy.utils import obc_time
 from obcpy.utils import exc
 from obcpy.utils import data as data_utils
@@ -87,21 +88,20 @@ class OBCBase:
         def hwid(self) -> comms_datalink.HWID:
             return self.value[2]
 
-    def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path, interface_type: InterfaceType):
+    def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path, task_specs_paths: List[pathlib.Path], interface_type: InterfaceType):
         """Initializes a new OBC instance.
 
         Sets up ether a Serial or RF interface to the OBC but does not open the connection.
         You must call `OBC.start()` to open the connection.
 
-        The provided command system and log specifications will be loaded at initialization time.
-        The loaded specifications can be updated at runtime by calling `OBCBase.load_cmd_sys_specs`
-        or `OBCBase.load_log_specs`.
+        The provided command system, log and task specifications will be loaded at initialization time.
+        The loaded specifications can be updated at runtime by calling `OBCBase.load_cmd_sys_specs`,
+        `OBCBase.load_log_specs` or `OBCBase.load_task_specs`.
 
         Args:
             cmd_sys_specs_paths: List of command system specification JSON files
             log_specs_path: Path to the log specifications JSON file
-
-        The loaded specifications can be replaced at any time by calling `OBC.load_cmd_sys_specs`.
+            task_specs_paths: List of task specification JSON files
         """
         self._upper_protocol = obc_upper_protocol.OBCUpperProtocol(interface_type.hwid, log_specs=None) # Log specs will be loaded afterwards
         self._interface = interface_type.class_(self._upper_protocol)
@@ -112,6 +112,9 @@ class OBCBase:
 
         self._log_specs: log_sys.log_spec.OBCLogGroupSpecs = None
         self.load_log_specs(log_specs_path)
+
+        self._task_specs: rtos.task_spec.OBCTaskSpecs = None
+        self.load_task_specs(task_specs_paths)
 
         # Unique ID counter for instances of commands (currently this is unique only during a single run of San Antonio).
         # TODO: Make the instance ID unique forever.
@@ -144,6 +147,10 @@ class OBCBase:
         return self._log_specs
 
     @property
+    def task_specs(self) -> rtos.task_spec.OBCTaskSpecs:
+        return self._task_specs
+
+    @property
     def _app_protocol(self) -> app_protocol.OBCAppProtocol:
         return self._upper_protocol.app
 
@@ -171,6 +178,18 @@ class OBCBase:
         self._log_specs = log_sys.log_spec.OBCLogGroupSpecs.from_json(json_blob)
 
         self._app_protocol.update_log_specs(self._log_specs)
+
+    def load_task_specs(self, specs_paths: List[pathlib.Path]):
+        """Load one or more collections of task specifications from the filesystem.
+        """
+        json_blobs = []
+
+        for specs_path in specs_paths:
+            with open(specs_path, "r") as specs_file:
+                specs_json = json.load(specs_file)
+                json_blobs.append(specs_json)
+
+        self._task_specs = rtos.task_spec.OBCTaskSpecs.from_json(*json_blobs)
 
     def start(self, *args, **kwargs) -> bool:
         # Reset protocols

@@ -35,7 +35,7 @@
 #include "obc_gpio_err.h"
 #include "obc_hardwaredefs.h"
 #include "obc_featuredefs.h"
-#include "obc_task_info.h"
+#include "obc_rtos.h"
 #include "obc_watchdog.h"
 #include "tms_can.h"
 
@@ -66,6 +66,8 @@
  * @brief Size of the items within the interrupt queue
  */
 #define GIO_IRQ_Q_ITEM_SIZE sizeof(gpio_irq_t)
+
+#define GIO_IRQ_POLL_PERIOD_MS 1000U
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -170,10 +172,7 @@ void gpio_expander_reset(void) {
  * @brief Starts the GPIO interrupt processing task.
  */
 void gpio_start_task(void) {
-    static StaticTask_t xGPIOInterruptTaskBuffer;
-    static StackType_t xGPIOInterruptStack[GPIO_IRQ_TASK_STACK_SIZE];
-
-    task_create_static(&vGPIOServiceTask, "gpio_irq", GPIO_IRQ_TASK_STACK_SIZE, NULL, GPIO_IRQ_SERVICE_PRIORITY, xGPIOInterruptStack, &xGPIOInterruptTaskBuffer);
+    obc_rtos_create_task(OBC_TASK_ID_GPIO_IRQ, &vGPIOServiceTask, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**
@@ -289,14 +288,12 @@ gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t* value) {
  * @param pvParameters: used implicitly for watchdog handling.
  */
 static void vGPIOServiceTask(void* pvParameters) {
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
     gpio_irq_t irq_info  = {.port = NULL, .pin = 0};
 
     while (1) {
-        set_task_status(wd_task_id, task_asleep);
+        obc_watchdog_pet(OBC_TASK_ID_GPIO_IRQ);
 
-        if ((xQueueReceive(gioInterruptQueue, &(irq_info), portMAX_DELAY)) == pdPASS) {
-            set_task_status(wd_task_id, task_alive);
+        if ((xQueueReceive(gioInterruptQueue, &(irq_info), pdMS_TO_TICKS(GIO_IRQ_POLL_PERIOD_MS))) == pdPASS) {
 
 /* Handle pins on the GPIO expander if it exists */
 #if FEATURE_GPIO_EXPANDER
@@ -314,9 +311,6 @@ static void vGPIOServiceTask(void* pvParameters) {
             // Your code here
             /* END MODIFIABLE REGION */
 
-        } else {
-            set_task_status(wd_task_id, task_alive);
-            LOG_GPIO__IRQ_QUEUE_RECEIVE_FAILED();
         }
     }
 }

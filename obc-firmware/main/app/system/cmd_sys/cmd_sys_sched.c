@@ -16,7 +16,6 @@
 #include "rtc_scheduler.h"
 
 // OBC
-#include "obc_task_info.h"
 #include "obc_rtos.h"
 #include "obc_watchdog.h"
 
@@ -41,6 +40,9 @@
 #define NOTIFICATION_INDEX 1U // index 0 is used by stream/message buffers
                               // see https://www.freertos.org/RTOS-task-notifications.html
 
+#define CMD_SYS_SCHED_POLL_PERIOD_MS  1000U
+#define CMD_SYS_SCHED_EXEC_TIMEOUT_MS 60000U
+
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
@@ -49,7 +51,7 @@ static void scheduler_callback(uint8_t *data, uint32_t data_len);
 static uint32_t write_log(void *handle, const uint8_t *data, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left);
 
 static void cmd_sys_sched_task(void *pvParameters);
-static void cmd_sys_sched_exec_callback(cmd_sys_err_t status);
+static void exec_wait_callback(void);
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -59,9 +61,6 @@ static void cmd_sys_sched_exec_callback(cmd_sys_err_t status);
 static StreamBufferHandle_t cmd_sched_buffer                             = NULL;
 static StaticMessageBuffer_t cmd_sched_buffer_buf                        = { 0 };
 static uint8_t cmd_sched_buffer_storage[CMD_SYS_SCHED_MAX_DATA_SIZE + 1] = { 0 }; // See https://www.freertos.org/xStreamBufferCreateStatic.html for explanation of + 1
-
-// Task for handling scheduled commands
-static TaskHandle_t task_handle = NULL;
 
 // Input Streams
 static rtos_stream_istream_t input_rtos_stream = {
@@ -111,10 +110,7 @@ void cmd_sys_sched_create_infra(void) {
  * @brief Start the command system task for scheduled commands
  */
 void cmd_sys_sched_start_task(void) {
-    static StaticTask_t task_buffer = { 0 };
-    static StackType_t task_stack[CMD_SYS_SCHED_TASK_STACK_SIZE];
-
-    task_handle = task_create_static(&cmd_sys_sched_task, "cmd_sys_sched", CMD_SYS_SCHED_TASK_STACK_SIZE, NULL, CMD_SYS_SCHED_TASK_PRIORITY, task_stack, &task_buffer);
+    obc_rtos_create_task(OBC_TASK_ID_CMD_SYS_SCHED, &cmd_sys_sched_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**
@@ -199,36 +195,25 @@ static uint32_t write_log(void *handle, const uint8_t *data, uint32_t num_bytes,
  * @param pvParameters Task parameters (unused)
  */
 static void cmd_sys_sched_task(void* pvParameters) {
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
-
     static uint8_t buf[CMD_SYS_SCHED_MAX_DATA_SIZE] = { 0 };
 
     static cmd_sys_cmd_t cmd = { 0 };
     cmd.input = &input_stream;
     cmd.output = &output_stream;
 
-    // TODO: ALEA-862 eventually mark task awake
-    set_task_status(wd_task_id, task_asleep);
-
     while (1) {
-        bool queued_for_exec = false;
+        obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_SCHED);
 
-        // Run the command system
-        cmd_sys_err_t err = cmd_sys_run(&cmd, buf, &cmd_sys_sched_exec_callback, true /* Invoke scheduled commands */, &queued_for_exec);
-
+        cmd_sys_err_t err = cmd_sys_recv_header(&cmd, buf, pdMS_TO_TICKS(CMD_SYS_SCHED_POLL_PERIOD_MS));
         if (err == CMD_SYS_SUCCESS) {
-            if (queued_for_exec) {
-                // Wait for a notification from the cmd_sys_exec task
-                uint32_t notification_value = 0;
-                if (xTaskNotifyWaitIndexed(NOTIFICATION_INDEX, 0U, 0xFFFFFFFFU, &notification_value, portMAX_DELAY) == pdTRUE) {
-                    err = (cmd_sys_err_t)notification_value;
-                    // TODO: ALEA-857 do something with err
-                }
-            }
+            err = cmd_sys_execute(&cmd, pdMS_TO_TICKS(CMD_SYS_SCHED_POLL_PERIOD_MS), pdMS_TO_TICKS(CMD_SYS_SCHED_EXEC_TIMEOUT_MS), &exec_wait_callback);
+
+            // TODO: ALEA-857 do something with err
         }
     }
 }
 
-static void cmd_sys_sched_exec_callback(cmd_sys_err_t status) {
-    xTaskNotifyIndexed(task_handle, NOTIFICATION_INDEX, (uint32_t)status, eSetValueWithOverwrite);
+static void exec_wait_callback(void) {
+    // Pet the watchdog while we're waiting for the command to finish executing
+    obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_SCHED);
 }

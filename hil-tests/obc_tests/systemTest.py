@@ -47,17 +47,10 @@ class SystemTest(obc_test.OBCTest):
         self.assertTrue(response.is_success)
         self.assertEqual(response.data_header.exec_datetime, sched_time)
 
-    @timeout.timeout(5)
-    def test_get_rtos_tasks(self):
-        resp = self.obc.send_cmd("RTOS_TASKS")
-        self.assertTrue(resp.is_success)
-        time.sleep(1) # Give time for rest of message to be sent
-
-    @timeout.timeout(5)
-    def test_get_rtos_info(self):
-        resp = self.obc.send_cmd("RTOS_INFO")
-        self.assertTrue(resp.is_success)
-        self.wait_for_signal("LOG_OBC_TASK", "RTOS_STATUS_OK");
+    @timeout.timeout(10)
+    def test_hang(self):
+        self.obc.send_cmd("TEST_HANG", 4000000)
+        self.wait_for_signal("LOG_WATCHDOG", "SW_WD_BITE", 5)
 
 """
 This section is required if you want to run these tests independently.

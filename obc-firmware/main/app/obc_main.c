@@ -12,7 +12,6 @@
 #include "het.h"
 #include "low_power.h"
 #include "obc_rtos.h"
-#include "obc_task_info.h"
 #include "obc_featuredefs.h"
 #include "obc_rtc.h"
 #include "tms_mibspi.h"
@@ -24,8 +23,6 @@
 #include "blinky.h"
 #include "logger.h"
 #include "obc_filesystem.h"
-#include "orca_telem_logger.h"
-#include "hang.h"
 #include "obc_settings.h"
 #include "obc_adc.h"
 #include "obc_mram.h"
@@ -69,15 +66,14 @@ static void obc_main_task(void* pvParameters) {
     // Create FreeRTOS mutexes and queues for all features. Doing this allows future startup steps
     // to do things like push to the UART TX queue, which is done when logging errors.
     // None of this code relies on other application features.
-    wd_create_infra();
+    obc_watchdog_create_infra();
     obc_serial_create_infra();
     gps_serial_rx_create_infra();
     tms_i2c_create_infra();
     gpio_create_infra();
     tms_mibspi_create_infra();
     rtc_create_infra();
-    obc_rtos_create_infra();
-    telem_create_infra();
+    // telem_create_infra();
     gps_create_infra();
     tms_spi_create_infra();
     rtc_scheduler_create_infra();
@@ -108,10 +104,6 @@ static void obc_main_task(void* pvParameters) {
     adc_init();
     tms_can_init();
     tms_spi_init();
-
-    // Every other task requires that the watchdog pet task (WDPT) be working, because all other
-    // tasks use the watchdog check-in functionality.
-    wd_start_task();
 
     // Start the MRAM and load settings from NVCT. This requires that MIBSPI is operational first.
     // On LaunchPad, provision the NVCT now because it doesn't have a non-volatile NVCT, so we
@@ -156,9 +148,6 @@ static void obc_main_task(void* pvParameters) {
 
     gpio_expander_init();
 
-    // Start the hang task.
-    hang_start_task();
-
     // Enable interrupts. This is safe to do now that the interrupt processing tasks have been
     // started.
     gpio_init_irq();
@@ -178,9 +167,6 @@ static void obc_main_task(void* pvParameters) {
 
     gps_init();
 
-    // Create the telemetry logging task. This requires that the filesystem is ready to go.
-    telem_start_task();
-
     // Hardware is ready to go now. Print out some information about startup.
     LOG_PRINT_GENERAL__STARTUP_COMPLETE();
 #if defined(PLATFORM_ALEA_V1)
@@ -188,18 +174,19 @@ static void obc_main_task(void* pvParameters) {
 #elif defined(PLATFORM_LAUNCHPAD_1224)
     LOG_HW_TYPE__LAUNCHPAD();
 #else // Neither platform is defined: this should never happen
-    CASSERT(false, obc_main_c);
+    #error "Invalid platform"
 #endif
     // TODO: Re-design startup
     // print_startup_type();
     // log_PBIST_fails();
     // obc_startup_logs();
 
-    vTaskDelay(pdMS_TO_TICKS(10)); // NECESSARY: expander blinker doesn't work without brief delay (waiting for hw init?)
-    expander_blinky_start_task();
+    // Start the watchdog task once all other tasks are running
+    obc_watchdog_start_task();
 
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        // Never schedule this again
+        vTaskSuspend(NULL);
     }
 }
 
@@ -240,9 +227,7 @@ void obc_main(void) {
      *
      * https://www.freertos.org/FreeRTOS-MPU-memory-protection-unit.html
      */
-    static StaticTask_t main_task_buf                        = { 0 };
-    static StackType_t main_task_stack[MAIN_TASK_STACK_SIZE] = { 0 };
-    xTaskCreateStatic(&obc_main_task, "main", MAIN_TASK_STACK_SIZE, NULL, portPRIVILEGE_BIT | MAIN_TASK_PRIORITY, main_task_stack, &main_task_buf);
+    obc_rtos_create_task_privileged(OBC_TASK_ID_MAIN, &obc_main_task, NULL, OBC_WATCHDOG_ACTION_IGNORE);
 
     // Start the FreeRTOS scheduler
     vTaskStartScheduler();

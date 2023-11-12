@@ -15,7 +15,7 @@
 
 // OBC
 #include "obc_watchdog.h"
-#include "obc_task_info.h"
+#include "obc_rtos.h"
 
 // Logging
 #include "logger.h"
@@ -41,6 +41,8 @@
  * TODO figure out proper value
  */
 #define COMMS_TIMEOUT_MS 2000
+
+#define GNDSTN_DOWNLINK_POLL_PERIOD_MS 1000U
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
@@ -136,10 +138,7 @@ void gndstn_link_create_infra(void) {
 }
 
 void gndstn_link_start_task(void) {
-    static StaticTask_t task_buffer = { 0 };
-    static StackType_t task_stack[GNDSTN_LINK_TASK_STACK_SIZE];
-
-    task_create_static(&gndstn_link_task, "gndstn_link", GNDSTN_LINK_TASK_STACK_SIZE, NULL, GNDSTN_LINK_TASK_PRIORITY, task_stack, &task_buffer);
+    obc_rtos_create_task(OBC_TASK_ID_GNDSTN_LINK, &gndstn_link_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /******************************************************************************/
@@ -189,8 +188,6 @@ static void gndstn_downlink_create_infra(void) {
  * @param pvParameters Task parameters (see obc_rtos)
  */
 static void gndstn_link_task(void *pvParameters) {
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
-
     static uint8_t data_buf[COMMS_MAX_CMD_PAYLOAD_NUM_BYTES];
 
     // Setup COMMS session
@@ -218,9 +215,9 @@ static void gndstn_link_task(void *pvParameters) {
 
     // Start listening for downlink
     while (1) {
-        set_task_status(wd_task_id, task_asleep);
-        uint32_t data_len = xMessageBufferReceive(downlink_msg_buffer, data_buf, sizeof(data_buf), portMAX_DELAY);
-        set_task_status(wd_task_id, task_alive);
+        obc_watchdog_pet(OBC_TASK_ID_GNDSTN_LINK);
+
+        uint32_t data_len = xMessageBufferReceive(downlink_msg_buffer, data_buf, sizeof(data_buf), pdMS_TO_TICKS(GNDSTN_DOWNLINK_POLL_PERIOD_MS));
         if (data_len > 0) {
             // Send the command
             err = comms_send_command(comms_session, COMMS_CMD_APP_DATA, data_buf, data_len, pdMS_TO_TICKS(COMMS_TIMEOUT_MS));

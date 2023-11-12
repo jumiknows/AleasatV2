@@ -97,8 +97,9 @@
 /**
  * @brief Watchdog pins and configuration.
  */
-#define OBC_WD_PORT      hetPORT2
+#define OBC_WD_PORT      GIO_PORT(hetPORT2)
 #define OBC_WD_PIN       0
+// TODO: ALEA-968 choose new HW watchdog period
 #define WD_PET_PERIOD_MS 20000 // Watchdog pet period should be between WDL_MAX_MS and WDU_MIN_MS
 #define WD_PET_PULSE_MS  2     // Minimum pulse is 50 ns
 

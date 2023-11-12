@@ -3,12 +3,14 @@ from enum import Enum
 from PyQt5 import QtGui
 
 class Color(Enum):
-    RED    = "red"
-    BLUE   = "blue"
-    GREEN  = "green"
-    BLACK  = "black"
-    YELLOW = "yellow"
-    WHITE  = "white"
+    TRANSPARENT = "#00000000"
+    RED         = "red"
+    LIGHT_RED   = "#F04848"
+    BLUE        = "blue"
+    GREEN       = "green"
+    BLACK       = "black"
+    YELLOW      = "yellow"
+    WHITE       = "white"
 
     def as_stylesheet(self, label: str = "color") -> str:
         return f"{label}: {self.value}"

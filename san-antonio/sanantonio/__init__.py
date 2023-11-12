@@ -18,10 +18,10 @@ from sanantonio.utils import console as console_utils
 class SanAntonio:
     APP_ID = 'aleasat.sanantonio.0'
 
-    def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path):
+    def __init__(self, cmd_sys_specs_paths: List[pathlib.Path], log_specs_path: pathlib.Path, task_specs_paths: List[pathlib.Path]):
         self._obcs = {
-            obc_base.OBCBase.InterfaceType.OBC_SERIAL.id   : obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path, obc_base.OBCBase.InterfaceType.OBC_SERIAL)),
-            obc_base.OBCBase.InterfaceType.COMMS_SERIAL.id : obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path, obc_base.OBCBase.InterfaceType.COMMS_SERIAL)),
+            obc_base.OBCBase.InterfaceType.OBC_SERIAL.id   : obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path, task_specs_paths, obc_base.OBCBase.InterfaceType.OBC_SERIAL)),
+            obc_base.OBCBase.InterfaceType.COMMS_SERIAL.id : obcqt.OBCQT(obcpy.obc.OBC(cmd_sys_specs_paths, log_specs_path, task_specs_paths, obc_base.OBCBase.InterfaceType.COMMS_SERIAL)),
         }
 
     def run(self):

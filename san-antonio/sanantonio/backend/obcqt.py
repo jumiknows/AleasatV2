@@ -7,6 +7,8 @@ import obcpy.obc
 from obcpy.obc import obc_base
 from obcpy.obc.protocol.app import app_log
 from obcpy import cmd_sys
+from obcpy import log_sys
+from obcpy import rtos
 from obcpy.protocol import routing
 from obcpy.utils import exc
 
@@ -299,6 +301,14 @@ class OBCQT(QtCore.QObject):
     @property
     def cmd_sys_specs(self) -> cmd_sys.spec.OBCCmdSysSpecs:
         return self._obc.cmd_sys_specs
+
+    @property
+    def log_specs(self) -> log_sys.log_spec.OBCLogGroupSpecs:
+        return self._obc.log_specs
+
+    @property
+    def task_specs(self) -> rtos.task_spec.OBCTaskSpecs:
+        return self._obc.task_specs
 
     @property
     def connected(self) -> bool:

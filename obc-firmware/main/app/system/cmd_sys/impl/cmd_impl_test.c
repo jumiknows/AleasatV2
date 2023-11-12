@@ -71,6 +71,11 @@ cmd_sys_err_t cmd_impl_TEST_ECHO(
     return err;
 }
 
+cmd_sys_resp_code_t cmd_impl_TEST_HANG(const cmd_sys_cmd_t *cmd, cmd_TEST_HANG_args_t *args) {
+    obc_delay_us(args->duration_us);
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
 /**
  * @brief Write a value to a CAN pin as a GPIO
  */

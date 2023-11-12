@@ -1,0 +1,17 @@
+{
+    "WATCHDOG":            { "id":  1, "stack_size":  256, "priority": 7 },
+    "RTC_MOCK":            { "id":  2, "stack_size":  128, "priority": 6 },
+    "OBC_SERIAL_RX":       { "id":  3, "stack_size":  256, "priority": 6 },
+    "GPS_SERIAL_RX":       { "id":  4, "stack_size":  256, "priority": 6 },
+    "GPIO_IRQ":            { "id":  5, "stack_size":  512, "priority": 6 },
+    "OBC_SERIAL_TX_LOGS":  { "id":  6, "stack_size":  256, "priority": 5 },
+    "COMMS_MNGR":          { "id":  7, "stack_size":  512, "priority": 4 },
+    "CMD_SYS_EXEC":        { "id":  8, "stack_size": 1024, "priority": 3 },
+    "CMD_SYS_IMM":         { "id":  9, "stack_size":  256, "priority": 3 },
+    "CMD_SYS_SCHED":       { "id": 10, "stack_size":  256, "priority": 3 },
+    "OBC_SERIAL_TX_COMMS": { "id": 11, "stack_size":  256, "priority": 2 },
+    "GNDSTN_LINK":         { "id": 12, "stack_size":  256, "priority": 2 },
+    "BLINKY":              { "id": 13, "stack_size":  128, "priority": 1 },
+    "MAIN":                { "id": 14, "stack_size": 1024, "priority": 1 },
+    "IDLE":                { "id":  0, "stack_size":  128, "priority": 0 }
+}

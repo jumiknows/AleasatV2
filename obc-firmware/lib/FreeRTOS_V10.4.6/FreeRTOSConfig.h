@@ -49,12 +49,13 @@
 #define configUSE_16_BIT_TICKS                  0
 #define configCPU_CLOCK_HZ                      ( ( TickType_t ) RTI_FREQ * 1000000U ) /* Timer clock. */
 #define configTICK_RATE_HZ                      ( ( TickType_t ) 100U )
-#define configMAX_PRIORITIES                    ( 6U )
+#define configMAX_PRIORITIES                    ( 8U )
 #define configMINIMAL_STACK_SIZE                ( ( uint16_t ) 64U )
 #define configTOTAL_HEAP_SIZE                   ( ( size_t ) 65536U )
-#define configMAX_TASK_NAME_LEN                 ( 16U )
+#define configMAX_TASK_NAME_LEN                 ( 22U )
 #define configIDLE_SHOULD_YIELD                 1
 #define configUSE_MALLOC_FAILED_HOOK            0
+#define configUSE_APPLICATION_TASK_TAG          1
 
 /*
  * Stack Overflow Detection - Method 2
@@ -80,7 +81,7 @@
 
 /* Timers */
 #define configUSE_TIMERS                        1
-#define configTIMER_TASK_PRIORITY               ( 5U )
+#define configTIMER_TASK_PRIORITY               ( configMAX_PRIORITIES - 1U )
 #define configTIMER_QUEUE_LENGTH                1
 #define configTIMER_TASK_STACK_DEPTH            (3U * configMINIMAL_STACK_SIZE )
 

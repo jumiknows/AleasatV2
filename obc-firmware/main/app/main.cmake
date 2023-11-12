@@ -31,6 +31,7 @@ list(APPEND SRC_DIRS
     ${.}/system/comms
     ${.}/system/filesystem
     ${.}/system/gndstn
+    ${.}/system/health
     ${.}/system/logging
     ${.}/system/rtc_scheduler
     ${.}/system/serial
@@ -48,15 +49,10 @@ list(APPEND SRC_DIRS
     ${.}/orcasat/hardware-drivers/rtc
     ${.}/orcasat/hardware-mock
     ${.}/orcasat/interfaces
-    ${.}/orcasat/rtos
     ${.}/orcasat/system
     ${.}/orcasat/system/nvct
-    ${.}/orcasat/system/scheduler
     ${.}/orcasat/system/settings
-    ${.}/orcasat/system/state
-    ${.}/orcasat/system/telemetry
-    ${.}/orcasat/system/watchdog
-    ${.}/orcasat/tasks
+    # ${.}/orcasat/system/telemetry
     ${.}/orcasat/utilities
     ${.}/orcasat/printf
 )
@@ -113,6 +109,28 @@ add_custom_command(
 list(APPEND SRC_FILES
     generated/cmd_sys_gen.h
     generated/cmd_sys_gen.c
+)
+
+# Generate Task Files
+
+add_custom_command(
+    OUTPUT              generated/obc_tasks_ids_gen.h
+                        generated/obc_tasks_gen.h
+                        generated/obc_tasks_gen.c
+    WORKING_DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND             python3 tools/rtos/obc_tasks_gen.py
+                            -i ${CMAKE_CURRENT_SOURCE_DIR}/tools/rtos/obc_tasks.json
+                            -o ${CMAKE_CURRENT_BINARY_DIR}/generated
+    DEPENDS             ./tools/rtos/obc_tasks.json
+                        ./tools/rtos/obc_tasks_gen.py
+                        ./tools/rtos/templates/obc_tasks_gen_template.h
+                        ./tools/rtos/templates/obc_tasks_gen_template.c
+                        ./tools/rtos/templates/macros.c
+)
+list(APPEND SRC_FILES
+    generated/obc_tasks_ids_gen.h
+    generated/obc_tasks_gen.h
+    generated/obc_tasks_gen.c
 )
 
 # Main / ISRs

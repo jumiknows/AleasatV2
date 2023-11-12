@@ -21,13 +21,11 @@
 /******************************************************************************/
 
 cmd_sys_resp_code_t cmd_impl_RTOS_TASKS(const cmd_sys_cmd_t *cmd) {
-    print_tasks();
-    return CMD_SYS_RESP_CODE_SUCCESS;
+    return CMD_SYS_RESP_CODE_NOT_IMPL;
 }
 
 cmd_sys_resp_code_t cmd_impl_RTOS_INFO(const cmd_sys_cmd_t *cmd) {
-    print_rtos_status();
-    return CMD_SYS_RESP_CODE_SUCCESS;
+    return CMD_SYS_RESP_CODE_NOT_IMPL;
 }
 
 cmd_sys_resp_code_t cmd_impl_RTOS_STATE(const cmd_sys_cmd_t *cmd) {

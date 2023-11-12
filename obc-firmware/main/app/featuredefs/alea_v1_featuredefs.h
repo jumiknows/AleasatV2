@@ -80,5 +80,10 @@
  */
 #define INCLUDE_COMMS_FIRMWARE_TEST_IMAGE 0
 
+/**
+ * @brief Enable if hardware watchdog is present and must be pet periodically
+ */
+#define FEATURE_HW_WATCHDOG 1
+
 #endif /* PLATFORM_ALEA_V1 */
 #endif /* ALEA_V1_FEATUREDEFS_H_ */

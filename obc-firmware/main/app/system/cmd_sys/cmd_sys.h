@@ -22,8 +22,15 @@
 /*                               D E F I N E S                                */
 /******************************************************************************/
 
+/**
+ * @brief Timestamp used to indicate immediate (rather than scheduled) commands
+ */
+#define CMD_SYS_TIMESTAMP_IMMEDIATE  ((uint32_t)0U)
+
 #define CMD_SYS_INPUT_READ_TIMEOUT_MS    5000U
 #define CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS  5000U
+
+#define CMD_SYS_EXEC_TIMEOUT_MS          60000U
 
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
@@ -44,7 +51,9 @@ typedef enum {
     CMD_SYS_ERR_DATA_FMT       = 8,  ///< An error occurred serializing or deserializing command arguments or response data
     CMD_SYS_ERR_CMD_DNE        = 9,  ///< The command ID does not match a defined commmand
     CMD_SYS_ERR_SCHED          = 10, ///< An error occurred scheduling a command for future execution
-    CMD_SYS_ERR_EXEC_TIMEOUT   = 11, ///< A timeout occurred sending a command to the cmd_sys_exec task
+    CMD_SYS_ERR_EXEC_Q_TIMEOUT = 11, ///< A timeout occurred sending a command to the cmd_sys_exec task
+    CMD_SYS_ERR_EXEC_TIMEOUT   = 12, ///< A timeout occurred waiting for a command to finish executing
+    CMD_SYS_ERR_NO_HEADER      = 13, ///< No header was received
 } cmd_sys_err_t;
 
 /**
@@ -94,16 +103,15 @@ typedef struct {
     const data_fmt_desc_t *resp;
 } cmd_sys_cmd_spec_t;
 
-/**
- * @brief Function pointer for callback after command execution
- */
-typedef void (*cmd_sys_callback_t)(cmd_sys_err_t status);
+typedef void (*cmd_sys_exec_wait_cb_t)(void);
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-cmd_sys_err_t cmd_sys_run(cmd_sys_cmd_t *cmd, uint8_t *buf, cmd_sys_callback_t callback, bool invoke_scheduled, bool *queued_for_exec);
+cmd_sys_err_t cmd_sys_recv_header(cmd_sys_cmd_t *cmd, uint8_t *buf, uint32_t poll_period_ticks);
+cmd_sys_err_t cmd_sys_schedule_cmd(const cmd_sys_cmd_t *cmd, uint8_t *buf);
+cmd_sys_err_t cmd_sys_execute(cmd_sys_cmd_t *cmd, uint32_t poll_period_ticks, uint32_t timeout_ticks, cmd_sys_exec_wait_cb_t wait_callback);
 
 cmd_sys_err_t cmd_sys_invoke_cmd(const cmd_sys_cmd_t *cmd);
 

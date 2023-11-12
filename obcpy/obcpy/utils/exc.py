@@ -1,10 +1,16 @@
 class OBCError(Exception):
     pass
 
+class OBCTaskSpecError(OBCError):
+    pass
+
 class OBCLogSysSpecError(OBCError):
     pass
 
 class OBCCmdSysSpecError(OBCError):
+    pass
+
+class OBCTaskNotFoundError(OBCError):
     pass
 
 class OBCLogNotFoundError(OBCError):

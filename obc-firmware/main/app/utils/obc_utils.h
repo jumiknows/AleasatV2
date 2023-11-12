@@ -52,32 +52,37 @@
 #define _impl_CASSERT_LINE(predicate, line, file) \
     typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 
+#define RUNTIME_ASSERT( x ) configASSERT(x) /* Use FreeRTOS assertion */
+
 // Arrays
-#define LEN(array)                  (sizeof((array)) / sizeof((array)[0]))
+#define LEN(array)       (sizeof((array)) / sizeof((array)[0]))
 
 // Math
-#define MIN(X, Y)                   (((X) < (Y)) ? (X) : (Y))
-#define MAX(X, Y)                   (((X) > (Y)) ? (X) : (Y))
+#define MIN(X, Y)        (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y)        (((X) > (Y)) ? (X) : (Y))
 
 // Timing
-#define SYSTEM_TIME_US()            portCPU_CLOCK_US() /* Use FreeRTOS CPU clock */
+#define SYSTEM_TIME_US() portCPU_CLOCK_US() /* Use FreeRTOS CPU clock */
+
+// CPU
+#define CPU_SOFT_RESET()      vPrivilegedCPUReset()
 
 // Data
 
 /**
  * @brief Extract byte i from x where i = 0 is the least significant byte
  */
-#define GET_BYTE(x, i)              (uint8_t)(((x) >> ((i) * 8U)) & 0xFF)
+#define GET_BYTE(x, i)  (uint8_t)(((x) >> ((i) * 8U)) & 0xFF)
 
 /**
  * @brief Construct a uint8_t with the nth bit set (all other bits cleared)
  */
-#define UINT8_BIT(n)                ((uint8_t)((uint8_t)1U << (n)))
+#define UINT8_BIT(n)    ((uint8_t)((uint8_t)1U << (n)))
 
 /**
  * @brief Construct a uint32_t with the nth bit set (all other bits cleared)
  */
-#define UINT32_BIT(n)               ((uint32_t)((uint32_t)1U << (n)))
+#define UINT32_BIT(n)   ((uint32_t)((uint32_t)1U << (n)))
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
@@ -89,11 +94,5 @@ int32_t cseq_to_num(char* seq);
 // Timing
 void busy_wait(uint32_t ticks_to_wait);
 void obc_delay_us(uint32_t us);
-
-// Math
-uint32_t power(uint32_t b, uint32_t e);
-
-// System
-void restart_software(void);
 
 #endif // OBC_UTILS_H

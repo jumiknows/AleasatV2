@@ -80,7 +80,7 @@ void log_PBIST_fails(void) {
              * 	- log that a reset had to occur
              * 	- set was_reset = true in flag file
              */
-            restart_software();
+            // TODO: restart_software();
         }
     } else {
         /* TODO: set was_reset flag = false in flag file so that it can be used next time */

@@ -15,7 +15,7 @@
 #include "telem_snapshot.h"
 #include "logger.h"
 #include "rtos.h"
-#include "obc_task_info.h"
+#include "obc_rtos.h"
 #include "telem_obc.h"
 #include "telem_eps.h"
 #include "obc_watchdog.h"
@@ -43,13 +43,6 @@
 uint8_t telem_queue_storage[QUEUE_LENGTH * ITEM_SIZE];
 QueueHandle_t telem_queue = NULL;
 
-// Static logging task setup
-StaticTask_t telem_collect_task_buf;
-StackType_t telem_collect_stack[TELEM_TASK_STACK_SIZE];
-
-StaticTask_t telem_task_buf;
-StackType_t telem_stack[TELEM_TASK_STACK_SIZE];
-
 // Private Function Declarations
 static void log_file(data_bin_t data_bin, const char* filename, const void* data, uint32_t size);
 
@@ -71,8 +64,7 @@ void telem_create_infra(void) {
  * data from the snapshot and save it to files.
  */
 void telem_start_task(void) {
-    task_create_static(&vTelemCollect, "telem_collect", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_collect_stack, &telem_collect_task_buf);
-    task_create_static(&vTelemLoggerTask, "telem_log", TELEM_TASK_STACK_SIZE, NULL, TELEM_LOG_TASK_PRIORITY, telem_stack, &telem_task_buf);
+    // TODO: ALEA-966 setup telemetry tasks
 }
 
 /**
@@ -99,15 +91,11 @@ void log_telem(data_bin_t bin) {
 
 static void vTelemCollect(void* pvParameters) {
     static uint32_t collectIndex = 0;
-    task_id_t wd_task_id         = WD_TASK_ID(pvParameters);
 
     /* Initialize Tick Count Variable With the Current Time. */
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     while (1) {
-        /* Set task status to alive. */
-        set_task_status(wd_task_id, task_alive);
-
         obc_fast_telem_collect();
         eps_fast_telem_collect();
 
@@ -127,7 +115,6 @@ static void vTelemCollect(void* pvParameters) {
         collectIndex = (++collectIndex % MAX_INDEX);
 
         /* Telemetry is Collected At Fast Rate. */
-        set_task_status(wd_task_id, task_asleep);
         vTaskDelayUntil(&xLastWakeTime,                // Time At Which Task Was Last Unblocked
                         pdMS_TO_TICKS(TELEM_FAST_RATE) // Fast Telemetry Rate
         );
@@ -143,14 +130,10 @@ static void vTelemCollect(void* pvParameters) {
  */
 static void vTelemLoggerTask(void* pvParameters) {
     data_bin_t bin;
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
 
     while (1) {
-        set_task_status(wd_task_id, task_asleep);
-
         if (telem_queue != NULL) {
             xQueueReceive(telem_queue, &bin, portMAX_DELAY);
-            set_task_status(wd_task_id, task_alive);
 
             // Log the appropriate data based on the request type
             switch (bin) {

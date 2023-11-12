@@ -15,7 +15,6 @@
 // OBC
 #include "obc_watchdog.h"
 #include "obc_rtos.h"
-#include "obc_task_info.h"
 #include "obc_hardwaredefs.h"
 
 // Utils
@@ -38,11 +37,14 @@
 
 #define SCI_MUTEX_TIMEOUT_MS   500U
 
+#define OBC_SERIAL_TX_POLL_PERIOD_MS 1000U
+
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
 
 typedef struct {
+    obc_task_id_t task_id;
     obc_serial_datagram_type_t datagram_type;
     MessageBufferHandle_t msg_buf;
     uint8_t *data_buf;
@@ -79,6 +81,7 @@ static rtos_msg_ostream_t logs_msg_stream = {
 // Task Parameters
 static uint8_t comms_data_buf[OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE];
 static obc_serial_tx_task_params_t comms_task_params = {
+    .task_id = OBC_TASK_ID_OBC_SERIAL_TX_COMMS,
     .datagram_type = OBC_SERIAL_DATAGRAM_COMMS,
     .msg_buf = NULL, // Assigned in obc_serial_tx_create_infra
     .data_buf = comms_data_buf,
@@ -87,6 +90,7 @@ static obc_serial_tx_task_params_t comms_task_params = {
 
 static uint8_t logs_data_buf[OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE];
 static obc_serial_tx_task_params_t logs_task_params = {
+    .task_id = OBC_TASK_ID_OBC_SERIAL_TX_LOGS,
     .datagram_type = OBC_SERIAL_DATAGRAM_LOG,
     .msg_buf = NULL, // Assigned in obc_serial_tx_create_infra
     .data_buf = logs_data_buf,
@@ -151,14 +155,8 @@ void obc_serial_tx_init_irq(void) {
  * @brief Start the OBC serial TX servicing task
  */
 void obc_serial_tx_start_task(void) {
-    static StaticTask_t comms_task_buffer                          = { 0 };
-    static StackType_t comms_task_stack[SERIAL_TX_TASK_STACK_SIZE] = { 0 };
-
-    static StaticTask_t logs_task_buffer                          = { 0 };
-    static StackType_t logs_task_stack[SERIAL_TX_TASK_STACK_SIZE] = { 0 };
-
-    task_create_static(&obc_serial_tx_task, "obc_serial_tx_comms", SERIAL_TX_TASK_STACK_SIZE, &comms_task_params, SERIAL_TX_COMMS_TASK_PRIORITY, comms_task_stack, &comms_task_buffer);
-    task_create_static(&obc_serial_tx_task, "obc_serial_tx_logs", SERIAL_TX_TASK_STACK_SIZE, &logs_task_params, SERIAL_TX_LOGS_TASK_PRIORITY, logs_task_stack, &logs_task_buffer);
+    obc_rtos_create_task(OBC_TASK_ID_OBC_SERIAL_TX_COMMS, &obc_serial_tx_task, &comms_task_params, OBC_WATCHDOG_ACTION_ALLOW);
+    obc_rtos_create_task(OBC_TASK_ID_OBC_SERIAL_TX_LOGS, &obc_serial_tx_task, &logs_task_params, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /******************************************************************************/
@@ -171,14 +169,12 @@ void obc_serial_tx_start_task(void) {
  * @param pvParameters Task parameters (see obc_rtos)
  */
 static void obc_serial_tx_task(void *pvParameters) {
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
-
-    const obc_serial_tx_task_params_t *params = (const obc_serial_tx_task_params_t *)TASK_PARAMS(pvParameters);
+    const obc_serial_tx_task_params_t *params = (const obc_serial_tx_task_params_t *)pvParameters;
 
     while (1) {
-        set_task_status(wd_task_id, task_asleep);
-        uint32_t data_len = xMessageBufferReceive(params->msg_buf, params->data_buf, params->data_buf_len, portMAX_DELAY);
-        set_task_status(wd_task_id, task_alive);
+        obc_watchdog_pet(params->task_id);
+
+        uint32_t data_len = xMessageBufferReceive(params->msg_buf, params->data_buf, params->data_buf_len, pdMS_TO_TICKS(OBC_SERIAL_TX_POLL_PERIOD_MS));
         if (data_len > 0) {
             send_datagram(params->datagram_type, params->data_buf, data_len);
         }

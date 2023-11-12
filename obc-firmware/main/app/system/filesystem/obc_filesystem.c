@@ -13,7 +13,7 @@
 #include "obc_error.h"
 #include "obc_featuredefs.h"
 #include "obc_flash.h"
-#include "obc_task_info.h"
+#include "obc_rtos.h"
 #include "obc_watchdog.h"
 
 // FreeRTOS
@@ -51,7 +51,6 @@
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
-static void vFileSystemTask(void* pvParameters);
 
 static int32_t bd_read(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, void* buffer, lfs_size_t size_bytes);
 static int32_t bd_prog(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, const void* buffer, lfs_size_t size_bytes);
@@ -95,9 +94,6 @@ static const struct lfs_config cfg = {
     .metadata_max = EXT_FLASH_BLOCK_SIZE
 };
 
-static TaskHandle_t xFileSystemLoggerTaskHandle;
-
-
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
@@ -127,19 +123,6 @@ fs_err_t fs_init(void) {
     } else if (err != FS_OK) {
         return err; // Isn't corrupted, but is still throwing an error
     }
-    
-    static StaticTask_t fs_logger_buffer;
-    static StackType_t fs_logger_stack[FS_LOGGER_TASK_STACK_SIZE];
-
-    // Start tasks
-    xFileSystemLoggerTaskHandle = task_create_static(
-        &vFileSystemTask,
-        "fs_logger",
-        FS_LOGGER_TASK_STACK_SIZE,
-        NULL,
-        FS_LOGGER_PRIORITY,
-        fs_logger_stack,
-        &fs_logger_buffer);
 
     return FS_OK;
 }
@@ -151,12 +134,6 @@ fs_err_t fs_init(void) {
  */
 fs_err_t fs_deinit(void) {
     fs_err_t err = FS_OK;
-
-    // Stop tasks
-    if (xFileSystemLoggerTaskHandle != NULL) {
-        vTaskDelete(xFileSystemLoggerTaskHandle);
-        xFileSystemLoggerTaskHandle = NULL;
-    }
 
     // Unmount FS
     err = (fs_err_t) lfs_unmount(&obc_lfs);
@@ -228,70 +205,9 @@ fs_err_t fs_self_test(void) {
     return FS_OK;
 }
 
-//fs_err_t fs_logger_save_message(log_level_t level, uint8_t group_id, log_id_t msg_id, uint8_t payload_len, void * payload_ptr) {
-//    return FS_OK;
-//}
-
 /******************************************************************************/
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/
-
-/**
- * @brief Task that handles all filesystem activity
- *
- */
-static void vFileSystemTask(void* pvParameters) {
-    //fs_request_t req     = {};
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
-
-    set_task_status(wd_task_id, task_asleep);
-    vTaskSuspend(NULL); // Suspend itself
-
-    while (1) {
-#if 0 // TODO ALEA-572
-        // Wait for a request
-        set_task_status(wd_task_id, task_asleep);
-        xQueueReceive(xFSRequestQueueHandle, (void*)&req, portMAX_DELAY);
-        xSemaphoreTake(xBlockEraseMutex, portMAX_DELAY);
-        set_task_status(wd_task_id, task_alive);
-
-        // Handle the incoming request
-        switch (req.type) {
-            case MKDIR:
-                *(req.err) = mkdir(req.args.open_args.path);
-                break;
-            case CREATE:
-                *(req.err) = create(req.args.open_args.path);
-                break;
-            case LS:
-                *(req.err) = ls(req.args.ls_args.path, (char(*)[LFS_NAME_MAX])req.args.ls_args.ls_list);
-                break;
-            case READ:
-                *(req.err) = read(req.args.read_args.path, req.args.read_args.off_bytes, req.args.read_args.buf, req.args.read_args.size_bytes);
-                break;
-            case WRITE:
-                *(req.err) = write(req.args.write_args.path, req.args.write_args.off_bytes, req.args.write_args.buf, req.args.write_args.size_bytes, req.args.write_args.whence);
-                break;
-            case DELETE:
-                *(req.err) = delete (req.args.open_args.path);
-                break;
-            case FILE_SIZE:
-                *(req.err) = file_size(req.args.fsize_args.path, req.args.fsize_args.size);
-                break;
-            default:
-                LOG_FS__UNKNOWN_REQUEST(req.type);
-                *(req.err) = FS_UNKNOWN_REQUEST_ERR;
-                break;
-        }
-
-        xSemaphoreGive(xBlockEraseMutex);
-
-        // Notify the calling task of the transaction completion, and pass the filesystem
-        // error as the notification value
-        xTaskNotify(req.task, 0x01, eSetBits);
-#endif
-    }
-}
 
 /**
  * @brief Read from a particular block in the flash.

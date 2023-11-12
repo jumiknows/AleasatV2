@@ -18,7 +18,6 @@
 // OBC
 #include "obc_watchdog.h"
 #include "obc_rtos.h"
-#include "obc_task_info.h"
 #include "obc_hardwaredefs.h"
 
 // Utils
@@ -39,6 +38,8 @@
 #define PHY_STREAM_BUFFER_DEF_TRIG_LVL  1U
 
 #define FRAME_TIMEOUT_MS                500U
+
+#define OBC_SERIAL_RX_POLL_PERIOD_MS    1000U
 
 /**
  * @brief Data buffer to store up to 2 datagrams
@@ -132,10 +133,7 @@ void obc_serial_rx_init_irq(void) {
  * @brief Start the OBC serial RX servicing task
  */
 void obc_serial_rx_start_task(void) {
-    static StaticTask_t task_buffer                          = { 0 };
-    static StackType_t task_stack[SERIAL_RX_TASK_STACK_SIZE] = { 0 };
-
-    task_create_static(&obc_serial_rx_task, "obc_serial_rx", SERIAL_RX_TASK_STACK_SIZE, NULL, SERIAL_RX_TASK_PRIORITY, task_stack, &task_buffer);
+    obc_rtos_create_task(OBC_TASK_ID_OBC_SERIAL_RX, &obc_serial_rx_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**
@@ -158,8 +156,6 @@ void obc_serial_rx_isr(BaseType_t *pxHigherPriorityTaskWoken) {
  * @param pvParameters Task parameters (see obc_rtos)
  */
 static void obc_serial_rx_task(void *pvParameters) {
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
-
     static uint8_t data_buf[OBC_SERIAL_FRAME_MAX_DATA_SIZE] = { 0 };
 
     obc_serial_rx_state_t state = OBC_SERIAL_RX_STATE_SYNC_0;
@@ -167,13 +163,13 @@ static void obc_serial_rx_task(void *pvParameters) {
     uint8_t crc_buf[2] = { 0 };
 
     while (1) {
+        obc_watchdog_pet(OBC_TASK_ID_OBC_SERIAL_RX);
+
         // Parse a serial frame to extract/validate the data field (which contains a datagram)
         switch (state) {
             case OBC_SERIAL_RX_STATE_SYNC_0:
-                set_task_status(wd_task_id, task_asleep);
                 xStreamBufferSetTriggerLevel(phy_stream_buffer, 1);
-                if (xStreamBufferReceive(phy_stream_buffer, data_buf, 1, portMAX_DELAY) == 1) {
-                    set_task_status(wd_task_id, task_alive);
+                if (xStreamBufferReceive(phy_stream_buffer, data_buf, 1, pdMS_TO_TICKS(OBC_SERIAL_RX_POLL_PERIOD_MS)) == 1) {
                     if (data_buf[0] == OBC_SERIAL_SYNC_0_VALUE) {
                         state = OBC_SERIAL_RX_STATE_SYNC_1;
                     }

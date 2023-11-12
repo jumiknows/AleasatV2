@@ -45,56 +45,50 @@
  */
 #define CMD_SYS_RESPONSE_BIT         UINT32_BIT(31)
 
-/**
- * @brief Timestamp used to indicate immediate (rather than scheduled) commands
- */
-#define CMD_SYS_TIMESTAMP_IMMEDIATE  ((uint32_t)0U)
+#define NOTIFICATION_INDEX 1U // index 0 is used by stream/message buffers
+                              // see https://www.freertos.org/RTOS-task-notifications.html
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
 static void cmd_sys_parse_header(const uint8_t *buf, cmd_sys_msg_header_t *header);
-static cmd_sys_err_t cmd_sys_schedule_cmd(const cmd_sys_cmd_t *cmd, uint8_t *buf);
+static void cmd_sys_exec_callback(cmd_sys_err_t status, void *arg);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
 /**
- * @brief Run the command system. This can be called from any number of FreeRTOS tasks
- * as long as they manage separation / synchronization of the input/output streams.
+ * @brief Wait to receive a command header on the command input stream.
  * 
- * 1.  Listen for data on the cmd->input stream until CMD_SYS_MSG_HEADER_LEN bytes are received
- * 2.  Parse the message header
- * 3a. For an immediate command, send the command to the cmd_sys_exec task for immediate execution
- * 3b. For a scheduled command, read the rest of the command data and schedule it^
+ * If a command header is successfully received, the cmd->header struct will be populated
+ * with the parsed header data.
  * 
- * ^If invoke_scheduled is true then scheduled commands will be invoked instead of scheduled.
- * 
- * This function is fully blocking (it will wait indefinitely for enough bytes to handle a single command),
- * but will return after every command so it should be called in a superloop.
- * 
- * @param[in]  cmd              Pointer to the command struct
- * @param[in]  buf              Pointer to a buffer to store the command header. Must be at least CMD_SYS_SCHED_MAX_DATA_SIZE bytes.
- * @param[in]  callback         Function that will be called by cmd_sys_exec after the command is executed
- * @param[in]  invoke_scheduled Set to true to invoke scheduled commands rather than schedule them
- * @param[out] queued_for_exec  Will be set to true if a command is queued for execution during this call
+ * @param[in]  cmd                 Pointer to the command struct. This CANNOT be allocated on a task stack as it's passed to another task.
+ *                                 The input and output streams must be assigned.
+ * @param[in]  buf                 Pointer to a buffer to store the command header. Must be at least CMD_SYS_SCHED_MAX_DATA_SIZE bytes.
+ * @param[in]  poll_period_ticks   Maximum amount of time to wait for the start of a command
  * 
  * @return Status code:
- *            - CMD_SYS_ERR_INVALID_ARGS if input is NULL or output is NULL
- *            - CMD_SYS_ERR_READ_TIMEOUT if an error occurs reading from the input stream
- *            - otherwise the status from cmd_sys_exec_enqueue (immediate) or cmd_sys_sched_push_cmd (scheduled) is returned
+ *            - CMD_SYS_SUCCESS if a header is successfully received and parsed
+ *            - CMD_SYS_ERR_INVALID_ARGS if cmd, cmd->input or cmd->output is NULL
+ *            - CMD_SYS_ERR_NO_HEADER if no data is received before poll_period_ticks elapses
+ *            - CMD_SYS_ERR_READ_TIMEOUT if the full header is not received within CMD_SYS_INPUT_READ_TIMEOUT_MS of the start of the header
  */
-cmd_sys_err_t cmd_sys_run(cmd_sys_cmd_t *cmd, uint8_t *buf, cmd_sys_callback_t callback, bool invoke_scheduled, bool *queued_for_exec) {
-    if ((cmd == NULL) && (queued_for_exec == NULL)) {
+cmd_sys_err_t cmd_sys_recv_header(cmd_sys_cmd_t *cmd, uint8_t *buf, uint32_t poll_period_ticks) {
+    if ((cmd == NULL) || (cmd->input == NULL) || (cmd->output == NULL)) {
         return CMD_SYS_ERR_INVALID_ARGS;
     }
 
-    *queued_for_exec = false;
+    // Read a single byte to detect the start of a command
+    uint32_t bytes_read = io_stream_read(cmd->input, buf, 1, poll_period_ticks, NULL);
+    if (bytes_read != 1) {
+        return CMD_SYS_ERR_NO_HEADER;
+    }
 
-    // Read header
-    uint32_t bytes_read = io_stream_read(cmd->input, buf, CMD_SYS_MSG_HEADER_LEN, portMAX_DELAY, NULL);
+    // Read rest of the header
+    bytes_read += io_stream_read(cmd->input, &buf[1], (CMD_SYS_MSG_HEADER_LEN - 1), pdMS_TO_TICKS(CMD_SYS_INPUT_READ_TIMEOUT_MS), NULL);
     if (bytes_read != CMD_SYS_MSG_HEADER_LEN) {
         return CMD_SYS_ERR_READ_TIMEOUT;
     }
@@ -102,17 +96,106 @@ cmd_sys_err_t cmd_sys_run(cmd_sys_cmd_t *cmd, uint8_t *buf, cmd_sys_callback_t c
     // Parse header
     cmd_sys_parse_header(buf, &cmd->header);
 
-    if ((cmd->header.timestamp == CMD_SYS_TIMESTAMP_IMMEDIATE) || invoke_scheduled) {
-        // Immediate command - send to executor right away
-        cmd_sys_err_t err = cmd_sys_exec_enqueue(cmd, callback, portMAX_DELAY);
-        if (err == CMD_SYS_SUCCESS) {
-            *queued_for_exec = true;
-        }
-        return err;
-    } else {
-        // Scheduled command
-        return cmd_sys_schedule_cmd(cmd, buf);
+    return CMD_SYS_SUCCESS;
+}
+
+/**
+ * @brief Schedule a command for execution later.
+ * 
+ * @param[in] cmd Pointer to the command struct. The header should already be parsed and populated.
+ * @param[in] buf Pointer to a buffer containing the header raw bytes and enough remaining space
+ *                to store the data bytes (for a total of up to CMD_SYS_SCHED_MAX_DATA_SIZE bytes)
+ * 
+ * @return Status code:
+ *            - CMD_SYS_ERR_INVALID_ARGS if cmd, cmd->input or cmd->output is NULL
+ *            - CMD_SYS_ERR_ARGS_TOO_LARGE if command header data_len is too long
+ *            - CMD_SYS_ERR_READ_TIMEOUT if an error occurs reading the remaining command data
+ *            - otherwise the status from cmd_sys_begin_response or cmd_sys_finish_response is returned
+ */
+cmd_sys_err_t cmd_sys_schedule_cmd(const cmd_sys_cmd_t *cmd, uint8_t *buf) {
+    if ((cmd == NULL) || (cmd->input == NULL) || (cmd->output == NULL)) {
+        return CMD_SYS_ERR_INVALID_ARGS;
     }
+
+    // Scheduled command - check data_len
+    if (cmd->header.data_len > (CMD_SYS_SCHED_MAX_DATA_SIZE - CMD_SYS_MSG_HEADER_LEN)) {
+        // TODO: ALEA-863 stream the data to a file or something if it's too big
+        return CMD_SYS_ERR_ARGS_TOO_LARGE;
+    }
+
+    // Read the rest of the data into the buf
+    uint32_t data_len = cmd->header.data_len;
+    if (data_len > 0) {
+        uint32_t bytes_read = io_stream_read(cmd->input, &(buf[CMD_SYS_MSG_HEADER_LEN]), data_len, portMAX_DELAY, NULL);
+        if (bytes_read != data_len) {
+            return CMD_SYS_ERR_READ_TIMEOUT;
+        }
+    }
+
+    cmd_sys_resp_code_t resp_code = CMD_SYS_RESP_CODE_ERROR;
+
+    // Schedule the command
+    cmd_sys_err_t err = cmd_sys_sched_push_cmd(&(cmd->header), buf, (CMD_SYS_MSG_HEADER_LEN + data_len));
+    if (err == CMD_SYS_SUCCESS) {
+        resp_code = CMD_SYS_RESP_CODE_SUCCESS_SCHED;
+    }
+
+    // Send an immediate response
+    err = cmd_sys_begin_response(cmd, resp_code, 0);
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
+    err = cmd_sys_finish_response(cmd);
+
+    return err;
+}
+
+/**
+ * @brief Send a command to the cmd_sys_exec task for execution and wait for it to complete.
+ * 
+ * @param[in] cmd               Pointer to the command struct. The header should already be parsed and populated
+ * @param[in] poll_period_ticks Polling period when checking if the command execution has completed
+ * @param[in] timeout_ticks     Maximum total amount of time to wait for the command to finish executing
+ * @param[in] wait_callback     Optional callback function that will be called every time poll_period_ticks elapses
+ * 
+ * @return Status code:
+ *            - CMD_SYS_ERR_INVALID_ARGS if cmd, cmd->input or cmd->output is NULL
+ *            - CMD_SYS_ERR_EXEC_Q_TIMEOUT if there is not enough space in the exec queue
+ *            - otherwise the status returned from the execution of the command
+ */
+cmd_sys_err_t cmd_sys_execute(cmd_sys_cmd_t *cmd, uint32_t poll_period_ticks, uint32_t timeout_ticks, cmd_sys_exec_wait_cb_t wait_callback) {
+    if ((cmd == NULL) || (cmd->input == NULL) || (cmd->output == NULL)) {
+        return CMD_SYS_ERR_INVALID_ARGS;
+    }
+
+    // Send command to cmd_sys_exec task
+    TaskHandle_t task_handle = xTaskGetCurrentTaskHandle();
+    cmd_sys_err_t err = cmd_sys_exec_enqueue(cmd, &cmd_sys_exec_callback, task_handle, 0);
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
+
+    // Wait for a notification from the cmd_sys_exec task
+    uint32_t timeout_left_ticks = timeout_ticks;
+    uint32_t notification_value = 0;
+
+    err = CMD_SYS_ERR_EXEC_TIMEOUT;
+    while (timeout_left_ticks > 0) {
+        if (wait_callback != NULL) {
+            wait_callback();
+        }
+
+        uint32_t loop_timeout_ticks = MIN(timeout_left_ticks, poll_period_ticks);
+        if (xTaskNotifyWaitIndexed(NOTIFICATION_INDEX, 0U, 0xFFFFFFFFU, &notification_value, loop_timeout_ticks) == pdTRUE) {
+            // Notification received --> command execution complete
+            err = (cmd_sys_err_t)notification_value;
+            break;
+        } else {
+            // No notification --> update timeout
+            timeout_left_ticks -= loop_timeout_ticks;
+        }
+    }
+    return err;
 }
 
 /**
@@ -342,48 +425,7 @@ static void cmd_sys_parse_header(const uint8_t *buf, cmd_sys_msg_header_t *heade
     header->data_len  &= ~(CMD_SYS_RESPONSE_BIT);
 }
 
-/**
- * @brief Schedule a command for execution later.
- * 
- * @param[in] cmd Pointer to the command struct. The header should already be parsed and populated.
- * @param[in] buf Pointer to a buffer containing the header raw bytes and enough remaining space
- *                to store the data bytes (for a total of up to CMD_SYS_SCHED_MAX_DATA_SIZE bytes)
- * 
- * @return Status code:
- *            - CMD_SYS_ERR_ARGS_TOO_LARGE if command header data_len is too long
- *            - CMD_SYS_ERR_READ_TIMEOUT if an error occurs reading the remaining command data
- *            - otherwise the status from cmd_sys_begin_response or cmd_sys_finish_response is returned
- */
-static cmd_sys_err_t cmd_sys_schedule_cmd(const cmd_sys_cmd_t *cmd, uint8_t *buf) {
-    // Scheduled command - check data_len
-    if (cmd->header.data_len > (CMD_SYS_SCHED_MAX_DATA_SIZE - CMD_SYS_MSG_HEADER_LEN)) {
-        // TODO: ALEA-863 stream the data to a file or something if it's too big
-        return CMD_SYS_ERR_ARGS_TOO_LARGE;
-    }
-
-    // Read the rest of the data into the buf
-    uint32_t data_len = cmd->header.data_len;
-    if (data_len > 0) {
-        uint32_t bytes_read = io_stream_read(cmd->input, &(buf[CMD_SYS_MSG_HEADER_LEN]), data_len, portMAX_DELAY, NULL);
-        if (bytes_read != data_len) {
-            return CMD_SYS_ERR_READ_TIMEOUT;
-        }
-    }
-
-    cmd_sys_resp_code_t resp_code = CMD_SYS_RESP_CODE_ERROR;
-
-    // Schedule the command
-    cmd_sys_err_t err = cmd_sys_sched_push_cmd(&(cmd->header), buf, (CMD_SYS_MSG_HEADER_LEN + data_len));
-    if (err == CMD_SYS_SUCCESS) {
-        resp_code = CMD_SYS_RESP_CODE_SUCCESS_SCHED;
-    }
-
-    // Send an immediate response
-    err = cmd_sys_begin_response(cmd, resp_code, 0);
-    if (err != CMD_SYS_SUCCESS) {
-        return err;
-    }
-    err = cmd_sys_finish_response(cmd);
-
-    return err;
+static void cmd_sys_exec_callback(cmd_sys_err_t status, void *arg) {
+    TaskHandle_t task_handle = (TaskHandle_t)arg;
+    xTaskNotifyIndexed(task_handle, NOTIFICATION_INDEX, (uint32_t)status, eSetValueWithOverwrite);
 }

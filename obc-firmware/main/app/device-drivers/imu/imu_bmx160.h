@@ -12,7 +12,6 @@
 
 //OBC
 #include "imu_bmx160_registers.h"
-#include "obc_task_info.h"
 #include "logger.h"
 #include "obc_gpio.h"
 #include "obc_featuredefs.h"

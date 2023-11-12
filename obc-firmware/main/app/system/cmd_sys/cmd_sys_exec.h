@@ -18,12 +18,21 @@
 #include <stdbool.h>
 
 /******************************************************************************/
+/*                              T Y P E D E F S                               */
+/******************************************************************************/
+
+/**
+ * @brief Function pointer for callback after command execution
+ */
+typedef void (*cmd_sys_exec_callback_t)(cmd_sys_err_t status, void *arg);
+
+/******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
 void cmd_sys_exec_create_infra(void);
 void cmd_sys_exec_start_task(void);
 
-cmd_sys_err_t cmd_sys_exec_enqueue(cmd_sys_cmd_t *cmd, cmd_sys_callback_t callback, uint32_t timeout_ticks);
+cmd_sys_err_t cmd_sys_exec_enqueue(cmd_sys_cmd_t *cmd, cmd_sys_exec_callback_t callback, void *arg, uint32_t timeout_ticks);
 
 #endif // CMD_SYS_EXEC_H_

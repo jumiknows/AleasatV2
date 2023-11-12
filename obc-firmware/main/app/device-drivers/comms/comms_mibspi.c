@@ -14,7 +14,6 @@
 // OBC
 #include "obc_hardwaredefs.h"
 #include "obc_watchdog.h"
-#include "obc_task_info.h"
 
 // HAL
 #include "het.h"

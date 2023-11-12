@@ -18,12 +18,13 @@
 // OBC
 #include "obc_hardwaredefs.h"
 #include "obc_error.h"
-#include "obc_task_info.h"
+#include "obc_rtos.h"
 #include "obc_watchdog.h"
 
 // Logging
 #include "logger.h"
 
+// FreeRTOS
 #include "FreeRTOS.h"
 #include "event_groups.h"
 #include "queue.h"
@@ -42,6 +43,8 @@
 
 #define COMMS_RX_CMD_EVENT_BIT (1 << 0)
 #define COMMS_TX_CMD_EVENT_BIT (1 << 1)
+
+#define COMMS_MNGR_POLL_PERIOD_MS 1000U
 
 /******************************************************************************/
 /*                             T Y P E D E F S                                */
@@ -95,19 +98,9 @@ void comms_mngr_create_infra(void) {
  * @param[in] cdev handle for the low-level comms device driver
  */
 void comms_mngr_start_task(comms_dev_handle_t cdev_hdl) {
-    static StackType_t xCommsMngrTaskStack[COMMS_IRQ_TASK_STACK_SIZE];
-    static StaticTask_t xCommsMngrTaskBuffer;
-
     cdev = cdev_hdl;
-    task_create_static(
-        &vCommsMngrTask,
-        "comms_mngr",
-        COMMS_IRQ_TASK_STACK_SIZE,
-        NULL,
-        COMMS_IRQ_SERVICE_PRIORITY,
-        xCommsMngrTaskStack,
-        &xCommsMngrTaskBuffer
-    );
+
+    obc_rtos_create_task(OBC_TASK_ID_COMMS_MNGR, &vCommsMngrTask, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**
@@ -276,22 +269,19 @@ static void handle_dev_interrupt(bool is_isr, void* param) {
  * @param[in] pvParameters low-level comms device driver handle.
  */
 static void vCommsMngrTask(void* pvParameters) {
-    task_id_t wd_task_id = WD_TASK_ID(pvParameters);
     EventBits_t uxSetBits, uxWaitBits;
 
     comms_dev_register_callback(cdev, &handle_dev_interrupt, NULL);
 
     while (1) {
+        obc_watchdog_pet(OBC_TASK_ID_COMMS_MNGR);
 
         // Unblock on an interrupt event from the RF card
         uxWaitBits = get_unblock_conditions();
 
-        set_task_status(wd_task_id, task_asleep);
         // Block until notified from ISR
         // TODO ensure the event group bits are set and cleared correctly
-        uxSetBits = xEventGroupWaitBits(evt_group,
-                        uxWaitBits, pdTRUE, pdFALSE, portMAX_DELAY);
-        set_task_status(wd_task_id, task_alive);
+        uxSetBits = xEventGroupWaitBits(evt_group, uxWaitBits, pdTRUE, pdFALSE, pdMS_TO_TICKS(COMMS_MNGR_POLL_PERIOD_MS));
 
         if(uxWaitBits & uxSetBits & COMMS_RX_CMD_EVENT_BIT) {
             handle_rx_event();

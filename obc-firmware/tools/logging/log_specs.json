@@ -462,17 +462,6 @@
       }
     }
   },
-  "LOG_GPIO": {
-    "id": 33,
-    "description": "GPIO",
-    "signals": {
-      "IRQ_QUEUE_RECEIVE_FAILED": {
-        "level": "ERROR",
-        "id": 0,
-        "description": "IRQ queue receive failed."
-      }
-    }
-  },
   "LOG_RESERVED8": {
     "id": 35,
     "description": "Reserved - currently unused"
@@ -500,47 +489,22 @@
     "id": 39,
     "description": "Watchdog",
     "signals": {
-      "SUSPENDING_WDPT": {
-        "level": "WARNING",
-        "id": 0,
-        "description": "Suspending watchdog pet task"
-      },
-      "PETTING": {
-        "level": "INFO",
+      "HW_WD_PET": {
+        "level": "DEBUG",
         "id": 1,
-        "description": "Petting watchdog"
+        "description": "Hardware watchdog pet"
       },
-      "UNKNOWN_TASK": {
-        "level": "ERROR",
+      "SW_WD_HAPPY": {
+        "level": "DEBUG",
         "id": 2,
-        "description": "One or more tasks has UNKNOWN"
+        "description": "Software watchdog happy"
       },
-      "FAILED_TO_TAKE_MUTEX_IN_SET_STATUS": {
+      "SW_WD_BITE": {
         "level": "ERROR",
         "id": 3,
-        "description": "Failed to take watchdog mutex"
-      },
-      "FAILED_TO_TAKE_MUTEX_IN_GET_STATUS": {
-        "level": "ERROR",
-        "id": 4,
-        "description": "Failed to take watchdog mutex"
-      },
-      "FAILED_TO_TAKE_MUTEX_IN_SUSPEND": {
-        "level": "ERROR",
-        "id": 5,
-        "description": "Failed to take watchdog mutex"
-      },
-      "FAILED_TO_TAKE_MUTEX_IN_RESUME": {
-        "level": "ERROR",
-        "id": 6,
-        "description": "Failed to take watchdog mutex"
-      },
-      "DID_NOT_CLEAR_UNKNOWN": {
-        "level": "ERROR",
-        "id": 7,
-        "description": "Task did not clear UNKNOWN",
+        "description": "Software watchdog bite",
         "data": [
-          {"task_name": "u8[17]"}
+          {"bite_mask": "u32"}
         ]
       }
     }

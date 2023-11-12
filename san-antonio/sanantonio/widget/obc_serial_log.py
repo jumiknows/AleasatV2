@@ -1,10 +1,15 @@
+from typing import Any
+
 from PyQt5 import QtWidgets, QtCore
 
+from obcpy import log_sys
 from obcpy.obc.protocol.app import app_log
 from obcpy.utils import data as data_utils
 
 from sanantonio.backend import obcqt
 from sanantonio.ui import obc_serial_log_ui
+from sanantonio.utils import ui as ui_utils
+from sanantonio.utils import console as console_utils
 
 PRINTF_LOG_ID = 0
 PRINT_DEBUG = 1
@@ -57,19 +62,33 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
 
         self.obc_log_table.insertRow(new_idx)
 
-        self.obc_log_table.setItem(new_idx, 0, QtWidgets.QTableWidgetItem(str(log.date_time)))
-        self.obc_log_table.setItem(new_idx, 1, QtWidgets.QTableWidgetItem(str(log.signal_level.name)))
-        self.obc_log_table.setItem(new_idx, 2, QtWidgets.QTableWidgetItem(f"{log.group_name} ({log.log_id})"))
-        self.obc_log_table.setItem(new_idx, 3, QtWidgets.QTableWidgetItem(f"{log.signal_name} ({log.signal_id})"))
+        text_color = ui_utils.Color.WHITE
+        if log.signal_level == log_sys.log_spec.OBCLogLevel.ERROR:
+            text_color = ui_utils.Color.RED
+
+        self.obc_log_table.setItem(new_idx, 0, self._create_colored_cell(log.date_time, text_color))
+        self.obc_log_table.setItem(new_idx, 1, self._create_colored_cell(log.signal_level.name, text_color))
+        self.obc_log_table.setItem(new_idx, 2, self._create_colored_cell(f"{log.group_name} ({log.log_id})", text_color))
+        self.obc_log_table.setItem(new_idx, 3, self._create_colored_cell(f"{log.signal_name} ({log.signal_id})", text_color))
+
+        log_data_str = "Error decoding log data"
+
         if log.log_id == PRINTF_LOG_ID:
             try:
                 if log.signal_id == PRINT_DEBUG:
-                    self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{bytes(log.data['filename'][:log.data['length']]).decode()}:{log.data['line']}"))
+                    log_data_str = f"{bytes(log.data['filename'][:log.data['length']]).decode()}:{log.data['line']}"
                 else:
-                    self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{bytes(log.data['message']).decode()}"))
-            except Exception as e:
-                print(e)
+                    log_data_str = f"{bytes(log.data['message']).decode()}"
+            except UnicodeDecodeError as e:
+                console_utils.print_err(str(e))
         else:
-            self.obc_log_table.setItem(new_idx, 4, QtWidgets.QTableWidgetItem(f"{log.data_as_string()}"))
+            log_data_str = f"{log.data_as_string()}"
+
+        self.obc_log_table.setItem(new_idx, 4, self._create_colored_cell(log_data_str, text_color))
 
         self.obc_log_table.scrollToBottom()
+
+    def _create_colored_cell(self, text: Any, color: ui_utils.Color) -> QtWidgets.QTableWidgetItem:
+        item = QtWidgets.QTableWidgetItem(str(text))
+        item.setForeground(color.as_qcolor())
+        return item
