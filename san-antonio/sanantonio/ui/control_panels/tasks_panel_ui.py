@@ -17,6 +17,16 @@ class Ui_TasksPanel(object):
         TasksPanel.resize(400, 300)
         self.verticalLayout = QtWidgets.QVBoxLayout(TasksPanel)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.button_panel = QtWidgets.QWidget(TasksPanel)
+        self.button_panel.setObjectName("button_panel")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.button_panel)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.check_stack_usage_btn = QtWidgets.QPushButton(self.button_panel)
+        self.check_stack_usage_btn.setObjectName("check_stack_usage_btn")
+        self.horizontalLayout.addWidget(self.check_stack_usage_btn)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.verticalLayout.addWidget(self.button_panel)
         self.tasks_table = QtWidgets.QTableWidget(TasksPanel)
         self.tasks_table.setShowGrid(False)
         self.tasks_table.setObjectName("tasks_table")
@@ -31,3 +41,4 @@ class Ui_TasksPanel(object):
     def retranslateUi(self, TasksPanel):
         _translate = QtCore.QCoreApplication.translate
         TasksPanel.setWindowTitle(_translate("TasksPanel", "Form"))
+        self.check_stack_usage_btn.setText(_translate("TasksPanel", "Check Stack Usage"))

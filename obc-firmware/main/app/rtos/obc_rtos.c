@@ -82,6 +82,10 @@ BaseType_t obc_rtos_task_hook(obc_task_id_t id, void *arg) {
  * @brief Retrieve the FreeRTOS handle for a task given its ID
  */
 TaskHandle_t obc_rtos_get_task_handle(obc_task_id_t id) {
+    if (id == OBC_TASK_ID_IDLE) {
+        return xTaskGetIdleTaskHandle();
+    }
+
     return task_handles[id];
 }
 

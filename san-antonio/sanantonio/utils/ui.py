@@ -6,6 +6,8 @@ class Color(Enum):
     TRANSPARENT = "#00000000"
     RED         = "red"
     LIGHT_RED   = "#F04848"
+    ORANGE      = "orange"
+    DARK_ORANGE = "#DB7A18"
     BLUE        = "blue"
     GREEN       = "green"
     BLACK       = "black"

@@ -20,8 +20,42 @@
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
-cmd_sys_resp_code_t cmd_impl_RTOS_TASKS(const cmd_sys_cmd_t *cmd) {
-    return CMD_SYS_RESP_CODE_NOT_IMPL;
+cmd_sys_err_t cmd_impl_GET_MIN_STACK_SPACE(const cmd_sys_cmd_t *cmd) {
+    cmd_sys_err_t err = CMD_SYS_SUCCESS;
+
+    // Although the FreeRTOS API returns a uint32_t, we know in practice none of our stack sizes come close
+    // to the limit of a uint16_t so we will use that datatype so save on communication bandwidth
+    uint16_t min_stack_space = 0;
+    uint8_t resp_buf[sizeof(min_stack_space) * OBC_TASK_COUNT] = { 0 };
+    uint8_t *resp_buf_ptr = resp_buf;
+
+    // Iterate over the tasks and record the minimum free stack space (called the high watermark by FreeRTOS)
+    for (uint8_t task_id = 0; task_id < OBC_TASK_COUNT; task_id++) {
+        TaskHandle_t task_handle = obc_rtos_get_task_handle((obc_task_id_t)task_id);
+        if (task_handle == NULL) {
+            err = cmd_sys_begin_response(cmd, CMD_SYS_RESP_CODE_ERROR, 0);
+            if (err != CMD_SYS_SUCCESS) return err;
+
+            err = cmd_sys_finish_response(cmd);
+            return err;
+        }
+
+        min_stack_space = (uint16_t)uxTaskGetStackHighWaterMark(task_handle);
+        data_fmt_u16_to_arr_be(min_stack_space, resp_buf_ptr);
+        resp_buf_ptr += sizeof(min_stack_space);
+    }
+
+    // Send response
+    err = cmd_sys_begin_response(cmd, CMD_SYS_RESP_CODE_SUCCESS, sizeof(resp_buf));
+    if (err != CMD_SYS_SUCCESS) return err;
+
+    uint32_t bytes_written = io_stream_write(cmd->output, resp_buf, sizeof(resp_buf), pdMS_TO_TICKS(CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS), NULL);
+    if (bytes_written != sizeof(resp_buf)) return CMD_SYS_ERR_WRITE_TIMEOUT;
+
+    err = cmd_sys_finish_response(cmd);
+    if (err != CMD_SYS_SUCCESS) return err;
+
+    return err;
 }
 
 cmd_sys_resp_code_t cmd_impl_RTOS_INFO(const cmd_sys_cmd_t *cmd) {

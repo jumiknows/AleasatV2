@@ -23,10 +23,12 @@
         ],
         "resp": []
     },
-    "RTOS_TASKS": {
+    "GET_MIN_STACK_SPACE": {
         "id": 4,
         "args": [],
-        "resp": []
+        "resp": [
+            {"min_stack_space": "bytes"}
+        ]
     },
     "RTOS_INFO": {
         "id": 5,

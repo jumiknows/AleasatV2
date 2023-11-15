@@ -1,8 +1,10 @@
-from typing import Union
+from typing import Union, Dict, Tuple, List
 import datetime
 
 from obcpy import cmd_sys
 from obcpy.utils import obc_time
+from obcpy.data_fmt import data_field_impl
+from obcpy.utils import exc
 
 from .obc_base import OBCBase
 from .obc_base import DEFAULT_CMD_TIMEOUT
@@ -72,3 +74,23 @@ class OBCSystemFeature(OBCBase):
             new_obc_datetime = obc_time.OBCDateTime(new_datetime)
 
         return self.send_cmd("SET_TIME", new_obc_datetime.to_timestamp(), timeout=timeout)
+
+    def get_stack_usages(self, timeout=DEFAULT_CMD_TIMEOUT) -> Dict[int, Tuple[int, int]]:
+        stack_usages = {}
+
+        resp = self.send_cmd("GET_MIN_STACK_SPACE", timeout=timeout)
+        if resp.is_success:
+            # Manually decode the data field
+            data_field = data_field_impl.U16("min_stack_space", (self.task_specs.count,))
+
+            resp_data = resp.data["min_stack_space"]
+
+            if len(resp_data) != data_field.size:
+                raise exc.OBCDecodeError(f"Response data has wrong size. Expected: {data_field.size}. Actual: {len(resp_data)}.")
+
+            min_stack_space: List[int] = data_field.decode(resp_data)
+
+            for task_spec in self.task_specs:
+                stack_usages[task_spec.id] = ((task_spec.stack_size - min_stack_space[task_spec.id]), task_spec.stack_size)
+
+        return stack_usages

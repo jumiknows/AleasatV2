@@ -1,13 +1,16 @@
+from typing import Union, Dict, Tuple
 from enum import Enum
 
 from PyQt5 import QtWidgets, QtCore
 
 from obcpy import rtos
+from obcpy.utils import exc
 from obcpy.obc.protocol.app import app_log
 
 from sanantonio.backend import obcqt
 from sanantonio.ui.control_panels import tasks_panel_ui
 from sanantonio.utils import ui as ui_utils
+from sanantonio.utils import console as console_utils
 
 class TaskStatus(Enum):
     UNKNOWN        = (0, ui_utils.Color.TRANSPARENT)
@@ -23,7 +26,7 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
     COLUMN_STACK_USAGE = 4
     COLUMN_CPU_USAGE   = 5
 
-    STACK_USAGE_THRESHOLD = 80
+    STACK_USAGE_WARN_THRESHOLD = 80
 
     MAXIMUM_WD_PERIOD_MS = 2500
 
@@ -37,6 +40,7 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
 
         # Declare UI members with type hints - these are assigned in setupUI()
         self.tasks_table: QtWidgets.QTableWidget
+        self.check_stack_usage_btn: QtWidgets.QPushButton
 
         # Load UI
         self.setupUi(self)
@@ -73,6 +77,8 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
         # Connect signals / slots
         self.set_alert.connect(self.handle_set_alert)
         self.clear_alert.connect(self.handle_clear_alert)
+
+        self.check_stack_usage_btn.clicked.connect(self.handle_check_stack_usage)
 
         self._obc_provider.conn_state_changed.connect(self.handle_conn_state_changed)
 
@@ -139,6 +145,22 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
     def handle_clear_alert(self):
         self.setAutoFillBackground(False)
 
+    @QtCore.pyqtSlot()
+    def handle_check_stack_usage(self):
+        self.obc.execute(obcqt.OBCQTRequest(
+            lambda obc: obc.get_stack_usages(),
+            self._check_stack_usage_callback
+        ))
+
+    def _check_stack_usage_callback(self, resp: Union[Dict[int, Tuple[int, int]], exc.OBCError]):
+        if isinstance(resp, exc.OBCError):
+            console_utils.print_err(str(resp))
+            return
+
+        for i, task_spec in enumerate(self.obc.task_specs):
+            if task_spec.id in resp:
+                self._set_task_stack_usage(i, task_spec, resp[task_spec.id][0])
+
     def _set_task_status(self, row: int, status: TaskStatus):
         item = self.tasks_table.item(row, self.COLUMN_STATUS)
 
@@ -168,7 +190,9 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
         if usage_pcnt is None:
             item.setBackground(ui_utils.Color.TRANSPARENT.as_qcolor())
         else:
-            if usage_pcnt >= self.STACK_USAGE_THRESHOLD:
+            if usage_pcnt >= 100:
                 item.setBackground(ui_utils.Color.LIGHT_RED.as_qcolor())
+            if usage_pcnt >= self.STACK_USAGE_WARN_THRESHOLD:
+                item.setBackground(ui_utils.Color.DARK_ORANGE.as_qcolor())
             else:
                 item.setBackground(ui_utils.Color.TRANSPARENT.as_qcolor())
