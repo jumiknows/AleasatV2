@@ -185,11 +185,11 @@ bool wmm_is_init(void)
 	return wmm_state.wmm_init_flag;
 }
 
-bool wmm_get_mag_ref(float32_t glat, float32_t glon, float32_t alt, float32_t time_years, float32_t *mag_ref)
+adcs_err_t wmm_get_mag_ref(float32_t glat, float32_t glon, float32_t alt, float32_t time_years, float32_t *mag_ref)
 {
 	if(!wmm_state.wmm_init_flag)
 	{
-		return false;
+		return ADCS_ERROR_WMM_NO_INIT;
 	}
 	static float32_t tc[13][13];
 	static float32_t sp[13];
@@ -332,7 +332,7 @@ bool wmm_get_mag_ref(float32_t glat, float32_t glon, float32_t alt, float32_t ti
 	mag_ref[0] = -bt * ca - br * sa ; //x
 	mag_ref[1] = bp					; //y
 	mag_ref[2] = -bt * sa - br * ca ; //z
-	return true;
+	return ADCS_SUCCESS;
 }
 
 /******************************************************************************/

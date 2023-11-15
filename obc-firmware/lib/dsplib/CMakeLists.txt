@@ -9,7 +9,7 @@ list(APPEND SRC_DIRS
     # source/ControllerFunctions
     source/FastMathFunctions
     # source/FilteringFunctions
-    # source/MatrixFunctions
+    source/MatrixFunctions
     # source/StatisticsFunctions
     # source/SupportFunctions
     # source/TransformFunctions

@@ -41,6 +41,9 @@ SOFTWARE.
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
+//attitude determination
+#include "adcs_types.h"
+
 //DSPLIB TYPES
 #include "type_defs.h"
 
@@ -124,6 +127,6 @@ float32_t wmm_get_date(uint8_t year, uint8_t month, uint8_t date);
  * @note The magentic model is not a good approxmiation for altitudes exceeding 1km below the surface or 850km
  * 		 above.
  */
-bool wmm_get_mag_ref(float32_t glat, float32_t glon, float32_t alt, float32_t time_years, float32_t *mag_ref);
+adcs_err_t wmm_get_mag_ref(float32_t glat, float32_t glon, float32_t alt, float32_t time_years, float32_t *mag_ref);
 
 #endif

@@ -14,12 +14,16 @@
 #include "obc_magnetorquer.h"
 #include "imu_bmx160.h"
 #include "ADIS16260_gyro.h"
+#include "quest.h"
 
 // OBC
 #include "logger.h"
 
 // Utils
 #include "obc_utils.h"
+
+//string.h for memcpy()
+#include <string.h>
 
 // FreeRTOS
 #include "rtos.h"
@@ -188,6 +192,35 @@ cmd_sys_resp_code_t cmd_impl_TEST_PANEL_GYRO(const cmd_sys_cmd_t *cmd, cmd_TEST_
     run_panel_gyro_test(GYROS[args->gyro]);
 
     return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Test function for quest algoritm.
+ * 
+ * Exposes the quest function over the cmd system so we can run tests against it using sim more easily
+ * Also records the exectuon time for 10 iterations (of same input) and returns the average duration in us.
+ */
+cmd_sys_resp_code_t cmd_impl_TEST_QUEST(const cmd_sys_cmd_t *cmd, cmd_TEST_QUEST_args_t *args, cmd_TEST_QUEST_resp_t *resp) {
+    adcs_ad_triax_vectors_t ad_vecs;
+    memcpy(ad_vecs.mag_obs, args->mag_obs, sizeof(ad_vecs.mag_obs));
+    memcpy(ad_vecs.mag_ref, args->mag_ref, sizeof(ad_vecs.mag_ref));
+    memcpy(ad_vecs.sun_obs, args->sun_obs, sizeof(ad_vecs.sun_obs));
+    memcpy(ad_vecs.sun_ref, args->sun_ref, sizeof(ad_vecs.sun_ref));
+
+    uint32_t start = 0;
+
+    for(uint8_t i =1; i<=10U; i++) {
+        start = SYSTEM_TIME_US();
+        resp->adcs_err = quest_estimate(&ad_vecs, args->weights, &(resp->quat[0]));
+        resp->avg_duration += (SYSTEM_TIME_US() - start);
+    }
+    resp->avg_duration /= 10.0f;
+
+    if (resp->adcs_err == ADCS_SUCCESS) {
+        return CMD_SYS_RESP_CODE_SUCCESS;
+    } else {
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
 }
 
 /******************************************************************************/

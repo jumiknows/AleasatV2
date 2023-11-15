@@ -8,6 +8,7 @@ obcpy = {path = "./../obcpy", editable = true, extras = ["ndarrays"]}
 unittest-xml-reporting = "*"
 ahrs = "*"
 parameterized = "*"
+pandas = "*"
 
 [dev-packages]
 

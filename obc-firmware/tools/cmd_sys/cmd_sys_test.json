@@ -240,5 +240,20 @@
             {"x_abs": "f32"},
             {"y_abs": "f32"}
         ]
+    },
+    "TEST_QUEST": {
+        "id": 201,
+        "args": [
+            {"sun_obs": "f32[3]"},
+            {"sun_ref": "f32[3]"},
+            {"mag_obs": "f32[3]"},
+            {"mag_ref": "f32[3]"},
+            {"weights": "f32[2]"}
+        ],
+        "resp": [
+            {"quat": "f32[4]"},
+            {"adcs_err": "s8"},
+            {"avg_duration": "f32"}
+        ]
     }
 }

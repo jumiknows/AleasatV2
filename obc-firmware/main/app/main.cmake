@@ -25,7 +25,10 @@ list(APPEND SRC_DIRS
     ${.}/rtos
 
     ${.}/system
+    ${.}/system/adcs
     ${.}/system/adcs/wmm
+    ${.}/system/adcs/adcs_math
+    ${.}/system/adcs/attitude_determination
     ${.}/system/cmd_sys
     ${.}/system/cmd_sys/impl
     ${.}/system/comms
