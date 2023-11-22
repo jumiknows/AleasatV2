@@ -26,6 +26,20 @@ class OBCSystemFeature(OBCBase):
             The response to the command.
         """
         return self.send_cmd("PING", timeout=timeout)
+    
+    def get_uptime(self, timeout=DEFAULT_CMD_TIMEOUT) -> cmd_sys.resp.OBCResponse:
+        """Sends a GET_UPTIME command to the OBC.
+
+        Args:
+            timeout: Timeout (in seconds). None to block indefinitely. Defaults to DEFAULT_CMD_TIMEOUT.
+
+        Raises:
+            exc.OBCCmdSysResponseError: If the response data does not contain at least one byte for the response code.
+                                        If the response code contained in the response data is invalid.
+        Returns:
+            The response to the command.
+        """
+        return self.send_cmd("GET_UPTIME", timeout=timeout)
 
     def reset(self, timeout=DEFAULT_CMD_TIMEOUT):
         """Sends a RESET command to the OBC.

@@ -19,6 +19,7 @@ list(APPEND SRC_DIRS
     ${.}/device-drivers/gps
     ${.}/device-drivers/imu
     ${.}/device-drivers/magnetorquer
+    ${.}/device-drivers/rtc
 
     ${.}/device-mock
 

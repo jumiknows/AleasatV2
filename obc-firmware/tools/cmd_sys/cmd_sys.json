@@ -203,5 +203,12 @@
             {"navigation_msg_int": "u8"}
         ],
         "resp": []
+    },
+    "GET_UPTIME": {
+        "id": 30,
+        "args": [],
+        "resp": [
+            {"seconds": "u32"}
+        ]
     }
 }

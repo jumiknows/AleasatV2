@@ -1,13 +1,25 @@
 /**
  * @file backup_epoch.c
  * @brief The backup epoch powered by a timer inside the TMS570.
- * @author Victor L
- * @date Feb 10, 2020
  */
 
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
 #include "backup_epoch.h"
+
+// OBC
 #include "obc_hardwaredefs.h"
+#include "obc_time.h"
+
+// HAL
 #include "rti.h"
+
+
+/******************************************************************************/
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
+/******************************************************************************/
 
 /**
  * @brief The offset from the counter value to use when calculating the epoch.
@@ -21,7 +33,11 @@
  *
  * This value starts at 0, but is adjusted with the set_backup_epoch() function.
  */
-int32_t offset;
+static int32_t offset; 
+
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 /**
  * @brief Starts the RTI counter using the configured RTI block which creates a second counter.
@@ -46,6 +62,23 @@ void backup_epoch_init(void) {
  */
 epoch_t get_backup_epoch(void) {
     return BACKUP_EPOCH_RTI_REG->CNT[BACKUP_EPOCH_RTI_COMPARE_REG].FRCx + offset;
+}
+
+/**
+ * @brief Gets the current uptime in seconds
+ *
+ * The same RTI_CNT_FRCx register is used by both backup epoch. It is a free running counter
+ * that will increment its count once per second. It is clocked by the RTI. This counter 
+ * is equivilant to the backup_epoch without an offset. 
+ * 
+ * There are only two freerunning counters and the first (RTCx 0) is used generate the CPU ticks.
+ *
+ * @pre @ref backup_epoch_init has to be called before this function can be used since it initializes the RTI registers.
+ *
+ * @return The backup epoch.
+ */
+epoch_t get_uptime(void) {
+    return BACKUP_EPOCH_RTI_REG->CNT[BACKUP_EPOCH_RTI_COMPARE_REG].FRCx;
 }
 
 /**

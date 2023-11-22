@@ -22,6 +22,7 @@
 #include "obc_featuredefs.h"
 #include "fw_structs.h"
 #include "fw_memmap.h"
+#include "backup_epoch.h"
 
 // Utils
 #include "obc_utils.h"
@@ -111,6 +112,11 @@ cmd_sys_resp_code_t cmd_impl_HEARTBEAT(const cmd_sys_cmd_t *cmd, cmd_HEARTBEAT_a
 #else
     return CMD_SYS_RESP_CODE_NOT_IMPL;
 #endif
+}
+
+cmd_sys_resp_code_t cmd_impl_GET_UPTIME(const cmd_sys_cmd_t *cmd, cmd_GET_UPTIME_resp_t *resp) {
+    resp->seconds = get_uptime();
+    return CMD_SYS_RESP_CODE_SUCCESS;
 }
 
 cmd_sys_resp_code_t cmd_impl_FW_INFO(const cmd_sys_cmd_t *cmd, cmd_FW_INFO_resp_t *resp) {

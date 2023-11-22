@@ -16,6 +16,7 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
         self.reset_btn: QtWidgets.QPushButton
         self.ping_btn: QtWidgets.QPushButton
         self.sync_time_btn: QtWidgets.QPushButton
+        self.uptime_btn: QtWidgets.QPushButton
 
         self.immediate_radio_btn: QtWidgets.QRadioButton
         self.scheduled_radio_btn: QtWidgets.QRadioButton
@@ -38,6 +39,7 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
         # Connect signals / slots
         self.reset_btn.clicked.connect(self.handle_reset)
         self.ping_btn.clicked.connect(self.handle_ping)
+        self.uptime_btn.clicked.connect(self.handle_get_uptime)
         self.sync_time_btn.clicked.connect(self.handle_sync_time)
         self.send_btn.clicked.connect(self.handle_send)
         self.cmd_name_edit.returnPressed.connect(self.handle_send)
@@ -65,6 +67,12 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
     def handle_sync_time(self):
         self.obc.execute(obcqt.OBCQTRequest(
             lambda obc: obc.set_time()
+        ))
+
+    @QtCore.pyqtSlot()
+    def handle_get_uptime(self):
+        self.obc.execute(obcqt.OBCQTRequest(
+            lambda obc: obc.get_uptime()
         ))
 
     @QtCore.pyqtSlot()
