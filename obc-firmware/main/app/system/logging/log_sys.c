@@ -8,6 +8,7 @@
 /******************************************************************************/
 
 #include "log_sys.h"
+#include "log_sys_serial.h"
 #include "logger.h"
 
 // OBC
@@ -33,35 +34,14 @@
 /*                               D E F I N E S                                */
 /******************************************************************************/
 
-#define HEADER_SIZE                 7U     ///< Size of header in bytes
-#define LOGGER_MUTEX_TIMEOUT_MS     500U   ///< Logger mutex acquire timeout in milliseconds
-
-#define SERIAL_TIMEOUT_MS           100U
+#define HEADER_SIZE       7U     ///< Size of header in bytes
+#define SERIAL_TIMEOUT_MS 500U
 
 #define LOG_PRINTF_LOG_ID 0
 #define LOG_PRINTF_SIG_ID 0
 
 #define LOG_CMD_SYS_SCHED_RESP_LOG_ID 67
 #define LOG_CMD_SYS_SCHED_RESP_SIG_ID 0
-
-/******************************************************************************/
-/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
-/******************************************************************************/
-
-/**
- * @brief Mutex to prevent multiple tasks from logging at the same time.
- *
- * If one task was swapped in while another was using the logger, one or more of the following bad
- * things could happen:
- *     1. The message from the beginning task could be interleaved with the message from the
- *        later task in the UART transmission or file write.
- *     2. The @ref use_rtc status could become invalid.
- *     3. General corruption of the message to be logged.
- *
- * This is a recursive mutex, meaning it can be taken multiple times by the same task. This allows
- * nested logger calls, such as the logger logging a message when it finds a payload too large.
- */
-static SemaphoreHandle_t logger_mutex = NULL;
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
@@ -97,9 +77,12 @@ void LOG_CMD_SYS_SCHED_RESP(uint32_t num_bytes, const uint8_t* data) {
     log_signal_internal(LOG_CMD_SYS_SCHED_RESP_LOG_ID, LOG_CMD_SYS_SCHED_RESP_SIG_ID, num_bytes, data, true);
 }
 
-void logger_create_infra(void) {
-    static StaticSemaphore_t static_logger_mutex;
-    logger_mutex = xSemaphoreCreateRecursiveMutexStatic(&static_logger_mutex);
+void log_sys_create_infra(void) {
+    log_sys_serial_create_infra();
+}
+
+void log_sys_create_task(void) {
+    log_sys_serial_create_task();
 }
 
 void log_sys_log_signal(uint8_t log_id, uint8_t sig_id) {
@@ -148,13 +131,8 @@ static void log_signal_internal(uint8_t log_id, uint8_t sig_id, size_t raw_paylo
         memcpy(&message_buf[HEADER_SIZE], payload_ptr, payload_len);
     }
 
-    if (xSemaphoreTake(logger_mutex, pdMS_TO_TICKS(LOGGER_MUTEX_TIMEOUT_MS)) == pdPASS) {
-        // Write log message to serial
-        const size_t message_size = HEADER_SIZE + payload_len;
-        io_stream_write(&obc_serial_logs_out, message_buf, message_size, pdMS_TO_TICKS(SERIAL_TIMEOUT_MS), NULL);
-
-        xSemaphoreGive(logger_mutex);
-    }
+    const size_t message_size = HEADER_SIZE + payload_len;
+    log_sys_serial_write_log(message_buf, message_size, pdMS_TO_TICKS(SERIAL_TIMEOUT_MS));
 
     // TODO ALEA-861 send message to filesystem
 }

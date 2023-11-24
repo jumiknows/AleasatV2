@@ -1,6 +1,6 @@
 /**
- * @file obc_serial.h
- * @brief OBC serial driver
+ * @file obc_serial_defs.h
+ * @brief OBC serial definitions
  */
 
 #ifndef OBC_SERIAL_H_
@@ -9,9 +9,6 @@
 /******************************************************************************/
 /*                              I N C L U D E S                               */
 /******************************************************************************/
-
-// FreeRTOS
-#include "rtos.h"
 
 // Standard Library
 #include <stdint.h>
@@ -40,14 +37,8 @@ typedef enum {
 typedef enum {
     OBC_SERIAL_DATAGRAM_LOG   = 0,
     OBC_SERIAL_DATAGRAM_COMMS = 1,
+
+    OBC_SERIAL_DATAGRAM_TYPE_COUNT = 2
 } obc_serial_datagram_type_t;
-
-/******************************************************************************/
-/*                             F U N C T I O N S                              */
-/******************************************************************************/
-
-void obc_serial_create_infra(void);
-void obc_serial_init_irqs(void);
-void obc_serial_start_tasks(void);
 
 #endif // OBC_SERIAL_H_

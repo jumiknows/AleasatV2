@@ -1,25 +1,25 @@
 /**
- * @file comms_obc_serial.h
- * @brief COMMS device implementation using the OBC serial port
+ * @file log_sys_serial.h
+ * @brief Log system serial driver
  */
 
-#ifndef COMMS_OBC_SERIAL_H_
-#define COMMS_OBC_SERIAL_H_
+#ifndef LOG_SYS_SERIAL_H_
+#define LOG_SYS_SERIAL_H_
 
 /******************************************************************************/
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-// COMMS
-#include "comms_device.h"
+// Standard Library
+#include <stdint.h>
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void comms_obc_serial_create_infra(void);
-void comms_obc_serial_create_task(void);
+void log_sys_serial_create_infra(void);
+void log_sys_serial_create_task(void);
 
-comms_dev_handle_t comms_obc_serial_get_handle(void);
+void log_sys_serial_write_log(const uint8_t *log_data, uint8_t data_len, uint32_t timeout_ticks);
 
-#endif // COMMS_OBC_SERIAL_H_
+#endif // LOG_SYS_SERIAL_H_

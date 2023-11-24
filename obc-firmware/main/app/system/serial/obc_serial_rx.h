@@ -11,7 +11,7 @@
 /******************************************************************************/
 
 // OBC Serial
-#include "obc_serial.h"
+#include "obc_serial_defs.h"
 
 // Utils
 #include "buffered_io.h"
@@ -23,18 +23,20 @@
 #include <stdint.h>
 
 /******************************************************************************/
-/*                       G L O B A L  V A R I A B L E S                       */
+/*                              T Y P E D E F S                               */
 /******************************************************************************/
 
-extern const buffered_block_istream_t obc_serial_comms_in;
+typedef bool (*obc_serial_rx_handler_t)(const uint8_t *data, uint8_t data_len, uint32_t timeout_ticks);
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
 void obc_serial_rx_create_infra(void);
+void obc_serial_rx_register_handler(obc_serial_datagram_type_t datagram_type, obc_serial_rx_handler_t handler);
+
 void obc_serial_rx_init_irq(void);
-void obc_serial_rx_start_task(void);
+void obc_serial_rx_create_task(void);
 
 void obc_serial_rx_isr(BaseType_t *pxHigherPriorityTaskWoken);
 

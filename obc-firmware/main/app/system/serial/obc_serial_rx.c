@@ -9,11 +9,8 @@
 
 #include "obc_serial_rx.h"
 
-// COMMS
-#include "comms_obc_serial.h"
-
 // OBC Serial
-#include "obc_serial.h"
+#include "obc_serial_defs.h"
 
 // OBC
 #include "obc_watchdog.h"
@@ -41,11 +38,6 @@
 
 #define OBC_SERIAL_RX_POLL_PERIOD_MS    1000U
 
-/**
- * @brief Data buffer to store up to 2 datagrams
- */
-#define COMMS_MSG_BUFFER_SIZE           (OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE * 2U)
-
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
@@ -71,25 +63,17 @@ static bool handle_datagram(const uint8_t *datagram_buf, uint8_t len, uint32_t t
 
 // FreeRTOS objects
 static StreamBufferHandle_t phy_stream_buffer = NULL;
-static MessageBufferHandle_t comms_msg_buffer  = NULL;
 
 // Data
 static uint8_t rx_byte;
 
-// Stream
-static rtos_msg_istream_t msg_stream = {
-    .msg_buf = NULL, // Assigned in obc_serial_rx_create_infra
-};
+// Handlers
+static obc_serial_rx_handler_t rx_handlers[OBC_SERIAL_DATAGRAM_TYPE_COUNT] = { 0 };
 
 /******************************************************************************/
 /*                P U B L I C  G L O B A L  V A R I A B L E S                 */
 /******************************************************************************/
 
-const buffered_block_istream_t obc_serial_comms_in = {
-    .handle         = &msg_stream,
-    .max_block_size = OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE,
-    .read_block     = &rtos_stream_read_msg,
-};
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -103,14 +87,20 @@ void obc_serial_rx_create_infra(void) {
     static StaticStreamBuffer_t phy_stream_buffer_buf                    = { 0 };
     static uint8_t phy_stream_buffer_storage[PHY_STREAM_BUFFER_SIZE + 1] = { 0 }; // See https://www.freertos.org/xStreamBufferCreateStatic.html for explanation of + 1
 
-    // Message buffer for comms
-    static StaticMessageBuffer_t comms_msg_buffer_buf                  = { 0 };
-    static uint8_t comms_msg_buffer_storage[COMMS_MSG_BUFFER_SIZE + 1] = { 0 }; // See https://www.freertos.org/xMessageBufferCreateStatic.html for explanation of + 1
-
     phy_stream_buffer = xStreamBufferCreateStatic(PHY_STREAM_BUFFER_SIZE, PHY_STREAM_BUFFER_DEF_TRIG_LVL, phy_stream_buffer_storage, &phy_stream_buffer_buf);
-    comms_msg_buffer = xMessageBufferCreateStatic(COMMS_MSG_BUFFER_SIZE, comms_msg_buffer_storage, &comms_msg_buffer_buf);
+}
 
-    msg_stream.msg_buf = comms_msg_buffer;
+/**
+ * @brief Register a handler for a particular datagram type. This will overwrite a previously registered handler
+ * for the same datagram type.
+ * 
+ * When a packet of the given datagram type is received, the handler will be invoked and passed the packet data.
+ * 
+ * @param datagram_type Type of datagram this handler can handle
+ * @param handler       Handler to register
+ */
+void obc_serial_rx_register_handler(obc_serial_datagram_type_t datagram_type, obc_serial_rx_handler_t handler) {
+    rx_handlers[datagram_type] = handler;
 }
 
 /**
@@ -130,9 +120,9 @@ void obc_serial_rx_init_irq(void) {
 }
 
 /**
- * @brief Start the OBC serial RX servicing task
+ * @brief Create the OBC serial RX servicing task
  */
-void obc_serial_rx_start_task(void) {
+void obc_serial_rx_create_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_OBC_SERIAL_RX, &obc_serial_rx_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
@@ -250,19 +240,13 @@ static bool handle_datagram(const uint8_t *datagram_buf, uint8_t len, uint32_t t
     uint8_t data_len = (len - 1);
 
     bool success = false;
-    switch (type) {
-        case OBC_SERIAL_DATAGRAM_COMMS:
-            success = (xMessageBufferSend(comms_msg_buffer, &datagram_buf[1], data_len, timeout_ticks) == data_len);
-            if (success) {
-                // Notify COMMS device-level driver that a message is available
-                // (emulating the behaviour of the RX interrupt line from an actual COMMS board)
-                comms_obc_serial_invoke_cb();
-            }
-            break;
 
-        default:
-            success = false;
-            break;
+    if (type < OBC_SERIAL_DATAGRAM_TYPE_COUNT) {
+        obc_serial_rx_handler_t handler = rx_handlers[type];
+        if (handler != NULL) {
+            success = handler(&datagram_buf[1], data_len, timeout_ticks);
+        }
     }
+
     return success;
 }

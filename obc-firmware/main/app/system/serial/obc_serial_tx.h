@@ -10,8 +10,10 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-// OBC Serial
-#include "obc_serial.h"
+// OBC
+#include "obc_serial_defs.h"
+#include "obc_watchdog.h"
+#include "obc_tasks_ids_gen.h"
 
 // Utils
 #include "io_stream.h"
@@ -23,18 +25,22 @@
 #include <stdint.h>
 
 /******************************************************************************/
-/*                       G L O B A L  V A R I A B L E S                       */
+/*                              T Y P E D E F S                               */
 /******************************************************************************/
 
-extern const io_ostream_t obc_serial_comms_out;
-extern const io_ostream_t obc_serial_logs_out;
+typedef struct {
+    obc_task_id_t task_id;
+    obc_serial_datagram_type_t datagram_type;
+    MessageBufferHandle_t msg_buf;
+    uint8_t *data_buf;
+    uint32_t data_buf_len;
+} obc_serial_tx_task_params_t;
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
 void obc_serial_tx_create_infra(void);
-void obc_serial_tx_init_irq(void);
-void obc_serial_tx_start_task(void);
+void obc_serial_tx_create_task(obc_task_id_t task_id, obc_serial_tx_task_params_t *params, obc_watchdog_action_t watchdog_action);
 
 #endif // OBC_SERIAL_TX_H_

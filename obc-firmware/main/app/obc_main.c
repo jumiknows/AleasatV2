@@ -21,6 +21,9 @@
 #include "obc_watchdog.h"
 #include "obc_gpio.h"
 #include "blinky.h"
+#include "obc_serial_rx.h"
+#include "obc_serial_tx.h"
+#include "log_sys.h"
 #include "logger.h"
 #include "obc_filesystem.h"
 #include "obc_settings.h"
@@ -39,14 +42,12 @@
 #include "tms_can.h"
 #include "tms_spi.h"
 #include "tms_i2c.h"
-#include "obc_serial.h"
 #include "cmd_sys_imm.h"
 #include "cmd_sys_sched.h"
 #include "cmd_sys_exec.h"
 #include "gndstn_link.h"
 #include "gps_serial_rx.h"
 #include "obc_gps.h"
-#include "obc_serial.h"
 
 // Private Functions
 static void obc_main_task(void* pvParameters);
@@ -67,7 +68,9 @@ static void obc_main_task(void* pvParameters) {
     // to do things like push to the UART TX queue, which is done when logging errors.
     // None of this code relies on other application features.
     obc_watchdog_create_infra();
-    obc_serial_create_infra();
+    obc_serial_rx_create_infra();
+    obc_serial_tx_create_infra();
+    log_sys_create_infra();
     gps_serial_rx_create_infra();
     tms_i2c_create_infra();
     gpio_create_infra();
@@ -80,7 +83,6 @@ static void obc_main_task(void* pvParameters) {
     cmd_sys_exec_create_infra();
     cmd_sys_sched_create_infra();
     gndstn_link_create_infra();
-    logger_create_infra();
 
     // Start the backup epoch so we have a timestamp before initializing the hardware RTCs.
     // If errors occur in subsequent steps, they will be able to properly log the error because
@@ -96,7 +98,7 @@ static void obc_main_task(void* pvParameters) {
     tms_mibspi_init_hw();
     comms_service_create_infra();
 #if COMMS_OVER_SERIAL
-    comms_obc_serial_init();
+    comms_obc_serial_create_infra();
 #else
     comms_mibspi_init();
 #endif
@@ -124,11 +126,13 @@ static void obc_main_task(void* pvParameters) {
     cmd_sys_exec_start_task();
     cmd_sys_imm_start_task();
     cmd_sys_sched_start_task();
-    obc_serial_start_tasks();
+    obc_serial_rx_create_task();
+    log_sys_create_task();
     gps_serial_rx_start_task();
     gpio_start_task();
 
 #if COMMS_OVER_SERIAL
+    comms_obc_serial_create_task();
     comms_dev_handle_t cdev = comms_obc_serial_get_handle();
 #else
     comms_dev_handle_t cdev = comms_mibspi_get_handle();
@@ -157,7 +161,7 @@ static void obc_main_task(void* pvParameters) {
 
     // Enable interrupts for the UART. This should only be done after the scheduler is started,
     // because the scheduler processes commands received from the UART.
-    obc_serial_init_irqs();
+    obc_serial_rx_init_irq();
     gps_serial_rx_init_irq();
 
     // Filesystem initialization requires flash, and takes a couple of seconds because we erase it

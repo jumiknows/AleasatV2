@@ -12,12 +12,14 @@
 // COMMS
 #include "comms_defs.h"
 
-// OBC
+// OBC Serial
+#include "obc_serial_defs.h"
 #include "obc_serial_tx.h"
 #include "obc_serial_rx.h"
 
 // Utils
 #include "buffered_io.h"
+#include "rtos_stream.h"
 #include "io_stream.h"
 
 // Standard Library
@@ -27,7 +29,9 @@
 /*                               D E F I N E S                                */
 /******************************************************************************/
 
-#define COMMS_OBC_SERIAL_TIMEOUT_MS 500
+#define COMMS_MSG_BUFFER_SIZE  (OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE * 2U)
+
+#define COMMS_OBC_SERIAL_TIMEOUT_MS 500U
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
@@ -35,6 +39,8 @@
 
 static comms_dev_err_type_t comms_obc_serial_tx(const uint16_t* tx_buffer, uint16_t num_bytes);
 static comms_dev_err_type_t comms_obc_serial_rx(uint16_t* rx_buffer, uint16_t buffer_len);
+
+static bool comms_obc_serial_rx_handler(const uint8_t *data, uint8_t data_len, uint32_t timeout_ticks);
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -50,15 +56,74 @@ static comms_device_t cdev = {
     .cb_param = NULL
 };
 
+// RX
+
+static MessageBufferHandle_t rx_msg_buffer = NULL;
+
+static rtos_msg_istream_t rx_msg_stream = {
+    .msg_buf = NULL, // Assigned in obc_serial_tx_create_infra
+};
+
+static const buffered_block_istream_t obc_serial_comms_in = {
+    .handle         = &rx_msg_stream,
+    .max_block_size = OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE,
+    .read_block     = &rtos_stream_read_msg,
+};
+
+// TX
+
+static MessageBufferHandle_t tx_msg_buffer = NULL;
+
+static rtos_msg_ostream_t tx_msg_stream = {
+    .msg_buf = NULL, // Assigned in obc_serial_tx_create_infra
+    .mutex   = NULL,
+};
+
+static uint8_t tx_data_buf[OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE];
+static obc_serial_tx_task_params_t tx_task_params = {
+    .task_id       = OBC_TASK_ID_OBC_SERIAL_TX_COMMS,
+    .datagram_type = OBC_SERIAL_DATAGRAM_COMMS,
+    .msg_buf       = NULL, // Assigned in obc_serial_tx_create_infra
+    .data_buf      = tx_data_buf,
+    .data_buf_len  = sizeof(tx_data_buf),
+};
+
+static const io_ostream_t obc_serial_comms_out = {
+    .handle = &tx_msg_stream,
+    .write  = &rtos_stream_write_msg,
+    .flush  = NULL,
+};
+
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
 /**
- * @brief Initialize comms device
+ * @brief Initialize FreeRTOS data structures for COMMS OBC serial driver
  */
-void comms_obc_serial_init(void) {
-    // Nothing to do
+void comms_obc_serial_create_infra(void) {
+    // TX
+    static StaticMessageBuffer_t tx_msg_buffer_buf                  = { 0 };
+    static uint8_t tx_msg_buffer_storage[COMMS_MSG_BUFFER_SIZE + 1] = { 0 }; // See https://www.freertos.org/xMessageBufferCreateStatic.html for explanation of + 1
+
+    tx_msg_buffer = xMessageBufferCreateStatic(COMMS_MSG_BUFFER_SIZE, tx_msg_buffer_storage, &tx_msg_buffer_buf);
+    tx_msg_stream.msg_buf  = tx_msg_buffer;
+    tx_task_params.msg_buf = tx_msg_buffer;
+
+    // RX
+    static StaticMessageBuffer_t rx_msg_buffer_buf                  = { 0 };
+    static uint8_t rx_msg_buffer_storage[COMMS_MSG_BUFFER_SIZE + 1] = { 0 }; // See https://www.freertos.org/xMessageBufferCreateStatic.html for explanation of + 1
+
+    rx_msg_buffer = xMessageBufferCreateStatic(COMMS_MSG_BUFFER_SIZE, rx_msg_buffer_storage, &rx_msg_buffer_buf);
+    rx_msg_stream.msg_buf = rx_msg_buffer;
+    obc_serial_rx_register_handler(OBC_SERIAL_DATAGRAM_COMMS, &comms_obc_serial_rx_handler);
+}
+
+/**
+ * @brief Create task for transmitting COMMS packets
+ */
+void comms_obc_serial_create_task(void) {
+    obc_serial_tx_create_task(OBC_TASK_ID_OBC_SERIAL_TX_COMMS, &tx_task_params, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**
@@ -68,18 +133,6 @@ void comms_obc_serial_init(void) {
  */
 comms_dev_handle_t comms_obc_serial_get_handle(void) {
     return (comms_dev_handle_t)&cdev;
-}
-
-/**
- * @brief Invoke a registered callback function
- */
-void comms_obc_serial_invoke_cb(void) {
-    comms_dev_cb_func_t cb_func = cdev.cb;
-    void* param = cdev.cb_param;
-
-    if (cb_func != NULL) {
-        cb_func(false, param); // false because this is not called from an ISR context
-    }
 }
 
 /******************************************************************************/
@@ -132,4 +185,24 @@ static comms_dev_err_type_t comms_obc_serial_rx(uint16_t* rx_buffer, uint16_t bu
     }
 
     return COMMS_DEV_SUCCESS;
+}
+
+static bool comms_obc_serial_rx_handler(const uint8_t *data, uint8_t data_len, uint32_t timeout_ticks) {
+    bool success = false;
+    if (rx_msg_buffer != NULL) {
+        uint32_t bytes_sent = xMessageBufferSend(rx_msg_buffer, data, data_len, timeout_ticks);
+        if (bytes_sent == data_len) {
+            success = true;
+            // Notify COMMS device-level driver that a message is available
+            // (emulating the behaviour of the RX interrupt line from an actual COMMS board)
+
+            comms_dev_cb_func_t cb_func = cdev.cb;
+            void* param = cdev.cb_param;
+
+            if (cb_func != NULL) {
+                cb_func(false, param); // false because this is not called from an ISR context
+            }
+        }
+    }
+    return success;
 }
