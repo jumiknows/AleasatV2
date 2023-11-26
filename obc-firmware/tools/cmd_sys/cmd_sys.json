@@ -30,10 +30,14 @@
             {"min_stack_space": "bytes"}
         ]
     },
-    "RTOS_INFO": {
+    "CAPTURE_RTOS_TRACE": {
         "id": 5,
-        "args": [],
-        "resp": []
+        "args": [
+            {"length": "u32"}
+        ],
+        "resp": [
+            {"trace": "bytes"}
+        ]
     },
     "RTOS_STATE": {
         "id": 6,

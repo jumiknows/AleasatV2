@@ -12,6 +12,7 @@
 
 // OBC
 #include "obc_rtos.h"
+#include "obc_utils.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -58,8 +59,38 @@ cmd_sys_err_t cmd_impl_GET_MIN_STACK_SPACE(const cmd_sys_cmd_t *cmd) {
     return err;
 }
 
-cmd_sys_resp_code_t cmd_impl_RTOS_INFO(const cmd_sys_cmd_t *cmd) {
-    return CMD_SYS_RESP_CODE_NOT_IMPL;
+cmd_sys_err_t cmd_impl_CAPTURE_RTOS_TRACE(const cmd_sys_cmd_t *cmd, cmd_CAPTURE_RTOS_TRACE_args_t *args) {
+    static uint32_t trace_entries[256] = { 0 };
+
+    uint32_t len = MIN(LEN(trace_entries), args->length);
+    obc_rtos_trace_freeze(trace_entries, len);
+
+    // Send response
+    cmd_sys_err_t err = CMD_SYS_SUCCESS;
+
+    err = cmd_sys_begin_response(cmd, CMD_SYS_RESP_CODE_SUCCESS, (len * sizeof(trace_entries[0])));
+    if (err != CMD_SYS_SUCCESS) return err;
+
+    // Send data 8 entries at a time
+    uint8_t buf[8*sizeof(trace_entries[0])];
+    uint8_t buf_idx = 0;
+    for (uint32_t i = 0; i < len; i++) {
+        data_fmt_u32_to_arr_be(trace_entries[i], &buf[buf_idx]);
+        buf_idx += sizeof(trace_entries[0]);
+
+        if ((buf_idx == sizeof(buf)) || (i == (len - 1))) {
+            // buf is full OR last entry is processed
+            if (io_stream_write(cmd->output, buf, buf_idx, pdMS_TO_TICKS(CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS), NULL) != buf_idx) {
+                return CMD_SYS_ERR_WRITE_TIMEOUT;
+            }
+            buf_idx = 0;
+        }
+    }
+
+    err = cmd_sys_finish_response(cmd);
+    if (err != CMD_SYS_SUCCESS) return err;
+
+    return err;
 }
 
 cmd_sys_resp_code_t cmd_impl_RTOS_STATE(const cmd_sys_cmd_t *cmd) {

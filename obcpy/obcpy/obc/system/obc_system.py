@@ -2,12 +2,13 @@ from typing import Union, Dict, Tuple, List
 import datetime
 
 from obcpy import cmd_sys
-from obcpy.utils import obc_time
 from obcpy.data_fmt import data_field_impl
+from obcpy.obc.obc_base import OBCBase
+from obcpy.obc.obc_base import DEFAULT_CMD_TIMEOUT
 from obcpy.utils import exc
+from obcpy.utils import obc_time
 
-from .obc_base import OBCBase
-from .obc_base import DEFAULT_CMD_TIMEOUT
+from . import obc_rtos_trace
 
 class OBCSystemFeature(OBCBase):
     """Implementation of "system" features of the OBC (features that do not necessarily belong to a particular sub-system of the OBC).
@@ -108,3 +109,11 @@ class OBCSystemFeature(OBCBase):
                 stack_usages[task_spec.id] = ((task_spec.stack_size - min_stack_space[task_spec.id]), task_spec.stack_size)
 
         return stack_usages
+
+    def capture_rtos_trace(self, length: int, timeout=DEFAULT_CMD_TIMEOUT) -> obc_rtos_trace.OBCRTOSTrace:
+        resp = self.send_cmd("CAPTURE_RTOS_TRACE", length, timeout=timeout)
+        if not resp.is_success:
+            return None
+
+        data = resp.data["trace"]
+        return obc_rtos_trace.OBCRTOSTrace.from_bytes(data)

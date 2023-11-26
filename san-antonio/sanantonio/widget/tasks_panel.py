@@ -1,10 +1,11 @@
-from typing import Union, Dict, Tuple
+from typing import Union, Dict, Tuple, List
 from enum import Enum
 
 from PyQt5 import QtWidgets, QtCore
 
 from obcpy import rtos
 from obcpy.utils import exc
+from obcpy.obc.system import obc_rtos_trace
 from obcpy.obc.protocol.app import app_log
 
 from sanantonio.backend import obcqt
@@ -42,16 +43,21 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
         self.tasks_table: QtWidgets.QTableWidget
         self.check_stack_usage_btn: QtWidgets.QPushButton
 
+        self.trace_table: QtWidgets.QTableWidget
+        self.trace_length_box: QtWidgets.QSpinBox
+        self.capture_task_trace_btn: QtWidgets.QPushButton
+
         # Load UI
         self.setupUi(self)
 
-        header_labels = ["ID", "Name", "Priority", "Status", "Stack Usage", "CPU Usage"]
+        # Task Table
+        header_labels = ["ID", "Name", "Priority", "Status", "Stack Usage"]
         self.tasks_table.setColumnCount(len(header_labels))
         self.tasks_table.setHorizontalHeaderLabels(header_labels)
         self.tasks_table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tasks_table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tasks_table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tasks_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tasks_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tasks_table.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         self.tasks_table.setStyleSheet("QTableWidget::item { padding: 8px }")
@@ -74,11 +80,23 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
             self._set_task_status(i, default_status)
             self._set_task_stack_usage(i, task_spec, None)
 
+        # Trace Table
+        header_labels = ["Time (ms)", "ID", "Name", "Duration (ms)"]
+        self.trace_table.setColumnCount(len(header_labels))
+        self.trace_table.setHorizontalHeaderLabels(header_labels)
+        self.trace_table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.trace_table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.trace_table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.trace_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+
+        self.trace_table.setStyleSheet("QTableWidget::item { padding: 8px }")
+
         # Connect signals / slots
         self.set_alert.connect(self.handle_set_alert)
         self.clear_alert.connect(self.handle_clear_alert)
 
         self.check_stack_usage_btn.clicked.connect(self.handle_check_stack_usage)
+        self.capture_task_trace_btn.clicked.connect(self.handle_capture_task_trace)
 
         self._obc_provider.conn_state_changed.connect(self.handle_conn_state_changed)
 
@@ -136,14 +154,11 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
 
     @QtCore.pyqtSlot()
     def handle_set_alert(self):
-        self.setAutoFillBackground(True)
-        p = self.palette()
-        p.setColor(self.backgroundRole(), ui_utils.Color.LIGHT_RED.as_qcolor())
-        self.setPalette(p)
+        pass
 
     @QtCore.pyqtSlot()
     def handle_clear_alert(self):
-        self.setAutoFillBackground(False)
+        pass
 
     @QtCore.pyqtSlot()
     def handle_check_stack_usage(self):
@@ -160,6 +175,34 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
         for i, task_spec in enumerate(self.obc.task_specs):
             if task_spec.id in resp:
                 self._set_task_stack_usage(i, task_spec, resp[task_spec.id][0])
+
+    @QtCore.pyqtSlot()
+    def handle_capture_task_trace(self):
+        num_ctx_switches = self.trace_length_box.value()
+
+        # For each context switch there are two trace events
+        # The first and last trace events have to be discarded
+        trace_length = (num_ctx_switches + 1) * 2
+
+        self.obc.execute(obcqt.OBCQTRequest(
+            lambda obc: obc.capture_rtos_trace(trace_length),
+            self._capture_task_trace_callback
+        ))
+
+    def _capture_task_trace_callback(self, resp: Union[obc_rtos_trace.OBCRTOSTrace, exc.OBCError]):
+        if isinstance(resp, exc.OBCError):
+            console_utils.print_err(str(resp))
+            return
+
+        rtos_trace: obc_rtos_trace.OBCRTOSTrace = resp
+
+        try:
+            task_runs = rtos_trace.to_task_runs()
+        except exc.OBCTaskTraceError as e:
+            console_utils.print_err(f"Task trace corrupted: {str(e)}")
+            return
+
+        self._display_task_runs(task_runs)
 
     def _set_task_status(self, row: int, status: TaskStatus):
         item = self.tasks_table.item(row, self.COLUMN_STATUS)
@@ -196,3 +239,35 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
                 item.setBackground(ui_utils.Color.DARK_ORANGE.as_qcolor())
             else:
                 item.setBackground(ui_utils.Color.TRANSPARENT.as_qcolor())
+
+    def _display_task_runs(self, task_runs: List[obc_rtos_trace.OBCTaskRun]):
+        # Remove all rows
+        self.trace_table.setRowCount(0)
+
+        # Add row for each task run
+        for task_run in task_runs:
+            try:
+                task_name = self.obc.task_specs.get(id=task_run.task_id).name
+            except exc.OBCTaskNotFoundError as e:
+                console_utils.print_err(f"Task trace corrupted: {str(e)}")
+                continue
+
+            start_time_ms = round(task_run.start_time_us / 1000, 3)
+            duration_ms   = round(task_run.duration_us / 1000, 3)
+
+            row = self.trace_table.rowCount()
+            self.trace_table.insertRow(row)
+
+            self.trace_table.setItem(row, 0, QtWidgets.QTableWidgetItem(str(start_time_ms)))
+
+            id_item = QtWidgets.QTableWidgetItem(str(task_run.task_id))
+            id_item.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            self.trace_table.setItem(row, 1, id_item)
+
+            self.trace_table.setItem(row, 2, QtWidgets.QTableWidgetItem(task_name))
+            self.trace_table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(duration_ms)))
+
+            # Color IDLE task
+            if task_run.task_id == 0:
+                for col in range(self.trace_table.columnCount()):
+                    self.trace_table.item(row, col).setBackground(ui_utils.Color.BLACK.as_qcolor())

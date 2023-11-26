@@ -64,6 +64,8 @@ static void obc_main_task(void* pvParameters);
  * @param pvParameters is not used.
  */
 static void obc_main_task(void* pvParameters) {
+    obc_rtos_init();
+
     // Create FreeRTOS mutexes and queues for all features. Doing this allows future startup steps
     // to do things like push to the UART TX queue, which is done when logging errors.
     // None of this code relies on other application features.

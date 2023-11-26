@@ -30,3 +30,6 @@ class OBCDecodeError(OBCError):
 
 class OBCDataFieldError(OBCError):
     pass
+
+class OBCTaskTraceError(OBCError):
+    pass

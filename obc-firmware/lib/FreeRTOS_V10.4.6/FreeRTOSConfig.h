@@ -120,4 +120,8 @@
  */
 #define pdMS_TO_TICKS(xTimeInMs) ((TickType_t)((uint64_t)((uint64_t)(xTimeInMs) * (uint64_t)configTICK_RATE_HZ) / (TickType_t)1000))
 
+/* Trace Macros */
+#define traceTASK_SWITCHED_IN()  xTaskCallApplicationTaskHook(pxCurrentTCB, (void *)0)
+#define traceTASK_SWITCHED_OUT() xTaskCallApplicationTaskHook(pxCurrentTCB, (void *)1)
+
 #endif /* FREERTOS_CONFIG_H */

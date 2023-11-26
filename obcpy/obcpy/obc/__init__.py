@@ -1,5 +1,5 @@
 from . import obc_base
-from . import obc_system
+from .system import obc_system
 from .camera import obc_camera
 from .gps import obc_gps 
 
