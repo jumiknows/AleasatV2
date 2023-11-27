@@ -230,8 +230,7 @@ static void gps_serial_rx_task(void* pvParameters) {
                     if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
                         data_buf[buf_idx] = rx_char;
                         buf_idx++;
-                    }
-                    break;
+                    } 
                 }
                 gps_handle_control_msg((uint8_t*)&data_buf, buf_idx);
                 state = GPS_SERIAL_RX_STATE_START_SYNC_0;
