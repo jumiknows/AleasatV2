@@ -30,6 +30,15 @@ class Ui_OBCSerialLog(object):
         self.obc_log_table.horizontalHeader().setDefaultSectionSize(150)
         self.obc_log_table.horizontalHeader().setStretchLastSection(True)
         self.gridLayout_5.addWidget(self.obc_log_table, 0, 0, 1, 1)
+        self.buttonLayout = QtWidgets.QGridLayout()
+        self.buttonLayout.setObjectName("buttonLayout")
+        self.obc_log_save_btn = QtWidgets.QPushButton(self.obc_log_box)
+        self.obc_log_save_btn.setObjectName("obc_log_save_btn")
+        self.buttonLayout.addWidget(self.obc_log_save_btn, 0, 0, 1, 1)
+        self.obc_log_clear_btn = QtWidgets.QPushButton(self.obc_log_box)
+        self.obc_log_clear_btn.setObjectName("obc_log_clear_btn")
+        self.buttonLayout.addWidget(self.obc_log_clear_btn, 0, 1, 1, 1)
+        self.gridLayout_5.addLayout(self.buttonLayout, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.obc_log_box, 0, 0, 1, 1)
 
         self.retranslateUi(OBCSerialLog)
@@ -39,3 +48,5 @@ class Ui_OBCSerialLog(object):
         _translate = QtCore.QCoreApplication.translate
         OBCSerialLog.setWindowTitle(_translate("OBCSerialLog", "Form"))
         self.obc_log_box.setTitle(_translate("OBCSerialLog", "OBC Serial Log"))
+        self.obc_log_save_btn.setText(_translate("OBCSerialLog", "Save"))
+        self.obc_log_clear_btn.setText(_translate("OBCSerialLog", "Clear"))

@@ -1,7 +1,10 @@
 from typing import Union, Dict
 import pathlib
+import datetime
+import json
 
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtWidgets import QAction
 
 from obcpy import cmd_sys
 from obcpy.obc import obc_base
@@ -19,6 +22,7 @@ from sanantonio.widget import obc_serial_log
 from sanantonio.widget import image_label
 
 from sanantonio.utils import console as console_utils
+from sanantonio.utils.session_manager import SessionManager 
 
 GRAPHICS_DIR = pathlib.Path(__file__).resolve().parent.parent / "graphics"
 ALEASAT_LOGO_PATH = GRAPHICS_DIR / "ALEASAT_logo.png"
@@ -40,6 +44,33 @@ class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, obc_base.O
         self.gridLayout: QtWidgets.QGridLayout
 
         self.setupUi(self)
+
+        self.session_manager = SessionManager(self)
+        # Create menu bar
+        menubar = self.menuBar()
+
+        # Create a menu
+        file_menu = menubar.addMenu('Session')
+
+
+        # Create an action
+        save_session_action = QAction('Save Session', self)
+        save_session_action.setShortcut('Ctrl+S')
+        save_session_action.triggered.connect(self.session_manager.save_session_helper)
+
+        load_session_action = QAction('Load Session', self)
+        load_session_action.setShortcut('Ctrl+L')
+        load_session_action.triggered.connect(self.session_manager.load_session_helper)
+
+        clear_session_action = QAction('Clear Session', self)
+        clear_session_action.setShortcut('Ctrl+N')
+        clear_session_action.setShortcut('Ctrl+R')
+        clear_session_action.triggered.connect(self.session_manager.new_session_helper)
+
+        # Add action to the menu
+        file_menu.addAction(save_session_action)
+        file_menu.addAction(load_session_action)
+        file_menu.addAction(clear_session_action)
 
         self.setWindowTitle("San Antonio")
         self.setWindowIcon(QtGui.QIcon(str(ALEASAT_ICON_PATH)))

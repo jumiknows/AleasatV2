@@ -45,7 +45,7 @@ class SatInterface(QtWidgets.QWidget, sat_interface_ui.Ui_SatInterface, obcqt.OB
 
         self.refresh_devices_btn.clicked.connect(self.handle_refresh_clicked)
         self.connect_btn.clicked.connect(self.toggle_connection)
-
+    
         # Update UI
         self._refresh_devices()
         self._update_connection_state()
@@ -152,3 +152,4 @@ class SatInterface(QtWidgets.QWidget, sat_interface_ui.Ui_SatInterface, obcqt.OB
         self._if_button_map[self._desired_interface.id].setStyleSheet(ui_utils.Color.RED.as_stylesheet("background-color"))
 
         self.obc_interface_changed.emit(self._desired_interface)
+        

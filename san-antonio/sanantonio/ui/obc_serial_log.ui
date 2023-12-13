@@ -39,6 +39,24 @@
         </attribute>
        </widget>
       </item>
+      <item row="1" column="0">
+    <layout class="QGridLayout" name="buttonLayout">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="obc_log_save_btn">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="obc_log_clear_btn">
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
      </layout>
     </widget>
    </item>

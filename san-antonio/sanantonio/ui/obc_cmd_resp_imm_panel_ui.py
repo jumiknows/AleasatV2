@@ -25,6 +25,15 @@ class Ui_OBCCmdRespImmPanel(object):
         self.obc_cmd_resp_imm_table.horizontalHeader().setStretchLastSection(False)
         self.obc_cmd_resp_imm_table.verticalHeader().setVisible(False)
         self.gridLayout.addWidget(self.obc_cmd_resp_imm_table, 0, 0, 1, 1)
+        self.buttonLayout = QtWidgets.QGridLayout()
+        self.buttonLayout.setObjectName("buttonLayout")
+        self.obc_cmd_resp_save_btn = QtWidgets.QPushButton(OBCCmdRespImmPanel)
+        self.obc_cmd_resp_save_btn.setObjectName("obc_cmd_resp_save_btn")
+        self.buttonLayout.addWidget(self.obc_cmd_resp_save_btn, 0, 0, 1, 1)
+        self.obc_cmd_resp_clear_btn = QtWidgets.QPushButton(OBCCmdRespImmPanel)
+        self.obc_cmd_resp_clear_btn.setObjectName("obc_cmd_resp_clear_btn")
+        self.buttonLayout.addWidget(self.obc_cmd_resp_clear_btn, 0, 1, 1, 1)
+        self.gridLayout.addLayout(self.buttonLayout, 1, 0, 1, 1)
 
         self.retranslateUi(OBCCmdRespImmPanel)
         QtCore.QMetaObject.connectSlotsByName(OBCCmdRespImmPanel)
@@ -32,3 +41,5 @@ class Ui_OBCCmdRespImmPanel(object):
     def retranslateUi(self, OBCCmdRespImmPanel):
         _translate = QtCore.QCoreApplication.translate
         OBCCmdRespImmPanel.setWindowTitle(_translate("OBCCmdRespImmPanel", "Form"))
+        self.obc_cmd_resp_save_btn.setText(_translate("OBCCmdRespImmPanel", "Save"))
+        self.obc_cmd_resp_clear_btn.setText(_translate("OBCCmdRespImmPanel", "Clear"))

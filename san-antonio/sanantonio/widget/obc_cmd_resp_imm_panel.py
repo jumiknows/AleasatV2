@@ -12,6 +12,9 @@ from sanantonio.utils import ui as ui_utils
 
 from . import obc_cmd_resp_base_panel
 
+import csv
+
+
 class OBCCmdRespImmPanel(QtWidgets.QWidget, obc_cmd_resp_imm_panel_ui.Ui_OBCCmdRespImmPanel, obc_cmd_resp_base_panel.OBCCmdRespBasePanel):
     updated = QtCore.pyqtSignal()
 
@@ -37,6 +40,12 @@ class OBCCmdRespImmPanel(QtWidgets.QWidget, obc_cmd_resp_imm_panel_ui.Ui_OBCCmdR
 
         self.obc_cmd_resp_imm_table.setStyleSheet("QTableWidget::item { padding: 8px }")
 
+        self.obc_cmd_resp_save_btn: QtWidgets.QPushButton
+        self.obc_cmd_resp_clear_btn: QtWidgets.QPushButton
+
+        self.obc_cmd_resp_save_btn.clicked.connect(self.save_output)
+        self.obc_cmd_resp_clear_btn.clicked.connect(self.clear_output)
+
         self._pending_cmds: Dict = {int: int} # Maps cmd unique IDs to rows
 
     @QtCore.pyqtSlot(cmd_sys.cmd.OBCCmd)
@@ -60,7 +69,7 @@ class OBCCmdRespImmPanel(QtWidgets.QWidget, obc_cmd_resp_imm_panel_ui.Ui_OBCCmdR
 
         self.obc_cmd_resp_imm_table.resizeRowToContents(row_idx)
         self.obc_cmd_resp_imm_table.scrollToItem(self.obc_cmd_resp_imm_table.item(row_idx, 0), QtWidgets.QAbstractItemView.ScrollHint.EnsureVisible)
-
+        
         self.updated.emit()
 
     @QtCore.pyqtSlot(cmd_sys.resp.OBCResponse)
@@ -78,7 +87,7 @@ class OBCCmdRespImmPanel(QtWidgets.QWidget, obc_cmd_resp_imm_panel_ui.Ui_OBCCmdR
 
         self.obc_cmd_resp_imm_table.resizeRowToContents(row_idx)
         self.obc_cmd_resp_imm_table.scrollToItem(self.obc_cmd_resp_imm_table.item(row_idx, 0), QtWidgets.QAbstractItemView.ScrollHint.EnsureVisible)
-
+        
         self.updated.emit()
 
     @QtCore.pyqtSlot(object)
@@ -88,6 +97,7 @@ class OBCCmdRespImmPanel(QtWidgets.QWidget, obc_cmd_resp_imm_panel_ui.Ui_OBCCmdR
             row_idx = self._pending_cmds[arg[0].inst_id]
             del self._pending_cmds[arg[0].inst_id]
 
+            print(f"Error for cmd {arg[0].inst_id}: {str(arg[1])}")
             table_item = QtWidgets.QTableWidgetItem(str(arg[1]))
             table_item.setForeground(ui_utils.Color.RED.as_qcolor())
             self.obc_cmd_resp_imm_table.setItem(row_idx, 6, table_item)
@@ -98,3 +108,28 @@ class OBCCmdRespImmPanel(QtWidgets.QWidget, obc_cmd_resp_imm_panel_ui.Ui_OBCCmdR
             self.updated.emit()
         else:
             console_utils.print_err(f"Unexpected cmd error for cmd {arg[0].inst_id}: {str(arg[1])}")
+
+    @QtCore.pyqtSlot()
+    def clear_output(self):
+        self.obc_cmd_resp_imm_table.setRowCount(0)
+        self._pending_cmds.clear()
+        self.updated.emit()
+
+    @QtCore.pyqtSlot()
+    def save_output(self):
+        file_name, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Command Log", "", "CSV Files (*.csv)")
+        print(f"Saving OBC responses table to file: {file_name}")
+
+        if file_name:
+            with open(file_name, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([self.obc_cmd_resp_imm_table.horizontalHeaderItem(i).text() for i in range(self.obc_cmd_resp_imm_table.columnCount())])
+                for row in range(self.obc_cmd_resp_imm_table.rowCount()):
+                    row_data = []
+                    for column in range(self.obc_cmd_resp_imm_table.columnCount()):
+                        item = self.obc_cmd_resp_imm_table.item(row, column)
+                        if item is not None:
+                            row_data.append(item.text())
+                        else:
+                            row_data.append("")
+                    writer.writerow(row_data)

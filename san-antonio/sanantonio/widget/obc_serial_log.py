@@ -11,6 +11,8 @@ from sanantonio.ui import obc_serial_log_ui
 from sanantonio.utils import ui as ui_utils
 from sanantonio.utils import console as console_utils
 
+import csv
+
 PRINTF_LOG_ID = 0
 PRINT_DEBUG = 1
 
@@ -24,6 +26,8 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
         self.obc_log_table: QtWidgets.QTableWidget
+        self.obc_log_clear_btn: QtWidgets.QPushButton
+        self.obc_log_save_btn: QtWidgets.QPushButton
 
         self.setupUi(self)
 
@@ -37,6 +41,8 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
 
         # Connect signals / slots
         self._obc_provider.conn_state_changed.connect(self.handle_conn_state_changed)
+        self.obc_log_clear_btn.clicked.connect(self.handle_clear)
+        self.obc_log_save_btn.clicked.connect(self.handle_save)
 
         self._logs_connection: QtCore.QMetaObject.Connection = None
 
@@ -92,3 +98,24 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
         item = QtWidgets.QTableWidgetItem(str(text))
         item.setForeground(color.as_qcolor())
         return item
+    
+    def handle_clear(self):
+        self.obc_log_table.clearContents()
+        self.obc_log_table.setRowCount(0)
+
+    def handle_save(self):
+        file_name, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Serial Log", "", "CSV Files (*.csv)")
+        print(f"Saving Serial Log table to file: {file_name}")
+        if file_name:
+            with open(file_name, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([self.obc_log_table.horizontalHeaderItem(i).text() for i in range(self.obc_log_table.columnCount())])
+                for row in range(self.obc_log_table.rowCount()):
+                    row_data = []
+                    for column in range(self.obc_log_table.columnCount()):
+                        item = self.obc_log_table.item(row, column)
+                        if item is not None:
+                            row_data.append(item.text())
+                        else:
+                            row_data.append("")
+                    writer.writerow(row_data)
