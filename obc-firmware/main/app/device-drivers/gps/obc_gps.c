@@ -171,7 +171,7 @@ gps_err_t gps_restart_receiver(gps_restart_modes_t restart_mode) {
     // We need to get the time time on the satellite.
     real_time_t curr_time = {0};
     rtc_err_t err         = rtc_get_current_time(&curr_time);
-    if (err != RTC_NO_ERR) {
+    if (err != RTC_SUCCESS) {
         return GPS_RTC_ERROR;
     }
     uint8_t year0  = ((curr_time.year + START_CENTURY) >> (8 * 0)) & 0xff;

@@ -15,7 +15,6 @@
 #include "obc_featuredefs.h"
 #include "obc_rtc.h"
 #include "tms_mibspi.h"
-#include "tms_mibspi.h"
 #include "obc_startup.h"
 #include "obc_flash.h"
 #include "obc_watchdog.h"
@@ -147,6 +146,10 @@ static void obc_main_task(void* pvParameters) {
     // with startup, it might stop blinking.
     blinky_start_task();
 
+    // Enable SciDriver. The GPS and Serial drivers require this to be called before their setup functions.
+    // Also needed for logging.
+    sciInit();
+
     // Initialize the complex external hardware.
     // The RTC requires MIBSPI to be working before it can be initialized.
     // The GPIO expander requires I2C to be working before it can be initialized.
@@ -157,9 +160,6 @@ static void obc_main_task(void* pvParameters) {
     // Enable interrupts. This is safe to do now that the interrupt processing tasks have been
     // started.
     gpio_init_irq();
-
-    // Enable SciDriver. The GPS and Serial drivers require this to be called before their setup functions.
-    sciInit();
 
     // Enable interrupts for the UART. This should only be done after the scheduler is started,
     // because the scheduler processes commands received from the UART.

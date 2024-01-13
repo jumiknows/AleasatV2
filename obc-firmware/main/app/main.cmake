@@ -50,7 +50,6 @@ list(APPEND SRC_DIRS
     ${.}/orcasat/hardware-drivers/gps
     ${.}/orcasat/hardware-drivers/heartbeat
     ${.}/orcasat/hardware-drivers/mram
-    ${.}/orcasat/hardware-drivers/rtc
     ${.}/orcasat/hardware-mock
     ${.}/orcasat/interfaces
     ${.}/orcasat/system

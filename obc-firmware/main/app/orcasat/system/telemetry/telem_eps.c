@@ -56,7 +56,7 @@ void eps_normal_telem_collect(void) {
     EPS_NORMAL.shutdn_bat_chg = 0xFFFF & (0b1 << 2);
 
     // Record the timestamp
-    EPS_NORMAL_TS = get_epoch_time();
+    EPS_NORMAL_TS = rtc_get_epoch_time();
 
     // Issue the telemetry write request
     log_telem(EPS_NORMAL_TELEM);
@@ -85,7 +85,7 @@ void eps_fast_telem_collect(void) {
     EPS_FAST.cond_out_2 = 0xFFFF;
 
     // Record the timestamp
-    EPS_FAST_TS = get_epoch_time();
+    EPS_FAST_TS = rtc_get_epoch_time();
 
     // Issue the telemetry write request
     log_telem(EPS_FAST_TELEM);
@@ -128,7 +128,7 @@ void eps_slow_telem_collect(void) {
     EPS_SLOW.heat_3 = (uint32_t)0xFFFF & (0b1 << 15);
 
     // Record the timestamp
-    EPS_SLOW_TS = get_epoch_time();
+    EPS_SLOW_TS = rtc_get_epoch_time();
 
     // Check that everything is good
     eps_telem_check_slow();
@@ -144,7 +144,7 @@ void eps_slow_telem_collect(void) {
  */
 void eps_condn_telem_collect(void) {
     // Record the timestamp
-    EPS_CONDN_TS = get_epoch_time();
+    EPS_CONDN_TS = rtc_get_epoch_time();
 
     if (EPS_CONDN_TS == 0)
         EPS_CONDN.sw_ver = 0xFFFF;

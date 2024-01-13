@@ -30,12 +30,12 @@
 #define GIO_EXAMPLE_EN 0
 
 /**
- * @brief RTC MOCK ENABLE
+ * @brief FEATURE_HW_RTC
  *
- * 1: RTC mock implementation is used.
- * 0: Real hardware driver is used for RTC.
+ * 1: Real hardware driver is used for RTC.
+ * 0: RTC mock implementation is used.
  */
-#define RTC_MOCK_EN 1
+#define FEATURE_HW_RTC 0
 
 /**
  * @brief TEMP SENSOR EXAMPLE ENABLE

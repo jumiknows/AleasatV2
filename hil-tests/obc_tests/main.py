@@ -7,6 +7,7 @@ from filesystemTest import FilesystemTest
 from epsTest import EpsTest
 from adcsTest import ADCSTest
 from wmmTest import WmmTest
+from rtcTest import RtcTest
 from questTest import QuestTest
 # from gpsTest import GpsTest
 
@@ -18,7 +19,8 @@ if __name__ == "__main__":
         FilesystemTest,
         EpsTest,
         ADCSTest,
-        WmmTest,
+        WmmTest, 
+        RtcTest,
         QuestTest,
         # GpsTest,
     ])

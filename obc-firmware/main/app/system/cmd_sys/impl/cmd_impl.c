@@ -63,8 +63,8 @@ cmd_sys_resp_code_t cmd_impl_SET_TIME(const cmd_sys_cmd_t *cmd, cmd_SET_TIME_arg
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-    rtc_err_t err = rtc_set_current_time(&set_time, BOTH, true);
-    if (err == RTC_NO_ERR) {
+    rtc_err_t err = rtc_set_current_time(&set_time);
+    if (err == RTC_SUCCESS) {
         return CMD_SYS_RESP_CODE_SUCCESS;
     } else {
         return CMD_SYS_RESP_CODE_ERROR;

@@ -39,6 +39,7 @@
 #include "obc_watchdog.h"
 #include "tms_can.h"
 
+#include "obc_rtc.h"
 #include "gpio_pcal6416a.h"
 
 // Logging
@@ -105,6 +106,9 @@ void gpio_init_irq(void) {
 #if FEATURE_GPIO_EXPANDER
     gioEnableNotification(OBC_EXPAND_IRQ_N_PORT, OBC_EXPAND_IRQ_N_PIN);
 #endif
+#if FEATURE_HW_RTC
+    gioEnableNotification(RTC_ALARM_IRQ_N_PORT, RTC_ALARM_IRQ_N_PIN);
+#endif    
     /* MODIFY HERE: add further interrupt enable calls, if required */
 }
 
@@ -301,14 +305,20 @@ static void vGPIOServiceTask(void* pvParameters) {
                 pcal6416a_handle_interrupts();
             }
 
-/* MODIFY HERE: handle other GPIO expander pins */
-// Your code here
-/* END MODIFIABLE REGION */
+            /* MODIFY HERE: handle other GPIO expander pins */
+            // Your code here
+            /* END MODIFIABLE REGION */
 #endif
 
             /* MODIFY HERE: handle other pins - check the port and pin and call appropriate
              * functions. Keep in mind the priority of this task. */
             // Your code here
+
+#if FEATURE_HW_RTC            
+            if ((irq_info.port == RTC_ALARM_IRQ_N_PORT) && (irq_info.pin == RTC_ALARM_IRQ_N_PIN)) {
+                rtc_alarm_isr();
+            }
+#endif
             /* END MODIFIABLE REGION */
 
         }

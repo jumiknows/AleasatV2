@@ -335,7 +335,7 @@ typedef struct het_config_reg
 #define HET1_DIR_CONFIGVALUE     ((uint32)0x00000000U \
                                 | (uint32)0x40000000U \
                                 | (uint32)0x00000000U \
-                                | (uint32)0x00000000U \
+                                | (uint32)0x10000000U \
                                 | (uint32)0x00000000U \
                                 | (uint32)0x04000000U \
                                 | (uint32)0x00000000U \
@@ -401,7 +401,7 @@ typedef struct het_config_reg
 #define HET1_PULDIS_CONFIGVALUE  ((uint32)0x00000000U \
                                 | (uint32)0x00000000U \
                                 | (uint32)0x00000000U \
-                                | (uint32)0x00000000U \
+                                | (uint32)0x10000000U \
                                 | (uint32)0x00000000U \
                                 | (uint32)0x00000000U \
                                 | (uint32)0x00000000U \
@@ -434,7 +434,7 @@ typedef struct het_config_reg
 #define HET1_PSL_CONFIGVALUE     ((uint32)0x80000000U \
                                 | (uint32)0x00000000U \
                                 | (uint32)0x00000000U \
-                                | (uint32)0x00000000U \
+                                | (uint32)0x10000000U \
                                 | (uint32)0x00000000U \
                                 | (uint32)0x00000000U \
                                 | (uint32)0x00000000U \

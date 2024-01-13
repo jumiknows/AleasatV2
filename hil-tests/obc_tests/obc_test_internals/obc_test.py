@@ -63,7 +63,7 @@ class OBCTest(unittest.TestCase):
     def setUp(self) -> None:
         # Put the OBC in a known state
         self.obc.reset()
-        self.wait_for_signal("LOG_PRINT_GENERAL", "STARTUP_COMPLETE", timeout=2) # TODO ALEA-853 use a less ambiguous log message to indicate system is booted
+        self.wait_for_signal("LOG_PRINT_GENERAL", "STARTUP_COMPLETE", timeout=3) # TODO ALEA-853 use a less ambiguous log message to indicate system is booted
         time.sleep(1) # TODO remove once ALEA-853 is implemented
 
     def tearDown(self) -> None:

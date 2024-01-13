@@ -28,6 +28,7 @@
 
 // Standard Library
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 /******************************************************************************/
@@ -152,7 +153,7 @@ static void encode_header(uint8_t log_id, uint8_t sig_id, uint8_t size, uint8_t 
     // Grab a timestamp if the logger is configured to read from the RTC.
     // TODO ALEA-357 Handle RTC errors in the RTC module (shouldn't need this switch)
     if (use_rtc) {
-        current_epoch = get_epoch_time();
+        current_epoch = rtc_get_epoch_time();
     }
 
     // byte 0-3: epoch (big-endian)

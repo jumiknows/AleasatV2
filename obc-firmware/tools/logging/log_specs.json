@@ -354,6 +354,11 @@
         "level": "WARNING",
         "id": 5,
         "description": "Too few args. Need: y m d h m s."
+      }, 
+      "RECONFIGURED_IN_STARTUP": {
+        "level": "INFO", 
+        "id": 6, 
+        "description": "RTC was reconfigured in OBC startup"
       }
     }
   },

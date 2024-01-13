@@ -255,5 +255,65 @@
             {"adcs_err": "s8"},
             {"avg_duration": "f32"}
         ]
+    }, 
+    "TEST_RTC_GET_TIME": {
+        "id": 226,
+        "args": [
+            {"duration_s": "u8"}
+        ],
+        "resp": [
+            {"second": "u8"},
+            {"minute": "u8"},
+            {"hour": "u8"},
+            {"day": "u8"},
+            {"month": "u8"},
+            {"year": "u8"}
+        ]
+    },
+    "TEST_RTC_CAP_AND_GET_TIMESTAMP": {
+        "id": 225,
+        "args": [
+            {"duration_s": "u8"}
+        ],
+        "resp": [
+            {"init_second": "u8"},
+            {"init_minute": "u8"},
+            {"init_hour": "u8"},
+            {"init_day": "u8"},
+            {"init_month": "u8"},
+            {"init_year": "u8"},
+            {"ts_second": "u8"},
+            {"ts_minute": "u8"},
+            {"ts_hour": "u8"},
+            {"ts_day": "u8"},
+            {"ts_month": "u8"},
+            {"ts_year": "u8"}
+        ]
+    },
+    "DEBUG_READ_RTC_REG": {
+        "id": 224,
+        "args": [
+            {"reg": "u8"}
+        ],
+        "resp": [
+            {"val": "u8"}
+        ]
+    },
+    "DEBUG_WRITE_RTC_REG": {
+        "id": 223, 
+        "args": [
+            {"reg": "u8"},
+            {"val": "u8"}
+        ],
+        "resp": [
+            {"val_after_write": "u8"}
+        ]
+    },
+    "TEST_RTC_ALARM_N_SEC": {
+        "id": 222,
+        "args": [
+            {"duration_s": "u8"}
+        ],
+        "resp": []
     }
 }

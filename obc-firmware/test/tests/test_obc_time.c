@@ -79,7 +79,7 @@ void test_is_real_time_valid() {
     bool expected_results[num_cases];
 
     for (uint32_t i = 0; i < num_cases; i++) {
-        real_time_t time    = orca_time_init;
+        real_time_t time    = alea_time_init;
         actual_results[i]   = is_real_time_valid(&cases[i].time);
         expected_results[i] = cases[i].expected;
     }

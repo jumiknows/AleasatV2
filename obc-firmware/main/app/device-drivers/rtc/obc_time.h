@@ -99,7 +99,7 @@ typedef struct {             // Range for PCA2129 or this struct, whichever is m
 /**
  * @brief 12:00:00 PM January 20, 2020.
  */
-extern const real_time_t orca_time_init;
+extern const real_time_t alea_time_init;
 
 /**
  * @brief Invalid or lack of epoch time. This can be used to indicate that the epoch component of a

@@ -52,7 +52,7 @@ const uint32_t cumulative_seconds_in_month[12] = {0, 2678400, 5097600, 7776000, 
 /**
  * @brief ORCASat time initialization to 12:00:00 on January 1, 2020.
  */
-const real_time_t orca_time_init = {year: 20, month: 1, day: 1, hour: 0, minute: 0, second: 0, epoch: 0};
+const real_time_t alea_time_init = {year: 20, month: 1, day: 1, hour: 0, minute: 0, second: 0, epoch: 0};
 
 /**
  * @brief Ten second time useful for simple delays.
@@ -140,7 +140,7 @@ epoch_t real_time_to_epoch(const real_time_t* real_time) {
  */
 bool epoch_to_real_time(const epoch_t epoch, real_time_t* real_time) {
     // Set to default value just in case real_time is not properly initialized and epoch is 0,
-    memcpy(real_time, &orca_time_init, sizeof(real_time_t));
+    memcpy(real_time, &alea_time_init, sizeof(real_time_t));
 
     real_time->epoch = epoch;
     if (epoch < 0) {

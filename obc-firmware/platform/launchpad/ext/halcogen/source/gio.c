@@ -72,7 +72,7 @@ void gioInit(void)
 
     /** - Port A output values */
     gioPORTA->DOUT = (uint32)((uint32)0U << 0U)  /* Bit 0 */
-                   | (uint32)((uint32)0U << 1U)  /* Bit 1 */
+                   | (uint32)((uint32)1U << 1U)  /* Bit 1 */
                    | (uint32)((uint32)0U << 2U)  /* Bit 2 */
                    | (uint32)((uint32)0U << 3U)  /* Bit 3 */
                    | (uint32)((uint32)0U << 4U)  /* Bit 4 */
@@ -82,7 +82,7 @@ void gioInit(void)
 
     /** - Port A direction */
     gioPORTA->DIR  = (uint32)((uint32)0U << 0U)  /* Bit 0 */
-                   | (uint32)((uint32)0U << 1U)  /* Bit 1 */
+                   | (uint32)((uint32)1U << 1U)  /* Bit 1 */
                    | (uint32)((uint32)0U << 2U)  /* Bit 2 */
                    | (uint32)((uint32)0U << 3U)  /* Bit 3 */
                    | (uint32)((uint32)0U << 4U)  /* Bit 4 */
@@ -111,8 +111,8 @@ void gioInit(void)
                    | (uint32)((uint32)0U << 7U); /* Bit 7 */
 
     /** - Port A pullup / pulldown enable*/
-    gioPORTA->PULDIS  = (uint32)((uint32)0U << 0U)  /* Bit 0 */
-                      | (uint32)((uint32)0U << 1U)  /* Bit 1 */
+    gioPORTA->PULDIS  = (uint32)((uint32)1U << 0U)  /* Bit 0 */
+                      | (uint32)((uint32)1U << 1U)  /* Bit 1 */
                       | (uint32)((uint32)0U << 2U)  /* Bit 2 */
                       | (uint32)((uint32)0U << 3U)  /* Bit 3 */
                       | (uint32)((uint32)0U << 4U)  /* Bit 4 */
@@ -123,7 +123,7 @@ void gioInit(void)
     /** @b initialize @b Port @b B */
 
     /** - Port B output values */
-    gioPORTB->DOUT = (uint32)((uint32)0U << 0U)  /* Bit 0 */
+    gioPORTB->DOUT = (uint32)((uint32)1U << 0U)  /* Bit 0 */
                    | (uint32)((uint32)0U << 1U)  /* Bit 1 */
                    | (uint32)((uint32)1U << 2U)  /* Bit 2 */
                    | (uint32)((uint32)0U << 3U)  /* Bit 3 */
@@ -133,7 +133,7 @@ void gioInit(void)
                    | (uint32)((uint32)0U << 7U); /* Bit 7 */
 
     /** - Port B direction */
-    gioPORTB->DIR  = (uint32)((uint32)0U << 0U)  /* Bit 0 */
+    gioPORTB->DIR  = (uint32)((uint32)1U << 0U)  /* Bit 0 */
                    | (uint32)((uint32)1U << 1U)  /* Bit 1 */
                    | (uint32)((uint32)1U << 2U)  /* Bit 2 */
                    | (uint32)((uint32)0U << 3U)  /* Bit 3 */
@@ -163,7 +163,7 @@ void gioInit(void)
                    | (uint32)((uint32)0U << 7U); /* Bit 7 */
 
     /** - Port B pullup / pulldown enable*/
-    gioPORTB->PULDIS  = (uint32)((uint32)0U << 0U) /* Bit 0 */
+    gioPORTB->PULDIS  = (uint32)((uint32)1U << 0U) /* Bit 0 */
                       | (uint32)((uint32)0U << 1U)  /* Bit 1 */
                       | (uint32)((uint32)0U << 2U)  /* Bit 2 */
                       | (uint32)((uint32)0U << 3U)  /* Bit 3 */
@@ -221,7 +221,7 @@ void gioInit(void)
     gioREG->FLG = 0xFFU;
 
     /** - enable interrupts */
-    gioREG->ENASET = (uint32)((uint32)0U << 0U)   /* Bit 0 */
+    gioREG->ENASET = (uint32)((uint32)1U << 0U)   /* Bit 0 */
                    | (uint32)((uint32)0U << 1U)   /* Bit 1 */
                    | (uint32)((uint32)0U << 2U)   /* Bit 2 */
                    | (uint32)((uint32)0U << 3U)   /* Bit 3 */
@@ -547,6 +547,46 @@ void gioHighLevelInterrupt(void)
         }
     }
 /* USER CODE BEGIN (15) */
+/* USER CODE END */
+
+}
+
+/* USER CODE BEGIN (16) */
+/* USER CODE END */
+
+/** @fn void gioLowLevelInterrupt(void)
+*   @brief GIO Interrupt Handler
+*
+*   Low Level Interrupt handler for GIO pin interrupt
+*
+*/
+#pragma CODE_STATE(gioLowLevelInterrupt, 32)
+#pragma INTERRUPT(gioLowLevelInterrupt, IRQ)
+
+/* SourceId : GIO_SourceId_012 */
+/* DesignId : GIO_DesignId_011 */
+/* Requirements : HL_SR35, HL_SR36 */
+void gioLowLevelInterrupt(void)
+{
+    uint32 offset = gioREG->OFF2;
+
+/* USER CODE BEGIN (17) */
+/* USER CODE END */
+
+    if (offset != 0U)
+    {
+        offset = offset - 1U;
+        if (offset >= 8U)
+        {
+            gioNotification(gioPORTB, offset - 8U);
+        }
+        else
+        {
+            gioNotification(gioPORTA, offset);
+        }
+    }
+
+/* USER CODE BEGIN (18) */
 /* USER CODE END */
 
 }

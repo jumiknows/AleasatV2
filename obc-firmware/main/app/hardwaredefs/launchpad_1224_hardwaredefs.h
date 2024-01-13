@@ -38,6 +38,7 @@
 #include "reg_gio.h"
 #include "reg_het.h"
 #include "reg_mibspi.h"
+#include "reg_spi.h"
 #include "het.h"
 
 /******************************************************************************/
@@ -76,11 +77,24 @@
  *     one 8-byte group for time setting/getting
  *     one 2-byte group for generic register accesses.
  */
-#define RTC_TIME_MIBSPI_REG   mibspiREG1
-#define RTC_TIME_MIBSPI_GROUP 0 // Group needs length 8
-#define RTC_REG_MIBSPI_REG    mibspiREG1
+#define RTC_MIBSPI_REG   mibspiREG1
+#define RTC_DATA_FORMAT       1
 #define RTC_REG_MIBSPI_GROUP  1
-#define RTC_DATA_FORMAT       2
+#define RTC_TIME_MIBSPI_GROUP 2 // Group needs length 8
+#define RTC_TIMESTAMP_MIBSPI_GROUP 3
+#define RTC_ALARM_MIBSPI_GROUP 4
+
+#define RTC_CS_PORT gioPORTA
+#define RTC_CS_PIN  5
+
+#define RTC_ALARM_IRQ_N_PORT gioPORTB
+#define RTC_ALARM_IRQ_N_PIN  3
+
+#define RTC_TIMESTAMP_TRIGGER_PORT GIO_PORT(hetPORT1)
+#define RTC_TIMESTAMP_TRIGGER_PIN  28
+
+#define RTC_RESET_N_PORT GIO_PORT(gioPORTB)
+#define RTC_RESET_N_PIN  0 
 
 /**
  * @brief Flash MIBSPI configuration.

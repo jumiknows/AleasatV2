@@ -1080,7 +1080,7 @@ void hetInit(void)
     hetREG1->DOUT = (uint32)((uint32)1U << 31U)
                   | (uint32)((uint32)0U << 30U)
                   | (uint32)((uint32)0U << 29U)
-                  | (uint32)((uint32)0U << 28U)
+                  | (uint32)((uint32)1U << 28U)
                   | (uint32)((uint32)0U << 27U)
                   | (uint32)((uint32)0U << 26U)
                   | (uint32)((uint32)0U << 25U)
@@ -1114,7 +1114,7 @@ void hetInit(void)
     hetREG1->DIR = (uint32) 0x00000000U
                  | (uint32) 0x40000000U
                  | (uint32) 0x00000000U
-                 | (uint32) 0x00000000U
+                 | (uint32) 0x10000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x04000000U
                  | (uint32) 0x00000000U
@@ -1182,7 +1182,7 @@ void hetInit(void)
     hetREG1->PULDIS = (uint32) 0x00000000U
                     | (uint32) 0x00000000U
                     | (uint32) 0x00000000U
-                    | (uint32) 0x00000000U
+                    | (uint32) 0x10000000U
                     | (uint32) 0x00000000U
                     | (uint32) 0x00000000U
                     | (uint32) 0x00000000U
@@ -1216,7 +1216,7 @@ void hetInit(void)
     hetREG1->PSL = (uint32) 0x80000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
-                 | (uint32) 0x00000000U
+                 | (uint32) 0x10000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U
                  | (uint32) 0x00000000U

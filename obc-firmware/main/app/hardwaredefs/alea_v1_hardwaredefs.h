@@ -168,28 +168,32 @@
  * TODO: Hardware RTC is currently disabled in alea_v1_featuredefs.h since firmware needs to be adapted for only 1 RTC
  * (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/58)
  */
-#define RTCA_CS_PORT    spiPORT4
-#define RTCA_CS_PIN     MIBSPI_PIN_CS(0)
-#define RTCA_TS_PORT    hetPORT1
-#define RTCA_TS_PIN     28
-#define RTCA_ALARM_PORT gioPORTB
-#define RTCA_ALARM_PIN  3
+#define RTC_CS_PORT    spiPORT4
+#define RTC_CS_PIN     MIBSPI_PIN_CS(0)
+#define RTC_TIMESTAMP_TRIGGER_PORT    GIO_PORT(hetPORT1)
+#define RTC_TIMESTAMP_TRIGGER_PIN     28
+#define RTC_ALARM_IRQ_N_PORT gioPORTB
+#define RTC_ALARM_IRQ_N_PIN  3
+#define RTC_RESET_N_PORT GIO_PORT(gioPORTB)
+#define RTC_RESET_N_PIN  0 
 
 /**
  * @brief RTC MIBSPI configuration.
  *
- * The RTC uses two transfer groups:
- *     one 8-byte group for time setting/getting
- *     one 2-byte group for generic register accesses.
+ * The RTC uses four transfer groups:
+ *     one 2-byte group for generic register accesses
+ *     one 6-byte group for reading and writing alarm registers
+ *     one 7-byte group for reading timestamp registers
+ *     one 8-byte group for time setting/getting.
  *
- * TODO: Reconfigure (see above)
- * (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/58)
+ * TODO: Configure RTC MiBSPI for alea_v1 platform
  */
-#define RTC_TIME_MIBSPI_GROUP 0
-#define RTC_REG_MIBSPI_GROUP  1
-#define RTC_TIME_MIBSPI_REG   OBC_MIBSPI
-#define RTC_REG_MIBSPI_REG    OBC_MIBSPI
+#define RTC_MIBSPI_REG   mibspiREG1
 #define RTC_DATA_FORMAT       2
+#define RTC_REG_MIBSPI_GROUP  1
+#define RTC_TIME_MIBSPI_GROUP 0
+#define RTC_TIMESTAMP_MIBSPI_GROUP 3
+#define RTC_ALARM_MIBSPI_GROUP 4
 
 /**
  * @brief Flash MIBSPI configuration.

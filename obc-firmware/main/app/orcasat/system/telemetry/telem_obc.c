@@ -39,7 +39,7 @@ void obc_slow_telem_collect(void) {
     // TODO: other slow telemetry
 
     // Record the timestamp
-    OBC_SLOW_TS = get_epoch_time();
+    OBC_SLOW_TS = rtc_get_epoch_time();
 
     // Check that everything is good
     obc_telem_check_slow();
@@ -56,7 +56,7 @@ void obc_slow_telem_collect(void) {
 void obc_fast_telem_collect(void) {
     // TODO: current readings
 
-    OBC_FAST_TS = get_epoch_time();
+    OBC_FAST_TS = rtc_get_epoch_time();
     obc_telem_check_fast();
     log_telem(OBC_FAST_TELEM);
 }

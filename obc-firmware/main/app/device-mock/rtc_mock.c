@@ -76,7 +76,7 @@ static alarm_info_t next_alarm = {
 void rtc_init_mock(void) {
     static StaticSemaphore_t alarm_mutex_buf = { 0 };
 
-    rtc_set_current_time_mock(&orca_time_init);
+    rtc_set_current_time_mock(&alea_time_init);
 
     alarm_mutex = xSemaphoreCreateMutexStatic(&alarm_mutex_buf);
 
@@ -87,31 +87,31 @@ void rtc_init_mock(void) {
  * @brief Copies the current mock real time into @ref curr_time.
  *
  * @param curr_time[out] The current time.
- * @return RTC_NO_ERR.
+ * @return RTC_SUCCESS.
  */
 rtc_err_t rtc_get_current_time_mock(real_time_t* curr_time) {
     memcpy(curr_time, &mock_real_time, sizeof(real_time_t));
-    return RTC_NO_ERR;
+    return RTC_SUCCESS;
 }
 
 /**
  * @brief Sets the current mock time.
  *
  * @param[in] curr_time The time to set.
- * @return RTC_NO_ERR
+ * @return RTC_SUCCESS
  */
 rtc_err_t rtc_set_current_time_mock(const real_time_t* curr_time) {
     memcpy(&mock_real_time, curr_time, sizeof(real_time_t));
-    return RTC_NO_ERR;
+    return RTC_SUCCESS;
 }
 
 /**
  * @brief Gets the startup status.
- * @return RTC_NO_ERR.
+ * @return RTC_SUCCESS.
  */
 rtc_err_t rtc_get_startup_status_mock(void) {
     /* could return different status values here randomly */
-    return RTC_NO_ERR;
+    return RTC_SUCCESS;
 }
 
 rtc_err_t rtc_set_alarm_mock(uint32_t timestamp, rtc_alarm_cb_t cb, void *cb_arg) {
@@ -125,7 +125,7 @@ rtc_err_t rtc_set_alarm_mock(uint32_t timestamp, rtc_alarm_cb_t cb, void *cb_arg
 
     xSemaphoreGive(alarm_mutex);
 
-    return RTC_NO_ERR;
+    return RTC_SUCCESS;
 }
 
 /******************************************************************************/
