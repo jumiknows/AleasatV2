@@ -9,7 +9,7 @@ mram_err_t init_mock_mram(void) {
     return MRAM_OK;
 }
 
-mram_err_t write_mock_mram(uint32_t addr, uint32_t size, const uint8_t* data) {
+mram_err_t write_mock_mram(uint32_t addr, uint32_t size, const uint8_t *data) {
     if ((addr + size) > MOCK_MRAM_SIZE_BYTES) {
         return MRAM_INDEX_OUT_OF_BOUND;
     }
@@ -18,7 +18,7 @@ mram_err_t write_mock_mram(uint32_t addr, uint32_t size, const uint8_t* data) {
     return MRAM_OK;
 }
 
-mram_err_t read_mock_mram(uint32_t addr, uint32_t size, void* data) {
+mram_err_t read_mock_mram(uint32_t addr, uint32_t size, void *data) {
     if ((addr + size) > MOCK_MRAM_SIZE_BYTES) {
         return MRAM_INDEX_OUT_OF_BOUND;
     }

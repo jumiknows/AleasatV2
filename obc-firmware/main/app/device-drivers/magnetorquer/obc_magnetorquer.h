@@ -11,21 +11,21 @@
 #include "obc_hardwaredefs.h"
 
 typedef enum {
-	FORWARD = 0,
-	BACKWARD = 1
+    FORWARD = 0,
+    BACKWARD = 1
 } mag_direction_t;
 
 typedef enum {
-	SLEEP_ON = 0,
-	SLEEP_OFF = 1
+    SLEEP_ON = 0,
+    SLEEP_OFF = 1
 } mag_sleep_t;
 
 typedef struct {
-	uint32_t pwm_a;
-	uint32_t pwm_b;
-	mag_direction_t dir;
-	mag_sleep_t sleep;
-	uint32_t sleep_pin;
+    uint32_t pwm_a;
+    uint32_t pwm_b;
+    mag_direction_t dir;
+    mag_sleep_t sleep;
+    uint32_t sleep_pin;
 } mag_t;
 
 /**

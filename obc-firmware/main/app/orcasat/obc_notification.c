@@ -45,7 +45,7 @@
  * @param port: the GIO port that triggered the interrupt
  * @param pin: the pin on the port that triggered the interrupt
  */
-void gioNotification(gioPORT_t* port, uint32 bit) {
+void gioNotification(gioPORT_t *port, uint32 bit) {
     gpio_irq_t irq_info = {.port = port, .pin = bit};
     service_gpio_irq(irq_info);
 }
@@ -60,9 +60,9 @@ void gioNotification(gioPORT_t* port, uint32 bit) {
  * configuration in HALCoGen.
  * @warning this runs in interrupt context, so FreeRTOS interrupt-mode API functions must be used.
  */
-void edgeNotification(hetBASE_t* hetREG, uint32 edge) {
+void edgeNotification(hetBASE_t *hetREG, uint32 edge) {
     /* Edge notification example
-     * 	- see examples/het_notification_example.c
+     *  - see examples/het_notification_example.c
      */
     if ((hetREG == COMMS_INT_REG) && (edge == COMMS_INT_EDGE)) {
         // Notify Comms service task to read message from SPI
@@ -76,7 +76,7 @@ void edgeNotification(hetBASE_t* hetREG, uint32 edge) {
  * @param sci: pointer to SCI peripheral that the interrupt was raised by.
  * @warning this runs in interrupt context, so FreeRTOS interrupt-mode API functions must be used.
  */
-void sciNotification(sciBASE_t* sci, uint32 flags) {
+void sciNotification(sciBASE_t *sci, uint32 flags) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     if ((flags & SCI_RX_INT) == SCI_RX_INT) {
@@ -100,7 +100,7 @@ void sciNotification(sciBASE_t* sci, uint32 flags) {
  * @param group: transfer group that the interrupt is associated with
  * @warning this runs in interrupt context, so FreeRTOS interrupt-mode API functions must be used.
  */
-void mibspiGroupNotification(mibspiBASE_t* mibspi, uint32 group) {
+void mibspiGroupNotification(mibspiBASE_t *mibspi, uint32 group) {
     /* xHigherPriorityTaskWoken must be initialized to pdFALSE. */
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
@@ -125,7 +125,7 @@ void mibspiGroupNotification(mibspiBASE_t* mibspi, uint32 group) {
  * @param flags:   Copy of error interrupt flags
  * @warning this runs in interrupt context, so FreeRTOS interrupt-mode API functions must be used.
  */
-void mibspiNotification(mibspiBASE_t* mibspi, uint32 flags) {
+void mibspiNotification(mibspiBASE_t *mibspi, uint32 flags) {
     /* xHigherPriorityTaskWoken must be initialized to pdFALSE. */
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 

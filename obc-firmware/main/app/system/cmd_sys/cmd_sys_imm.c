@@ -29,7 +29,7 @@
 /******************************************************************************/
 
 #define NOTIFICATION_INDEX 1U // index 0 is used by stream/message buffers
-                              // see https://www.freertos.org/RTOS-task-notifications.html
+// see https://www.freertos.org/RTOS-task-notifications.html
 
 #define CMD_SYS_IMM_POLL_PERIOD_MS  1000U
 #define CMD_SYS_IMM_EXEC_TIMEOUT_MS 60000U
@@ -38,7 +38,7 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void cmd_sys_imm_task(void* pvParameters);
+static void cmd_sys_imm_task(void *pvParameters);
 static void exec_wait_callback(void);
 
 /******************************************************************************/
@@ -58,10 +58,10 @@ void cmd_sys_imm_start_task(void) {
 
 /**
  * @brief Command system task for immediate commands
- * 
+ *
  * @param pvParameters Task parameters (see obc_rtos)
  */
-static void cmd_sys_imm_task(void* pvParameters) {
+static void cmd_sys_imm_task(void *pvParameters) {
     static uint8_t buf[CMD_SYS_SCHED_MAX_DATA_SIZE] = { 0 };
 
     static cmd_sys_cmd_t cmd = { 0 };
@@ -72,6 +72,7 @@ static void cmd_sys_imm_task(void* pvParameters) {
         obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_IMM);
 
         cmd_sys_err_t err = cmd_sys_recv_header(&cmd, buf, pdMS_TO_TICKS(CMD_SYS_IMM_POLL_PERIOD_MS));
+
         if (err == CMD_SYS_SUCCESS) {
             if (cmd.header.timestamp == CMD_SYS_TIMESTAMP_IMMEDIATE) {
                 err = cmd_sys_execute(&cmd, pdMS_TO_TICKS(CMD_SYS_IMM_POLL_PERIOD_MS), pdMS_TO_TICKS(CMD_SYS_IMM_EXEC_TIMEOUT_MS), &exec_wait_callback);

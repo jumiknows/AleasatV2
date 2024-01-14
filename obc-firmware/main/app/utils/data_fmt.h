@@ -95,7 +95,7 @@ static inline void data_fmt_u16_to_arr_be(uint16_t value, uint8_t *arr) {
 
 /**
  * @brief Serialize a 32-bit float to a byte array (big-endian) of IEEE-754 binary32 data
- * 
+ *
  * @warning This assumes the C float implementation already uses IEEE-754 binary32
  */
 static inline void data_fmt_f32_to_arr_be(float32 value, uint8_t *arr) {
@@ -106,7 +106,7 @@ static inline void data_fmt_f32_to_arr_be(float32 value, uint8_t *arr) {
 
 /**
  * @brief Serialize a 64-bit double to a byte array (big-endian) of IEEE-754 binary64 data
- * 
+ *
  * @warning This assumes the C double implementation already uses IEEE-754 binary64
  */
 static inline void data_fmt_f64_to_arr_be(float64 value, uint8_t *arr) {
@@ -122,15 +122,15 @@ static inline void data_fmt_f64_to_arr_be(float64 value, uint8_t *arr) {
  */
 static inline uint64_t data_fmt_arr_be_to_u64(const uint8_t *arr) {
     return (
-        ((uint64_t)(arr[0])) << 56 |
-        ((uint64_t)(arr[1])) << 48 |
-        ((uint64_t)(arr[2])) << 40 |
-        ((uint64_t)(arr[3])) << 32 |
-        ((uint64_t)(arr[4])) << 24 |
-        ((uint64_t)(arr[5])) << 16 |
-        ((uint64_t)(arr[6])) <<  8 |
-        ((uint64_t)(arr[7])) <<  0
-    );
+               ((uint64_t)(arr[0])) << 56 |
+               ((uint64_t)(arr[1])) << 48 |
+               ((uint64_t)(arr[2])) << 40 |
+               ((uint64_t)(arr[3])) << 32 |
+               ((uint64_t)(arr[4])) << 24 |
+               ((uint64_t)(arr[5])) << 16 |
+               ((uint64_t)(arr[6])) <<  8 |
+               ((uint64_t)(arr[7])) <<  0
+           );
 }
 
 /**
@@ -138,11 +138,11 @@ static inline uint64_t data_fmt_arr_be_to_u64(const uint8_t *arr) {
  */
 static inline uint32_t data_fmt_arr_be_to_u32(const uint8_t *arr) {
     return (
-        ((uint32_t)(arr[0])) << 24 |
-        ((uint32_t)(arr[1])) << 16 |
-        ((uint32_t)(arr[2])) <<  8 |
-        ((uint32_t)(arr[3])) <<  0
-    );
+               ((uint32_t)(arr[0])) << 24 |
+               ((uint32_t)(arr[1])) << 16 |
+               ((uint32_t)(arr[2])) <<  8 |
+               ((uint32_t)(arr[3])) <<  0
+           );
 }
 
 /**
@@ -150,14 +150,14 @@ static inline uint32_t data_fmt_arr_be_to_u32(const uint8_t *arr) {
  */
 static inline uint16_t data_fmt_arr_be_to_u16(const uint8_t *arr) {
     return (
-        ((uint16_t)(arr[0])) << 8 |
-        ((uint16_t)(arr[1])) << 0
-    );
+               ((uint16_t)(arr[0])) << 8 |
+               ((uint16_t)(arr[1])) << 0
+           );
 }
 
 /**
  * @brief Deserialize a 32-bit float from a byte array (big-endian) of IEEE-754 binary32 data
- * 
+ *
  * @warning This assumes the C float implementation already uses IEEE-754 binary32
  */
 static inline float32 data_fmt_arr_be_to_f32(const uint8_t *arr) {
@@ -169,7 +169,7 @@ static inline float32 data_fmt_arr_be_to_f32(const uint8_t *arr) {
 
 /**
  * @brief Deserialize a 64-bit double from a byte array (big-endian) of IEEE-754 binary64 data
- * 
+ *
  * @warning This assumes the C double implementation already uses IEEE-754 binary64
  */
 static inline float64 data_fmt_arr_be_to_f64(const uint8_t *arr) {

@@ -63,7 +63,7 @@
 /**
  * @brief OBC Blinky LED port and pin
  */
-#define	OBC_BLINKY_PORT GIO_PORT(gioPORTA)
+#define OBC_BLINKY_PORT GIO_PORT(gioPORTA)
 #define OBC_BLINKY_PIN  7
 
 // =============================================================================
@@ -175,7 +175,7 @@
 #define RTC_ALARM_IRQ_N_PORT gioPORTB
 #define RTC_ALARM_IRQ_N_PIN  3
 #define RTC_RESET_N_PORT GIO_PORT(gioPORTB)
-#define RTC_RESET_N_PIN  0 
+#define RTC_RESET_N_PIN  0
 
 /**
  * @brief RTC MIBSPI configuration.

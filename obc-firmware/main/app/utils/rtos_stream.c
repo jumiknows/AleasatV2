@@ -21,9 +21,9 @@
 
 /**
  * @brief buffered_block_istream_t compatible API to read from a FreeRTOS MessageBuffer.
- * 
+ *
  * The handle must be of type rtos_msg_istream_t.
- * 
+ *
  * See buffered_block_istream_t in buffered_io.h for details.
  */
 uint32_t rtos_stream_read_msg(void *handle, uint8_t *buf, uint32_t buf_len, uint32_t timeout, uint32_t *timeout_left) {
@@ -34,6 +34,7 @@ uint32_t rtos_stream_read_msg(void *handle, uint8_t *buf, uint32_t buf_len, uint
         if (timeout_left != NULL) {
             *timeout_left = timeout;
         }
+
         return 0;
     }
 
@@ -46,9 +47,9 @@ uint32_t rtos_stream_read_msg(void *handle, uint8_t *buf, uint32_t buf_len, uint
 
 /**
  * @brief io_ostream_t compatible API to write to a FreeRTOS MessageBuffer.
- * 
+ *
  * The handle must be of type rtos_msg_ostream_t.
- * 
+ *
  * See io_ostream_t in io_stream.h for details.
  */
 uint32_t rtos_stream_write_msg(void *handle, const uint8_t *data, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left) {
@@ -59,6 +60,7 @@ uint32_t rtos_stream_write_msg(void *handle, const uint8_t *data, uint32_t num_b
         if (timeout_left != NULL) {
             *timeout_left = timeout;
         }
+
         return 0;
     }
 
@@ -92,9 +94,9 @@ uint32_t rtos_stream_write_msg(void *handle, const uint8_t *data, uint32_t num_b
 
 /**
  * @brief io_istream_t compatible API to read from a FreeRTOS StreamBuffer.
- * 
+ *
  * The handle must be of type rtos_stream_istream_t.
- * 
+ *
  * See io_istream_t in io_stream.h for details.
  */
 uint32_t rtos_stream_read_stream(void *handle, uint8_t *buf, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left) {
@@ -105,6 +107,7 @@ uint32_t rtos_stream_read_stream(void *handle, uint8_t *buf, uint32_t num_bytes,
         if (timeout_left != NULL) {
             *timeout_left = timeout;
         }
+
         return 0;
     }
 
@@ -120,9 +123,9 @@ uint32_t rtos_stream_read_stream(void *handle, uint8_t *buf, uint32_t num_bytes,
 
 /**
  * @brief io_ostream_t compatible API to write to a FreeRTOS StreamBuffer.
- * 
+ *
  * The handle must be of type rtos_stream_ostream_t.
- * 
+ *
  * See io_ostream_t in io_stream.h for details.
  */
 uint32_t rtos_stream_write_stream(void *handle, const uint8_t *data, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left) {
@@ -133,6 +136,7 @@ uint32_t rtos_stream_write_stream(void *handle, const uint8_t *data, uint32_t nu
         if (timeout_left != NULL) {
             *timeout_left = timeout;
         }
+
         return 0;
     }
 
@@ -166,11 +170,11 @@ uint32_t rtos_stream_write_stream(void *handle, const uint8_t *data, uint32_t nu
 
 /**
  * @brief Helper function to handle calculating the remaining timeout in a FreeRTOS context.
- * 
+ *
  * The timeout_left is calculated as the start subtracted from the current tick count,
  * UNLESS the timeout was portMAX_DELAY in which case the timeout_left always remains portMAX_DELAY
  * to maintain the infinite blocking behaviour.
- * 
+ *
  * @param[in]  start        Tick count before the operation
  * @param[in]  timeout      Timeout (in ticks)
  * @param[out] timeout_left Pointer to where the remaining timeout (in ticks) will be stored

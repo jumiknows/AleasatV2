@@ -1,18 +1,18 @@
 /**
  * @file tms_mibspi.c
  * @brief Low-level Generic MIBSPI driver wrapper.
- * 
- * Any MIBSPI driver must use this driver wrapper. 
+ *
+ * Any MIBSPI driver must use this driver wrapper.
  * That driver must have:
  * - EventGroupHandle_t
  * - StaticStemaphore_t
  * declared and initiated in their higher level driver.
- * 
+ *
  * They need to also have the following configured:
  * - transfer group
  * - data format
  * and must have enabled transfer group notifications.
- * 
+ *
  * This driver assumes that you are using negative SPI clock polarity
  * and using a GIO pin as the slave select.
  */
@@ -55,9 +55,9 @@ static SemaphoreHandle_t xMibspi5MutexHandle;
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout);
-static mibspi_err_t mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout);
-static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout);
+static mibspi_err_t mibspi_tx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *tx_buffer, uint32_t timeout);
+static mibspi_err_t mibspi_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *rx_buffer, uint32_t timeout);
+static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *tx_buffer, uint16_t *rx_buffer, uint32_t timeout);
 static mibspi_err_t mibspi_error_handler(uint32_t error_flags);
 static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg);
 
@@ -108,16 +108,18 @@ void tms_mibspi_init_hw(void) {
  * @param timeout: MIBSPI timeout in ms
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint32_t timeout) {
+mibspi_err_t tms_mibspi_tx(const mibspi_tg_t *tg, uint16_t *tx_buffer, uint32_t timeout) {
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+
     if (mutex == NULL) {
         err = MIBSPI_MUTEX_INVALID_ERR;
         return err;
     }
 
     EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+
     if (eventgroup == NULL) {
         err = MIBSPI_EVENTGROUP_INVALID_ERR;
         return err;
@@ -137,7 +139,7 @@ mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint32_t 
 /**
  * @brief Receive data using a particular MibSPI transfer group.
  * The data received will be the same size as the transfer group size.
- * 
+ *
  * @pre tms_mibspi_create_infra
  * @pre tms_mibspi_init_hw
  *
@@ -146,16 +148,18 @@ mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint32_t 
  * @param timeout: MIBSPI timeout in ms
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, uint16_t* rx_buffer, uint32_t timeout) {
+mibspi_err_t tms_mibspi_rx(const mibspi_tg_t *tg, uint16_t *rx_buffer, uint32_t timeout) {
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+
     if (mutex == NULL) {
         err = MIBSPI_MUTEX_INVALID_ERR;
         return err;
     }
 
     EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+
     if (eventgroup == NULL) {
         err = MIBSPI_EVENTGROUP_INVALID_ERR;
         return err;
@@ -174,7 +178,7 @@ mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, uint16_t* rx_buffer, uint32_t 
 
 /**
  * @brief Transmit data and wait for received data using a particular MibSPI transfer group.
- * 
+ *
  * @pre tms_mibspi_create_infra
  * @pre tms_mibspi_init_hw
  *
@@ -186,16 +190,18 @@ mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, uint16_t* rx_buffer, uint32_t 
  * @param timeout: MIBSPI timeout in ms
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
+mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t *tg, uint16_t *tx_buffer, uint16_t *rx_buffer, uint32_t timeout) {
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     SemaphoreHandle_t mutex = get_mutex_handle(tg->reg);
+
     if (mutex == NULL) {
         err = MIBSPI_MUTEX_INVALID_ERR;
         return err;
     }
 
     EventGroupHandle_t eventgroup = get_eventgroup_handle(tg->reg);
+
     if (eventgroup == NULL) {
         err = MIBSPI_EVENTGROUP_INVALID_ERR;
         return err;
@@ -214,7 +220,7 @@ mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint16
 
 /**
  * @brief Get the event group for the corresponding transfer group
- * 
+ *
  * @param reg: the mibspi register
  * @return EventGroupHandle_t: the relevant event group
  */
@@ -222,21 +228,24 @@ EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg) {
     EventGroupHandle_t handle = NULL;
 
     switch ((intptr_t)reg) {
-        case (intptr_t)mibspiREG1: {
-            handle = xMibspi1EventGroupHandle;
-            break;
-        }
-        case (intptr_t)mibspiREG3: {
-            handle = xMibspi3EventGroupHandle;
-            break;
-        }
-        case (intptr_t)mibspiREG5: {
-            handle = xMibspi5EventGroupHandle;
-            break;
-        }
-        default: {
-            break;
-        }
+    case (intptr_t)mibspiREG1: {
+        handle = xMibspi1EventGroupHandle;
+        break;
+    }
+
+    case (intptr_t)mibspiREG3: {
+        handle = xMibspi3EventGroupHandle;
+        break;
+    }
+
+    case (intptr_t)mibspiREG5: {
+        handle = xMibspi5EventGroupHandle;
+        break;
+    }
+
+    default: {
+        break;
+    }
     }
 
     return handle;
@@ -259,7 +268,7 @@ EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg) {
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint32_t timeout) {
+static mibspi_err_t mibspi_tx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *tx_buffer, uint32_t timeout) {
     EventBits_t uxBits;
     const TickType_t xTicksToWait = pdMS_TO_TICKS(timeout);
 
@@ -276,11 +285,11 @@ static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
     // interrupt to signal
 
     uxBits = xEventGroupWaitBits(
-            eg_handle,
-            ((uint8_t)((uint8_t)1U << tg->transfer_group)) | MIBSPI_ERR_NOTIF,
-            pdTRUE,   /* The bits should be cleared before returning. */
-            pdFALSE,  /* Wait for only one bit. */
-            xTicksToWait);
+                 eg_handle,
+                 ((uint8_t)((uint8_t)1U << tg->transfer_group)) | MIBSPI_ERR_NOTIF,
+                 pdTRUE,   /* The bits should be cleared before returning. */
+                 pdFALSE,  /* Wait for only one bit. */
+                 xTicksToWait);
 
     // Disable CS
     gioSetBit(tg->cs_port, tg->cs_pin, 1);
@@ -308,17 +317,18 @@ static mibspi_err_t mibspi_tx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-static mibspi_err_t mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* rx_buffer, uint32_t timeout) {
+static mibspi_err_t mibspi_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *rx_buffer, uint32_t timeout) {
     static uint16_t empty_data[128] = {0x0000};
-    uint16_t* data_ptr = empty_data;
+    uint16_t *data_ptr = empty_data;
     // Transmit empty data, set the clock and slave select to allow the
     // slave to simultaneously send data.
     mibspi_err_t err = mibspi_tx(tg, eg_handle, data_ptr, timeout);
+
     if (err != MIBSPI_NO_ERR) {
         return err;
     }
 
-	// Move data from the receive buffer to rx_buffer.
+    // Move data from the receive buffer to rx_buffer.
     uint32_t error_flags = mibspiGetData(tg->reg, tg->transfer_group, rx_buffer);
 
     // check for errors
@@ -340,9 +350,10 @@ static mibspi_err_t mibspi_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handl
  * @param timeout: Timeout in ms for the transaction.
  * @return MIBSPI_NO_ERR if no error, error code otherwise
  */
-static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t* tg, EventGroupHandle_t eg_handle, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout) {
+static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *tx_buffer, uint16_t *rx_buffer, uint32_t timeout) {
     // Transmit data
     mibspi_err_t err = mibspi_tx(tg, eg_handle, tx_buffer, timeout);
+
     if (err != MIBSPI_NO_ERR) {
         return err;
     }
@@ -384,7 +395,7 @@ static mibspi_err_t mibspi_error_handler(uint32_t error_flags) {
 
 /**
  * @brief Get the mutex for the corresponding transfer group
- * 
+ *
  * @param reg: the mibspi register
  * @return SemaphorHandle_t: the relevant mutex
  */
@@ -392,21 +403,24 @@ static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg) {
     SemaphoreHandle_t handle = NULL;
 
     switch ((intptr_t)reg) {
-        case (intptr_t)mibspiREG1: {
-            handle = xMibspi1MutexHandle;
-            break;
-        }
-        case (intptr_t)mibspiREG3: {
-            handle = xMibspi3MutexHandle;
-            break;
-        }
-        case (intptr_t)mibspiREG5: {
-            handle = xMibspi5MutexHandle;
-            break;
-        }
-        default: {
-            break;
-        }
+    case (intptr_t)mibspiREG1: {
+        handle = xMibspi1MutexHandle;
+        break;
+    }
+
+    case (intptr_t)mibspiREG3: {
+        handle = xMibspi3MutexHandle;
+        break;
+    }
+
+    case (intptr_t)mibspiREG5: {
+        handle = xMibspi5MutexHandle;
+        break;
+    }
+
+    default: {
+        break;
+    }
     }
 
     return handle;

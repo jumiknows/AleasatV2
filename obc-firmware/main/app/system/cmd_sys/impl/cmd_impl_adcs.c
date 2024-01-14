@@ -46,7 +46,7 @@ cmd_sys_resp_code_t cmd_impl_WMM_IS_INIT(const cmd_sys_cmd_t *cmd, cmd_WMM_IS_IN
 cmd_sys_resp_code_t cmd_impl_WMM_GET_MAG_REF(const cmd_sys_cmd_t *cmd, cmd_WMM_GET_MAG_REF_args_t *args, cmd_WMM_GET_MAG_REF_resp_t *resp) {
     float32_t time_years = wmm_get_date(args->year, args->month, args->day);
 
-    if(wmm_get_mag_ref(args->lat, args->lon, args->alt, time_years, resp->mag_ref) == ADCS_SUCCESS){
+    if (wmm_get_mag_ref(args->lat, args->lon, args->alt, time_years, resp->mag_ref) == ADCS_SUCCESS) {
         return CMD_SYS_RESP_CODE_SUCCESS;
     } else {
         return CMD_SYS_RESP_CODE_ERROR;

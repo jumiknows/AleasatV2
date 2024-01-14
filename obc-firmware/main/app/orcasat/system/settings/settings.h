@@ -79,7 +79,8 @@ setting_t settings[] = {
      * setting holds the index of that NVCT. This is 99 if no NVCT is found for the
      * firmware version.
      */
-    {.name = "nvct_table", .group = "sys", .setting_value = NO_NVCT_FOR_FW, .mutable = false, .min = 0, .max = 99, .set_callback = NULL, .nvct = NOT_NVCT, 0}};
+    {.name = "nvct_table", .group = "sys", .setting_value = NO_NVCT_FOR_FW, .mutable = false, .min = 0, .max = 99, .set_callback = NULL, .nvct = NOT_NVCT, 0}
+};
 /**
  * @brief The number of settings.
  */

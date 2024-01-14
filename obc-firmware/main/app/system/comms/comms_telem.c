@@ -30,8 +30,8 @@ typedef union int_16bit_union {
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static int16_t get_16bit_int(uint8_t* bytes, uint8_t* i);
-static uint32_t get_32bit_uint(uint8_t* bytes, uint8_t* i);
+static int16_t get_16bit_int(uint8_t *bytes, uint8_t *i);
+static uint32_t get_32bit_uint(uint8_t *bytes, uint8_t *i);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -47,7 +47,7 @@ static uint32_t get_32bit_uint(uint8_t* bytes, uint8_t* i);
  */
 comms_err_t comms_get_telem(
     comms_session_handle_t session_handle,
-    comms_telem_t* telem_recv
+    comms_telem_t *telem_recv
 ) {
     comms_err_t err;
 
@@ -55,7 +55,7 @@ comms_err_t comms_get_telem(
 
     err = comms_send_command(session_handle, COMMS_CMD_GET_TELEM, NULL, 0, 0);
 
-    if(err == COMMS_SUCCESS) {
+    if (err == COMMS_SUCCESS) {
         err = comms_wait_cmd_resp(session_handle, &resp, pdMS_TO_TICKS(COMMS_CMD_TIMEOUT_MS_DEFAULT));
     }
 
@@ -105,10 +105,10 @@ comms_err_t comms_get_telem(
  *
  * @return int16_t containing the converted integer
  */
-static int16_t get_16bit_int(uint8_t* bytes, uint8_t* i) {
+static int16_t get_16bit_int(uint8_t *bytes, uint8_t *i) {
     int_16bit_t num;
 
-    num.int16_u = ( (uint16_t) ((uint16_t) bytes[(*i) + 1] << 8) ) | (uint16_t) bytes[(*i)];
+    num.int16_u = ((uint16_t)((uint16_t) bytes[(*i) + 1] << 8)) | (uint16_t) bytes[(*i)];
     (*i) += 2;
 
     return num.int16;
@@ -122,9 +122,9 @@ static int16_t get_16bit_int(uint8_t* bytes, uint8_t* i) {
  *
  * @return uint32_t containing the converted integer
  */
-static uint32_t get_32bit_uint(uint8_t* bytes, uint8_t* i) {
-    uint32_t num32 = ( (uint32_t) bytes[(*i) + 3] << 24 ) | ( (uint32_t) bytes[(*i) + 2] << 16 )
-                    | ( (uint32_t) bytes[(*i) + 1] << 8 ) | (uint32_t) bytes[(*i)];
+static uint32_t get_32bit_uint(uint8_t *bytes, uint8_t *i) {
+    uint32_t num32 = ((uint32_t) bytes[(*i) + 3] << 24) | ((uint32_t) bytes[(*i) + 2] << 16)
+                     | ((uint32_t) bytes[(*i) + 1] << 8) | (uint32_t) bytes[(*i)];
     (*i) += 4;
 
     return num32;

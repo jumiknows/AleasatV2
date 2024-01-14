@@ -6,9 +6,9 @@
  *
  *
  *  HALCoGEN Setup:
- * 		TMS570LS0714PGE > Driver Enable > Enable ADC Drivers (checked)
- * 		VIM Channel 0-31 >  15: ADC1 Group 1
- * 		ADC1 > ADC1 Group 1 Channel Selection > Enable Pin x
+ *      TMS570LS0714PGE > Driver Enable > Enable ADC Drivers (checked)
+ *      VIM Channel 0-31 >  15: ADC1 Group 1
+ *      ADC1 > ADC1 Group 1 Channel Selection > Enable Pin x
  */
 
 #include "obc_adc.h"
@@ -37,15 +37,17 @@ void adc_init(void) {
  * @note The results from the ADC aren't necessarily in order or at the same position as the channel #
  * @pre adc_update() has been called
  *
- * @return	raw value from desired ADC channel, else 0 (if ADC channel is not found).
+ * @return  raw value from desired ADC channel, else 0 (if ADC channel is not found).
  */
 uint16_t adc_get_channel_val(uint8_t adc_chan) {
     uint8_t i;
+
     for (i = 0; i < ADC_MAX_CHANNELS; i++) {
         if (adc_data[i].id == adc_chan) {
             return adc_data[i].value;
         }
     }
+
     LOG_ADC__NO_ID();
     return 0;
 }
@@ -58,9 +60,11 @@ uint16_t adc_get_channel_val(uint8_t adc_chan) {
  */
 bool adc_update(void) {
     bool adc_ok = true;
+
     if (xSemaphoreTake(xADCMutex, pdMS_TO_TICKS(500)) == pdTRUE) {
         uint32_t start = xTaskGetTickCount();
         adcStartConversion(adcREG1, adcGROUP1); // sample all channels on ADC1
+
         while (!adcIsConversionComplete(adcREG1, adcGROUP1)) {
             if ((uint32_t)(xTaskGetTickCount() - start) > 5U) { // ADC Timeout
                 LOG_ADC__CONVERSION_TIMEOUT();
@@ -68,11 +72,13 @@ bool adc_update(void) {
                 break;
             }
         }
+
         adcGetData(adcREG1, adcGROUP1, &adc_data[0]);
     } else {
         LOG_ADC__MUTEX_ERROR();
         adc_ok = false;
     }
+
     xSemaphoreGive(xADCMutex);
     return adc_ok;
 }

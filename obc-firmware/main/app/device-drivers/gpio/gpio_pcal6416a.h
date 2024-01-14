@@ -62,7 +62,7 @@ typedef void (*pcal6416a_irq_callback_t)(uint32_t input_val);
  * Allows only valid pull cases to be configured.
  *
  *  - bit 0 = enable
- * 	- bit 1 = up/down (1 = up, 0 = down)
+ *  - bit 1 = up/down (1 = up, 0 = down)
  */
 typedef enum {
     NONE     = 0b00, // pull = 0 | enable = 0
@@ -82,11 +82,12 @@ gpio_err_t pcal6416a_validate_regs(void);
 // Pin setup
 gpio_err_t pcal6416a_configure_output(pcal6416a_port_t port, uint8_t pin, bool default_val, pcal6416a_pull_cfg_t pull_sel);
 gpio_err_t pcal6416a_configure_input(pcal6416a_port_t port, uint8_t pin, pcal6416a_pull_cfg_t pull_sel);
-gpio_err_t pcal6416a_configure_interrupt(pcal6416a_port_t port, uint8_t pin, bool latch, pcal6416a_pull_cfg_t pull_sel, pcal6416a_irq_callback_t callback);
+gpio_err_t pcal6416a_configure_interrupt(pcal6416a_port_t port, uint8_t pin, bool latch, pcal6416a_pull_cfg_t pull_sel,
+        pcal6416a_irq_callback_t callback);
 
 // Pin read/write
 gpio_err_t pcal6416a_gpio_write(pcal6416a_port_t port, uint8_t pin, bool val);
-gpio_err_t pcal6416a_gpio_read(pcal6416a_port_t port, uint8_t pin, uint32_t* val);
+gpio_err_t pcal6416a_gpio_read(pcal6416a_port_t port, uint8_t pin, uint32_t *val);
 void pcal6416a_handle_interrupts(void);
 
 #endif // GPIO_PCAL6416A_H_

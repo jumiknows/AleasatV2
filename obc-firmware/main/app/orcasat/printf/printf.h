@@ -89,7 +89,7 @@ void sfu_putchar(char character);
  * NOTE:
  * This was modified by SFUSat to send characters directly to the UART (non-RTOS operation) and to the queue (for RTOS mode)
  */
-int printf(const char* format, ...);
+int printf(const char *format, ...);
 
 
 /**
@@ -99,7 +99,7 @@ int printf(const char* format, ...);
  * \param format A string that specifies the format of the output
  * \return The number of characters that are written into the array, not counting the terminating null character
  */
-int orca_sprintf(char* buffer, const char* format, ...);
+int orca_sprintf(char *buffer, const char *format, ...);
 
 
 /**
@@ -109,9 +109,9 @@ int orca_sprintf(char* buffer, const char* format, ...);
  * \param format A string that specifies the format of the output
  * \return The number of characters that are written into the array, not counting the terminating null character
  */
-int snprintf(char* buffer, size_t count, const char* format, ...);
+int snprintf(char *buffer, size_t count, const char *format, ...);
 
-size_t orca_vsnprintf(char* buffer, size_t buffer_len, const char* format, va_list va);
+size_t orca_vsnprintf(char *buffer, size_t buffer_len, const char *format, va_list va);
 
 #ifdef __cplusplus
 }

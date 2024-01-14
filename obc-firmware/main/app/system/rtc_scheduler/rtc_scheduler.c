@@ -74,6 +74,7 @@ void rtc_scheduler_create_infra(void) {
     // Clear all the schedule data
     memset(scheduler_storage, 0, sizeof(scheduler_storage));
     memset(scheduler_data_storage, 0, sizeof(scheduler_data_storage));
+
     for (i = 0; i < LEN(scheduler_storage); i++) {
         scheduler_storage[i].timestamp = 0;
         scheduler_storage[i].priority = 0;
@@ -90,10 +91,10 @@ void rtc_scheduler_create_infra(void) {
 
 /**
  * @brief Add an item to the schedule and update the RTC alarm
- * 
+ *
  * @param[in] item          Pointer to the item to schedule
  * @param[in] timeout_ticks Timeout for mutex (ticks)
- * 
+ *
  * @return Status code:
  *            - RTC_SCHEDULER_SUCCESS if the item is successfully scheduled
  *            - RTC_SCHEDULER_ERR_INVALID_ARGS if item is NULL
@@ -106,6 +107,7 @@ rtc_scheduler_err_t rtc_scheduler_add_item(const rtc_scheduler_item_t *item, uin
     if (item == NULL) {
         return RTC_SCHEDULER_ERR_INVALID_ARGS;
     }
+
     if (item->data_len > RTC_SCHEDULER_MAX_DATA_SIZE) {
         return RTC_SCHEDULER_ERR_DATA_TOO_LONG;
     }
@@ -116,6 +118,7 @@ rtc_scheduler_err_t rtc_scheduler_add_item(const rtc_scheduler_item_t *item, uin
     }
 
     rtc_scheduler_err_t err = RTC_SCHEDULER_FULL;
+
     if (sequence_insert(&scheduler_sequence, item)) {
         // Item successfully inserted into schedule
         update_alarm();
@@ -134,11 +137,12 @@ rtc_scheduler_err_t rtc_scheduler_add_item(const rtc_scheduler_item_t *item, uin
 
 /**
  * @brief Callback triggered by the RTC alarm
- * 
+ *
  * @param[in] arg Index of the item that triggered the alarm
  */
 static void alarm_callback(void *arg) {
     uint32_t idx = (uint32_t)arg;
+
     if (idx < SCHEDULE_MAX_ITEMS) {
         if (xSemaphoreTake(schedule_mutex, pdMS_TO_TICKS(ALARM_CALLBACK_MUTEX_TIMEOUT_MS)) == pdFALSE) {
             return;
@@ -170,7 +174,7 @@ static void update_alarm(void) {
 
 /**
  * @brief Store an item at a particular index in the scheduler_storage
- * 
+ *
  * @param[in] item        Pointer to the item to store
  * @param[in] storage_idx Index where the item should be stored
  */
@@ -193,13 +197,13 @@ static void store_item(const void *item, uint8_t storage_idx) {
 
 /**
  * @brief Evaluate if the item at idx_a should occur before the item at idx_b in the schedule.
- * 
+ *
  * If idx_a has an earlier timestamp OR they have the same timestamp but idx_a has a higher priority,
  * then idx_a will be placed earlier in the schedule.
- * 
+ *
  * @param[in] idx_a Index of the item being placed
  * @param[in] idx_b Index of the item to compare to
- * 
+ *
  * @return true if the item at idx_a should occur before the item at idx_b, otherwise false
  */
 static bool goes_before(uint8_t idx_a, uint8_t idx_b) {
@@ -210,5 +214,6 @@ static bool goes_before(uint8_t idx_a, uint8_t idx_b) {
             return true;
         }
     }
+
     return false;
 }

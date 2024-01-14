@@ -47,7 +47,7 @@ typedef struct {
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void xStepMockRealTimeTask(void* pvParameters);
+static void xStepMockRealTimeTask(void *pvParameters);
 static void handle_alarm(void);
 
 /******************************************************************************/
@@ -89,7 +89,7 @@ void rtc_init_mock(void) {
  * @param curr_time[out] The current time.
  * @return RTC_SUCCESS.
  */
-rtc_err_t rtc_get_current_time_mock(real_time_t* curr_time) {
+rtc_err_t rtc_get_current_time_mock(real_time_t *curr_time) {
     memcpy(curr_time, &mock_real_time, sizeof(real_time_t));
     return RTC_SUCCESS;
 }
@@ -100,7 +100,7 @@ rtc_err_t rtc_get_current_time_mock(real_time_t* curr_time) {
  * @param[in] curr_time The time to set.
  * @return RTC_SUCCESS
  */
-rtc_err_t rtc_set_current_time_mock(const real_time_t* curr_time) {
+rtc_err_t rtc_set_current_time_mock(const real_time_t *curr_time) {
     memcpy(&mock_real_time, curr_time, sizeof(real_time_t));
     return RTC_SUCCESS;
 }
@@ -135,8 +135,9 @@ rtc_err_t rtc_set_alarm_mock(uint32_t timestamp, rtc_alarm_cb_t cb, void *cb_arg
 /**
  * @brief The task, calls the increment function once per second.
  */
-static void xStepMockRealTimeTask(void* pvParameters) {
+static void xStepMockRealTimeTask(void *pvParameters) {
     TickType_t xLastWakeTime = xTaskGetTickCount();
+
     while (1) {
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1000));
         obc_watchdog_pet(OBC_TASK_ID_RTC_MOCK);

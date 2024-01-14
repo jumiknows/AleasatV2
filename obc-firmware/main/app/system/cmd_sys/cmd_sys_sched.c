@@ -38,7 +38,7 @@
 #define CMD_SYS_SCHED_TIMEOUT_MS 100U
 
 #define NOTIFICATION_INDEX 1U // index 0 is used by stream/message buffers
-                              // see https://www.freertos.org/RTOS-task-notifications.html
+// see https://www.freertos.org/RTOS-task-notifications.html
 
 #define CMD_SYS_SCHED_POLL_PERIOD_MS  1000U
 #define CMD_SYS_SCHED_EXEC_TIMEOUT_MS 60000U
@@ -115,11 +115,11 @@ void cmd_sys_sched_start_task(void) {
 
 /**
  * @brief Push a command to the scheduler to be executed later
- * 
+ *
  * @param[in] header              Struct resulting from parsing the command header
  * @param[in] header_and_data     Pointer to a buffer containing all the command bytes (header + data)
  * @param[in] header_and_data_len Length of the buffer (header + data)
- * 
+ *
  * @return Status code:
  *            - CMD_SYS_SUCCESS if the command is successfully scheduled
  *            - CMD_SYS_ERR_INVALID_ARGS if header or header_and_data are NULL
@@ -130,6 +130,7 @@ cmd_sys_err_t cmd_sys_sched_push_cmd(const cmd_sys_msg_header_t *header, uint8_t
     if ((header == NULL) || (header_and_data == NULL)) {
         return CMD_SYS_ERR_INVALID_ARGS;
     }
+
     if (header_and_data_len > CMD_SYS_SCHED_MAX_DATA_SIZE) {
         return CMD_SYS_ERR_ARGS_TOO_LARGE;
     }
@@ -145,6 +146,7 @@ cmd_sys_err_t cmd_sys_sched_push_cmd(const cmd_sys_msg_header_t *header, uint8_t
     };
 
     rtc_scheduler_err_t rtc_sched_err = rtc_scheduler_add_item(&item, pdMS_TO_TICKS(CMD_SYS_SCHED_TIMEOUT_MS));
+
     if (rtc_sched_err == RTC_SCHEDULER_SUCCESS) {
         err = CMD_SYS_SUCCESS;
     }
@@ -159,7 +161,7 @@ cmd_sys_err_t cmd_sys_sched_push_cmd(const cmd_sys_msg_header_t *header, uint8_t
 /**
  * @brief Callback that will be invoked by the RTC scheduler when a command's
  * scheduled time has arrived.
- * 
+ *
  * @param[in] data     Raw command header + data
  * @param[in] data_len Number of bytes in data
  */
@@ -172,9 +174,9 @@ static void scheduler_callback(uint8_t *data, uint32_t data_len) {
 
 /**
  * @brief io_ostream_t compatible API to write data to the logs.
- * 
+ *
  * The handle is ignored.
- * 
+ *
  * See io_ostream_t in io_stream.h for details.
  */
 static uint32_t write_log(void *handle, const uint8_t *data, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left) {
@@ -183,18 +185,20 @@ static uint32_t write_log(void *handle, const uint8_t *data, uint32_t num_bytes,
     // See ALEA-858
     // TODO ALEA-572 Write this to filesystem
     LOG_CMD_SYS_SCHED_RESP(num_bytes, data);
+
     if (timeout_left != NULL) {
         *timeout_left = timeout;
     }
+
     return num_bytes;
 }
 
 /**
  * @brief Command system task for scheduled commands
- * 
+ *
  * @param pvParameters Task parameters (unused)
  */
-static void cmd_sys_sched_task(void* pvParameters) {
+static void cmd_sys_sched_task(void *pvParameters) {
     static uint8_t buf[CMD_SYS_SCHED_MAX_DATA_SIZE] = { 0 };
 
     static cmd_sys_cmd_t cmd = { 0 };
@@ -205,6 +209,7 @@ static void cmd_sys_sched_task(void* pvParameters) {
         obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_SCHED);
 
         cmd_sys_err_t err = cmd_sys_recv_header(&cmd, buf, pdMS_TO_TICKS(CMD_SYS_SCHED_POLL_PERIOD_MS));
+
         if (err == CMD_SYS_SUCCESS) {
             err = cmd_sys_execute(&cmd, pdMS_TO_TICKS(CMD_SYS_SCHED_POLL_PERIOD_MS), pdMS_TO_TICKS(CMD_SYS_SCHED_EXEC_TIMEOUT_MS), &exec_wait_callback);
 

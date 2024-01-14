@@ -23,7 +23,7 @@
 #define OBC_STARTUP_METHOD 1 // if 1, we do our method.
 #define ORCA_LOG_PBIST_FAILS_CHUNK_1 \
     1 // if 1, execute the first chunk of PBIST result logging (required because TI's user code \
-        // sections are awkwardly placed)
+    // sections are awkwardly placed)
 
 /* Functions */
 void startup_init(void);

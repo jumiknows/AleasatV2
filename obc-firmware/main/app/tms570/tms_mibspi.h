@@ -101,9 +101,9 @@ typedef enum {
  * as well as information about the chip select.
  */
 typedef struct {
-    mibspiBASE_t* reg;
+    mibspiBASE_t *reg;
     uint8_t transfer_group;
-    gioPORT_t* cs_port;
+    gioPORT_t *cs_port;
     uint32_t cs_pin;
 } mibspi_tg_t;
 
@@ -116,9 +116,9 @@ void tms_mibspi_create_infra(void);
 void tms_mibspi_init_hw(void);
 
 /* User API */
-mibspi_err_t tms_mibspi_tx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint32_t timeout);
-mibspi_err_t tms_mibspi_rx(const mibspi_tg_t* tg, uint16_t* rx_buffer, uint32_t timeout);
-mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t* tg, uint16_t* tx_buffer, uint16_t* rx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_tx(const mibspi_tg_t *tg, uint16_t *tx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_rx(const mibspi_tg_t *tg, uint16_t *rx_buffer, uint32_t timeout);
+mibspi_err_t tms_mibspi_tx_rx(const mibspi_tg_t *tg, uint16_t *tx_buffer, uint16_t *rx_buffer, uint32_t timeout);
 
 /* Public helper function */
 EventGroupHandle_t get_eventgroup_handle(mibspiBASE_t *reg);

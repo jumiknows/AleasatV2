@@ -37,7 +37,7 @@ mram_err_t init_mram(void) {
  * @param[in] data The data to write to MRAM. Must be at least @ref size_bytes in size.
  * @return MRAM_OK or an error code.
  */
-mram_err_t write_mram(uint16_t addr, uint16_t size_bytes, const uint8_t* data) {
+mram_err_t write_mram(uint16_t addr, uint16_t size_bytes, const uint8_t *data) {
 #ifdef PLATFORM_LAUNCHPAD_1224
     return write_mock_mram(addr, size_bytes, data);
 #endif
@@ -54,7 +54,7 @@ mram_err_t write_mram(uint16_t addr, uint16_t size_bytes, const uint8_t* data) {
  * @param[out] data Data buffer where the data will be placed. Valid if @c MRAM_OK is returned.
  * @return MRAM_OK or an error code.
  */
-mram_err_t read_mram(uint16_t addr, uint16_t size_bytes, uint8_t* data) {
+mram_err_t read_mram(uint16_t addr, uint16_t size_bytes, uint8_t *data) {
 #ifdef PLATFORM_LAUNCHPAD_1224
     return read_mock_mram(addr, size_bytes, data);
 #endif

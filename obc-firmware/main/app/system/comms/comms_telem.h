@@ -53,6 +53,6 @@ typedef struct comms_telem_struct {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-comms_err_t comms_get_telem(comms_session_handle_t session_handle, comms_telem_t* telem_recv);
+comms_err_t comms_get_telem(comms_session_handle_t session_handle, comms_telem_t *telem_recv);
 
 #endif // COMMS_TELEM_H_

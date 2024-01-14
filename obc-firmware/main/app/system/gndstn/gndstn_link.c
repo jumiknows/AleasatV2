@@ -49,7 +49,7 @@
 /******************************************************************************/
 
 static void gndstn_uplink_create_infra(void);
-static void gndstn_uplink_handle_data(comms_session_handle_t session_handle, comms_event_id_t ev_id, void* arg);
+static void gndstn_uplink_handle_data(comms_session_handle_t session_handle, comms_event_id_t ev_id, void *arg);
 
 static void gndstn_downlink_create_infra(void);
 
@@ -154,7 +154,7 @@ static void gndstn_uplink_create_infra(void) {
     uplink_msg_stream.msg_buf = uplink_msg_buffer;
 }
 
-static void gndstn_uplink_handle_data(comms_session_handle_t session_handle, comms_event_id_t ev_id, void* arg) {
+static void gndstn_uplink_handle_data(comms_session_handle_t session_handle, comms_event_id_t ev_id, void *arg) {
     if (arg == NULL) {
         return;
     }
@@ -165,6 +165,7 @@ static void gndstn_uplink_handle_data(comms_session_handle_t session_handle, com
         // Return if the src is ground or a local pkt (From San Antonio) or from the ground station.
         return;
     }
+
     if (cmd_in->header.command != COMMS_CUSTOM_MSG_OBC_DATA) {
         return;
     }
@@ -184,7 +185,7 @@ static void gndstn_downlink_create_infra(void) {
 
 /**
  * @brief Ground station link task
- * 
+ *
  * @param pvParameters Task parameters (see obc_rtos)
  */
 static void gndstn_link_task(void *pvParameters) {
@@ -199,11 +200,11 @@ static void gndstn_link_task(void *pvParameters) {
     };
 
     // TODO ALEA-900: We need another flag for RF comms.
-    #if COMMS_OVER_SERIAL
+#if COMMS_OVER_SERIAL
     err = comms_session_init(COMMS_ENDPOINT_GROUND, &comms_session);
-    #else
+#else
     err = comms_session_init(COMMS_ENDPOINT_LOCAL, &comms_session);
-    #endif
+#endif
 
     if (err != COMMS_SUCCESS) {
         LOG_GNDSTN_DOWNLINK__COMMS_SESS_INIT_ERR(err);
@@ -218,9 +219,11 @@ static void gndstn_link_task(void *pvParameters) {
         obc_watchdog_pet(OBC_TASK_ID_GNDSTN_LINK);
 
         uint32_t data_len = xMessageBufferReceive(downlink_msg_buffer, data_buf, sizeof(data_buf), pdMS_TO_TICKS(GNDSTN_DOWNLINK_POLL_PERIOD_MS));
+
         if (data_len > 0) {
             // Send the command
             err = comms_send_command(comms_session, COMMS_CMD_APP_DATA, data_buf, data_len, pdMS_TO_TICKS(COMMS_TIMEOUT_MS));
+
             if (err != COMMS_SUCCESS) {
                 LOG_GNDSTN_DOWNLINK__COMMS_SEND_CMD_ERR(err);
                 continue;
@@ -228,6 +231,7 @@ static void gndstn_link_task(void *pvParameters) {
 
             // Wait for a response
             err = comms_wait_cmd_resp(comms_session, &comms_resp, pdMS_TO_TICKS(COMMS_TIMEOUT_MS));
+
             if (err != COMMS_SUCCESS) {
                 LOG_GNDSTN_DOWNLINK__COMMS_WAIT_RESP_ERR(err);
                 continue;

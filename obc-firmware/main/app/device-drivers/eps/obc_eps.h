@@ -21,7 +21,7 @@
 /******************************************************************************/
 
 // Address of EPS module on I2C bus
-#define EPS_ADDR			0x18
+#define EPS_ADDR            0x18
 
 /**
  * @brief Command IDs to read float32-valued registers
@@ -159,9 +159,9 @@ typedef enum {
 
 // Read APIs
 
-eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32* data);
-eps_err_t eps_read_float_raw(eps_cmd_read_float_t cmd, uint16_t* data);
-eps_err_t eps_read_int(eps_cmd_read_int_t cmd, uint16_t* data);
+eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32 *data);
+eps_err_t eps_read_float_raw(eps_cmd_read_float_t cmd, uint16_t *data);
+eps_err_t eps_read_int(eps_cmd_read_int_t cmd, uint16_t *data);
 
 // Write APIs
 eps_err_t eps_write_state(eps_cmd_write_state_t cmd, eps_write_state_t state);

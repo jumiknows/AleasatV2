@@ -21,6 +21,6 @@
 void backup_epoch_init(void);
 epoch_t get_backup_epoch(void);
 epoch_t get_uptime(void);
-void set_backup_epoch(real_time_t* desired_time);
+void set_backup_epoch(real_time_t *desired_time);
 
 #endif // BACKUP_EPOCH_H_

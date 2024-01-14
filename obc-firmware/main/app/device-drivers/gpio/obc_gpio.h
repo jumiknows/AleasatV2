@@ -4,7 +4,7 @@
  *
  * OBC GPIO ABSTRACTION
  *  - Provides a single API for use of internal TMS570 GPIO pins or the GPIO expander.
- * 
+ *
  * PORT SETTING:
  *  - In hardwaredefs, use the xxx_PORT macros to specify different GPIO ports
  */
@@ -74,20 +74,20 @@ typedef enum {
  * Pin is the pin on the port that raised the interrupt.
  */
 typedef struct gpio_irq {
-    gioPORT_t* port;
+    gioPORT_t *port;
     uint32_t pin;
 } gpio_irq_t;
 
 /**
  * @brief Struct to specify any GPIO port (the type and register information)
- * 
+ *
  * In general, don't instantiate this struct directly, use one of the xxx_PORT macros instead.
  */
 typedef const struct {
     const gpio_port_type_t type;
     const union {
-        gioPORT_t* const gio;
-        canBASE_t* const can;
+        gioPORT_t *const gio;
+        canBASE_t *const can;
 #if FEATURE_GPIO_EXPANDER
         const pcal6416a_port_t exp;
 #endif // FEATURE_GPIO_EXPANDER
@@ -108,7 +108,7 @@ void gpio_expander_reset(void);
 
 // Read / Write
 gpio_err_t obc_gpio_write(gpio_port_t port, uint32_t pin, uint32_t value);
-gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t* value);
+gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t *value);
 
 // Interrupt Handling
 void service_gpio_irq(gpio_irq_t irq_info);

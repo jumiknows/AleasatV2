@@ -26,7 +26,7 @@
 static void debug_line(const char *file, uint16_t line) {
     const char *filename = strrchr(file, '/');
     filename = (filename != NULL) ? (filename + 1) : file;
-    LOG_PRINTF__PRINT_DEBUG((uint8_t*)filename, strlen(filename), line);
+    LOG_PRINTF__PRINT_DEBUG((uint8_t *)filename, strlen(filename), line);
 }
 
 

@@ -23,7 +23,7 @@
 
 /**
  * @brief Reset the internal state of a buffered input stream
- * 
+ *
  * @param[in] buf_in Pointer to the buffered input stream
  */
 void buffered_io_input_reset(buffered_input_t *buf_in) {
@@ -33,7 +33,7 @@ void buffered_io_input_reset(buffered_input_t *buf_in) {
 
 /**
  * @brief Reset the internal state of a buffered output stream
- * 
+ *
  * @param[in] buf_out Pointer to the buffered output stream
  */
 void buffered_io_output_reset(buffered_output_t *buf_out) {
@@ -44,9 +44,9 @@ void buffered_io_output_reset(buffered_output_t *buf_out) {
  * @brief Write data to a buffered output. The data will be accumulated in the
  * internal buffer and only actually be written to the output stream in chunks
  * of buf_out->size bytes.
- * 
+ *
  * This function is compatible with the io_ostream_t->write API.
- * 
+ *
  * @param[in]  handle       Pointer to a buffered_output_t data structure
  * @param[in]  data         Data to write
  * @param[in]  num_bytes    Number of bytes to write
@@ -54,7 +54,7 @@ void buffered_io_output_reset(buffered_output_t *buf_out) {
  *                          expected by buf_out->output->write(...)
  * @param[out] timeout_left Pointer to store remaining timeout after the write operation.
  *                          Can be NULL if the caller doesn't care about the remaining timeout.
- * 
+ *
  * @return Number of bytes actually written (internally, not necessarily to the output stream).
  */
 uint32_t buffered_io_write(void *handle, const uint8_t *data, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left) {
@@ -122,13 +122,13 @@ uint32_t buffered_io_write(void *handle, const uint8_t *data, uint32_t num_bytes
 /**
  * @brief Flush a buffered output stream. Any data currently (internally) buffered will
  * be written to the output stream.
- * 
+ *
  * This function is compatible with the io_ostream_t->flush API.
- * 
+ *
  * @param[in] handle  Pointer to a buffered_output_t data structure
  * @param[in] timeout Overall timeout for the write operation. Same units as
  *                    expected by buf_out->output->write(...)
- * 
+ *
  * @return Number of bytes written to the output stream during the flush
  */
 bool buffered_io_flush(void *handle, uint32_t timeout, uint32_t *timeout_left) {
@@ -143,6 +143,7 @@ bool buffered_io_flush(void *handle, uint32_t timeout, uint32_t *timeout_left) {
 
     // Write all the buffered bytes
     uint32_t written = io_stream_write(buf_out->output, buf_out->buf, buf_out->offset, timeout, &timeout);
+
     if (written == buf_out->offset) {
         // Reset the offset
         buf_out->offset = 0;
@@ -162,9 +163,9 @@ bool buffered_io_flush(void *handle, uint32_t timeout, uint32_t *timeout_left) {
  * @brief Read from a buffered input stream. More than num_bytes may be read from the underlying
  * stream (handle->input). Excess bytes will be stored in the internal buffer until requested by
  * a subsequent call to buffered_io_read.
- * 
+ *
  * This function is compatible with the io_istream_t->read API.
- * 
+ *
  * @param[in]  handle       Pointer to a buffered_input_t data structure
  * @param[out] buf          Pointer to where the read data will be placed. Must have size >= num_bytes
  * @param[in]  num_bytes    Number of bytes to read
@@ -172,7 +173,7 @@ bool buffered_io_flush(void *handle, uint32_t timeout, uint32_t *timeout_left) {
  *                          expected by buf_in->input->read_block(...)
  * @param[out] timeout_left Pointer to store remaining timeout after the read operation.
  *                          Can be NULL if the caller doesn't care about the remaining timeout.
- * 
+ *
  * @return Number of bytes read
  */
 uint32_t buffered_io_read(void *handle, uint8_t *buf, uint32_t num_bytes, uint32_t timeout, uint32_t *timeout_left) {
@@ -217,6 +218,7 @@ uint32_t buffered_io_read(void *handle, uint8_t *buf, uint32_t num_bytes, uint32
             //   - If we won't use a full max_block_size we have to read to the internal buffer so excess data is saved
             uint8_t *read_target = buf_in->buf;
             bool direct_read = false;
+
             if ((num_bytes - total_read) > buf_in->input->max_block_size) {
                 read_target = &(buf[total_read]);
                 direct_read = true;

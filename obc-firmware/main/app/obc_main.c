@@ -49,7 +49,7 @@
 #include "obc_gps.h"
 
 // Private Functions
-static void obc_main_task(void* pvParameters);
+static void obc_main_task(void *pvParameters);
 
 /**
  * @brief The main task for the application.
@@ -62,7 +62,7 @@ static void obc_main_task(void* pvParameters);
  *
  * @param pvParameters is not used.
  */
-static void obc_main_task(void* pvParameters) {
+static void obc_main_task(void *pvParameters) {
     obc_rtos_init();
 
     // Create FreeRTOS mutexes and queues for all features. Doing this allows future startup steps
@@ -180,7 +180,7 @@ static void obc_main_task(void* pvParameters) {
 #elif defined(PLATFORM_LAUNCHPAD_1224)
     LOG_HW_TYPE__LAUNCHPAD();
 #else // Neither platform is defined: this should never happen
-    #error "Invalid platform"
+#error "Invalid platform"
 #endif
     // TODO: Re-design startup
     // print_startup_type();

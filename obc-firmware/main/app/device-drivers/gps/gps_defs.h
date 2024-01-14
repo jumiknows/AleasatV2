@@ -201,7 +201,7 @@ typedef struct {
     bool ack;
     uint8_t id;
     uint16_t len;
-    uint8_t* payload;
+    uint8_t *payload;
     uint8_t payload_len;
 } gps_packet_t;
 

@@ -81,10 +81,10 @@ void obc_watchdog_start_task(void) {
 
 /**
  * @brief Register a watchdog action for a particular task
- * 
+ *
  * @warning This function is NOT thread-safe. It may only be called from a single thread.
  * @warning This function CANNOT be called after obc_watchdog_start_task().
- * 
+ *
  * @param task_id ID of the task
  * @param action  Action for the watchdog to take when the task stops responding
  */
@@ -98,12 +98,13 @@ void obc_watchdog_watch_task(obc_task_id_t task_id, obc_watchdog_action_t action
         // Set task bit
         watched_tasks_mask |= OBC_TASK_ID_TO_BIT_MASK(task_id);
     }
+
     wd_actions[task_id] = action;
 }
 
 /**
  * @brief Pet the software watchdog (informing it that the specified task is still responding)
- * 
+ *
  * @param task_id ID of the task that is petting
  */
 void obc_watchdog_pet(obc_task_id_t task_id) {
@@ -116,8 +117,9 @@ void obc_watchdog_pet(obc_task_id_t task_id) {
 
 static void obc_watchdog_task(void *pvParameters) {
     TickType_t last_wake_time = xTaskGetTickCount();
+
     while (1) {
-        vTaskDelayUntil( &last_wake_time, pdMS_TO_TICKS(WATCHDOG_TASK_PERIOD_MS) );
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(WATCHDOG_TASK_PERIOD_MS));
 
 #if FEATURE_HW_WATCHDOG
         LOG_WATCHDOG__HW_WD_PET();
@@ -146,10 +148,12 @@ static void obc_watchdog_task(void *pvParameters) {
 
                 // Bite each task
                 uint8_t task_id = 0;
+
                 while ((bite_mask != 0) && (task_id < OBC_TASK_COUNT)) {
                     if (bite_mask & 0x1) {
                         bite_task((obc_task_id_t)task_id);
                     }
+
                     bite_mask >>= 1;
                     task_id++;
                 }
@@ -164,15 +168,17 @@ static void bite_task(obc_task_id_t task_id) {
     }
 
     switch (wd_actions[task_id]) {
-        case OBC_WATCHDOG_ACTION_IGNORE:
-        case OBC_WATCHDOG_ACTION_ALLOW:
-            break;
-        case OBC_WATCHDOG_ACTION_SOFT_RESET:
-            // TODO: delay this until the IDLE task (up to some maximum number of delays)
-            CPU_SOFT_RESET();
-            break;
-        default:
-            break;
+    case OBC_WATCHDOG_ACTION_IGNORE:
+    case OBC_WATCHDOG_ACTION_ALLOW:
+        break;
+
+    case OBC_WATCHDOG_ACTION_SOFT_RESET:
+        // TODO: delay this until the IDLE task (up to some maximum number of delays)
+        CPU_SOFT_RESET();
+        break;
+
+    default:
+        break;
     }
 }
 

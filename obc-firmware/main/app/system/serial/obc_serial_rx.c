@@ -87,15 +87,16 @@ void obc_serial_rx_create_infra(void) {
     static StaticStreamBuffer_t phy_stream_buffer_buf                    = { 0 };
     static uint8_t phy_stream_buffer_storage[PHY_STREAM_BUFFER_SIZE + 1] = { 0 }; // See https://www.freertos.org/xStreamBufferCreateStatic.html for explanation of + 1
 
-    phy_stream_buffer = xStreamBufferCreateStatic(PHY_STREAM_BUFFER_SIZE, PHY_STREAM_BUFFER_DEF_TRIG_LVL, phy_stream_buffer_storage, &phy_stream_buffer_buf);
+    phy_stream_buffer = xStreamBufferCreateStatic(PHY_STREAM_BUFFER_SIZE, PHY_STREAM_BUFFER_DEF_TRIG_LVL, phy_stream_buffer_storage,
+                        &phy_stream_buffer_buf);
 }
 
 /**
  * @brief Register a handler for a particular datagram type. This will overwrite a previously registered handler
  * for the same datagram type.
- * 
+ *
  * When a packet of the given datagram type is received, the handler will be invoked and passed the packet data.
- * 
+ *
  * @param datagram_type Type of datagram this handler can handle
  * @param handler       Handler to register
  */
@@ -128,7 +129,7 @@ void obc_serial_rx_create_task(void) {
 
 /**
  * @brief ISR handler for RX events on the OBC serial port
- * 
+ *
  * @param pxHigherPriorityTaskWoken Pointer to store flag that a higher priority task was woken
  */
 void obc_serial_rx_isr(BaseType_t *pxHigherPriorityTaskWoken) {
@@ -142,7 +143,7 @@ void obc_serial_rx_isr(BaseType_t *pxHigherPriorityTaskWoken) {
 
 /**
  * @brief OBC serial RX servicing task
- * 
+ *
  * @param pvParameters Task parameters (see obc_rtos)
  */
 static void obc_serial_rx_task(void *pvParameters) {
@@ -157,77 +158,87 @@ static void obc_serial_rx_task(void *pvParameters) {
 
         // Parse a serial frame to extract/validate the data field (which contains a datagram)
         switch (state) {
-            case OBC_SERIAL_RX_STATE_SYNC_0:
-                xStreamBufferSetTriggerLevel(phy_stream_buffer, 1);
-                if (xStreamBufferReceive(phy_stream_buffer, data_buf, 1, pdMS_TO_TICKS(OBC_SERIAL_RX_POLL_PERIOD_MS)) == 1) {
-                    if (data_buf[0] == OBC_SERIAL_SYNC_0_VALUE) {
-                        state = OBC_SERIAL_RX_STATE_SYNC_1;
-                    }
-                }
-                break;
+        case OBC_SERIAL_RX_STATE_SYNC_0:
+            xStreamBufferSetTriggerLevel(phy_stream_buffer, 1);
 
-            case OBC_SERIAL_RX_STATE_SYNC_1:
-                xStreamBufferSetTriggerLevel(phy_stream_buffer, 1);
-                if (xStreamBufferReceive(phy_stream_buffer, data_buf, 1, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == 1) {
-                    if (data_buf[0] == OBC_SERIAL_SYNC_1_VALUE) {
-                        state = OBC_SERIAL_RX_STATE_HEADER;
-                    } else {
-                        state = OBC_SERIAL_RX_STATE_SYNC_0;
-                    }
+            if (xStreamBufferReceive(phy_stream_buffer, data_buf, 1, pdMS_TO_TICKS(OBC_SERIAL_RX_POLL_PERIOD_MS)) == 1) {
+                if (data_buf[0] == OBC_SERIAL_SYNC_0_VALUE) {
+                    state = OBC_SERIAL_RX_STATE_SYNC_1;
+                }
+            }
+
+            break;
+
+        case OBC_SERIAL_RX_STATE_SYNC_1:
+            xStreamBufferSetTriggerLevel(phy_stream_buffer, 1);
+
+            if (xStreamBufferReceive(phy_stream_buffer, data_buf, 1, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == 1) {
+                if (data_buf[0] == OBC_SERIAL_SYNC_1_VALUE) {
+                    state = OBC_SERIAL_RX_STATE_HEADER;
                 } else {
                     state = OBC_SERIAL_RX_STATE_SYNC_0;
                 }
-                break;
-
-            case OBC_SERIAL_RX_STATE_HEADER:
-                xStreamBufferSetTriggerLevel(phy_stream_buffer, 1);
-                if (xStreamBufferReceive(phy_stream_buffer, &data_len, 1, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == 1) {
-                    // Check that data_len is valid
-                    if ((data_len >= 1) && (data_len <= OBC_SERIAL_FRAME_MAX_DATA_SIZE)) {
-                        state = OBC_SERIAL_RX_STATE_DATA;
-                    } else {
-                        // If not, ignore the rest of the frame (i.e. wait for SYNC_0 again)
-                        state = OBC_SERIAL_RX_STATE_SYNC_0;
-                    }
-                } else {
-                    state = OBC_SERIAL_RX_STATE_SYNC_0;
-                }
-                break;
-
-            case OBC_SERIAL_RX_STATE_DATA:
-                xStreamBufferSetTriggerLevel(phy_stream_buffer, data_len);
-                if (xStreamBufferReceive(phy_stream_buffer, data_buf, data_len, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == data_len) {
-                    state = OBC_SERIAL_RX_STATE_CRC;
-                } else {
-                    state = OBC_SERIAL_RX_STATE_SYNC_0;
-                }
-                break;
-
-            case OBC_SERIAL_RX_STATE_CRC:
-                xStreamBufferSetTriggerLevel(phy_stream_buffer, 2);
-                if (xStreamBufferReceive(phy_stream_buffer, crc_buf, 2, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == 2) {
-                    // TODO ALEA-842 check CRC
-                    // TODO ALEA-843 log error if false returned from handle_datagram
-                    handle_datagram(data_buf, data_len, portMAX_DELAY);
-                    state = OBC_SERIAL_RX_STATE_SYNC_0;
-                }
-                break;
-
-            default:
+            } else {
                 state = OBC_SERIAL_RX_STATE_SYNC_0;
-                break;
+            }
+
+            break;
+
+        case OBC_SERIAL_RX_STATE_HEADER:
+            xStreamBufferSetTriggerLevel(phy_stream_buffer, 1);
+
+            if (xStreamBufferReceive(phy_stream_buffer, &data_len, 1, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == 1) {
+                // Check that data_len is valid
+                if ((data_len >= 1) && (data_len <= OBC_SERIAL_FRAME_MAX_DATA_SIZE)) {
+                    state = OBC_SERIAL_RX_STATE_DATA;
+                } else {
+                    // If not, ignore the rest of the frame (i.e. wait for SYNC_0 again)
+                    state = OBC_SERIAL_RX_STATE_SYNC_0;
+                }
+            } else {
+                state = OBC_SERIAL_RX_STATE_SYNC_0;
+            }
+
+            break;
+
+        case OBC_SERIAL_RX_STATE_DATA:
+            xStreamBufferSetTriggerLevel(phy_stream_buffer, data_len);
+
+            if (xStreamBufferReceive(phy_stream_buffer, data_buf, data_len, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == data_len) {
+                state = OBC_SERIAL_RX_STATE_CRC;
+            } else {
+                state = OBC_SERIAL_RX_STATE_SYNC_0;
+            }
+
+            break;
+
+        case OBC_SERIAL_RX_STATE_CRC:
+            xStreamBufferSetTriggerLevel(phy_stream_buffer, 2);
+
+            if (xStreamBufferReceive(phy_stream_buffer, crc_buf, 2, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == 2) {
+                // TODO ALEA-842 check CRC
+                // TODO ALEA-843 log error if false returned from handle_datagram
+                handle_datagram(data_buf, data_len, portMAX_DELAY);
+                state = OBC_SERIAL_RX_STATE_SYNC_0;
+            }
+
+            break;
+
+        default:
+            state = OBC_SERIAL_RX_STATE_SYNC_0;
+            break;
         }
     }
 }
 
 /**
  * @brief Handle the reception of a complete datagram.
- * 
+ *
  * Depending on the type byte, the datagram will be routed to the appropriate message buffer
- * 
+ *
  * @param[in] datagram_buf Pointer to the datagram buffer
  * @param[in] len          Length of the datagram
- * 
+ *
  * @return true if the datagram is valid, otherwise false
  */
 static bool handle_datagram(const uint8_t *datagram_buf, uint8_t len, uint32_t timeout_ticks) {
@@ -243,6 +254,7 @@ static bool handle_datagram(const uint8_t *datagram_buf, uint8_t len, uint32_t t
 
     if (type < OBC_SERIAL_DATAGRAM_TYPE_COUNT) {
         obc_serial_rx_handler_t handler = rx_handlers[type];
+
         if (handler != NULL) {
             success = handler(&datagram_buf[1], data_len, timeout_ticks);
         }

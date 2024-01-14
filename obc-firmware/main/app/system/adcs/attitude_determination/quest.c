@@ -47,23 +47,23 @@ static float32_t mat_data[21] = {0.0f};
  * @brief Estimates atttidude quaternion of the cubesat with the quest algorithm (QUaternion ESTimator)
  * Requires inputs from sun sensor, magnetometer, sun ephemeris model, and magnetic models.
  * The output attitude quaternion represents the  rotation from body frame -> inertial frame.
- * 
+ *
  * References:
- *     - Shuster, Malcom D. Approximate Algorithms for Fast Optimal Attitude Computation, AIAA Guidance 
+ *     - Shuster, Malcom D. Approximate Algorithms for Fast Optimal Attitude Computation, AIAA Guidance
  *       and Control Conference. August 1978. (http://www.malcolmdshuster.com/Pub_1978b_C_PaloAlto_scan.pdf)
  *     - ahrs quest - https://github.com/Mayitzin/ahrs/blob/master/ahrs/filters/quest.py
- * 
+ *
  * @param ad_vectors: pointer to struct of input vectors
  * @param weights: array (size 2) of the two relative weights of the measurements, weights should add up to 1.0 (this is not checked)
  *                 (mag: weights[0], sun: weights[1])
  * @param out_quat: pointer to store output: estimated attitude quaternion
  * @return ADCS_SUCCESS if no error, error code otherwise
- * 
+ *
  * NOTES:
  *      - Newton method is used, and this may not converge (such that error is <= NEWTON_ITER_TOLERANCE).
  *        In this case, the iterations terminate at NEWTON_ITER_LIMIT.
  */
-adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t* weights, float32_t *out_quat) {
+adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t *weights, float32_t *out_quat) {
 
     //attitude profile matrix data
     float32_t B_data[3][3] = {0.0f};
@@ -84,7 +84,7 @@ adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t* 
     float32_t delta = 0.0f;
     float32_t kappa = 0.0f;
     float32_t a = 0.0f;
-    float32_t b= 0.0f;
+    float32_t b = 0.0f;
     float32_t c = 0.0f;
     float32_t d = 0.0f;
     float32_t k = 0.0f;
@@ -95,26 +95,26 @@ adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t* 
 
     //normalize mag measurements
     //we only care about direction, not intensity
-    normalize((float32_t *)(ad_vectors->mag_obs) , 3);
-    normalize((float32_t *)(ad_vectors->mag_ref) , 3);
+    normalize((float32_t *)(ad_vectors->mag_obs), 3);
+    normalize((float32_t *)(ad_vectors->mag_ref), 3);
 
     //create 3x3 attitude profile matrix B
     //magnetic field vectors
-    const arm_matrix_instance_f32 mag_b = {.numRows = 3, .numCols = 1, .pData= (float32_t *)(ad_vectors->mag_obs)};
-    const arm_matrix_instance_f32 mag_rT = {.numRows = 1, .numCols = 3, .pData= (float32_t *)(ad_vectors->mag_ref)};
+    const arm_matrix_instance_f32 mag_b = {.numRows = 3, .numCols = 1, .pData = (float32_t *)(ad_vectors->mag_obs)};
+    const arm_matrix_instance_f32 mag_rT = {.numRows = 1, .numCols = 3, .pData = (float32_t *)(ad_vectors->mag_ref)};
 
     arm_mat_mult_f32(&mag_b, &mag_rT, &temp_mat_1);
     arm_mat_scale_f32(&temp_mat_1, weights[0], &B);
 
     //sun vectors
-    const arm_matrix_instance_f32 sun_b = {.numRows = 3, .numCols = 1, .pData= (float32_t *)(ad_vectors->sun_obs)};
-    const arm_matrix_instance_f32 sun_rT = {.numRows = 1, .numCols = 3, .pData= (float32_t *)(ad_vectors->sun_ref)};
+    const arm_matrix_instance_f32 sun_b = {.numRows = 3, .numCols = 1, .pData = (float32_t *)(ad_vectors->sun_obs)};
+    const arm_matrix_instance_f32 sun_rT = {.numRows = 1, .numCols = 3, .pData = (float32_t *)(ad_vectors->sun_ref)};
     arm_mat_mult_f32(&sun_b, &sun_rT, &temp_mat_1);
     arm_mat_scale_f32(&temp_mat_1, weights[0], &temp_mat_2);
     arm_mat_add_f32(&B, &temp_mat_2, &temp_mat_1);
 
     //now copy over the data to B, B should now be complete
-    memcpy(B.pData, temp_mat_1.pData, 9*sizeof(B_data[0][0]));
+    memcpy(B.pData, temp_mat_1.pData, 9 * sizeof(B_data[0][0]));
 
     //create S = B + Btranspose
     arm_mat_trans_f32(&B, &temp_mat_1);
@@ -134,13 +134,13 @@ adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t* 
     //kappa = delta * tr(inv(S))
     //for some reason inverse modifies the source arr
     //copy S to temp mat first
-    memcpy(temp_mat_1.pData, S.pData, 9*sizeof(S_data[0][0]));
+    memcpy(temp_mat_1.pData, S.pData, 9 * sizeof(S_data[0][0]));
 
     arm_status mat_status = arm_mat_inverse_f32(&temp_mat_1, &temp_mat_2);
 
     //check that the inverse could be calculated successfully
     //otherwise return an adcs calculation error
-    if (mat_status != ARM_MATH_SUCCESS ) {
+    if (mat_status != ARM_MATH_SUCCESS) {
         return ADCS_MATH_ERROR;
     }
 
@@ -166,12 +166,13 @@ adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t* 
 
     //Newton-Raphson method with tolerance of 10e-10 and max iterations of 10
     uint8_t iterations = 0;
-    while ((fabsf(lam-lam_0) >= NEWTON_ITER_TOLERANCE) && iterations < NEWTON_ITER_LIMIT) {
+
+    while ((fabsf(lam - lam_0) >= NEWTON_ITER_TOLERANCE) && iterations < NEWTON_ITER_LIMIT) {
         lam_0 = lam;
-        lam = lam - ((((((lam * lam) - (a + b)) * lam) - c) * lam) + k)/((2.0f * (((2.0f * lam * lam) - (a + b)) * lam)) - c);
+        lam = lam - ((((((lam * lam) - (a + b)) * lam) - c) * lam) + k) / ((2.0f * (((2.0f * lam * lam) - (a + b)) * lam)) - c);
         iterations++;
     }
-    
+
     //check convergence condition and return error if not met
     if (iterations >= NEWTON_ITER_LIMIT) {
         return ADCS_MATH_ERROR;
@@ -183,9 +184,9 @@ adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t* 
     //now calculuate the quaternion axis. X = (alpha*I + beta*S + S*S)*z
     arm_mat_scale_f32(&S, beta, &temp_mat_2); //beta*S -> temp_mat_2
     //beta*S + alpha*I -> temp_mat_2
-    temp_mat_2.pData[0]+=alpha;
-    temp_mat_2.pData[4]+=alpha;
-    temp_mat_2.pData[8]+=alpha;
+    temp_mat_2.pData[0] += alpha;
+    temp_mat_2.pData[4] += alpha;
+    temp_mat_2.pData[8] += alpha;
     arm_mat_add_f32(&temp_mat_1, &temp_mat_2, &temp_mat_2);   //(beta*S + alpha*I) + S*S -> temp_mat_2
     arm_mat_mult_f32(&temp_mat_2, &z, &temp_vec_col);         //(alpha*I + beta*S + S*S)*z -> x = temp_mat_1
 
@@ -210,7 +211,7 @@ static float32_t trace3x3(const arm_matrix_instance_f32 *mat) {
 
 static float32_t det3x3(const arm_matrix_instance_f32 *mat) {
     float32_t *m = mat->pData;
-    return   (m[0] * ((m[4] * m[8]) - (m[7] * m[5])))
+    return (m[0] * ((m[4] * m[8]) - (m[7] * m[5])))
            - (m[1] * ((m[3] * m[8]) - (m[6] * m[5])))
            + (m[2] * ((m[3] * m[7]) - (m[6] * m[4])));
 }
@@ -218,14 +219,15 @@ static float32_t det3x3(const arm_matrix_instance_f32 *mat) {
 //normalize a vector of size n
 static void normalize(float32_t *vec, uint8_t n) {
     float32_t sqrSum = 0.0;
-    for(int i = 0; i < n; i++) {
+
+    for (int i = 0; i < n; i++) {
         sqrSum += vec[i] * vec[i];
     }
 
     float32_t norm;
     arm_sqrt_f32(sqrSum, &norm);
 
-    for(int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         vec[i] /= norm;
     }
 }
@@ -233,5 +235,5 @@ static void normalize(float32_t *vec, uint8_t n) {
 //3d dot product
 //assumes float arrays are of size 3 (does not check size).
 static float32_t dot3(const float32_t *v1, const float32_t *v2) {
-    return ((v1[0]*v2[0]) + (v1[1]*v2[1]) + (v1[2]*v2[2]));
+    return ((v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]));
 }

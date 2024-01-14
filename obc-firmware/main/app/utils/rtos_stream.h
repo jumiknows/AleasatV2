@@ -38,7 +38,7 @@ typedef struct {
 
     /**
      * @brief Handle for an optional mutex
-     * 
+     *
      * If not NULL, writes to the msg_buf will only occur after the mutex
      * has been successfully obtained. This is useful for multi-writer,
      * single-reader scenarios.
@@ -63,7 +63,7 @@ typedef struct {
 
     /**
      * @brief Handle for an optional mutex
-     * 
+     *
      * If not NULL, writes to the stream_buf will only occur after the mutex
      * has been successfully obtained. This is useful for multi-writer,
      * single-reader scenarios.

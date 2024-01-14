@@ -13,9 +13,9 @@
 #include "nvct.h"
 
 // Private function prototypes
-static setting_err_t set_uint32(const char* setting_name, uint32_t value, bool check_mutable);
-static int32_t setting_exists(const char* setting_name);
-static bool set_value_ok(setting_t* setting, uint32_t val);
+static setting_err_t set_uint32(const char *setting_name, uint32_t value, bool check_mutable);
+static int32_t setting_exists(const char *setting_name);
+static bool set_value_ok(setting_t *setting, uint32_t val);
 static bool increment_revision_count(void);
 
 // Variables
@@ -43,6 +43,7 @@ void update_settings_from_nvct(void) {
 
     // Find the index of the revision count setting.
     revision_count_index = setting_exists("revision");
+
     if (xSemaphoreTakeRecursive(settings_mutex, portMAX_DELAY)) {
         // Find the correct NVCT for this firmware version so we can update settings from it.
         uint32_t fw_version = 0;
@@ -52,20 +53,25 @@ void update_settings_from_nvct(void) {
         // Update each setting from NVCT.
         if (nvct_err == NVCT_SUCCESS) {
             uint32_t i = 0;
+
             for (i = 0; i < num_settings; i++) {
                 if (settings[i].nvct == USE_NVCT) {
                     uint32_t val_in_nvct         = 0;
                     nvct_err_enum_t get_nvct_err = get_nvct_value(settings[i].nvct_idx, &val_in_nvct);
+
                     if (get_nvct_err == NVCT_SUCCESS) {
                         // Update the setting in RAM if NVCT contains a different value.
                         setting_nvct_t result = NVCT_SYNCED;
+
                         if (settings[i].setting_value != val_in_nvct) {
                             settings[i].setting_value = val_in_nvct;
+
                             // Call the setting callback if there is one.
                             if (settings[i].set_callback != NULL) {
                                 result = (settings[i].set_callback(val_in_nvct) == true) ? NVCT_SYNCED : NVCT_UPDATE_CALLBACK_FAIL;
                             }
                         }
+
                         settings[i].nvct = result;
                     } else {
                         // Setting was not loaded properly from NVCT, log errors and mark as NVCT_INVALID.
@@ -76,6 +82,7 @@ void update_settings_from_nvct(void) {
                             // TODO Will we ever use this module?
                             //log_str(ERROR, LOG_SETTINGS, "%s NVCT err: %d", settings[i].name, get_nvct_err);
                         }
+
                         settings[i].nvct = NVCT_INVALID;
                     }
                 }
@@ -84,6 +91,7 @@ void update_settings_from_nvct(void) {
             // TODO Will we ever use this module?
             //log_str(ERROR, LOG_SETTINGS, "No NVCT: %d", nvct_err);
         }
+
         xSemaphoreGiveRecursive(settings_mutex);
     }
 }
@@ -99,7 +107,7 @@ void update_settings_from_nvct(void) {
  * @retval SETTING_CALLBACK_FAILED if the setting was set in NVCT or doesn't use NVCT, but the callback failed.
  * @retval INVALID_SETTING_NAME, INVALID_SETTING_VALUE, SETTING_IMMUTABLE, SETTING_MUTEX_ERR, SETTING_NULL_ERR for other errors.
  */
-setting_err_t set_uint32_from_internal(const char* setting_name, uint32_t value) {
+setting_err_t set_uint32_from_internal(const char *setting_name, uint32_t value) {
     return set_uint32(setting_name, value, false);
 }
 
@@ -117,7 +125,7 @@ setting_err_t set_uint32_from_internal(const char* setting_name, uint32_t value)
  * @retval SETTING_CALLBACK_FAILED if the setting was set in NVCT or doesn't use NVCT, but the callback failed.
  * @retval INVALID_SETTING_NAME, INVALID_SETTING_VALUE, SETTING_IMMUTABLE, SETTING_MUTEX_ERR, SETTING_NULL_ERR for other errors.
  */
-setting_err_t set_uint32_from_command(const char* setting_name, uint32_t value) {
+setting_err_t set_uint32_from_command(const char *setting_name, uint32_t value) {
     return set_uint32(setting_name, value, true);
 }
 
@@ -128,17 +136,19 @@ setting_err_t set_uint32_from_command(const char* setting_name, uint32_t value) 
  * @param[out] value The value of the setting, if @ref SETTING_OK is returned. Unchanged otherwise.
  * @return SETTING_OK or an error code.
  */
-setting_err_t get_uint32_from_internal(const char* setting_name, uint32_t* value) {
+setting_err_t get_uint32_from_internal(const char *setting_name, uint32_t *value) {
     if ((setting_name == NULL) || (value == NULL)) {
         return SETTING_NULL_ERR;
     }
 
     int32_t idx = setting_exists(setting_name);
+
     if (idx != -1) {
         *value = settings[idx].setting_value;
     } else {
         return INVALID_SETTING_NAME;
     }
+
     return SETTING_OK;
 }
 
@@ -150,18 +160,20 @@ setting_err_t get_uint32_from_internal(const char* setting_name, uint32_t* value
  * @param[out] nvct_info The NVCT information from the setting, if @ref SETTING_OK is returned. Unchanged otherwise.
  * @return SETTING_OK or an error code.
  */
-setting_err_t get_uint32_from_command(const char* setting_name, uint32_t* value, setting_nvct_t* nvct_info) {
+setting_err_t get_uint32_from_command(const char *setting_name, uint32_t *value, setting_nvct_t *nvct_info) {
     if ((setting_name == NULL) || (value == NULL)) {
         return SETTING_NULL_ERR;
     }
 
     int32_t idx = setting_exists(setting_name);
+
     if (idx != -1) {
         *value     = settings[idx].setting_value;
         *nvct_info = settings[idx].nvct;
     } else {
         return INVALID_SETTING_NAME;
     }
+
     return SETTING_OK;
 }
 
@@ -189,6 +201,7 @@ setting_err_t provision_new_settings_table(uint32_t table_index) {
         // to NVCT fails, or if initial provisioning above failed.
         // Skip firmware version setting since we already wrote it with @ref provision_new_table();
         uint8_t i = 0;
+
         for (i = FIRMWARE_VERSION_NVCT_INDEX + 1; i < num_settings; i++) {
             if ((settings[i].nvct != NOT_NVCT) && (nvct_err == NVCT_SUCCESS)) {
                 // Split into variables to keep MISRA checker happy (MISRA checker bug).
@@ -219,6 +232,7 @@ setting_err_t provision_new_settings_table(uint32_t table_index) {
         //log_str(ERROR, LOG_SETTINGS, "No FW version");
         ret = INVALID_SETTING_NAME;
     }
+
     return ret;
 }
 
@@ -240,12 +254,13 @@ setting_err_t provision_new_settings_table(uint32_t table_index) {
  * @retval SETTING_CALLBACK_FAILED if the setting was set in NVCT or doesn't use NVCT, but the callback failed.
  * @retval INVALID_SETTING_NAME, INVALID_SETTING_VALUE, SETTING_IMMUTABLE, SETTING_MUTEX_ERR, SETTING_NULL_ERR for other errors.
  */
-static setting_err_t set_uint32(const char* setting_name, uint32_t value, bool check_mutable) {
+static setting_err_t set_uint32(const char *setting_name, uint32_t value, bool check_mutable) {
     if (setting_name == NULL) {
         return SETTING_NULL_ERR;
     }
 
     int32_t idx = setting_exists(setting_name);
+
     if (idx == -1) {
         return INVALID_SETTING_NAME;
     }
@@ -267,14 +282,17 @@ static setting_err_t set_uint32(const char* setting_name, uint32_t value, bool c
         // If the setting has a set callback, call it to notify any
         // modules that the setting has been updated.
         bool callback_ok = true;
+
         if (settings[idx].set_callback) {
             callback_ok = settings[idx].set_callback(value);
         }
 
         // Update the value in NVCT if the setting is backed up there.
         bool nvct_ok = true;
+
         if (settings[idx].nvct != NOT_NVCT) {
             nvct_err_enum_t nvct_err = set_nvct_value(settings[idx].mutable, idx, value);
+
             if (nvct_err == NVCT_SUCCESS) {
                 nvct_ok = increment_revision_count();
             } else {
@@ -300,7 +318,7 @@ static setting_err_t set_uint32(const char* setting_name, uint32_t value, bool c
  * @param val[in] The value of the setting to check.
  * @returns true if the value is within the allowable ranges for the setting, false otherwise.
  */
-static bool set_value_ok(setting_t* setting, uint32_t val) {
+static bool set_value_ok(setting_t *setting, uint32_t val) {
     return (val <= setting->max) && (val >= setting->min);
 }
 
@@ -309,17 +327,19 @@ static bool set_value_ok(setting_t* setting, uint32_t val) {
  * @param[in] setting_name The name of the setting.
  * @return -1 if the setting is not found. Otherwise, the index into the settings table.
  */
-static int32_t setting_exists(const char* setting_name) {
+static int32_t setting_exists(const char *setting_name) {
     if (setting_name == NULL) {
         return -1;
     }
 
     uint32_t i = 0;
+
     for (i = 0; i < num_settings; i++) {
         if (strcmp(settings[i].name, setting_name) == 0) {
             return i;
         }
     }
+
     return -1;
 }
 
@@ -331,8 +351,9 @@ static int32_t setting_exists(const char* setting_name) {
  */
 static bool increment_revision_count(void) {
     bool ok = false;
+
     if ((revision_count_index != -1) && ((uint32_t)revision_count_index < num_settings)) {
-        setting_t* revision_setting = &settings[revision_count_index];
+        setting_t *revision_setting = &settings[revision_count_index];
         revision_setting->setting_value++;
 
         // If revision count is 0 after the increment, we rolled over. Log it.
@@ -342,6 +363,7 @@ static bool increment_revision_count(void) {
 
         // Update revision count setting in NVCT.
         nvct_err_enum_t nvct_err = set_nvct_value(revision_setting->mutable, revision_setting->nvct_idx, revision_setting->setting_value);
+
         if (nvct_err == NVCT_SUCCESS) {
             ok = true;
         } else {
@@ -350,5 +372,6 @@ static bool increment_revision_count(void) {
             ok = false;
         }
     }
+
     return ok;
 }

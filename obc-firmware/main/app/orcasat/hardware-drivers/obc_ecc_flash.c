@@ -61,8 +61,8 @@ mibspi_tg_t ecc_flash_22bytes_tg = {.reg = ECC_FLASH_MIBSPI_REG, .transfer_group
 
 /* Private Function Prototypes -------------------------------*/
 static flash_err_t ecc_flash_write_enable(bool enable);
-static flash_err_t ecc_flash_is_busy(bool* busy);
-static flash_err_t ecc_flash_read_register(uint8_t reg, uint8_t* reg_data);
+static flash_err_t ecc_flash_is_busy(bool *busy);
+static flash_err_t ecc_flash_read_register(uint8_t reg, uint8_t *reg_data);
 
 /* API Functions ---------------------------------------------*/
 
@@ -91,6 +91,7 @@ void ecc_flash_init(void) {
 
         xSemaphoreGive(xMibspiMutexHandle);
     }
+
     // Note: decided to only read Manufacturer ID (located at address 00h), and device ID (located at addresses 01h, 02h)
     // These two pieces of information should be sufficient to confirm successful read (and is a quicker check)
     if (!((rx_buffer[1] == 0x01) && (rx_buffer[2] == 0x20) && (rx_buffer[3] == 0x18))) {
@@ -119,10 +120,11 @@ void ecc_flash_init(void) {
  * @param data: Buffer storing the data to write
  * @return: FLASH_OK if no error, error code otherwise
  */
-flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data) {
+flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     uint32_t idx = 0;
+
     while (idx < size_bytes) {
         // Set write enable
         if (ecc_flash_write_enable(TRUE) != FLASH_OK) {
@@ -135,7 +137,8 @@ flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* d
              */
             uint16_t tx_buffer[22] = {
                 ECC_WRITE, (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF};
+                0xFF
+            };
 
             /* Calculate how much data to copy into the transmit buffer so that no more than
              * the passed buffer to the function is copied. If the size is not a multiple of 16,
@@ -144,12 +147,14 @@ flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* d
              */
             uint8_t size_to_copy = ((idx + 17) > size_bytes) ? (size_bytes % 17) : 17;
             uint8_t i;
+
             for (i = 0; i < size_to_copy; i++) {
                 tx_buffer[i + 5] = data[idx + i]; // + 5 to offset from the end of address
             }
 
             // Write to the flash
             err = mibspi_transmit(ecc_flash_22bytes_tg, tx_buffer);
+
             if (err != MIBSPI_NO_ERR) {
                 break;
             }
@@ -162,11 +167,13 @@ flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* d
             bool busy              = TRUE;
             flash_err_t err_flash  = FLASH_OK;
             uint8_t timeout_ctr_ms = 0;
+
             do {
                 if (timeout_ctr_ms == MAX_WRITE_TIMEOUT_MS) {
                     xSemaphoreGive(xMibspiMutexHandle);
                     return FLASH_ERASE_TIMEOUT_ERR;
                 }
+
                 timeout_ctr_ms++;
                 vTaskDelay(pdMS_TO_TICKS(1));
                 err_flash = ecc_flash_is_busy(&busy);
@@ -191,17 +198,20 @@ flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* d
  * @param data: Buffer where read data will be stored
  * @return: FLASH_OK if no error, error code otherwise
  */
-flash_err_t ecc_flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data) {
+flash_err_t ecc_flash_read(uint32_t addr, uint32_t size_bytes, uint8_t *data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
+
     if (xSemaphoreTake(xMibspiMutexHandle, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
         uint32_t idx = 0;
+
         while (idx < size_bytes) {
             /* Transmit read command is structured as follows:
              *    command byte | 32-bit address | 17-byte dummy data buffer
              */
             uint16_t tx_buffer[22] = {
                 ECC_READ, (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF};
+                0xFF
+            };
             uint16_t rx_buffer[22] = {0};
 
             // Read the address in flash
@@ -210,6 +220,7 @@ flash_err_t ecc_flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data) {
             // Copy the read data into the receive buffer
             uint8_t cpy_idx;
             uint8_t size_to_copy = ((idx + 17) > size_bytes) ? (size_bytes % 17) : 17;
+
             for (cpy_idx = 0; cpy_idx < size_to_copy; cpy_idx++) {
                 data[cpy_idx + (uint8_t)idx] = rx_buffer[cpy_idx + 5]; // + 5 is offset due to command and address
             }
@@ -263,19 +274,23 @@ flash_err_t ecc_flash_erase(uint32_t addr, ecc_flash_erase_sz_t erase_size) {
         bool busy             = TRUE;
         flash_err_t err_flash = FLASH_OK;
         uint8_t timeout_ctr_s = 0;
+
         do {
             if (timeout_ctr_s == MAX_ERASE_TIMEOUT_S) {
                 xSemaphoreGive(xMibspiMutexHandle);
                 return FLASH_ERASE_TIMEOUT_ERR;
             }
+
             timeout_ctr_s++;
             vTaskDelay(pdMS_TO_TICKS(1000));
             err_flash = ecc_flash_is_busy(&busy);
         } while ((busy == TRUE) && (err_flash == FLASH_OK));
+
         xSemaphoreGive(xMibspiMutexHandle);
     } else {
         return FLASH_MIBSPI_MUTEX_GRAB_ERR;
     }
+
     return (err != MIBSPI_NO_ERR) ? FLASH_MIBSPI_ERR : FLASH_OK;
 }
 
@@ -283,12 +298,12 @@ flash_err_t ecc_flash_erase(uint32_t addr, ecc_flash_erase_sz_t erase_size) {
  * @brief Read from status register 1 (status register write disable, programming error, erase
  * error, block protection, write enable latch, write in progress)
  *
- * 	@pre @ref mibspi_init from @ref orcasat/interfaces/obc_mibspi.h has been called
+ *  @pre @ref mibspi_init from @ref orcasat/interfaces/obc_mibspi.h has been called
  *
  * @param reg_data: Buffer to store returned data
  * @return FLASH_OK if no error, correct error code otherwise
  */
-flash_err_t ecc_flash_read_status_register_1(uint8_t* reg_data) {
+flash_err_t ecc_flash_read_status_register_1(uint8_t *reg_data) {
     return ecc_flash_read_register(ECC_READ_STATUS_REG_1, reg_data);
 }
 
@@ -296,12 +311,12 @@ flash_err_t ecc_flash_read_status_register_1(uint8_t* reg_data) {
  * @brief Read from status register 2 (block erase size, page buffer wrap, IO3 reset, erase suspend,
  * program suspend)
  *
- * 	@pre @ref mibspi_init from @ref orcasat/interfaces/obc_mibspi.h has been called
+ *  @pre @ref mibspi_init from @ref orcasat/interfaces/obc_mibspi.h has been called
  *
  * @param reg_data: Buffer to store returned data
  * @return FLASH_OK if no error, correct error code otherwise
  */
-flash_err_t ecc_flash_read_status_register_2(uint8_t* reg_data) {
+flash_err_t ecc_flash_read_status_register_2(uint8_t *reg_data) {
     return ecc_flash_read_register(ECC_READ_STATUS_REG_2, reg_data);
 }
 
@@ -314,7 +329,7 @@ flash_err_t ecc_flash_read_status_register_2(uint8_t* reg_data) {
  * @param reg_data: Buffer to store returned data
  * @return FLASH_OK if no error, correct error code otherwise
  */
-flash_err_t ecc_flash_read_ecc_status_register(uint32_t ecc_unit_addr, uint8_t* reg_data) {
+flash_err_t ecc_flash_read_ecc_status_register(uint32_t ecc_unit_addr, uint8_t *reg_data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     /* Transmit read ecc status register command is structured as follows:
@@ -341,7 +356,8 @@ flash_err_t ecc_flash_read_ecc_status_register(uint32_t ecc_unit_addr, uint8_t* 
                               0xFF,
                               0xFF,
                               0xFF,
-                              0xFF};
+                              0xFF
+                             };
     uint16_t rx_buffer[22] = {0};
 
     if (xSemaphoreTake(xMibspiMutexHandle, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
@@ -355,6 +371,7 @@ flash_err_t ecc_flash_read_ecc_status_register(uint32_t ecc_unit_addr, uint8_t* 
 
     // Copy the read data into the receive buffer (16 bytes)
     uint8_t idx;
+
     for (idx = 0; idx < 16; idx++) {
         reg_data[idx] = rx_buffer[idx + 6]; // + 6 is offset due to command, address, dummy byte
     }
@@ -364,15 +381,15 @@ flash_err_t ecc_flash_read_ecc_status_register(uint32_t ecc_unit_addr, uint8_t* 
 
 /**
  * @brief Read from config register (latency code, start of block protection (top or bottom),
- * 									 volatility of block protection, param sector location, I/O
+ *                                   volatility of block protection, param sector location, I/O
  * mode, freeze). See p. 54
  *
- * 	@pre @ref mibspi_init from @ref orcasat/interfaces/obc_mibspi.h has been called
+ *  @pre @ref mibspi_init from @ref orcasat/interfaces/obc_mibspi.h has been called
  *
  * @param reg_data: Buffer to store returned data
  * @return FLASH_OK if no error, correct error code otherwise
  */
-flash_err_t ecc_flash_read_config_register(uint8_t* reg_data) {
+flash_err_t ecc_flash_read_config_register(uint8_t *reg_data) {
     return ecc_flash_read_register(ECC_READ_CONFIG_REG, reg_data);
 }
 
@@ -391,6 +408,7 @@ flash_err_t ecc_flash_write_register(ecc_flash_reg_t reg, const uint8_t reg_data
     if (ecc_flash_write_enable(TRUE) != FLASH_OK) {
         return FLASH_MIBSPI_ERR;
     }
+
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     if (xSemaphoreTake(xMibspiMutexHandle, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
@@ -405,6 +423,7 @@ flash_err_t ecc_flash_write_register(ecc_flash_reg_t reg, const uint8_t reg_data
             uint16_t tx_buffer[5] = {(uint16_t)ECC_WRITE, 0xFF, 0xFF, (uint16_t)reg_data, 0xFF};
             err                   = mibspi_transmit(ecc_flash_5bytes_tg, tx_buffer);
         }
+
         xSemaphoreGive(xMibspiMutexHandle);
     } else {
         return FLASH_MIBSPI_MUTEX_GRAB_ERR;
@@ -425,7 +444,7 @@ flash_err_t ecc_flash_write_register(ecc_flash_reg_t reg, const uint8_t reg_data
  * @param reg_data: Buffer to store returned data
  * @return: FLASH_OK if no error, error code otherwise
  */
-static flash_err_t ecc_flash_read_register(ecc_flash_reg_t reg, uint8_t* reg_data) {
+static flash_err_t ecc_flash_read_register(ecc_flash_reg_t reg, uint8_t *reg_data) {
     mibspi_err_t err      = MIBSPI_NO_ERR;
     uint16_t tx_buffer[2] = {(uint16_t)reg, 0xFF};
     uint16_t rx_buffer[2] = {0};
@@ -452,7 +471,7 @@ static flash_err_t ecc_flash_read_register(ecc_flash_reg_t reg, uint8_t* reg_dat
  * @param busy: Stores the status of the being busy
  * @return FLASH_OK if no error, error code otherwise
  */
-static flash_err_t ecc_flash_is_busy(bool* busy) {
+static flash_err_t ecc_flash_is_busy(bool *busy) {
     uint16_t tx_buffer[2] = {ECC_READ_STATUS_REG_1, 0xFF};
     uint16_t rx_buffer[2] = {0};
 
@@ -480,6 +499,7 @@ static flash_err_t ecc_flash_is_busy(bool* busy) {
  */
 static flash_err_t ecc_flash_write_enable(bool enable) {
     uint16_t tx_buffer[1];
+
     if (enable) {
         tx_buffer[0] = ECC_WRITE_ENABLE;
     } else {
@@ -487,6 +507,7 @@ static flash_err_t ecc_flash_write_enable(bool enable) {
     }
 
     mibspi_err_t err = MIBSPI_NO_ERR;
+
     if (xSemaphoreTake(xMibspiMutexHandle, pdMS_TO_TICKS(MUTEX_TIMEOUT_MS))) {
         err = mibspi_transmit(ecc_flash_1byte_tg, tx_buffer);
 

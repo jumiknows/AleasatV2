@@ -29,7 +29,7 @@
 
 /**
  * @brief Fixed I2C address of the OV5642 sensor
- * 
+ *
  * The SCCB (0x78) is given as an 8-bit address so must be converted to a 7-bit
  * I2C address.
  */
@@ -63,7 +63,7 @@ static i2c_err_t read_sensor_reg(uint16_t addr, uint8_t *data);
 
 /**
  * @brief Reset and initialize the OV5642 sensor
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the initialization is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -75,6 +75,7 @@ ov5642_err_t ov5642_init(void) {
     do {
         // Reset the sensor
         err = ov5642_soft_reset();
+
         if (err != OV5642_SUCCESS) {
             break;
         }
@@ -85,6 +86,7 @@ ov5642_err_t ov5642_init(void) {
         // Check chip id to confirm camera sensor is responsive
         uint16_t chip_id = 0;
         err = read_sensor_chip_id(&chip_id);
+
         if (err != OV5642_SUCCESS) {
             break;
         } else {
@@ -100,7 +102,7 @@ ov5642_err_t ov5642_init(void) {
 
 /**
  * @brief Reset the OV5642 sensor through software
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the reset is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -109,6 +111,7 @@ ov5642_err_t ov5642_soft_reset(void) {
     ov5642_err_t err = OV5642_SUCCESS;
 
     i2c_err_t i2c_err = write_sensor_reg(OV5642_REG_SC_SYS_0, OV5642_REG_SC_SYS_0_SOFT_RESET);
+
     if (i2c_err != I2C_SUCCESS) {
         err = OV5642_ERR_I2C;
     }
@@ -118,9 +121,9 @@ ov5642_err_t ov5642_soft_reset(void) {
 
 /**
  * @brief Configure the image format used by the OV5642 sensor
- * 
+ *
  * @param[in] format Image format to configure
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the configuration is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -130,13 +133,14 @@ ov5642_err_t ov5642_set_format(ov5642_format_t format) {
     ov5642_err_t err = OV5642_SUCCESS;
 
     switch (format) {
-        case OV5642_FMT_JPEG:
-            err = configure_jpeg();
-            break;
-        // TODO RAW
-        default:
-            err = OV5642_ERR_INVALID_ARGS;
-            break;
+    case OV5642_FMT_JPEG:
+        err = configure_jpeg();
+        break;
+
+    // TODO RAW
+    default:
+        err = OV5642_ERR_INVALID_ARGS;
+        break;
     }
 
     return err;
@@ -144,9 +148,9 @@ ov5642_err_t ov5642_set_format(ov5642_format_t format) {
 
 /**
  * @brief Configure the JPEG image resolution used by the OV5642 sensor
- * 
+ *
  * @param[in] jpeg_size JPEG size (resolution) to configure
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the configuration is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -158,22 +162,28 @@ ov5642_err_t ov5642_set_jpeg_size(ov5642_jpeg_size_t jpeg_size) {
     i2c_err_t i2c_err;
 
     switch (jpeg_size) {
-        case OV5642_JPEG_SIZE_320X240:
-            i2c_err = write_sensor_regs(ov5642_reg_data_320x240, LEN(ov5642_reg_data_320x240));
-            if (i2c_err != I2C_SUCCESS) {
-                err = OV5642_ERR_I2C;
-            }
-            break;
-        case OV5642_JPEG_SIZE_2592X1944:
-            i2c_err = write_sensor_regs(ov5642_reg_data_2592x1944, LEN(ov5642_reg_data_2592x1944));
-            if (i2c_err != I2C_SUCCESS) {
-                err = OV5642_ERR_I2C;
-            }
-            break;
-        // TODO other sizes
-        default:
-            err = OV5642_ERR_INVALID_ARGS;
-            break;
+    case OV5642_JPEG_SIZE_320X240:
+        i2c_err = write_sensor_regs(ov5642_reg_data_320x240, LEN(ov5642_reg_data_320x240));
+
+        if (i2c_err != I2C_SUCCESS) {
+            err = OV5642_ERR_I2C;
+        }
+
+        break;
+
+    case OV5642_JPEG_SIZE_2592X1944:
+        i2c_err = write_sensor_regs(ov5642_reg_data_2592x1944, LEN(ov5642_reg_data_2592x1944));
+
+        if (i2c_err != I2C_SUCCESS) {
+            err = OV5642_ERR_I2C;
+        }
+
+        break;
+
+    // TODO other sizes
+    default:
+        err = OV5642_ERR_INVALID_ARGS;
+        break;
     }
 
     return err;
@@ -181,10 +191,10 @@ ov5642_err_t ov5642_set_jpeg_size(ov5642_jpeg_size_t jpeg_size) {
 
 /**
  * @brief Directly write one of the OV5642 registers
- * 
+ *
  * @param[in] addr Register address
  * @param[in] data Register value to write
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the write is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -192,18 +202,20 @@ ov5642_err_t ov5642_set_jpeg_size(ov5642_jpeg_size_t jpeg_size) {
 ov5642_err_t ov5642_write_reg(uint16_t addr, uint8_t data) {
     ov5642_err_t err = OV5642_SUCCESS;
     i2c_err_t i2c_err = write_sensor_reg(addr, data);
+
     if (i2c_err != I2C_SUCCESS) {
         err = OV5642_ERR_I2C;
     }
+
     return err;
 }
 
 /**
  * @brief Directly read one of the OV5642 registers
- * 
+ *
  * @param[in]  addr Register address
  * @param[out] data Pointer to where read value will be stored
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the read is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -216,9 +228,11 @@ ov5642_err_t ov5642_read_reg(uint16_t addr, uint8_t *data) {
 
     ov5642_err_t err = OV5642_SUCCESS;
     i2c_err_t i2c_err = read_sensor_reg(addr, data);
+
     if (i2c_err != I2C_SUCCESS) {
         err = OV5642_ERR_I2C;
     }
+
     return err;
 }
 
@@ -228,7 +242,7 @@ ov5642_err_t ov5642_read_reg(uint16_t addr, uint8_t *data) {
 
 /**
  * @brief Configure the OV5642 sensor to capture a JPEG image
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the configuration is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -238,6 +252,7 @@ static ov5642_err_t configure_jpeg(void) {
 
     do {
         i2c_err_t i2c_err = write_sensor_regs(ov5642_reg_data_qvga_preview, LEN(ov5642_reg_data_qvga_preview));
+
         if (i2c_err != I2C_SUCCESS) {
             err = OV5642_ERR_I2C;
             break;
@@ -246,12 +261,14 @@ static ov5642_err_t configure_jpeg(void) {
         vTaskDelay(pdMS_TO_TICKS(200));
 
         i2c_err = write_sensor_regs(ov5642_reg_data_jpeg_capture_qsxga, LEN(ov5642_reg_data_jpeg_capture_qsxga));
+
         if (i2c_err != I2C_SUCCESS) {
             err = OV5642_ERR_I2C;
             break;
         }
 
         err = ov5642_set_jpeg_size(OV5642_JPEG_SIZE_320X240);
+
         if (err != OV5642_SUCCESS) {
             break;
         }
@@ -267,6 +284,7 @@ static ov5642_err_t configure_jpeg(void) {
             {OV5642_REG_ISP_CONTROL_00,      0xFF},
         };
         i2c_err = write_sensor_regs(final_regs, LEN(final_regs));
+
         if (i2c_err != I2C_SUCCESS) {
             err = OV5642_ERR_I2C;
             break;
@@ -278,9 +296,9 @@ static ov5642_err_t configure_jpeg(void) {
 
 /**
  * @brief Read the 16-bit CHIP ID from the OV5642 sensor
- * 
+ *
  * @param[out] chip_id Pointer to where the CHIP ID will be stored
- * 
+ *
  * @return Status code:
  *            - OV5642_SUCCESS if the read is successful
  *            - OV5642_ERR_I2C if an I2C error occurs
@@ -295,17 +313,21 @@ static ov5642_err_t read_sensor_chip_id(uint16_t *chip_id) {
         *chip_id = 0;
 
         i2c_err = read_sensor_reg(OV5642_REG_CHIP_ID_HIGH_BYTE, &rx);
+
         if (i2c_err != I2C_SUCCESS) {
             err = OV5642_ERR_I2C;
             break;
         }
+
         *chip_id |= (uint16_t)((uint16_t)rx << 8U);
 
         i2c_err = read_sensor_reg(OV5642_REG_CHIP_ID_LOW_BYTE, &rx);
+
         if (i2c_err != I2C_SUCCESS) {
             err = OV5642_ERR_I2C;
             break;
         }
+
         *chip_id |= rx;
     } while (0);
 
@@ -314,31 +336,34 @@ static ov5642_err_t read_sensor_chip_id(uint16_t *chip_id) {
 
 /**
  * @brief Write multiple register values to the OV5642 in sequence.
- * 
+ *
  * If any one register write fails, the sequence is aborted.
- * 
+ *
  * @param[in] reg_data     Array of register addresses and values to write. Cannot be NULL.
  * @param[in] reg_data_len Number of entries in the reg_data array
- * 
+ *
  * @return Result code from the first failing I2C operation or I2C_SUCCESS if all operations succeed
  */
 static i2c_err_t write_sensor_regs(const ov5642_reg_data_t *reg_data, uint32_t reg_data_len) {
     i2c_err_t err = I2C_SUCCESS;
+
     for (uint32_t i = 0; i < reg_data_len; i++) {
         err = write_sensor_reg(reg_data[i].addr, reg_data[i].data);
+
         if (err != I2C_SUCCESS) {
             break;
         }
     }
+
     return err;
 }
 
 /**
  * @brief Write a single register value to the OV5642 over I2C
- * 
+ *
  * @param[in]  addr Register address
  * @param[out] data Value to write
- * 
+ *
  * @return Result code from the I2C operation
  */
 static i2c_err_t write_sensor_reg(uint16_t addr, uint8_t data) {
@@ -353,10 +378,10 @@ static i2c_err_t write_sensor_reg(uint16_t addr, uint8_t data) {
 
 /**
  * @brief Read a single register value from the OV5642 over I2C
- * 
+ *
  * @param[in]  addr Register address
  * @param[out] data Pointer to where the received register value will be stored. Cannot be NULL.
- * 
+ *
  * @return Result code from the I2C operation
  */
 static i2c_err_t read_sensor_reg(uint16_t addr, uint8_t *data) {

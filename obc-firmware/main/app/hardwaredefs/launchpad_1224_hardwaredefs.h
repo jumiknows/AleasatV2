@@ -94,7 +94,7 @@
 #define RTC_TIMESTAMP_TRIGGER_PIN  28
 
 #define RTC_RESET_N_PORT GIO_PORT(gioPORTB)
-#define RTC_RESET_N_PIN  0 
+#define RTC_RESET_N_PIN  0
 
 /**
  * @brief Flash MIBSPI configuration.

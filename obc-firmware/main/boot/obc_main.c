@@ -19,6 +19,7 @@
 
 void obc_main(void) {
     volatile int32_t i = 0;
+
     while (1) {
         i++;
     }

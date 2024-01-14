@@ -119,7 +119,9 @@ cmd_sys_err_t cmd_sys_begin_response(const cmd_sys_cmd_t *cmd, cmd_sys_resp_code
 cmd_sys_err_t cmd_sys_finish_response(const cmd_sys_cmd_t *cmd);
 
 cmd_sys_err_t cmd_sys_handle_args(const cmd_sys_cmd_t *cmd, void *args_struct, const data_fmt_desc_t *args_desc, uint32_t args_len, uint8_t *buf);
-cmd_sys_err_t cmd_sys_handle_resp(const cmd_sys_cmd_t *cmd, const void *resp_struct, const data_fmt_desc_t *resp_desc, uint32_t resp_len, uint8_t *buf, cmd_sys_resp_code_t resp_code);
-cmd_sys_err_t cmd_sys_handle_resp_fields(const cmd_sys_cmd_t *cmd, const void *resp_struct, const data_fmt_desc_t *resp_desc, uint32_t resp_len, uint8_t *buf);
+cmd_sys_err_t cmd_sys_handle_resp(const cmd_sys_cmd_t *cmd, const void *resp_struct, const data_fmt_desc_t *resp_desc, uint32_t resp_len,
+                                  uint8_t *buf, cmd_sys_resp_code_t resp_code);
+cmd_sys_err_t cmd_sys_handle_resp_fields(const cmd_sys_cmd_t *cmd, const void *resp_struct, const data_fmt_desc_t *resp_desc, uint32_t resp_len,
+        uint8_t *buf);
 
 #endif // CMD_SYS_H_

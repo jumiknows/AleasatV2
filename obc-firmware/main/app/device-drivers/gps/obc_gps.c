@@ -68,9 +68,9 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-int16_t gps_send_and_get_reply(const uint8_t* payload, uint32_t payload_len, bool expect_extended_reply, gps_packet_t* reply_pkt);
-gps_err_t handle_gps_response(int32_t reply_len, gps_packet_t* packet);
-void send_gps_datagram(const uint8_t* payload, uint8_t payload_len);
+int16_t gps_send_and_get_reply(const uint8_t *payload, uint32_t payload_len, bool expect_extended_reply, gps_packet_t *reply_pkt);
+gps_err_t handle_gps_response(int32_t reply_len, gps_packet_t *packet);
+void send_gps_datagram(const uint8_t *payload, uint8_t payload_len);
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -108,13 +108,14 @@ void gps_create_infra(void) {
  *
  * @returns gps_err_t
  */
-gps_err_t gps_handle_control_msg(uint8_t* buf, uint16_t length) {
+gps_err_t gps_handle_control_msg(uint8_t *buf, uint16_t length) {
     if (!is_pkts_checksum_valid(buf, length) || length > MAX_GPS_LEN_BYTES) {
         gps_state.expect_extended_reply = false;
         xTaskNotifyGive(gps_state.xGpsTaskToNotify);
         LOG_GPS__INVALID_CHECKSUM_CONTROL_MSG();
         return GPS_BAD_RESPONSE;
     }
+
     // If we got here pkt is fairly valid, so lets notify the thread waiting on the reply.
     /**
      * Wait! We just need one more....
@@ -128,19 +129,22 @@ gps_err_t gps_handle_control_msg(uint8_t* buf, uint16_t length) {
     if (gps_state.expect_extended_reply == true) {
         // We should check to see if its an ACK/NACK.
         gps_sys_msg_output_t packet_type = get_packet_type(buf, length);
+
         switch (packet_type) {
-            case GPS_SYS_MSG_ACK:
-                // Were going to ingnore the ACK and not append it to the buffer.
-                gps_state.expect_extended_reply = false;
-                break;
-            case GPS_SYS_MSG_NACK:
-                // We not a nack when were expecting an extended response.
-                gps_state.expect_extended_reply = false;
-                gps_state.success               = false;
-                xTaskNotifyGive(gps_state.xGpsTaskToNotify);
-                return GPS_BAD_RESPONSE;
-            default:
-                break;
+        case GPS_SYS_MSG_ACK:
+            // Were going to ingnore the ACK and not append it to the buffer.
+            gps_state.expect_extended_reply = false;
+            break;
+
+        case GPS_SYS_MSG_NACK:
+            // We not a nack when were expecting an extended response.
+            gps_state.expect_extended_reply = false;
+            gps_state.success               = false;
+            xTaskNotifyGive(gps_state.xGpsTaskToNotify);
+            return GPS_BAD_RESPONSE;
+
+        default:
+            break;
         }
     } else {
         memcpy(gps_state.rx_buf, buf, length);
@@ -148,6 +152,7 @@ gps_err_t gps_handle_control_msg(uint8_t* buf, uint16_t length) {
         gps_state.success    = true;
         xTaskNotifyGive(gps_state.xGpsTaskToNotify);
     }
+
     return GPS_SUCCESS;
 }
 
@@ -159,21 +164,23 @@ gps_err_t gps_handle_control_msg(uint8_t* buf, uint16_t length) {
  * There are three types of start types:
  * HOT_START: Its when the GPS device remembers its last calculated postion
  *            and the satellites in view, the almanac used, the UTC time and
- * 			  tries to lock into the same satellites to lock a position.
+ *            tries to lock into the same satellites to lock a position.
  *
  * WARM_START: Its when the GPS device remembers its last calculated position,
- * 			   almanac used, and UTC time, but not which satellites were in view.
+ *             almanac used, and UTC time, but not which satellites were in view.
  *
  * COLD_START: Its when the GPS device dumps all the information, and attempts
- * 			   to locate satellites and the ncalculates a GPS lock.
+ *             to locate satellites and the ncalculates a GPS lock.
  */
 gps_err_t gps_restart_receiver(gps_restart_modes_t restart_mode) {
     // We need to get the time time on the satellite.
     real_time_t curr_time = {0};
     rtc_err_t err         = rtc_get_current_time(&curr_time);
+
     if (err != RTC_SUCCESS) {
         return GPS_RTC_ERROR;
     }
+
     uint8_t year0  = ((curr_time.year + START_CENTURY) >> (8 * 0)) & 0xff;
     uint8_t year1  = ((curr_time.year + START_CENTURY) >> (8 * 1)) & 0xff;
     uint8_t month  = curr_time.month & 0xff;
@@ -192,9 +199,9 @@ gps_err_t gps_restart_receiver(gps_restart_modes_t restart_mode) {
 
     // TODO CREATE FUNC TO ADJUST ORCATIME TO NORMAL TIME.
     uint8_t reply_buf[2]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 2};
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 2};
     memset(reply_pkt.payload, 0, sizeof(reply_pkt.payload));
-    int16_t reply_len = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), false, &reply_pkt);
+    int16_t reply_len = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), false, &reply_pkt);
     return handle_gps_response(reply_len, &reply_pkt);
 }
 
@@ -210,21 +217,24 @@ gps_err_t gps_restart_receiver(gps_restart_modes_t restart_mode) {
  * @param[out] sw_version
  * @return gps_err_t
  */
-gps_err_t gps_query_software_version(uint8_t* sw_version) {
+gps_err_t gps_query_software_version(uint8_t *sw_version) {
     uint8_t payload[2] = {
         GPS_SYS_CMD_QUERY_SW_VER,
         0x01, // System Code
     };
     uint8_t reply_buf[14]  = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 14};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), true, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 14};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), true, &reply_pkt);
     gps_err_t status       = handle_gps_response(reply_len, &reply_pkt);
+
     if (status != GPS_SUCCESS) {
         return status;
     }
+
     if (reply_pkt.len < 13) {
         return GPS_BAD_RESPONSE;
     }
+
     // Interpretation on page 134.
     sw_version[0] = reply_pkt.payload[2];  // Kernel.
     sw_version[1] = reply_pkt.payload[3];  // Kernel.
@@ -249,9 +259,9 @@ gps_err_t gps_set_factory_settings(void) {
         GPS_SYS_CMD_SET_FACTORY_DEFAULT, 0x01 // System Code
     };
     uint8_t reply_buf[2]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 2};
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 2};
     memset(reply_pkt.payload, 0, 0);
-    int16_t reply_len = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), false, &reply_pkt);
+    int16_t reply_len = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), false, &reply_pkt);
     return handle_gps_response(reply_len, &reply_pkt);
 }
 
@@ -261,18 +271,21 @@ gps_err_t gps_set_factory_settings(void) {
  * @see Page #15 for Query, Page #135 for Reply.
  * @return gps_err_t
  */
-gps_err_t gps_query_crc_info(uint16_t* sw_crc) {
+gps_err_t gps_query_crc_info(uint16_t *sw_crc) {
     uint8_t payload[2]     = {GPS_SYS_CMD_QUERY_SW_CRC, 0x01};
     uint8_t reply_buf[4]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 4};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), true, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 4};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), true, &reply_pkt);
     gps_err_t status       = handle_gps_response(reply_len, &reply_pkt);
+
     if (status != GPS_SUCCESS) {
         return status;
     }
+
     if (reply_pkt.len < 2) {
         return GPS_BAD_RESPONSE;
     }
+
     *sw_crc = (uint16_t)((uint16_t)reply_pkt.payload[0] << 8) | (uint16_t)reply_pkt.payload[1];
     return GPS_SUCCESS;
 }
@@ -287,8 +300,8 @@ gps_err_t gps_query_crc_info(uint16_t* sw_crc) {
 gps_err_t gps_configure_serial_port(gps_config_serial_baud_t baud_rate) {
     uint8_t payload[4]     = {GPS_SYS_CMD_SET_SERIAL_PORT, 0x00, baud_rate, 0x01};
     uint8_t reply_buf[2]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 2};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), false, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 2};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), false, &reply_pkt);
     return handle_gps_response(reply_len, &reply_pkt);
 }
 
@@ -310,8 +323,8 @@ gps_err_t gps_configure_serial_port(gps_config_serial_baud_t baud_rate) {
 gps_err_t gps_configure_nmea_messages(uint8_t gga, uint8_t gsa, uint8_t gsv, uint8_t gll, uint8_t rmc, uint8_t vtg, uint8_t zda) {
     uint8_t payload[9]     = {GPS_SYS_CMD_SET_NMEA, gga, gsa, gsv, gll, rmc, vtg, zda, 0x01};
     uint8_t reply_buf[2]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 2};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), false, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 2};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), false, &reply_pkt);
     return handle_gps_response(reply_len, &reply_pkt);
 }
 
@@ -319,17 +332,18 @@ gps_err_t gps_configure_nmea_messages(uint8_t gga, uint8_t gsa, uint8_t gsv, uin
  * @brief Query NMEA message configuration.
  * @see Query Page #69 nice. Reply #95.
  */
-gps_err_t gps_query_nmea_messages(uint8_t* gga, uint8_t* gsa, uint8_t* gsv, uint8_t* gll, uint8_t* rmc, uint8_t* vtg, uint8_t* zda) {
+gps_err_t gps_query_nmea_messages(uint8_t *gga, uint8_t *gsa, uint8_t *gsv, uint8_t *gll, uint8_t *rmc, uint8_t *vtg, uint8_t *zda) {
     // GPS is in a bad state after this.
     uint8_t payload[2]     = {GPS_SYS_CMD_QUERY_NMEA, 0x03};
     uint8_t reply_buf[14]  = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 14};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), true, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 14};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), true, &reply_pkt);
     gps_err_t status       = handle_gps_response(reply_len, &reply_pkt);
 
     if (status != GPS_SUCCESS) {
         return status;
     }
+
     if (reply_pkt.len < 12) {
         return GPS_BAD_RESPONSE;
     }
@@ -354,14 +368,15 @@ gps_err_t gps_query_nmea_messages(uint8_t* gga, uint8_t* gsa, uint8_t* gsv, uint
  */
 gps_err_t gps_configure_power_mode(gps_write_method_t gps_write_method, bool power_save) {
     uint8_t pwr_mode = 0x00;
+
     if (power_save == true) {
         pwr_mode = 0x01;
     }
 
     uint8_t payload[3]     = {GPS_SYS_CMD_SET_PWR_MODE, pwr_mode, (uint8_t)gps_write_method};
     uint8_t reply_buf[2]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 2};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), false, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 2};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), false, &reply_pkt);
     return handle_gps_response(reply_len, &reply_pkt);
 }
 
@@ -372,15 +387,17 @@ gps_err_t gps_configure_power_mode(gps_write_method_t gps_write_method, bool pow
  * @param[out] power_save
  * @return gps_err_t
  */
-gps_err_t gps_query_power_mode(bool* power_save) {
+gps_err_t gps_query_power_mode(bool *power_save) {
     uint8_t payload[1]     = {GPS_SYS_CMD_QUERY_PWR_MODE};
     uint8_t reply_buf[4]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 4};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), true, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 4};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), true, &reply_pkt);
     gps_err_t status       = handle_gps_response(reply_len, &reply_pkt);
+
     if (status == GPS_SUCCESS) {
         *power_save = (reply_pkt.payload[0] == (uint8_t)0x01);
     }
+
     return status;
 }
 
@@ -430,8 +447,8 @@ gps_err_t gps_configure_system_postion_rate(gps_pos_update_rate_t pos_update_rat
 
     uint8_t payload[3]     = {GPS_SYS_CMD_SET_POS_UPDATE_RATE, pos_update_rate, 0x01};
     uint8_t reply_buf[10]  = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 10};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), false, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 10};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), false, &reply_pkt);
     return handle_gps_response(reply_len, &reply_pkt);
 }
 
@@ -442,16 +459,18 @@ gps_err_t gps_configure_system_postion_rate(gps_pos_update_rate_t pos_update_rat
  *
  * @param[out] pos_update_rate: returns the position update rate of the GNSS system.
  */
-gps_err_t gps_query_system_postion_rate(uint8_t* pos_update_rate) {
+gps_err_t gps_query_system_postion_rate(uint8_t *pos_update_rate) {
     uint8_t payload[1] = {GPS_SYS_CMD_QUERY_POS_UPDATE_RATE};
 
     uint8_t reply_buf[2]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 2};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), true, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 2};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), true, &reply_pkt);
     gps_err_t status       = handle_gps_response(reply_len, &reply_pkt);
+
     if (status == GPS_SUCCESS) {
         *pos_update_rate = reply_pkt.payload[0];
     }
+
     return status;
 }
 
@@ -467,8 +486,8 @@ gps_err_t gps_query_system_postion_rate(uint8_t* pos_update_rate) {
 gps_err_t gps_configure_nav_message_interval(gps_write_method_t gps_write_method, uint8_t nav_msg_interval) {
     uint8_t payload[3]     = {GPS_SYS_CMD_SET_NAV_DATA_MSG_INTER, nav_msg_interval, (int)gps_write_method};
     uint8_t reply_buf[2]   = {0};
-    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t*)&reply_buf, 2};
-    int16_t reply_len      = gps_send_and_get_reply((uint8_t*)payload, sizeof(payload), false, &reply_pkt);
+    gps_packet_t reply_pkt = {false, 0, 0, (uint8_t *) &reply_buf, 2};
+    int16_t reply_len      = gps_send_and_get_reply((uint8_t *)payload, sizeof(payload), false, &reply_pkt);
     return handle_gps_response(reply_len, &reply_pkt);
 }
 
@@ -476,16 +495,19 @@ gps_err_t gps_configure_nav_message_interval(gps_write_method_t gps_write_method
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/
 
-gps_err_t handle_gps_response(int32_t reply_len, gps_packet_t* packet) {
+gps_err_t handle_gps_response(int32_t reply_len, gps_packet_t *packet) {
     if (reply_len == -1) {
         return GPS_MSG_TIMEOUT;
     }
+
     if (reply_len == GPS_MUTEX_TIMEOUT) {
         return GPS_MUTEX_TIMEOUT;
     }
+
     if (packet->ack == false) {
         return GPS_RECV_NACK;
     }
+
     return GPS_SUCCESS;
 }
 
@@ -500,9 +522,10 @@ gps_err_t handle_gps_response(int32_t reply_len, gps_packet_t* packet) {
  * @return int16_t: returns the length of the recv data.
  *                  or a  gps_parsing_err_t.
  */
-int16_t gps_send_and_get_reply(const uint8_t* payload, uint32_t payload_len, bool expect_extended_reply, gps_packet_t* reply_pkt) {
+int16_t gps_send_and_get_reply(const uint8_t *payload, uint32_t payload_len, bool expect_extended_reply, gps_packet_t *reply_pkt) {
     const TickType_t xBlockTime = pdMS_TO_TICKS(GPS_REPLY_TIMEOUT_MS);
     int16_t return_val          = GPS_INTERNAL_ERROR;
+
     if (xSemaphoreTake(gps_state.xGpsMutex, xBlockTime) == pdPASS) {
         gps_state.expect_extended_reply = expect_extended_reply;
         gps_state.rx_buf_len            = 0;
@@ -510,9 +533,11 @@ int16_t gps_send_and_get_reply(const uint8_t* payload, uint32_t payload_len, boo
         gps_state.success               = false;
         send_gps_datagram(payload, payload_len);
         uint32_t ulNotificationValue = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
         if (ulNotificationValue == 1) {
             if (gps_state.success) {
-                gps_parsing_err_t gps_err = parse_control_packet((uint8_t*)&gps_state.rx_buf, gps_state.rx_buf_len, reply_pkt);
+                gps_parsing_err_t gps_err = parse_control_packet((uint8_t *)&gps_state.rx_buf, gps_state.rx_buf_len, reply_pkt);
+
                 if (gps_err == GPS_PARSE_OK) {
                     return_val = reply_pkt->len;
                 } else {
@@ -521,14 +546,16 @@ int16_t gps_send_and_get_reply(const uint8_t* payload, uint32_t payload_len, boo
                 }
             }
         }
+
         xSemaphoreGive(gps_state.xGpsMutex);
     } else {
         return GPS_MUTEX_TIMEOUT;
     }
+
     return return_val;
 }
 
-void send_gps_datagram(const uint8_t* payload, uint8_t payload_len) {
+void send_gps_datagram(const uint8_t *payload, uint8_t payload_len) {
     uint8_t header[2] = {
         GPS_MSG_START_SEQ_0,
         GPS_MSG_START_SEQ_1,
@@ -542,7 +569,7 @@ void send_gps_datagram(const uint8_t* payload, uint8_t payload_len) {
         payload_len,
     };
 
-    uint8_t checksum = calculate_ctrl_msg_checksum((uint8_t*)payload, payload_len);
+    uint8_t checksum = calculate_ctrl_msg_checksum((uint8_t *)payload, payload_len);
 
     // Send header
     sciSend(UART_GPS, sizeof(header), header);
@@ -552,10 +579,10 @@ void send_gps_datagram(const uint8_t* payload, uint8_t payload_len) {
 
     // Send payload
     // Disable MISRA warning about the cast to non-const
-    sciSend(UART_GPS, payload_len, (uint8_t*)payload); // HALCoGen doesn't declare the data argument as const despite the fact that it does not modify it
+    sciSend(UART_GPS, payload_len, (uint8_t *)payload); // HALCoGen doesn't declare the data argument as const despite the fact that it does not modify it
 
     // Send CRC
-    sciSend(UART_GPS, 1, (uint8_t*)&checksum);
+    sciSend(UART_GPS, 1, (uint8_t *)&checksum);
 
     // Send Tail
     sciSend(UART_GPS, sizeof(tail), tail);

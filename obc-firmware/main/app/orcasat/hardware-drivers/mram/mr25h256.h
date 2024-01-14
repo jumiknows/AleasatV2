@@ -11,11 +11,11 @@
  * time sending a ton of dummy bytes when we just need to send a single byte command, as we would
  * with only 1 large transfer group.
  *
- *      TG number	Number of bytes
- *      2			1
- *      3			2
- *      4			4
- *      5			20
+ *      TG number   Number of bytes
+ *      2           1
+ *      3           2
+ *      4           4
+ *      5           20
  *
  */
 
@@ -51,9 +51,9 @@
 #define MR25H256_MRAM_APPLICATION_PARTITION_BASE 8192U
 
 mram_err_t mram_mr25h256_init(void);
-mram_err_t mram_mr25h256_write(uint16_t addr, uint16_t size_bytes, const uint8_t* data);
-mram_err_t mram_mr25h256_read(uint16_t addr, uint16_t size_bytes, uint8_t* data);
-mram_err_t mram_mr25h256_read_status(uint8_t* reg_data);
+mram_err_t mram_mr25h256_write(uint16_t addr, uint16_t size_bytes, const uint8_t *data);
+mram_err_t mram_mr25h256_read(uint16_t addr, uint16_t size_bytes, uint8_t *data);
+mram_err_t mram_mr25h256_read_status(uint8_t *reg_data);
 mram_err_t mram_mr25h256_write_status(const uint8_t reg_data);
 void mram_mr25h256_reset(void);
 

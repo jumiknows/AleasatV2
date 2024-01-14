@@ -81,32 +81,32 @@ typedef struct endpoint {
 
 typedef struct command_handler {
     int command;
-    void (*func)(comms_command_t* cmd_in, comms_command_t* cmd_resp);
+    void (*func)(comms_command_t *cmd_in, comms_command_t *cmd_resp);
 } command_handler_t;
 
 /******************************************************************************/
 /*          P R I V A T E  F U N C T I O N S  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void handle_ack_nack_command(comms_command_t* cmd_in, comms_command_t* cmd_resp);
+static void handle_ack_nack_command(comms_command_t *cmd_in, comms_command_t *cmd_resp);
 
-static void handle_obc_data_command(comms_command_t* cmd_in, comms_command_t* cmd_resp);
+static void handle_obc_data_command(comms_command_t *cmd_in, comms_command_t *cmd_resp);
 
 static void handle_timer_expiry(TimerHandle_t timer);
 
-static void dispatch_command_handler(comms_command_t* cmd_in, comms_command_t* cmd_resp);
+static void dispatch_command_handler(comms_command_t *cmd_in, comms_command_t *cmd_resp);
 
-static comms_err_t session_send_cmd(comms_session_handle_t session_handle, uint8_t command, const uint8_t* payload, uint8_t payload_len);
+static comms_err_t session_send_cmd(comms_session_handle_t session_handle, uint8_t command, const uint8_t *payload, uint8_t payload_len);
 
-static void session_notify_event(session_t* sess, comms_event_id_t ev_id, void* arg);
+static void session_notify_event(session_t *sess, comms_event_id_t ev_id, void *arg);
 
-static void session_notify_all(comms_event_id_t ev_id, comms_command_t* cmd);
+static void session_notify_all(comms_event_id_t ev_id, comms_command_t *cmd);
 
-static void session_handle_command_failure(session_t* sess);
+static void session_handle_command_failure(session_t *sess);
 
-static void session_handle_command_response(session_t* sess, comms_command_t* cmd);
+static void session_handle_command_response(session_t *sess, comms_command_t *cmd);
 
-static void session_handle_retransmission(session_t* sess);
+static void session_handle_retransmission(session_t *sess);
 
 /******************************************************************************/
 /*              P R I V A T E  G L O B A L  V A R I A B L E S                 */
@@ -172,7 +172,7 @@ void comms_service_create_infra(void) {
  *         COMMS_ERR_INVALID_ARG if session_handle is null or ep_id is invalid
  *         COMMS_ERR_BUSY        if the maximum number of sessions is exceeded
  */
-comms_err_t comms_session_init(comms_endpoint_id_t ep_id, comms_session_handle_t* session_handle) {
+comms_err_t comms_session_init(comms_endpoint_id_t ep_id, comms_session_handle_t *session_handle) {
     comms_err_t err = COMMS_SUCCESS;
     uint8_t session_id;
 
@@ -218,6 +218,7 @@ comms_err_t comms_register_events(comms_session_handle_t session_handle, uint32_
         sessions[session_handle].ev_mask = ev_mask;
         err                              = COMMS_SUCCESS;
     }
+
     return err;
 }
 
@@ -231,17 +232,18 @@ comms_err_t comms_register_events(comms_session_handle_t session_handle, uint32_
  * @return COMMS_SUCCESS         is no error.
  *         COMMS_ERR_INVALID_ARG if any of the arguments are invalid
  */
-static comms_err_t session_send_cmd(comms_session_handle_t session_handle, uint8_t command, const uint8_t* payload, uint8_t payload_len) {
-    comms_command_t* cmd;
+static comms_err_t session_send_cmd(comms_session_handle_t session_handle, uint8_t command, const uint8_t *payload, uint8_t payload_len) {
+    comms_command_t *cmd;
     comms_err_t err;
-    session_t* sess = &sessions[session_handle];
-    endpoint_t* ep  = &endpoints[sess->ep_id];
+    session_t *sess = &sessions[session_handle];
+    endpoint_t *ep  = &endpoints[sess->ep_id];
 
     cmd                   = &cmd_buf;
     cmd->header.command   = command;
     cmd->header.dest_hwid = ep->hwid;
     cmd->header.src_hwid  = OBC_HWID;
     cmd->header.seqnum    = ep->seqnum++;
+
     if (payload != NULL) {
         cmd->data_len = payload_len;
         memcpy(cmd->data, payload, payload_len);
@@ -249,6 +251,7 @@ static comms_err_t session_send_cmd(comms_session_handle_t session_handle, uint8
 
     active_session = session_handle;
     err            = comms_mngr_send_cmd(cmd);
+
     if (err != COMMS_SUCCESS) {
         ep->seqnum--;
     } else {
@@ -276,7 +279,8 @@ static comms_err_t session_send_cmd(comms_session_handle_t session_handle, uint8
  *         COMMS_ERR_BUFFER_OVERFLOW if payload_len exceeds the maximum payload size
  *         COMMS_ERR_BUSY            if command queue is full
  */
-comms_err_t comms_send_command(comms_session_handle_t session_handle, comms_command_id_t cmd_id, uint8_t* payload, uint16_t payload_len, uint32_t timeout_ticks) {
+comms_err_t comms_send_command(comms_session_handle_t session_handle, comms_command_id_t cmd_id, uint8_t *payload, uint16_t payload_len,
+                               uint32_t timeout_ticks) {
     comms_err_t err = COMMS_SUCCESS;
 
     do {
@@ -301,6 +305,7 @@ comms_err_t comms_send_command(comms_session_handle_t session_handle, comms_comm
         }
 
         err = session_send_cmd(session_handle, command_table[cmd_id], payload, payload_len);
+
         if (err != COMMS_SUCCESS) {
             xSemaphoreGive(cmd_sema);
         }
@@ -322,7 +327,7 @@ comms_err_t comms_send_command(comms_session_handle_t session_handle, comms_comm
  *         COMMS_ERR_BUFFER_OVERFLOW if payload_len exceeds the maximum payload size
  *         COMMS_ERR_BUSY            if command queue is full
  */
-comms_err_t comms_wait_cmd_resp(comms_session_handle_t session_handle, comms_cmd_resp_t* resp, uint32_t timeout_ticks) {
+comms_err_t comms_wait_cmd_resp(comms_session_handle_t session_handle, comms_cmd_resp_t *resp, uint32_t timeout_ticks) {
     comms_err_t err = COMMS_ERR_INVALID_ARG;
 
     if (!resp) {
@@ -357,13 +362,13 @@ comms_err_t comms_wait_cmd_resp(comms_session_handle_t session_handle, comms_cmd
  *         COMMS_ERR_INVALID_ARG     if any of the arguments are invalid
  *         COMMS_FLASH_FAIL          if any step of the firmware update failed
  */
-comms_err_t comms_flash_image(comms_session_handle_t session_handle, const comms_app_image_page_t* pages, uint8_t num_pages) {
-    session_t* sess;
+comms_err_t comms_flash_image(comms_session_handle_t session_handle, const comms_app_image_page_t *pages, uint8_t num_pages) {
+    session_t *sess;
     comms_err_t err = COMMS_SUCCESS;
 
     uint8_t fwup_state = COMMS_FWUP_STATE_BEGIN;
     uint8_t command_id, payload_len;
-    const uint8_t* payload;
+    const uint8_t *payload;
     uint8_t page_count = 0, final_page = 255;
 
     if (pages == NULL) {
@@ -384,35 +389,36 @@ comms_err_t comms_flash_image(comms_session_handle_t session_handle, const comms
 
     while (fwup_state != COMMS_FWUP_STATE_COMPLETE) {
         switch (fwup_state) {
-            case COMMS_FWUP_STATE_BEGIN:
-                command_id  = COMMS_RADIO_MSG_REBOOT;
-                payload     = NULL;
-                payload_len = 0;
-                break;
+        case COMMS_FWUP_STATE_BEGIN:
+            command_id  = COMMS_RADIO_MSG_REBOOT;
+            payload     = NULL;
+            payload_len = 0;
+            break;
 
-            case COMMS_FWUP_STATE_FLASH_ERASE:
-                command_id  = COMMS_BOOTLOADER_MSG_ERASE;
-                payload     = NULL;
-                payload_len = 0;
-                vTaskDelay(pdMS_TO_TICKS(COMMS_FLASH_REBOOT_WAIT_TIME_MS));
-                break;
+        case COMMS_FWUP_STATE_FLASH_ERASE:
+            command_id  = COMMS_BOOTLOADER_MSG_ERASE;
+            payload     = NULL;
+            payload_len = 0;
+            vTaskDelay(pdMS_TO_TICKS(COMMS_FLASH_REBOOT_WAIT_TIME_MS));
+            break;
 
-            case COMMS_FWUP_STATE_WRITE_PAGE:
-                command_id  = COMMS_BOOTLOADER_MSG_WRITE_PAGE;
-                payload     = pages[page_count].page_data;
-                payload_len = sizeof(pages[page_count].page_data);
-                break;
+        case COMMS_FWUP_STATE_WRITE_PAGE:
+            command_id  = COMMS_BOOTLOADER_MSG_WRITE_PAGE;
+            payload     = pages[page_count].page_data;
+            payload_len = sizeof(pages[page_count].page_data);
+            break;
 
-            case COMMS_FWUP_STATE_WRITE_FINAL:
-                command_id = COMMS_BOOTLOADER_MSG_WRITE_PAGE;
-                // final_page has the same scope as payload
-                payload     = &final_page;
-                payload_len = 1;
-                break;
-            default:
-                // should never get here
-                err = COMMS_FLASH_FAIL;
-                break;
+        case COMMS_FWUP_STATE_WRITE_FINAL:
+            command_id = COMMS_BOOTLOADER_MSG_WRITE_PAGE;
+            // final_page has the same scope as payload
+            payload     = &final_page;
+            payload_len = 1;
+            break;
+
+        default:
+            // should never get here
+            err = COMMS_FLASH_FAIL;
+            break;
         }
 
         if (err != COMMS_SUCCESS) {
@@ -445,6 +451,7 @@ comms_err_t comms_flash_image(comms_session_handle_t session_handle, const comms
         } else {
             // increment the fwupdate state after all pages have been written
             page_count++;
+
             if (page_count >= num_pages) {
                 fwup_state++;
             }
@@ -461,11 +468,12 @@ comms_err_t comms_flash_image(comms_session_handle_t session_handle, const comms
  *
  * @param[in] cmd_in pointer to input command
  */
-void comms_service_packet_input(comms_command_t* cmd_in) {
+void comms_service_packet_input(comms_command_t *cmd_in) {
     static comms_command_t cmd_resp = {0};
-    memset((void*)&cmd_resp, 0xff, sizeof(comms_command_t));
+    memset((void *)&cmd_resp, 0xff, sizeof(comms_command_t));
 
     dispatch_command_handler(cmd_in, &cmd_resp);
+
     if (comms_check_cmd_struct(&cmd_resp) == COMMS_SUCCESS) {
         comms_mngr_send_cmd(&cmd_resp);
     }
@@ -480,8 +488,8 @@ void comms_service_packet_input(comms_command_t* cmd_in) {
  *
  * @param[in] cmd pointer to failed command
  */
-void comms_service_packet_failure(comms_command_t* cmd) {
-    session_t* sess;
+void comms_service_packet_failure(comms_command_t *cmd) {
+    session_t *sess;
 
     sess = &sessions[active_session];
     session_handle_command_failure(sess);
@@ -499,11 +507,13 @@ void comms_service_packet_failure(comms_command_t* cmd) {
  */
 static comms_endpoint_id_t hwid_to_endpoint(uint16_t hwid) {
     int i;
+
     for (i = 0; i < COMMS_ENDPOINT_MAX; i++) {
         if (hwid == endpoints[i].hwid) {
             break;
         }
     }
+
     return (comms_endpoint_id_t)i;
 }
 
@@ -513,8 +523,8 @@ static comms_endpoint_id_t hwid_to_endpoint(uint16_t hwid) {
  * @param[in]  cmd_req  command request packet
  * @param[out] cmd_resp command response packet
  */
-static void dispatch_command_handler(comms_command_t* cmd_in, comms_command_t* cmd_resp) {
-    session_t* sess = &(sessions[active_session]);
+static void dispatch_command_handler(comms_command_t *cmd_in, comms_command_t *cmd_resp) {
+    session_t *sess = &(sessions[active_session]);
     size_t n        = sizeof(cmd_handlers) / sizeof(cmd_handlers[0]);
 
     if ((cmd_in->header.is_response) && (sess->pending)) {
@@ -534,7 +544,7 @@ static void dispatch_command_handler(comms_command_t* cmd_in, comms_command_t* c
  * @param[in] timer expired timer handle
  */
 static void handle_timer_expiry(TimerHandle_t timer) {
-    session_t* sess = &(sessions[active_session]);
+    session_t *sess = &(sessions[active_session]);
     session_handle_command_failure(sess);
 }
 
@@ -543,7 +553,7 @@ static void handle_timer_expiry(TimerHandle_t timer) {
  *
  * @param[in] sess pointer to session with a recently failed transmission
  */
-static void session_handle_retransmission(session_t* sess) {
+static void session_handle_retransmission(session_t *sess) {
     comms_mngr_send_cmd(&cmd_buf);
     xTimerStart(cmd_timer, portMAX_DELAY);
     sess->retry_count++;
@@ -555,7 +565,7 @@ static void session_handle_retransmission(session_t* sess) {
  * @param[in] sess  pointer to session to notify
  * @param[in] ev_id event that occurred
  */
-static void session_notify_event(session_t* sess, comms_event_id_t ev_id, void* arg) {
+static void session_notify_event(session_t *sess, comms_event_id_t ev_id, void *arg) {
     comms_event_notify_cb ev_cb_func = sess->ev_cb;
     comms_session_handle_t sess_hdl  = sess->hdl;
 
@@ -569,7 +579,7 @@ static void session_notify_event(session_t* sess, comms_event_id_t ev_id, void* 
  *
  * @param[in] ev_id event that occurred
  */
-static void session_notify_all(comms_event_id_t ev_id, comms_command_t* cmd) {
+static void session_notify_all(comms_event_id_t ev_id, comms_command_t *cmd) {
     uint32_t i                = 0;
     comms_endpoint_id_t ep_id = hwid_to_endpoint(cmd->header.src_hwid);
 
@@ -585,7 +595,7 @@ static void session_notify_all(comms_event_id_t ev_id, comms_command_t* cmd) {
  *
  * @param[in] sess  pointer to session to notify
  */
-static void session_handle_command_failure(session_t* sess) {
+static void session_handle_command_failure(session_t *sess) {
     if (xTimerIsTimerActive(cmd_timer) != pdFALSE) {
         xTimerStop(cmd_timer, portMAX_DELAY);
     }
@@ -598,7 +608,7 @@ static void session_handle_command_failure(session_t* sess) {
         sess->pending     = false;
         xSemaphoreGive(cmd_sema);
 
-        session_notify_event(sess, COMMS_EVENT_CMD_FAILURE, (void*)&sess->resp);
+        session_notify_event(sess, COMMS_EVENT_CMD_FAILURE, (void *)&sess->resp);
     }
 }
 
@@ -607,12 +617,13 @@ static void session_handle_command_failure(session_t* sess) {
  *
  * @param[in] sess  pointer to session waiting on this response
  */
-static void session_handle_command_response(session_t* sess, comms_command_t* cmd) {
+static void session_handle_command_response(session_t *sess, comms_command_t *cmd) {
     if (xTimerIsTimerActive(cmd_timer) != pdFALSE) {
         xTimerStop(cmd_timer, portMAX_DELAY);
     }
 
-    if ((cmd->header.seqnum == cmd_buf.header.seqnum) && (cmd->header.command != COMMS_COMMON_MSG_NACK) && (cmd->header.command != COMMS_BOOTLOADER_MSG_NACK)) {
+    if ((cmd->header.seqnum == cmd_buf.header.seqnum) && (cmd->header.command != COMMS_COMMON_MSG_NACK)
+            && (cmd->header.command != COMMS_BOOTLOADER_MSG_NACK)) {
         sess->resp.result = COMMS_CMD_RESULT_OK;
     } else {
         LOG_COMMS__CMD_FAILED();
@@ -629,7 +640,7 @@ static void session_handle_command_response(session_t* sess, comms_command_t* cm
         sess->pending = false;
         xSemaphoreGive(cmd_sema);
 
-        session_notify_event(sess, COMMS_EVENT_CMD_RESP, (void*)&sess->resp);
+        session_notify_event(sess, COMMS_EVENT_CMD_RESP, (void *)&sess->resp);
     }
 }
 
@@ -639,8 +650,8 @@ static void session_handle_command_response(session_t* sess, comms_command_t* cm
  * @param[in] cmd_req   pointer to input command
  * @param[in] cmd_resp  pointer to command response
  */
-static void handle_ack_nack_command(comms_command_t* cmd_in, comms_command_t* cmd_resp) {
-    memset((void*)cmd_resp, 0, sizeof(comms_command_t));
+static void handle_ack_nack_command(comms_command_t *cmd_in, comms_command_t *cmd_resp) {
+    memset((void *)cmd_resp, 0, sizeof(comms_command_t));
 
     // if the command is ACK and not a reply, then respond with ACK
     if (cmd_in->header.command == COMMS_COMMON_MSG_ACK) {
@@ -658,8 +669,8 @@ static void handle_ack_nack_command(comms_command_t* cmd_in, comms_command_t* cm
  * @param[in] cmd_req   pointer to input command
  * @param[in] cmd_resp  pointer to command response
  */
-static void handle_obc_data_command(comms_command_t* cmd_in, comms_command_t* cmd_resp) {
-    memset((void*)cmd_resp, 0, sizeof(comms_command_t));
+static void handle_obc_data_command(comms_command_t *cmd_in, comms_command_t *cmd_resp) {
+    memset((void *)cmd_resp, 0, sizeof(comms_command_t));
 
     cmd_resp->header.dest_hwid   = cmd_in->header.src_hwid;
     cmd_resp->header.src_hwid    = OBC_HWID;

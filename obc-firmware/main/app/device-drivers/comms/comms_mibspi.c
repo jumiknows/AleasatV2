@@ -35,8 +35,8 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static comms_dev_err_type_t comms_mibspi_tx(const uint16_t* tx_buffer, uint16_t msg_len);
-static comms_dev_err_type_t comms_mibspi_rx(uint16_t* rx_buffer, uint16_t buffer_len);
+static comms_dev_err_type_t comms_mibspi_tx(const uint16_t *tx_buffer, uint16_t msg_len);
+static comms_dev_err_type_t comms_mibspi_rx(uint16_t *rx_buffer, uint16_t buffer_len);
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -94,9 +94,9 @@ void comms_mibspi_invoke_irq_cb(void) {
     xHigherPriorityTaskWoken = pdFALSE;
 
     comms_dev_cb_func_t cb_func = cdev.cb;
-    void* param = cdev.cb_param;
+    void *param = cdev.cb_param;
 
-    if(cb_func != NULL) {
+    if (cb_func != NULL) {
         cb_func(true, param);
     }
 
@@ -120,16 +120,15 @@ void comms_mibspi_invoke_irq_cb(void) {
  *         COMMS_DEV_BUS_FAILURE otherwise
  */
 static comms_dev_err_type_t comms_mibspi_tx(
-    const uint16_t* tx_buffer,
+    const uint16_t *tx_buffer,
     uint16_t msg_len
 ) {
     comms_dev_err_type_t ret = COMMS_DEV_SUCCESS;
 
-    if(msg_len > COMMS_MIBSPI_NUM_BYTES) {
+    if (msg_len > COMMS_MIBSPI_NUM_BYTES) {
         ret = COMMS_DEV_ERR_INVALID_ARG;
-    }
-    else if(tms_mibspi_tx(&COMMS_256_BYTES_TG,
-                     (uint16_t *)tx_buffer, COMMS_MIBSPI_TIMEOUT_MS) != MIBSPI_NO_ERR) {
+    } else if (tms_mibspi_tx(&COMMS_256_BYTES_TG,
+                             (uint16_t *)tx_buffer, COMMS_MIBSPI_TIMEOUT_MS) != MIBSPI_NO_ERR) {
         ret = COMMS_DEV_ERR_BUS_FAILURE;
     }
 
@@ -148,16 +147,15 @@ static comms_dev_err_type_t comms_mibspi_tx(
  *         COMMS_DEV_BUS_FAILURE otherwise
  */
 static comms_dev_err_type_t comms_mibspi_rx(
-    uint16_t* rx_buffer,
+    uint16_t *rx_buffer,
     uint16_t buffer_len
 ) {
     comms_dev_err_type_t ret = COMMS_DEV_SUCCESS;
 
-    if(buffer_len != COMMS_MIBSPI_NUM_BYTES) {
+    if (buffer_len != COMMS_MIBSPI_NUM_BYTES) {
         ret = COMMS_DEV_ERR_INVALID_ARG;
-    }
-    else if(tms_mibspi_rx(&COMMS_256_BYTES_TG,
-                     rx_buffer, COMMS_MIBSPI_TIMEOUT_MS) != MIBSPI_NO_ERR) {
+    } else if (tms_mibspi_rx(&COMMS_256_BYTES_TG,
+                             rx_buffer, COMMS_MIBSPI_TIMEOUT_MS) != MIBSPI_NO_ERR) {
         ret = COMMS_DEV_ERR_BUS_FAILURE;
     }
 

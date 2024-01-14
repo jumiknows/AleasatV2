@@ -19,7 +19,7 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static comms_err_t comms_check_buffer(const uint8_t* buf);
+static comms_err_t comms_check_buffer(const uint8_t *buf);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -33,7 +33,7 @@ static comms_err_t comms_check_buffer(const uint8_t* buf);
  *
  * @return comms_err_t indicating if given command struct is valid or not
  */
-comms_err_t comms_check_cmd_struct(comms_command_t* cmd_struct) {
+comms_err_t comms_check_cmd_struct(comms_command_t *cmd_struct) {
     if (cmd_struct->data_len > COMMS_MAX_CMD_PAYLOAD_NUM_BYTES) {
         return COMMS_PKT_LEN_ERR;
     }
@@ -57,11 +57,12 @@ comms_err_t comms_check_cmd_struct(comms_command_t* cmd_struct) {
  *
  * @return comms_err_t indicating if conversion is successful or not
  */
-comms_err_t comms_buffer_to_cmd_struct(const uint8_t* buf, comms_command_t* cmd_struct) {
-    const uint8_t* bufp = &buf[COMMS_ESP_NUM_BYTES];
+comms_err_t comms_buffer_to_cmd_struct(const uint8_t *buf, comms_command_t *cmd_struct) {
+    const uint8_t *bufp = &buf[COMMS_ESP_NUM_BYTES];
     comms_err_t buf_err;
 
     buf_err = comms_check_buffer(buf);
+
     if (buf_err != COMMS_SUCCESS) {
         return buf_err;
     }
@@ -100,10 +101,11 @@ comms_err_t comms_buffer_to_cmd_struct(const uint8_t* buf, comms_command_t* cmd_
  *
  * @return comms_err_t indicating if conversion is successful or not
  */
-comms_err_t comms_cmd_struct_to_buffer(comms_command_t* cmd_struct, uint8_t* buf, uint16_t *msg_len) {
+comms_err_t comms_cmd_struct_to_buffer(comms_command_t *cmd_struct, uint8_t *buf, uint16_t *msg_len) {
     comms_err_t cmd_struct_err;
 
     cmd_struct_err = comms_check_cmd_struct(cmd_struct);
+
     if (cmd_struct_err != COMMS_SUCCESS) {
         return cmd_struct_err;
     }
@@ -139,13 +141,15 @@ comms_err_t comms_cmd_struct_to_buffer(comms_command_t* cmd_struct, uint8_t* buf
  *
  * @return comms_err_t indicating if given command struct is valid or not
  */
-static comms_err_t comms_check_buffer(const uint8_t* buf) {
+static comms_err_t comms_check_buffer(const uint8_t *buf) {
     if (buf[0] != COMMS_ESP_START_BYTE_0) {
         return COMMS_PKT_ESP_MISMATCH_ERR;
     }
+
     if (buf[1] != COMMS_ESP_START_BYTE_1) {
         return COMMS_PKT_ESP_MISMATCH_ERR;
     }
+
     if ((buf[2] < COMMS_MIN_PKT_LEN_VAL) || (buf[2] > COMMS_MAX_PKT_LEN_VAL)) {
         return COMMS_PKT_LEN_ERR;
     }

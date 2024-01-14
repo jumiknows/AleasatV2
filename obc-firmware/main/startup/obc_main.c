@@ -32,13 +32,13 @@
 
 #ifdef PLATFORM_ALEA_V1
 
-    #define LED_PORT gioPORTA
-    #define LED_PIN  7
+#define LED_PORT gioPORTA
+#define LED_PIN  7
 
 #elif PLATFORM_LAUNCHPAD_1224
 
-    #define LED_PORT gioPORTB
-    #define LED_PIN  1
+#define LED_PORT gioPORTB
+#define LED_PIN  1
 
 #endif
 
@@ -118,7 +118,7 @@ void obc_main(void) {
                 // TODO deinitialize hardware
 
                 // Try to boot
-                uint32_t jump_instr_addr = (uint32_t)&(structs->entrypoint.jump_instr);
+                uint32_t jump_instr_addr = (uint32_t) & (structs->entrypoint.jump_instr);
                 asm_jump_to_addr(jump_instr_addr);
 
                 // Nothing after the above call should ever execute

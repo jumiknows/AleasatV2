@@ -26,14 +26,14 @@
  *
  * To adjust the backup epoch, we apply an offset to the number of counts in the
  * RTI counter register. This has two benefits:
- * 	- Allows the time to be adjusted, since we can't load the counter register without being in
+ *  - Allows the time to be adjusted, since we can't load the counter register without being in
  * privileged mode.
- * 	- By reading just the count register, allows us to determine the number of counts (seconds)
+ *  - By reading just the count register, allows us to determine the number of counts (seconds)
  * since boot, not just the number of seconds since we made an adjustment.
  *
  * This value starts at 0, but is adjusted with the set_backup_epoch() function.
  */
-static int32_t offset; 
+static int32_t offset;
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -68,9 +68,9 @@ epoch_t get_backup_epoch(void) {
  * @brief Gets the current uptime in seconds
  *
  * The same RTI_CNT_FRCx register is used by both backup epoch. It is a free running counter
- * that will increment its count once per second. It is clocked by the RTI. This counter 
- * is equivilant to the backup_epoch without an offset. 
- * 
+ * that will increment its count once per second. It is clocked by the RTI. This counter
+ * is equivilant to the backup_epoch without an offset.
+ *
  * There are only two freerunning counters and the first (RTCx 0) is used generate the CPU ticks.
  *
  * @pre @ref backup_epoch_init has to be called before this function can be used since it initializes the RTI registers.
@@ -86,7 +86,7 @@ epoch_t get_uptime(void) {
  * @pre the desired_time is known to be valid. Use @ref is_real_time_valid() to check it.
  * @param[in] desired_time:  time to set to. The real_time component will be used, not the epoch.
  */
-void set_backup_epoch(real_time_t* desired_time) {
+void set_backup_epoch(real_time_t *desired_time) {
     set_real_time_epoch(desired_time);
     offset = desired_time->epoch - BACKUP_EPOCH_RTI_REG->CNT[BACKUP_EPOCH_RTI_COMPARE_REG].FRCx;
 }

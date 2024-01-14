@@ -36,7 +36,7 @@
 
 /**
  * @brief Number of attempts before timing out (units are attempts at register check)
- * 
+ *
  * Typically takes ~3500 for a correct wait
  */
 #define I2C_TIMEOUT_MAX 200000
@@ -85,13 +85,13 @@ static SemaphoreHandle_t xI2CMutex;
 
 static void i2c_init_voltage_levels(void);
 static i2c_err_t i2c_reset(uint8_t max_retry);
-static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t rcv_bytes, uint8_t* rcv_data, bool ignore_nack);
-static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data, bool ignore_nack);
+static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t rcv_bytes, uint8_t *rcv_data, bool ignore_nack);
+static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data, bool ignore_nack);
 
 static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t num_bytes, bool ignore_nack);
-static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data);
+static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data);
 static inline i2c_err_t i2c_send_byte(uint8_t byte);
-static i2c_err_t i2c_receive(uint32_t length, uint8_t* data);
+static i2c_err_t i2c_receive(uint32_t length, uint8_t *data);
 static inline void i2c_clear_nack(void);
 
 /******************************************************************************/
@@ -122,69 +122,75 @@ void tms_i2c_init(void) {
 
 /**
  * @brief Wrapper around i2c_reset to add synchronization via a mutex
- * 
+ *
  * See i2c_reset for information about the parameters (other than mtx_timeout_ms).
- * 
+ *
  * @param[in] mtx_timeout_ms Timeout (in milliseconds) to acquire the mutex and
  *                           gain control of the I2C peripheral. This does not
  *                           include completing the reset.
  */
 i2c_err_t tms_i2c_reset(uint8_t max_retry, uint32_t mtx_timeout_ms) {
     i2c_err_t result;
+
     if (xSemaphoreTake(xI2CMutex, pdMS_TO_TICKS(mtx_timeout_ms)) == pdTRUE) {
         result = i2c_reset(max_retry);
         xSemaphoreGive(xI2CMutex);
     } else {
         result = I2C_MUTEX_TIMEOUT;
     }
+
     return result;
 }
 
 /**
  * @brief Wrapper around i2c_read to add synchronization via a mutex
- * 
+ *
  * See i2c_read for information about the parameters (other than mtx_timeout_ms).
- * 
+ *
  * @param[in] mtx_timeout_ms Timeout (in milliseconds) to acquire the mutex and
  *                           gain control of the I2C peripheral. This does not
  *                           include completing the I2C transaction.
  */
 i2c_err_t tms_i2c_read(uint8_t addr,
-                       uint8_t reg_bytes, const uint8_t* reg_data,
-                       uint32_t rcv_bytes, uint8_t* rcv_data,
+                       uint8_t reg_bytes, const uint8_t *reg_data,
+                       uint32_t rcv_bytes, uint8_t *rcv_data,
                        bool ignore_nack, uint32_t mtx_timeout_ms) {
 
     i2c_err_t result;
+
     if (xSemaphoreTake(xI2CMutex, pdMS_TO_TICKS(mtx_timeout_ms)) == pdTRUE) {
         result = i2c_read(addr, reg_bytes, reg_data, rcv_bytes, rcv_data, ignore_nack);
         xSemaphoreGive(xI2CMutex);
     } else {
         result = I2C_MUTEX_TIMEOUT;
     }
+
     return result;
 }
 
 /**
  * @brief Wrapper around i2c_write to add synchronization via a mutex
- * 
+ *
  * See i2c_write for information about the parameters (other than mtx_timeout_ms).
- * 
+ *
  * @param[in] mtx_timeout_ms Timeout (in milliseconds) to acquire the mutex and
  *                           gain control of the I2C peripheral. This does not
  *                           include completing the I2C transaction.
  */
 i2c_err_t tms_i2c_write(uint8_t addr,
-                        uint8_t reg_bytes, const uint8_t* reg_data,
-                        uint32_t send_bytes, const uint8_t* send_data,
+                        uint8_t reg_bytes, const uint8_t *reg_data,
+                        uint32_t send_bytes, const uint8_t *send_data,
                         bool ignore_nack, uint32_t mtx_timeout_ms) {
 
     i2c_err_t result;
+
     if (xSemaphoreTake(xI2CMutex, pdMS_TO_TICKS(mtx_timeout_ms)) == pdTRUE) {
         result = i2c_write(addr, reg_bytes, reg_data, send_bytes, send_data, ignore_nack);
         xSemaphoreGive(xI2CMutex);
     } else {
         result = I2C_MUTEX_TIMEOUT;
     }
+
     return result;
 }
 
@@ -195,16 +201,15 @@ i2c_err_t tms_i2c_write(uint8_t addr,
 /**
  * @brief Initialize I2C pins as GPIO in order to get correct voltage levels.
  *
- * 	Must initialize:
- * 	  - default values to high
- * 	  - direction to input/output
- * 	  - enable open drain
- * 	In order for I2C module to work correctly.
+ *  Must initialize:
+ *    - default values to high
+ *    - direction to input/output
+ *    - enable open drain
+ *  In order for I2C module to work correctly.
  *
- * 	Must then wait a 1 tick delay.
+ *  Must then wait a 1 tick delay.
  */
-static void i2c_init_voltage_levels(void)
-{
+static void i2c_init_voltage_levels(void) {
     // Enter reset
     i2cREG1->MDR = (uint32_t)((uint32_t)0U << 5U);
 
@@ -213,15 +218,15 @@ static void i2c_init_voltage_levels(void)
 
     // Set I2C pins default output value
     i2cREG1->DOUT = (uint32_t)((uint32_t)1U << 1U) // SDA pin
-                  | (uint32_t)(1U);                // SCL pin
+                    | (uint32_t)(1U);                // SCL pin
 
     // Set I2C pins output direction
     i2cREG1->DIR  = (uint32_t)((uint32_t)1U << 1U) // SDA pin
-                  | (uint32_t)(1U);                // SCL pin
+                    | (uint32_t)(1U);                // SCL pin
 
     // Set I2C pins open drain enable
     i2cREG1->PDR  = (uint32_t)((uint32_t)1U << 1U) // SDA pin
-                  | (uint32_t)(1U);                // SCL pin
+                    | (uint32_t)(1U);                // SCL pin
 
     // Bring I2C out of reset
     i2cREG1->MDR |= (uint32_t)I2C_RESET_OUT;
@@ -244,6 +249,7 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
     uint8_t num_retry = 0;
 
     vTaskSuspendAll(); // Don't want any scheduling happening while we reset
+
     do {
         I2C->MDR &= ~(uint32_t)I2C_RESET_OUT; // Reset i2c peripheral
         I2C->PFNC = I2CPFNC_IO;               // I2C pins to GPIO mode
@@ -251,12 +257,14 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
 
         // Send out some pulses
         uint8_t i;
+
         for (i = 0; i < 10; i++) {
             I2C->DOUT |= I2C_SCL;   // Set SCL high
             busy_wait(I2C_RESET_PULSE_WIDTH);
             I2C->DOUT ^= I2C->DOUT; // Set SCL low
             busy_wait(I2C_RESET_PULSE_WIDTH);
         }
+
         I2C->DOUT |= I2C_SCL; // Set SCL high
 
         // Check that the data line has gone high (idle)
@@ -293,8 +301,9 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
  *
  * @returns I2C module status
  */
-static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t rcv_bytes, uint8_t* rcv_data, bool ignore_nack) {
+static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t rcv_bytes, uint8_t *rcv_data, bool ignore_nack) {
     i2c_err_t err = I2C_SUCCESS;
+
     if (i2cIsBusBusy(I2C)) {
         return I2C_BUS_BUSY;
     }
@@ -305,6 +314,7 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_da
     I2C->MDR &= ~((uint32_t)I2C_STOP_COND); // Clear STOP condition since this is immediately followed by a read
     i2cSetStart(I2C);
     err = i2c_send(reg_bytes, reg_data, 0, NULL);
+
     if (err != I2C_SUCCESS) {
         i2cSetStop(I2C);
         i2cClearSCD(I2C);
@@ -312,6 +322,7 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_da
         if (err == I2C_ERR_NACK) {
             i2c_clear_nack();
         }
+
         return err;
     }
 
@@ -321,6 +332,7 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_da
     I2C->MDR |= (I2C_STOP_COND | I2C_START_COND);
 
     err = i2c_receive(rcv_bytes, rcv_data);
+
     if (err != I2C_SUCCESS) {
         i2cSetStop(I2C);
         i2cClearSCD(I2C);
@@ -329,6 +341,7 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_da
 
     // Wait for a stop condition to occur
     uint32_t timeout_count;
+
     for (timeout_count = 0; timeout_count < I2C_TIMEOUT_MAX; timeout_count++) {
         if (i2cIsStopDetected(I2C)) {
             i2cClearSCD(I2C);
@@ -353,8 +366,10 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_da
  *
  * @returns I2C module status
  */
-static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data, bool ignore_nack) {
+static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data,
+                           bool ignore_nack) {
     i2c_err_t err = I2C_SUCCESS;
+
     if (i2cIsBusBusy(I2C)) {
         return I2C_BUS_BUSY;
     }
@@ -368,6 +383,7 @@ static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_d
     // Send the data to the slave
     i2cSetStart(I2C);
     err = i2c_send(reg_bytes, reg_data, send_bytes, send_data);
+
     if (err != I2C_SUCCESS) {
         i2cSetStop(I2C);
         i2cClearSCD(I2C);
@@ -419,22 +435,26 @@ static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t nu
  *            - I2C_ERR_NACK if NACK was received
  *            - I2C_SUCCESS otherwise
  */
-static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data) {
+static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data) {
     // Send register
     for (; reg_bytes > 0; reg_bytes--) {
         i2c_err_t status = i2c_send_byte(*reg_data);
+
         if (status != I2C_SUCCESS) {
             return status;
         }
+
         reg_data++;
     }
 
     // Send data
     for (; send_bytes > 0; send_bytes--) {
         i2c_err_t status = i2c_send_byte(*send_data);
+
         if (status != I2C_SUCCESS) {
             return status;
         }
+
         send_data++;
     }
 
@@ -445,6 +465,7 @@ static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t* reg_data, uint32_t s
 
     // Wait for the send to complete
     uint32_t timeout_count = 0;
+
     for (timeout_count = 0; timeout_count < I2C_TIMEOUT_MAX; timeout_count++) {
         uint32_t status_reg = I2C->STR;
 
@@ -470,7 +491,7 @@ static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t* reg_data, uint32_t s
 
 /**
  * @brief Sends a single byte on the I2C interface
- * 
+ *
  * @param[in] byte The byte to send
  * @returns I2C module status
  *            - I2C_TX_TIMEOUT if timeout occurred waiting for bus to free
@@ -479,6 +500,7 @@ static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t* reg_data, uint32_t s
  */
 static inline i2c_err_t i2c_send_byte(uint8_t byte) {
     uint32_t timeout_count = 0;
+
     for (timeout_count = 0; true; timeout_count++) {
         uint32_t status_reg = I2C->STR;
 
@@ -512,9 +534,10 @@ static inline i2c_err_t i2c_send_byte(uint8_t byte) {
  *            - I2C_RX_FAIL if timeout occurred waiting for data
  *            - I2C_SUCCESS otherwise
  */
-static i2c_err_t i2c_receive(uint32_t length, uint8_t* data) {
+static i2c_err_t i2c_receive(uint32_t length, uint8_t *data) {
     for (; length > 0; length--) {
         uint32_t timeout_count = 0;
+
         for (timeout_count = 0; true; timeout_count++) {
             // Check if we have received the next byte
             if (I2C->STR & I2C_RX) {

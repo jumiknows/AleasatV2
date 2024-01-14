@@ -37,8 +37,8 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static comms_dev_err_type_t comms_obc_serial_tx(const uint16_t* tx_buffer, uint16_t num_bytes);
-static comms_dev_err_type_t comms_obc_serial_rx(uint16_t* rx_buffer, uint16_t buffer_len);
+static comms_dev_err_type_t comms_obc_serial_tx(const uint16_t *tx_buffer, uint16_t num_bytes);
+static comms_dev_err_type_t comms_obc_serial_rx(uint16_t *rx_buffer, uint16_t buffer_len);
 
 static bool comms_obc_serial_rx_handler(const uint8_t *data, uint8_t data_len, uint32_t timeout_ticks);
 
@@ -148,7 +148,7 @@ comms_dev_handle_t comms_obc_serial_get_handle(void) {
  * @return COMMS_DEV_SUCCESS if no error
  *         COMMS_DEV_BUS_FAILURE otherwise
  */
-static comms_dev_err_type_t comms_obc_serial_tx(const uint16_t* tx_buffer, uint16_t msg_len) {
+static comms_dev_err_type_t comms_obc_serial_tx(const uint16_t *tx_buffer, uint16_t msg_len) {
     const uint8_t *tx_buf_u8 = (const uint8_t *)&tx_buffer[0];
 
     if (msg_len > OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE) {
@@ -156,6 +156,7 @@ static comms_dev_err_type_t comms_obc_serial_tx(const uint16_t* tx_buffer, uint1
     }
 
     uint32_t bytes_written = io_stream_write(&obc_serial_comms_out, tx_buf_u8, msg_len, pdMS_TO_TICKS(COMMS_OBC_SERIAL_TIMEOUT_MS), NULL);
+
     if (bytes_written != msg_len) {
         return COMMS_DEV_ERR_BUS_FAILURE;
     }
@@ -172,14 +173,16 @@ static comms_dev_err_type_t comms_obc_serial_tx(const uint16_t* tx_buffer, uint1
  * @return COMMS_DEV_SUCCESS if no error,
  *         COMMS_DEV_BUS_FAILURE otherwise
  */
-static comms_dev_err_type_t comms_obc_serial_rx(uint16_t* rx_buffer, uint16_t buffer_len) {
+static comms_dev_err_type_t comms_obc_serial_rx(uint16_t *rx_buffer, uint16_t buffer_len) {
     if (buffer_len < OBC_SERIAL_DATAGRAM_MAX_DATA_SIZE) {
         return COMMS_DEV_ERR_INVALID_ARG;
     }
 
     uint8_t *rx_buf_u8 = (uint8_t *)&rx_buffer[0];
 
-    uint32_t bytes_read = buffered_block_istream_read_block(&obc_serial_comms_in, rx_buf_u8, buffer_len, pdMS_TO_TICKS(COMMS_OBC_SERIAL_TIMEOUT_MS), NULL);
+    uint32_t bytes_read = buffered_block_istream_read_block(&obc_serial_comms_in, rx_buf_u8, buffer_len, pdMS_TO_TICKS(COMMS_OBC_SERIAL_TIMEOUT_MS),
+                          NULL);
+
     if (bytes_read < COMMS_MIN_PKT_SIZE_BYTES) {
         return COMMS_DEV_ERR_BUS_FAILURE;
     }
@@ -189,20 +192,23 @@ static comms_dev_err_type_t comms_obc_serial_rx(uint16_t* rx_buffer, uint16_t bu
 
 static bool comms_obc_serial_rx_handler(const uint8_t *data, uint8_t data_len, uint32_t timeout_ticks) {
     bool success = false;
+
     if (rx_msg_buffer != NULL) {
         uint32_t bytes_sent = xMessageBufferSend(rx_msg_buffer, data, data_len, timeout_ticks);
+
         if (bytes_sent == data_len) {
             success = true;
             // Notify COMMS device-level driver that a message is available
             // (emulating the behaviour of the RX interrupt line from an actual COMMS board)
 
             comms_dev_cb_func_t cb_func = cdev.cb;
-            void* param = cdev.cb_param;
+            void *param = cdev.cb_param;
 
             if (cb_func != NULL) {
                 cb_func(false, param); // false because this is not called from an ISR context
             }
         }
     }
+
     return success;
 }

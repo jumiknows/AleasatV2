@@ -60,7 +60,7 @@ typedef enum flash_erase_sz {
 void flash_init(void);
 void flash_identify(void);
 flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size);
-flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data);
-flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data);
+flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data);
+flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t *data);
 
 #endif // OBC_FLASH_H_

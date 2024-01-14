@@ -1212,14 +1212,14 @@ static const comms_app_image_page_t comms_test_app_image_pages_arr[] = {
         0x2f, 0x68, 0x5b, 0xcc, 0xa2, 0xe0, 0xa4, 0xf3
     }
 #else
-0
+    0
 #endif /* INCLUDE_COMMS_FIRMWARE_TEST_IMAGE */
 };
 
 #if INCLUDE_COMMS_FIRMWARE_TEST_IMAGE
-const uint8_t comms_test_app_image_num_pages = sizeof(comms_test_app_image_pages_arr)/sizeof(comms_test_app_image_pages_arr[0]);
+const uint8_t comms_test_app_image_num_pages = sizeof(comms_test_app_image_pages_arr) / sizeof(comms_test_app_image_pages_arr[0]);
 #else
 const uint8_t comms_test_app_image_num_pages = 0;
 #endif /* INCLUDE_COMMS_FIRMWARE_TEST_IMAGE */
 
-const comms_app_image_page_t * const comms_test_app_image_pages = comms_test_app_image_pages_arr;
+const comms_app_image_page_t *const comms_test_app_image_pages = comms_test_app_image_pages_arr;

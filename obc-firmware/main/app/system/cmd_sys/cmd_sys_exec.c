@@ -73,14 +73,14 @@ void cmd_sys_exec_start_task(void) {
 
 /**
  * @brief Added a command to the queue for execution
- * 
+ *
  * @param[in] cmd           Pointer to command struct to add to the queue. The pointer itself will be stored in the queue
  *                          so the object pointed to must remain valid and unmodified until the callback is invoked.
  * @param[in] callback      Optional function that is called after the command is executed and passed the return value of the call
  *                          to cmd_sys_invoke_cmd
  * @param[in] arg           Argument that will be passed to the callback
  * @param[in] timeout_ticks Timeout (ticks) to wait for space in the queue
- * 
+ *
  * @return Status code:
  *            - CMD_SYS_SUCCESS if the command was added to the queue successfully
  *            - CMD_SYS_ERR_EXEC_TIMEOUT if a timeout occurred waiting for space in the queue

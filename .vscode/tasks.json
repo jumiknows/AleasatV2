@@ -73,7 +73,17 @@
                 "cwd": "${workspaceFolder}/obc-firmware"
             },
             "group": "test",
+        },
+        {
+            "label": "Format code style",
+            "type": "shell",
+            "command": "./check-style.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/obc-firmware/tools/infra"
+            },
+            "problemMatcher": []
         }
+
     ],
     "inputs": [
         {

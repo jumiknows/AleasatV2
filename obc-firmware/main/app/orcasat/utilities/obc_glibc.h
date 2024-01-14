@@ -8,6 +8,6 @@
 #ifndef OBC_GLIBC_H
 #define OBC_GLIBC_H
 
-char* orca_strtok_r(char* s, const char* delim, char** save_ptr); // Reentrant string tokenize
+char *orca_strtok_r(char *s, const char *delim, char **save_ptr); // Reentrant string tokenize
 
 #endif // OBC_GLIBC_H

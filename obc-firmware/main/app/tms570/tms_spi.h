@@ -152,7 +152,7 @@ void tms_spi_create_infra(void);
 void tms_spi_init(void);
 
 /* API */
-spi_err_t tms_spi_send(spiBASE_t* port, spi_config_t* cfg, uint32_t block_count , uint16_t* databuff, uint32_t mtx_timeout_ms);
-spi_err_t tms_spi_receive(spiBASE_t* port, spi_config_t* cfg, uint32_t block_count , uint16_t* databuff, uint32_t mtx_timeout_ms);
+spi_err_t tms_spi_send(spiBASE_t *port, spi_config_t *cfg, uint32_t block_count, uint16_t *databuff, uint32_t mtx_timeout_ms);
+spi_err_t tms_spi_receive(spiBASE_t *port, spi_config_t *cfg, uint32_t block_count, uint16_t *databuff, uint32_t mtx_timeout_ms);
 
 #endif /*TMS_SPI_H_*/

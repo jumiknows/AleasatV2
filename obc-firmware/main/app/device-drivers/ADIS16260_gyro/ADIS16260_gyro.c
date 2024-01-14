@@ -69,9 +69,9 @@ ADIS16260_t panel_gyro_3 = {
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t* gyro, uint8_t addr, uint16_t* buf);
-static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t* gyro, uint8_t addr, uint8_t* buf);
-static ADIS16260_error_t ADIS16260_update_id(ADIS16260_t* gyro);
+static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t *gyro, uint8_t addr, uint16_t *buf);
+static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t *gyro, uint8_t addr, uint8_t *buf);
+static ADIS16260_error_t ADIS16260_update_id(ADIS16260_t *gyro);
 static void ADIS16260_timer_cb(xTimerHandle pxTimer);
 
 /******************************************************************************/
@@ -85,20 +85,18 @@ static void ADIS16260_timer_cb(xTimerHandle pxTimer);
  *
  * Function returns ADIS16260_SUCCESS upon successful execution and ADIS16260_error otherwise
 */
-ADIS16260_error_t ADIS16260_init(ADIS16260_t* gyro)
-{
+ADIS16260_error_t ADIS16260_init(ADIS16260_t *gyro) {
 
     TickType_t ticks;
 
-    if (ADIS16260_update_id(gyro) == ADIS16260_ERROR)
-    {
+    if (ADIS16260_update_id(gyro) == ADIS16260_ERROR) {
         return ADIS16260_ERROR;
     }
 
     /*Base number of sleep ticks set to 1, this will be updated when ADIS16260_set_sleep is called*/
-    ticks = pdMS_TO_TICKS(1*ADIS_SLP_TICKS_MS);
+    ticks = pdMS_TO_TICKS(1 * ADIS_SLP_TICKS_MS);
 
-    gyro->timer = xTimerCreateStatic("ADIS_timer", ticks , pdFALSE, &gyro->dev_id.serial_num, &ADIS16260_timer_cb, &gyro->s_timer);
+    gyro->timer = xTimerCreateStatic("ADIS_timer", ticks, pdFALSE, &gyro->dev_id.serial_num, &ADIS16260_timer_cb, &gyro->s_timer);
 
     return ADIS16260_SUCCESS;
 }
@@ -113,25 +111,22 @@ ADIS16260_error_t ADIS16260_init(ADIS16260_t* gyro)
  * Function returns ADIS16260_SUCCESS if device ID acquisition successful, ADIS16260_error otherwise
  *
 */
-ADIS16260_error_t ADIS16260_whoami(ADIS16260_t* gyro, ADIS16260_ID_t* buf)
-{
+ADIS16260_error_t ADIS16260_whoami(ADIS16260_t *gyro, ADIS16260_ID_t *buf) {
     uint16_t rx[ADIS_DEVICE_ID_WORD_SIZE] = {0};
     uint8_t cmd_array[ADIS_DEVICE_ID_WORD_SIZE] = {ADIS_LOTID_1_ADDR, ADIS_LOTID_2_ADDR,
-                                            ADIS_PROD_ID_ADDR, ADIS_SERIAL_NUM_ADDR};
+                                                   ADIS_PROD_ID_ADDR, ADIS_SERIAL_NUM_ADDR
+                                                  };
     uint8_t i = 0;
 
     /*Find all 4 product ID values*/
-    for (i=0; i<ADIS_DEVICE_ID_WORD_SIZE; i++)
-    {
-        if (ADIS16260_read_reg(gyro, cmd_array[i], &rx[i]) != ADIS16260_SUCCESS)
-        {
+    for (i = 0; i < ADIS_DEVICE_ID_WORD_SIZE; i++) {
+        if (ADIS16260_read_reg(gyro, cmd_array[i], &rx[i]) != ADIS16260_SUCCESS) {
             return ADIS16260_READ_ERROR;
         }
     }
 
     /*Verify the Product ID matches "1625" in decimal (0x3F89 in hex)*/
-    if (rx[2] != 0x3F89)
-    {
+    if (rx[2] != 0x3F89) {
         return ADIS16260_INVALID_DATA;
     }
 
@@ -152,13 +147,11 @@ ADIS16260_error_t ADIS16260_whoami(ADIS16260_t* gyro, ADIS16260_ID_t* buf)
  *
  * Function returns ADIS16260_SUCCESS upon successful reset request and ADIS16260_ERROR otherwise
 */
-ADIS16260_error_t ADIS16260_soft_reset(ADIS16260_t* gyro)
-{
+ADIS16260_error_t ADIS16260_soft_reset(ADIS16260_t *gyro) {
 
     uint8_t tx = ADIS_SOFT_RESET;
 
-    if (ADIS16260_write_reg(gyro, ADIS_GLOB_CMD_ADDR, &tx) != ADIS16260_SUCCESS)
-    {
+    if (ADIS16260_write_reg(gyro, ADIS_GLOB_CMD_ADDR, &tx) != ADIS16260_SUCCESS) {
         return ADIS16260_WRITE_ERROR;
     }
 
@@ -178,19 +171,16 @@ ADIS16260_error_t ADIS16260_soft_reset(ADIS16260_t* gyro)
  * Function returns ADIS16260_SUCCESS upon successful read and ADIS16260_ERROR otherwise
  *
 */
-ADIS16260_error_t ADIS16260_read_gyro(ADIS16260_t* gyro, ADIS16260_gdata_t* buf)
-{
+ADIS16260_error_t ADIS16260_read_gyro(ADIS16260_t *gyro, ADIS16260_gdata_t *buf) {
     uint16_t rx = 0;
 
     /*Read raw gyro data*/
-    if (ADIS16260_read_reg(gyro, ADIS_RATE_ADDR, &rx) != ADIS16260_SUCCESS)
-    {
+    if (ADIS16260_read_reg(gyro, ADIS_RATE_ADDR, &rx) != ADIS16260_SUCCESS) {
         return ADIS16260_READ_ERROR;
     }
 
     /*Verify new data flag was set and the ERROR bit is clear*/
-    if (((rx & (uint16_t)ADIS_NEW_DATA) == 0) || ((rx & (uint16_t)ADIS_ERROR_ALARM) != 0))
-    {
+    if (((rx & (uint16_t)ADIS_NEW_DATA) == 0) || ((rx & (uint16_t)ADIS_ERROR_ALARM) != 0)) {
         return ADIS16260_INVALID_DATA;
     }
 
@@ -215,19 +205,16 @@ ADIS16260_error_t ADIS16260_read_gyro(ADIS16260_t* gyro, ADIS16260_gdata_t* buf)
  * Function returns ADIS16260_SUCCESS upon successful read and ADIS16260_ERROR otherwise
  *
 */
-ADIS16260_error_t ADIS16260_read_temp(ADIS16260_t* gyro, ADIS16260_tdata_t* buf)
-{
+ADIS16260_error_t ADIS16260_read_temp(ADIS16260_t *gyro, ADIS16260_tdata_t *buf) {
     uint16_t rx = 0;
 
     /*Read raw temperature data*/
-    if (ADIS16260_read_reg(gyro, ADIS_TEMP_ADDR, &rx) != ADIS16260_SUCCESS)
-    {
+    if (ADIS16260_read_reg(gyro, ADIS_TEMP_ADDR, &rx) != ADIS16260_SUCCESS) {
         return ADIS16260_READ_ERROR;
     }
 
     /*Verify new data flag was set and the ERROR bit is clear*/
-    if (((rx & (uint16_t)ADIS_NEW_DATA) == 0) || ((rx & (uint16_t)ADIS_ERROR_ALARM) != 0))
-    {
+    if (((rx & (uint16_t)ADIS_NEW_DATA) == 0) || ((rx & (uint16_t)ADIS_ERROR_ALARM) != 0)) {
         return ADIS16260_INVALID_DATA;
     }
 
@@ -251,31 +238,27 @@ ADIS16260_error_t ADIS16260_read_temp(ADIS16260_t* gyro, ADIS16260_tdata_t* buf)
  *
  * Function returns ADIS16260_SUCCESS upon successful execution and ADIS16260_error otherwise
 */
-ADIS16260_error_t ADIS16260_set_sleep(ADIS16260_t* gyro, uint8_t sleep_ticks)
-{
+ADIS16260_error_t ADIS16260_set_sleep(ADIS16260_t *gyro, uint8_t sleep_ticks) {
 
     TickType_t ticks;
 
-    if (gyro->asleep  == true)
-    {
+    if (gyro->asleep  == true) {
         return ADIS16260_GYRO_SLEEPING;
     }
 
     /*Calculate number of timer ticks*/
-    ticks = pdMS_TO_TICKS(sleep_ticks*ADIS_SLP_TICKS_MS);
+    ticks = pdMS_TO_TICKS(sleep_ticks * ADIS_SLP_TICKS_MS);
 
-    if (xTimerChangePeriod(gyro->timer, ticks, 0) != pdFAIL)
-    {
+    if (xTimerChangePeriod(gyro->timer, ticks, 0) != pdFAIL) {
         /*Write device sleep command*/
-        if (ADIS16260_write_reg(gyro, ADIS_SLEEP_CNT_ADDR, &sleep_ticks) != ADIS16260_SUCCESS)
-        {
+        if (ADIS16260_write_reg(gyro, ADIS_SLEEP_CNT_ADDR, &sleep_ticks) != ADIS16260_SUCCESS) {
             return ADIS16260_WRITE_ERROR;
         }
 
         /* Start timer */
         gyro->asleep = true;
-        if (xTimerStart(gyro->timer, 0) == pdFAIL)
-        {
+
+        if (xTimerStart(gyro->timer, 0) == pdFAIL) {
             return ADIS16260_TIMER_SET_ERR;
         }
     }
@@ -292,56 +275,53 @@ ADIS16260_error_t ADIS16260_set_sleep(ADIS16260_t* gyro, uint8_t sleep_ticks)
  * @param[in] bw: Gyro bandwidth to set
  * @param[in] taps: Number of gyro taps to set
 */
-ADIS16260_error_t ADIS16260_set_filter(ADIS16260_t* gyro, ADIS_range_t range, ADIS_bw_t bw, uint8_t taps)
-{
+ADIS16260_error_t ADIS16260_set_filter(ADIS16260_t *gyro, ADIS_range_t range, ADIS_bw_t bw, uint8_t taps) {
 
     uint8_t tx[2] = {0};
 
     /*Boundary check for number of sensor taps (3 bit resolution value)*/
-    if ((gyro == NULL) || (taps > 7))
-    {
+    if ((gyro == NULL) || (taps > 7)) {
         return ADIS16260_INVALID_ARGUMENT;
     }
 
-    switch (range)
-    {
-        case ADIS16260_RANGE_320:
-            tx[1] |= ADIS_RANGE_320;
-            break;
-        case ADIS16260_RANGE_160:
-            tx[1] |= ADIS_RANGE_160;
-            break;
-        case ADIS16260_RANGE_80:
-            tx[1] |= ADIS_RANGE_80;
-            break;
+    switch (range) {
+    case ADIS16260_RANGE_320:
+        tx[1] |= ADIS_RANGE_320;
+        break;
 
-        default:
-            return ADIS16260_INVALID_ARGUMENT;
+    case ADIS16260_RANGE_160:
+        tx[1] |= ADIS_RANGE_160;
+        break;
+
+    case ADIS16260_RANGE_80:
+        tx[1] |= ADIS_RANGE_80;
+        break;
+
+    default:
+        return ADIS16260_INVALID_ARGUMENT;
     }
 
-    switch (bw)
-    {
-        case ADIS16260_BW_330:
-            tx[0] |= ADIS_BW_330;
-            break;
-        case ADIS16260_BW_50:
-            tx[0] |= ADIS_BW_50;
-            break;
+    switch (bw) {
+    case ADIS16260_BW_330:
+        tx[0] |= ADIS_BW_330;
+        break;
 
-        default:
-            return ADIS16260_INVALID_ARGUMENT;
+    case ADIS16260_BW_50:
+        tx[0] |= ADIS_BW_50;
+        break;
+
+    default:
+        return ADIS16260_INVALID_ARGUMENT;
     }
 
     tx[0] |= taps;
 
     /*Write both data buffers, datasheet suggests writing upper byte values first*/
-    if (ADIS16260_write_reg(gyro, ADIS_SENS_AVG_ADDR_UPPER, &tx[1]) != ADIS16260_SUCCESS)
-    {
+    if (ADIS16260_write_reg(gyro, ADIS_SENS_AVG_ADDR_UPPER, &tx[1]) != ADIS16260_SUCCESS) {
         return ADIS16260_WRITE_ERROR;
     }
 
-    if (ADIS16260_write_reg(gyro, ADIS_SENS_AVG_ADDR, &tx[0]) != ADIS16260_SUCCESS)
-    {
+    if (ADIS16260_write_reg(gyro, ADIS_SENS_AVG_ADDR, &tx[0]) != ADIS16260_SUCCESS) {
         return ADIS16260_WRITE_ERROR;
     }
 
@@ -363,8 +343,7 @@ ADIS16260_error_t ADIS16260_set_filter(ADIS16260_t* gyro, ADIS_range_t range, AD
  *
  * Returns ADIS16260_error or ADIS16260_SUCCESS depending if read was successful or not
  */
-static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t* gyro, uint8_t addr, uint16_t* buf)
-{
+static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t *gyro, uint8_t addr, uint16_t *buf) {
 
     uint16_t tx = 0;
 
@@ -388,20 +367,17 @@ static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t* gyro, uint8_t addr, uin
     /* According to device datasheet, when doing a read operation send first word as address shifted by 8 bits */
     tx = (uint16_t)addr << 8;
 
-    if (buf == NULL)
-    {
+    if (buf == NULL) {
         return ADIS16260_INVALID_ARGUMENT;
     }
 
     /* Send the spi read command */
-    if (tms_spi_send(gyro->spi_port, &spi_config, 1, &tx, 500) != SPI_SUCCESS)
-    {
+    if (tms_spi_send(gyro->spi_port, &spi_config, 1, &tx, 500) != SPI_SUCCESS) {
         return ADIS16260_WRITE_ERROR;
     }
 
     /* Receive SPI data */
-    if (tms_spi_receive(gyro->spi_port, &spi_config, 1, buf, 500) != SPI_SUCCESS)
-    {
+    if (tms_spi_receive(gyro->spi_port, &spi_config, 1, buf, 500) != SPI_SUCCESS) {
         return ADIS16260_READ_ERROR;
     }
 
@@ -417,8 +393,7 @@ static ADIS16260_error_t ADIS16260_read_reg(ADIS16260_t* gyro, uint8_t addr, uin
  *
  * Returns ADIS16260_error or ADIS16260_SUCCESS depending if read was successful or not
 */
-static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t* gyro, uint8_t addr, uint8_t* buf)
-{
+static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t *gyro, uint8_t addr, uint8_t *buf) {
     uint16_t tx = 0;
 
     /* Setup chip select config packet */
@@ -438,8 +413,7 @@ static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t* gyro, uint8_t addr, ui
         cs_config
     };
 
-    if (buf == NULL)
-    {
+    if (buf == NULL) {
         return ADIS16260_INVALID_ARGUMENT;
     }
 
@@ -449,8 +423,7 @@ static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t* gyro, uint8_t addr, ui
     tx = (ADIS_SET_WRITE_BIT) | (uint16_t)((uint16_t)addr << ADIS_DATA_ADDRESS_SHIFT) | (*buf);
 
     /* Send the spi read command */
-    if (tms_spi_send(gyro->spi_port, &spi_config, 1, &tx, 500) != SPI_SUCCESS)
-    {
+    if (tms_spi_send(gyro->spi_port, &spi_config, 1, &tx, 500) != SPI_SUCCESS) {
         return ADIS16260_WRITE_ERROR;
     }
 
@@ -470,12 +443,10 @@ static ADIS16260_error_t ADIS16260_write_reg(ADIS16260_t* gyro, uint8_t addr, ui
  * comparison.
  *
 */
-static ADIS16260_error_t ADIS16260_update_id(ADIS16260_t* gyro)
-{
+static ADIS16260_error_t ADIS16260_update_id(ADIS16260_t *gyro) {
     ADIS16260_ID_t rx = {0};
 
-    if (ADIS16260_whoami(gyro, &rx) == ADIS16260_ERROR)
-    {
+    if (ADIS16260_whoami(gyro, &rx) == ADIS16260_ERROR) {
         return ADIS16260_ERROR;
     }
 
@@ -489,27 +460,21 @@ static ADIS16260_error_t ADIS16260_update_id(ADIS16260_t* gyro)
  *
  * Function will check which device sleep timer it has been called by and set the device asleep flag to false.
 */
-static void ADIS16260_timer_cb(xTimerHandle pxTimer)
-{
+static void ADIS16260_timer_cb(xTimerHandle pxTimer) {
 
-    uint16_t* timer_id;
+    uint16_t *timer_id;
 
-    timer_id = (uint16_t*)pvTimerGetTimerID(pxTimer);
+    timer_id = (uint16_t *)pvTimerGetTimerID(pxTimer);
 
     if (*timer_id == panel_gyro_0.dev_id.serial_num) {
         panel_gyro_0.asleep = false;
-    }
-    else if (*timer_id == panel_gyro_1.dev_id.serial_num) {
+    } else if (*timer_id == panel_gyro_1.dev_id.serial_num) {
         panel_gyro_1.asleep = false;
-    }
-    else if (*timer_id == panel_gyro_2.dev_id.serial_num) {
+    } else if (*timer_id == panel_gyro_2.dev_id.serial_num) {
         panel_gyro_2.asleep = false;
-    }
-    else if (*timer_id == panel_gyro_3.dev_id.serial_num) {
+    } else if (*timer_id == panel_gyro_3.dev_id.serial_num) {
         panel_gyro_3.asleep = false;
-    }
-    else
-    {
+    } else {
         LOG_ADCS_GYRO__UNHANDLED_CALLBACK();
     }
 }

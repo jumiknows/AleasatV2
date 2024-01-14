@@ -1,7 +1,7 @@
 /**
  * @file quaternion.h
  * @brief Functions for manipulating quaternions (float32_t[4])
- * https://en.wikipedia.org/wiki/Quaternion 
+ * https://en.wikipedia.org/wiki/Quaternion
  */
 
 #ifndef QUATERNION_H_

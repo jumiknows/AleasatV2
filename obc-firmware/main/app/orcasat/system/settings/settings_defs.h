@@ -52,8 +52,8 @@ typedef enum {
  * @brief A setting.
  */
 typedef struct {
-    const char* name;        // The string name of the setting.
-    const char* group;       // The string name of the setting's group.
+    const char *name;        // The string name of the setting.
+    const char *group;       // The string name of the setting's group.
     uint32_t setting_value;  // The value of the setting. This is the default unless the setting is updated from NVCT.
     const bool mutable;      // If true, the setting is mutable (editable) by the settings API from the ground. It may still be edited by firmware.
     const uint32_t min;      // The minimum value that the setting can hold.

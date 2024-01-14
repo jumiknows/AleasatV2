@@ -4,8 +4,8 @@
  * @brief Manages the state of the comms interface, handles interrupts from the RF card
  *        and the reception/transmission of radio packets.
  *
- *        Low-level status events from the comms board are handled at this layer. Other commands 
- *        are forwarded to the comms service layer. 
+ *        Low-level status events from the comms board are handled at this layer. Other commands
+ *        are forwarded to the comms service layer.
  */
 
 /******************************************************************************/
@@ -60,10 +60,10 @@ typedef enum {
 /*                   F U N C T I O N  P R O T O T Y P E S                     */
 /******************************************************************************/
 
-static void vCommsMngrTask(void* pvParameters);
+static void vCommsMngrTask(void *pvParameters);
 static void handle_tx_event(void);
 static void handle_rx_event(void);
-static void handle_dev_interrupt(bool is_isr, void* param);
+static void handle_dev_interrupt(bool is_isr, void *param);
 static EventBits_t get_unblock_conditions(void);
 
 /******************************************************************************/
@@ -105,7 +105,7 @@ void comms_mngr_start_task(comms_dev_handle_t cdev_hdl) {
 
 /**
  * @brief Send a command over the comms interface. The packet will be queued
- *        and transmitted asynchronously by the comms manager task. 
+ *        and transmitted asynchronously by the comms manager task.
  *
  * @pre   comms_mngr_create_infra
  *
@@ -114,14 +114,13 @@ void comms_mngr_start_task(comms_dev_handle_t cdev_hdl) {
  * @return COMMS_SUCCESS if no error, COMMS_ERR_TIMEOUT if the command queue is full
  */
 comms_err_t comms_mngr_send_cmd(
-    comms_command_t* cmd
+    comms_command_t *cmd
 ) {
     comms_err_t err = COMMS_SUCCESS;
-        
-    if(xQueueSend(cmd_q, (void*)&cmd, 0) != pdTRUE) {
+
+    if (xQueueSend(cmd_q, (void *)&cmd, 0) != pdTRUE) {
         err = COMMS_ERR_BUSY;
-    }
-    else {
+    } else {
         xEventGroupSetBits(evt_group, COMMS_TX_CMD_EVENT_BIT);
     }
 
@@ -139,37 +138,37 @@ static void handle_tx_event(void) {
     static uint16_t buf[(COMMS_DEV_MIN_BUFFER_SIZE / 2)] = {0};
     static uint8_t *buf_u8 = (uint8_t *)&buf[0];
 
-    comms_command_t* cmd;
+    comms_command_t *cmd;
     comms_err_t err = COMMS_SUCCESS;
 
     uint16_t msg_len = 0;
 
     do {
-        if(xQueueReceive(cmd_q,
-            (void*)&cmd, 0) != pdPASS) {
+        if (xQueueReceive(cmd_q,
+                          (void *)&cmd, 0) != pdPASS) {
             LOG_COMMS__CMD_QUEUE_EMPTY();
             err = COMMS_ERR_TIMEOUT;
             break;
         }
 
-        if(comms_cmd_struct_to_buffer(cmd, buf_u8, &msg_len) != COMMS_SUCCESS) {
+        if (comms_cmd_struct_to_buffer(cmd, buf_u8, &msg_len) != COMMS_SUCCESS) {
             LOG_COMMS__FAILED_CONVERTING_PACKET_TO_BUFFER(err);
             err = COMMS_ERR_INVALID_ARG;
             break;
         }
 
-        if(comms_dev_send(cdev, buf, msg_len) != COMMS_DEV_SUCCESS) {
+        if (comms_dev_send(cdev, buf, msg_len) != COMMS_DEV_SUCCESS) {
             LOG_COMMS__FAILED_TO_SEND_CMD(err);
             err = COMMS_ERR_RFC_TXN_FAIL;
             break;
         }
 
-        if(cmd->header.is_response == 0) {
+        if (cmd->header.is_response == 0) {
             rfc_state = RADIO_STATE_BUSY;
         }
     } while (0);
 
-    if(err != COMMS_SUCCESS) {
+    if (err != COMMS_SUCCESS) {
         // notify the upper layers that the packet failed
         comms_service_packet_failure(cmd);
     }
@@ -193,29 +192,32 @@ static void handle_rx_event(void) {
         }
 
         err = comms_buffer_to_cmd_struct(buf_u8, &cmd);
+
         if (err != COMMS_SUCCESS) {
             LOG_COMMS__RX_DATA_ERROR(err);
             break;
         }
 
-        if(cmd.header.is_response) {
+        if (cmd.header.is_response) {
             rfc_state = RADIO_STATE_READY;
         }
 
-        switch(cmd.header.command) {
-            // no response is required for these commands
-            case COMMS_RADIO_MSG_START:
-                rfc_state = RADIO_STATE_READY;
-                break;
-            case COMMS_BOOTLOADER_MSG_START:
-                rfc_state = RADIO_STATE_INIT;
-                break;
-            default:
-                break;
-        }
-    } while(0);
+        switch (cmd.header.command) {
+        // no response is required for these commands
+        case COMMS_RADIO_MSG_START:
+            rfc_state = RADIO_STATE_READY;
+            break;
 
-    if(err == COMMS_SUCCESS) {
+        case COMMS_BOOTLOADER_MSG_START:
+            rfc_state = RADIO_STATE_INIT;
+            break;
+
+        default:
+            break;
+        }
+    } while (0);
+
+    if (err == COMMS_SUCCESS) {
         comms_service_packet_input(&cmd);
     }
 }
@@ -230,19 +232,20 @@ static EventBits_t get_unblock_conditions(void) {
 
     EventBits_t uxWaitBits = (EventBits_t)COMMS_RX_CMD_EVENT_BIT;
 
-    switch(rfc_state) {
-        // unblock on command requests only if the radio is ready or in bootloader state
-        case RADIO_STATE_READY:
-        case RADIO_STATE_INIT:
-            uxWaitBits |= COMMS_TX_CMD_EVENT_BIT;
-            break;
+    switch (rfc_state) {
+    // unblock on command requests only if the radio is ready or in bootloader state
+    case RADIO_STATE_READY:
+    case RADIO_STATE_INIT:
+        uxWaitBits |= COMMS_TX_CMD_EVENT_BIT;
+        break;
 
-        // no additional unblock conditions for other states
-        case RADIO_STATE_OFFLINE:
-        case RADIO_STATE_BUSY:
-        default:
-            break;
+    // no additional unblock conditions for other states
+    case RADIO_STATE_OFFLINE:
+    case RADIO_STATE_BUSY:
+    default:
+        break;
     }
+
     return uxWaitBits;
 }
 
@@ -250,12 +253,12 @@ static EventBits_t get_unblock_conditions(void) {
  * @brief handle interrupt generated by the comms board. Notify
  *        the comms manager task that a packet is ready to be received.
  */
-static void handle_dev_interrupt(bool is_isr, void* param) {
+static void handle_dev_interrupt(bool is_isr, void *param) {
     if (is_isr) {
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
         xEventGroupSetBitsFromISR(evt_group,
-                COMMS_RX_CMD_EVENT_BIT, &xHigherPriorityTaskWoken);
+                                  COMMS_RX_CMD_EVENT_BIT, &xHigherPriorityTaskWoken);
 
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     } else {
@@ -268,7 +271,7 @@ static void handle_dev_interrupt(bool is_isr, void* param) {
  *
  * @param[in] pvParameters low-level comms device driver handle.
  */
-static void vCommsMngrTask(void* pvParameters) {
+static void vCommsMngrTask(void *pvParameters) {
     EventBits_t uxSetBits, uxWaitBits;
 
     comms_dev_register_callback(cdev, &handle_dev_interrupt, NULL);
@@ -283,12 +286,12 @@ static void vCommsMngrTask(void* pvParameters) {
         // TODO ensure the event group bits are set and cleared correctly
         uxSetBits = xEventGroupWaitBits(evt_group, uxWaitBits, pdTRUE, pdFALSE, pdMS_TO_TICKS(COMMS_MNGR_POLL_PERIOD_MS));
 
-        if(uxWaitBits & uxSetBits & COMMS_RX_CMD_EVENT_BIT) {
+        if (uxWaitBits & uxSetBits & COMMS_RX_CMD_EVENT_BIT) {
             handle_rx_event();
         }
 
-        if(uxWaitBits & uxSetBits & COMMS_TX_CMD_EVENT_BIT) {
-            while(uxQueueMessagesWaiting(cmd_q) >0) {
+        if (uxWaitBits & uxSetBits & COMMS_TX_CMD_EVENT_BIT) {
+            while (uxQueueMessagesWaiting(cmd_q) > 0) {
                 handle_tx_event();
             }
         }

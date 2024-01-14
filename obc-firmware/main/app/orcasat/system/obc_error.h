@@ -64,7 +64,7 @@ typedef enum flash_err {
     FLASH_MOCK_ERR = -7
 #endif
 #ifdef PLATFORM_ALEA_V1
-    FLASH_MOCK_ERR = -7
+                     FLASH_MOCK_ERR = -7
 #endif
 } flash_err_t;
 
@@ -102,21 +102,21 @@ typedef enum {
     FS_TEST_WRITE_FAILURE   = 2,                   // 2     : Test function failed to write to file (for FS test)
     FS_TEST_STRINGS_UNEQUAL = 1,                   // 1     : Test strings do not match (for FS test)
     /* Errors propagated up from LFS */
-    FS_OK                   = LFS_ERR_OK,          // 0 	: No error
-    FS_IO_ERR               = LFS_ERR_IO,          // -5 	: Error during device operation
-    FS_CORRUPT_ERR          = LFS_ERR_CORRUPT,     // -84 	: Corrupted
-    FS_NOENT_ERR            = LFS_ERR_NOENT,       // -2 	: No directory entry
-    FS_EXIST_ERR            = LFS_ERR_EXIST,       // -17 	: Entry already exists
-    FS_NOTDIR_ERR           = LFS_ERR_NOTDIR,      // -20 	: Entry is not a dir
-    FS_ISDIR_ERR            = LFS_ERR_ISDIR,       // -21 	: Entry is a dir
-    FS_NOTEMPTY_ERR         = LFS_ERR_NOTEMPTY,    // -39 	: Dir is not empty
-    FS_BADF_ERR             = LFS_ERR_BADF,        // -9 	: Bad file number
-    FS_FBIG_ERR             = LFS_ERR_FBIG,        // -27 	: File too large
-    FS_INVAL_ERR            = LFS_ERR_INVAL,       // -22 	: Invalid parameter
-    FS_NOSPC_ERR            = LFS_ERR_NOSPC,       // -28 	: No space left on device
-    FS_NOMEM_ERR            = LFS_ERR_NOMEM,       // -12 	: No more memory available
-    FS_NOATTR_ERR           = LFS_ERR_NOATTR,      // -61 	: No data/attr available
-    FS_NAMETOOLONG_ERR      = LFS_ERR_NAMETOOLONG, // -36 	: File name too long
+    FS_OK                   = LFS_ERR_OK,          // 0     : No error
+    FS_IO_ERR               = LFS_ERR_IO,          // -5    : Error during device operation
+    FS_CORRUPT_ERR          = LFS_ERR_CORRUPT,     // -84   : Corrupted
+    FS_NOENT_ERR            = LFS_ERR_NOENT,       // -2    : No directory entry
+    FS_EXIST_ERR            = LFS_ERR_EXIST,       // -17   : Entry already exists
+    FS_NOTDIR_ERR           = LFS_ERR_NOTDIR,      // -20   : Entry is not a dir
+    FS_ISDIR_ERR            = LFS_ERR_ISDIR,       // -21   : Entry is a dir
+    FS_NOTEMPTY_ERR         = LFS_ERR_NOTEMPTY,    // -39   : Dir is not empty
+    FS_BADF_ERR             = LFS_ERR_BADF,        // -9    : Bad file number
+    FS_FBIG_ERR             = LFS_ERR_FBIG,        // -27   : File too large
+    FS_INVAL_ERR            = LFS_ERR_INVAL,       // -22   : Invalid parameter
+    FS_NOSPC_ERR            = LFS_ERR_NOSPC,       // -28   : No space left on device
+    FS_NOMEM_ERR            = LFS_ERR_NOMEM,       // -12   : No more memory available
+    FS_NOATTR_ERR           = LFS_ERR_NOATTR,      // -61   : No data/attr available
+    FS_NAMETOOLONG_ERR      = LFS_ERR_NAMETOOLONG, // -36   : File name too long
 } fs_err_t;
 
 /**

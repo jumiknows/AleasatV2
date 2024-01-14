@@ -62,7 +62,7 @@ typedef enum {
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void gps_serial_rx_task(void* pvParameters);
+static void gps_serial_rx_task(void *pvParameters);
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -90,7 +90,8 @@ void gps_serial_rx_create_infra(void) {
     static StaticStreamBuffer_t gps_stream_buffer_buf                    = {0};
     static uint8_t gps_stream_buffer_storage[GPS_STREAM_BUFFER_SIZE + 1] = {0}; // See https://www.freertos.org/xStreamBufferCreateStatic.html for explanation of + 1
 
-    gps_stream_buffer = xStreamBufferCreateStatic(GPS_STREAM_BUFFER_SIZE, GPS_STREAM_BUFFER_DEF_TRIG_LVL, gps_stream_buffer_storage, &gps_stream_buffer_buf);
+    gps_stream_buffer = xStreamBufferCreateStatic(GPS_STREAM_BUFFER_SIZE, GPS_STREAM_BUFFER_DEF_TRIG_LVL, gps_stream_buffer_storage,
+                        &gps_stream_buffer_buf);
 }
 
 /**
@@ -121,7 +122,7 @@ void gps_serial_rx_start_task(void) {
  *
  * @param pxHigherPriorityTaskWoken Pointer to store flag that a higher priority task was woken
  */
-void gps_serial_rx_isr(BaseType_t* pxHigherPriorityTaskWoken) {
+void gps_serial_rx_isr(BaseType_t *pxHigherPriorityTaskWoken) {
     xStreamBufferSendFromISR(gps_stream_buffer, &gps_rx_byte, 1, pxHigherPriorityTaskWoken);
     sciReceive(UART_GPS, 1, &gps_rx_byte);
 }
@@ -141,7 +142,7 @@ void gps_serial_rx_isr(BaseType_t* pxHigherPriorityTaskWoken) {
  * b) Reply pkt.
  * If a) is a NACK packet then b will not follow.
  */
-static void gps_serial_rx_task(void* pvParameters) {
+static void gps_serial_rx_task(void *pvParameters) {
     TickType_t timeout = pdMS_TO_TICKS(GPS_REPLY_TIMEOUT_MS);
     static uint8_t data_buf[GPS_SERIAL_FRAME_MAX_DATA_SIZE] = {0};
     uint8_t rx_char                                         = 0;
@@ -154,90 +155,113 @@ static void gps_serial_rx_task(void* pvParameters) {
         obc_watchdog_pet(OBC_TASK_ID_GPS_SERIAL_RX);
 
         switch (state) {
-            case GPS_NMEA_MSG:
-                xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
-                if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
-                    if (buf_idx >= sizeof(data_buf)) {
-                        LOG_GPS__NMEA_PARSER_OVERFLOW();
-                        state = GPS_SERIAL_RX_STATE_START_SYNC_0;
-                        break;
-                    }
-                    data_buf[buf_idx] = rx_char;
-                    if (rx_char == GPS_MSG_END_SEQ_1) {
-                        // We need to check for the sequence
-                        if (buf_idx > 0) {
-                            if (data_buf[buf_idx-1] == GPS_MSG_END_SEQ_0) {
-                                // TODO(ALEA-165): send this to NMEA parser.
-                                state = GPS_SERIAL_RX_STATE_START_SYNC_0;
-                            }
+        case GPS_NMEA_MSG:
+            xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+
+            if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
+                if (buf_idx >= sizeof(data_buf)) {
+                    LOG_GPS__NMEA_PARSER_OVERFLOW();
+                    state = GPS_SERIAL_RX_STATE_START_SYNC_0;
+                    break;
+                }
+
+                data_buf[buf_idx] = rx_char;
+
+                if (rx_char == GPS_MSG_END_SEQ_1) {
+                    // We need to check for the sequence
+                    if (buf_idx > 0) {
+                        if (data_buf[buf_idx - 1] == GPS_MSG_END_SEQ_0) {
+                            // TODO(ALEA-165): send this to NMEA parser.
+                            state = GPS_SERIAL_RX_STATE_START_SYNC_0;
                         }
                     }
-                    buf_idx++;
                 }
-                break;
-            case GPS_SERIAL_RX_STATE_START_SYNC_0:
-                buf_idx     = 0;
-                rx_char     = 0;
-                payload_len = 0;
+
+                buf_idx++;
+            }
+
+            break;
+
+        case GPS_SERIAL_RX_STATE_START_SYNC_0:
+            buf_idx     = 0;
+            rx_char     = 0;
+            payload_len = 0;
+            xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+
+            if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
+                // Check if its NMEA or GPS msg.
+                if (rx_char == GPS_NMEA_MSG_START) {
+                    state = GPS_NMEA_MSG;
+                } else if (rx_char == GPS_MSG_START_SEQ_0) {
+                    state = GPS_SERIAL_RX_STATE_START_SYNC_1;
+                }
+
+                data_buf[buf_idx] = rx_char;
+                buf_idx++;
+            }
+
+            break;
+
+        case GPS_SERIAL_RX_STATE_START_SYNC_1:
+            xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+
+            if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
+                if (rx_char == GPS_MSG_START_SEQ_1) {
+                    state = GPS_SERIAL_RX_STATE_LENGTH;
+                } else {
+                    state = GPS_SERIAL_RX_STATE_START_SYNC_0;
+                }
+
+                data_buf[buf_idx] = rx_char;
+                buf_idx++;
+            }
+
+            break;
+
+        case GPS_SERIAL_RX_STATE_LENGTH:
+            xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+
+            if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
+                payload_len       = (uint16_t)rx_char << 8;
+                data_buf[buf_idx] = rx_char;
+                buf_idx++;
+            }
+
+            xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+
+            if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
+                state             = GPS_SERIAL_RX_STATE_LENGTH_1;
+                payload_len       = (payload_len | (uint16_t)((uint16_t)rx_char << 0));
+
+                if (payload_len > GPS_SERIAL_FRAME_MAX_DATA_SIZE) {
+                    LOG_GPS__PACKET_PARSER_OVERFLOW(payload_len);
+                    state = GPS_SERIAL_RX_STATE_START_SYNC_0;
+                } else {
+                    data_buf[buf_idx] = rx_char;
+                    buf_idx++;
+                    state = GPS_SERIAL_RX_STATE_DATA;
+                }
+            }
+
+            break;
+
+        case GPS_SERIAL_RX_STATE_DATA:
+            for (int i = 0; i < (payload_len + 3); i++) {
                 xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
+
                 if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
-                    // Check if its NMEA or GPS msg.
-                    if (rx_char == GPS_NMEA_MSG_START) {
-                        state = GPS_NMEA_MSG;
-                    } else if (rx_char == GPS_MSG_START_SEQ_0) {
-                        state = GPS_SERIAL_RX_STATE_START_SYNC_1;
-                    }
                     data_buf[buf_idx] = rx_char;
                     buf_idx++;
                 }
-                break;
-            case GPS_SERIAL_RX_STATE_START_SYNC_1:
-                xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
-                if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
-                    if (rx_char == GPS_MSG_START_SEQ_1) {
-                        state = GPS_SERIAL_RX_STATE_LENGTH;
-                    } else {
-                        state = GPS_SERIAL_RX_STATE_START_SYNC_0;
-                    }
-                    data_buf[buf_idx] = rx_char;
-                    buf_idx++;
-                }
-                break;
-            case GPS_SERIAL_RX_STATE_LENGTH:
-                xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
-                if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
-                    payload_len       = (uint16_t)rx_char << 8;
-                    data_buf[buf_idx] = rx_char;
-                    buf_idx++;
-                }
-                xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
-                if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
-                    state             = GPS_SERIAL_RX_STATE_LENGTH_1;
-                    payload_len       = (payload_len | (uint16_t)((uint16_t)rx_char << 0));
-                    if (payload_len > GPS_SERIAL_FRAME_MAX_DATA_SIZE) {
-                        LOG_GPS__PACKET_PARSER_OVERFLOW(payload_len);
-                        state = GPS_SERIAL_RX_STATE_START_SYNC_0;
-                    } else {
-                        data_buf[buf_idx] = rx_char;
-                        buf_idx++;
-                        state = GPS_SERIAL_RX_STATE_DATA;
-                    }
-                }
-                break;
-            case GPS_SERIAL_RX_STATE_DATA:
-                for (int i = 0; i < (payload_len+3); i++) {
-                    xStreamBufferSetTriggerLevel(gps_stream_buffer, 1);
-                    if (xStreamBufferReceive(gps_stream_buffer, &rx_char, 1, timeout) == 1) {
-                        data_buf[buf_idx] = rx_char;
-                        buf_idx++;
-                    } 
-                }
-                gps_handle_control_msg((uint8_t*)&data_buf, buf_idx);
-                state = GPS_SERIAL_RX_STATE_START_SYNC_0;
-                break;
-            default:
-                state = GPS_SERIAL_RX_STATE_START_SYNC_0;
-                break;
+            }
+
+            gps_handle_control_msg((uint8_t *)&data_buf, buf_idx);
+            state = GPS_SERIAL_RX_STATE_START_SYNC_0;
+            break;
+
+        default:
+            state = GPS_SERIAL_RX_STATE_START_SYNC_0;
+            break;
         }
     }
 }

@@ -68,71 +68,86 @@ flash_err_t flash_erase_mock(uint32_t addr, flash_erase_sz_t erase_size) {
 
     uint32_t sector_addr;
     static uint8_t erased_data[SIZE_16K] = { 0 };
+
     switch (erase_size) {
-        case FULL_CHIP:
-        case SECTOR_64K:
-            err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE);
-            while (flash_is_busy()) {
-            }
-            err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + SIZE_16K);
-            while (flash_is_busy()) {
-            }
-            err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + 2 * SIZE_16K);
-            while (flash_is_busy()) {
-            }
-            err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + 3 * SIZE_16K);
-            break;
-        case SECTOR_32K:
-            sector_addr = addr - (addr % SIZE_32K); // Align to 32K sized chunk
-            err         = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr);
-            while (flash_is_busy()) {
-            }
-            err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr + SIZE_16K);
-            break;
+    case FULL_CHIP:
+    case SECTOR_64K:
+        err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE);
+
+        while (flash_is_busy()) {
+        }
+
+        err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + SIZE_16K);
+
+        while (flash_is_busy()) {
+        }
+
+        err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + 2 * SIZE_16K);
+
+        while (flash_is_busy()) {
+        }
+
+        err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + 3 * SIZE_16K);
+        break;
+
+    case SECTOR_32K:
+        sector_addr = addr - (addr % SIZE_32K); // Align to 32K sized chunk
+        err         = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr);
+
+        while (flash_is_busy()) {
+        }
+
+        err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr + SIZE_16K);
+        break;
+
+    /**
+     * Sector sizes 4K and 1K do not exist in this flash bank, but the filesystem will not work
+     * well with the few 16K sectors that are present. Instead, mock these smaller sectors by
+     * erasing the full 16K size and rewriting the data that should not have been erased.
+     */
+    case SECTOR_4K:
+        sector_addr = addr - (addr % SIZE_16K); // Align to 16K sector sized chunk
+        flash_read_mock(sector_addr, SIZE_16K, erased_data);
+        err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr);
+
+        while (flash_is_busy()) {
+        }
+
         /**
-         * Sector sizes 4K and 1K do not exist in this flash bank, but the filesystem will not work
-         * well with the few 16K sectors that are present. Instead, mock these smaller sectors by
-         * erasing the full 16K size and rewriting the data that should not have been erased.
+         *     _________________________________________
+         *    |________|||||||||||___________|__________|
+         *  sector    addr      addr                 sector_addr
+         *   addr               + 4K                   + 16K
+         *
+         * We only want to erase the 4K section starting at addr. The other three sections need
+         * to be written back. We can do this in two write operations:
+         *     - sector_addr -> addr (the size of this write is (addr - sector_addr))
+         *     - addr + 4K   -> sector_addr + 16K (the size of this write is (sector_addr + 16K
+         * - (addr + 4K))
          */
-        case SECTOR_4K:
-            sector_addr = addr - (addr % SIZE_16K); // Align to 16K sector sized chunk
-            flash_read_mock(sector_addr, SIZE_16K, erased_data);
-            err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr);
-            while (flash_is_busy()) {
-            }
+        addr -= (addr % SIZE_4K);
+        flash_write_mock(sector_addr, addr - sector_addr, erased_data);
+        flash_write_mock(addr + SIZE_4K, (sector_addr + SIZE_16K) - (addr + SIZE_4K), &erased_data[(addr + SIZE_4K) - sector_addr]);
+        break;
 
-            /**
-             *     _________________________________________
-             *    |________|||||||||||___________|__________|
-             *  sector    addr      addr                 sector_addr
-             *   addr               + 4K                   + 16K
-             *
-             * We only want to erase the 4K section starting at addr. The other three sections need
-             * to be written back. We can do this in two write operations:
-             *     - sector_addr -> addr (the size of this write is (addr - sector_addr))
-             *     - addr + 4K   -> sector_addr + 16K (the size of this write is (sector_addr + 16K
-             * - (addr + 4K))
-             */
-            addr -= (addr % SIZE_4K);
-            flash_write_mock(sector_addr, addr - sector_addr, erased_data);
-            flash_write_mock(addr + SIZE_4K, (sector_addr + SIZE_16K) - (addr + SIZE_4K), &erased_data[(addr + SIZE_4K) - sector_addr]);
-            break;
-        case SECTOR_1K:
-            sector_addr = addr - (addr % SIZE_16K); // Align to 16K sector sized chunk
-            flash_read_mock(sector_addr, SIZE_16K, erased_data);
-            err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr);
-            while (flash_is_busy()) {
-            }
+    case SECTOR_1K:
+        sector_addr = addr - (addr % SIZE_16K); // Align to 16K sector sized chunk
+        flash_read_mock(sector_addr, SIZE_16K, erased_data);
+        err = Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, ADDR_BASE + sector_addr);
 
-            // Same concept as in the 4K case, but replace the size of the sector we erase with a 1K
-            // size.
-            addr -= (addr % SIZE_1K);
-            flash_write_mock(sector_addr, addr - sector_addr, erased_data);
-            flash_write_mock(addr + SIZE_1K, (sector_addr + SIZE_16K) - (addr + SIZE_1K), &erased_data[(addr + SIZE_1K) - sector_addr]);
-            break;
-        default:
-            // Don't do anything
-            break;
+        while (flash_is_busy()) {
+        }
+
+        // Same concept as in the 4K case, but replace the size of the sector we erase with a 1K
+        // size.
+        addr -= (addr % SIZE_1K);
+        flash_write_mock(sector_addr, addr - sector_addr, erased_data);
+        flash_write_mock(addr + SIZE_1K, (sector_addr + SIZE_16K) - (addr + SIZE_1K), &erased_data[(addr + SIZE_1K) - sector_addr]);
+        break;
+
+    default:
+        // Don't do anything
+        break;
     }
 
     while (flash_is_busy()) {
@@ -153,7 +168,7 @@ flash_err_t flash_erase_mock(uint32_t addr, flash_erase_sz_t erase_size) {
  * @param data: Buffer storing the data to write
  * @return: FLASH_OK
  */
-flash_err_t flash_write_mock(uint32_t addr, uint32_t size_bytes, const uint8_t* data) {
+flash_err_t flash_write_mock(uint32_t addr, uint32_t size_bytes, const uint8_t *data) {
     // Activate the bank first, this is similar to a write enable.
     if (flash_activate_bank() != FLASH_OK) {
         return FLASH_MOCK_ERR;
@@ -161,6 +176,7 @@ flash_err_t flash_write_mock(uint32_t addr, uint32_t size_bytes, const uint8_t* 
 
     uint32_t i;
     uint8_t to_write[FLASH_WRITE_SIZE];
+
     for (i = 0; i < size_bytes; i += FLASH_WRITE_SIZE) {
         // Copy the data so we can safely get rid of the const qualifier, the Fapi function
         // takes a non-const buffer.
@@ -171,7 +187,8 @@ flash_err_t flash_write_mock(uint32_t addr, uint32_t size_bytes, const uint8_t* 
         }
 
         // Note that ADDR_BASE is of type uint32_t*, so every increment jumps by 4 bytes.
-        Fapi_StatusType err = Fapi_issueProgrammingCommand(ADDR_BASE + ((addr + i) / 4), to_write, MIN(FLASH_WRITE_SIZE, size_bytes - i), NULL, 0, Fapi_DataOnly);
+        Fapi_StatusType err = Fapi_issueProgrammingCommand(ADDR_BASE + ((addr + i) / 4), to_write, MIN(FLASH_WRITE_SIZE, size_bytes - i), NULL, 0,
+                              Fapi_DataOnly);
 
         if (err != Fapi_Status_Success) {
             return FLASH_MOCK_ERR;
@@ -189,7 +206,7 @@ flash_err_t flash_write_mock(uint32_t addr, uint32_t size_bytes, const uint8_t* 
  * @param data: Buffer where read data will be stored
  * @return FLASH_OK
  */
-flash_err_t flash_read_mock(uint32_t addr, uint32_t size_bytes, uint8_t* data) {
+flash_err_t flash_read_mock(uint32_t addr, uint32_t size_bytes, uint8_t *data) {
     memcpy(data, ADDR_BASE + (addr / 4), size_bytes);
     return FLASH_OK;
 }
@@ -202,6 +219,7 @@ flash_err_t flash_read_mock(uint32_t addr, uint32_t size_bytes, uint8_t* data) {
 static flash_err_t flash_activate_bank(void) {
     // Activate flash bank 7
     Fapi_StatusType err = Fapi_setActiveFlashBank(Fapi_FlashBank7);
+
     if (err != Fapi_Status_Success) {
         return FLASH_MOCK_ERR;
     }
@@ -211,6 +229,7 @@ static flash_err_t flash_activate_bank(void) {
      * sectors by setting the lower 4 bits of the first argument.
      */
     err = Fapi_enableEepromBankSectors(0x0F, 0x00);
+
     if (err != Fapi_Status_Success) {
         return FLASH_MOCK_ERR;
     }

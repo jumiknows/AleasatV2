@@ -55,8 +55,8 @@
  * @returns NULL if the final token has been reached. Otherwise, the location of the tokenized
  * component.
  */
-char* orca_strtok_r(char* s, const char* delim, char** save_ptr) {
-    char* end;
+char *orca_strtok_r(char *s, const char *delim, char **save_ptr) {
+    char *end;
 
     if (s == NULL) {
         s = *save_ptr;
@@ -69,6 +69,7 @@ char* orca_strtok_r(char* s, const char* delim, char** save_ptr) {
 
     /* Scan leading delimiters.  */
     s += strspn(s, delim);
+
     if (*s == '\0') {
         *save_ptr = s;
         return NULL;
@@ -77,6 +78,7 @@ char* orca_strtok_r(char* s, const char* delim, char** save_ptr) {
     /* Find the end of the token.  */
     end = s;
     end += strcspn(s, delim);
+
     if (*end == '\0') {
         *save_ptr = end;
         return s;

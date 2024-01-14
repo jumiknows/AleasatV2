@@ -52,10 +52,10 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static int32_t bd_read(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, void* buffer, lfs_size_t size_bytes);
-static int32_t bd_prog(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, const void* buffer, lfs_size_t size_bytes);
-static int32_t bd_erase(const struct lfs_config* cnfg, lfs_block_t block);
-static int32_t bd_sync(const struct lfs_config* cnfg);
+static int32_t bd_read(const struct lfs_config *cnfg, lfs_block_t block, lfs_off_t off_bytes, void *buffer, lfs_size_t size_bytes);
+static int32_t bd_prog(const struct lfs_config *cnfg, lfs_block_t block, lfs_off_t off_bytes, const void *buffer, lfs_size_t size_bytes);
+static int32_t bd_erase(const struct lfs_config *cnfg, lfs_block_t block);
+static int32_t bd_sync(const struct lfs_config *cnfg);
 
 /******************************************************************************/
 /*               P R I V A T E  G L O B A L  V A R I A B L E S                */
@@ -100,7 +100,7 @@ static const struct lfs_config cfg = {
 
 /**
  * @brief Initializes the filesystem. Must be called before any other FS functions.
- * 
+ *
  * @return FS_OK if successful, error code otherwise
  */
 fs_err_t fs_init(void) {
@@ -108,15 +108,18 @@ fs_err_t fs_init(void) {
 
     // Mount fs
     err = (fs_err_t) lfs_mount(&obc_lfs, &cfg);
+
     if (err == FS_CORRUPT_ERR) {
         // FS is either yet to be initialized, or irrepairably corrupted
         err = (fs_err_t) lfs_format(&obc_lfs, &cfg);
+
         if (err != FS_OK) {
             return err;
         }
 
         // Try again with formatted FS
         err = (fs_err_t) lfs_mount(&obc_lfs, &cfg);
+
         if (err != FS_OK) {
             return err;
         }
@@ -129,7 +132,7 @@ fs_err_t fs_init(void) {
 
 /**
  * @brief De-initializes the filesystem.
- * 
+ *
  * @return FS_OK if successful, error code otherwise
  */
 fs_err_t fs_deinit(void) {
@@ -143,49 +146,56 @@ fs_err_t fs_deinit(void) {
 
 /**
  * @brief Performs a comprehensive test of the file system capabilities
- * 
+ *
  * @warning Re-formats FS, erasing all old data
- * 
+ *
  * @return FS_OK if all tests passed, error code otherwise
  */
 fs_err_t fs_self_test(void) {
     fs_err_t err = FS_OK;
 
     err = (fs_err_t) lfs_format(&obc_lfs, &cfg);
+
     if (err != FS_OK) {
         return err;
     }
 
     err = (fs_err_t) lfs_mount(&obc_lfs, &cfg);
+
     if (err != FS_OK) {
         return err;
     }
 
     lfs_file_t test_file = { 0 };
     err = (fs_err_t) lfs_file_open(&obc_lfs, &test_file, "test_file", LFS_O_RDWR | LFS_O_CREAT);
+
     if (err != FS_OK) {
         return err;
     }
 
     const char test_str[] = "This is a test string for the test file.";
     lfs_ssize_t bytes_wrote = lfs_file_write(&obc_lfs, &test_file, test_str, sizeof(test_str));
+
     if (bytes_wrote != sizeof(test_str)) {
         return FS_TEST_WRITE_FAILURE;
     }
 
     // Rewind back to beginning of file for reading
     err = (fs_err_t) lfs_file_rewind(&obc_lfs, &test_file);
+
     if (err != FS_OK) {
         return err;
     }
 
     char read_str[sizeof(test_str)] = { 0 };
     lfs_ssize_t bytes_read = lfs_file_read(&obc_lfs, &test_file, read_str, sizeof(test_str));
+
     if (bytes_read != sizeof(test_str)) {
         return FS_TEST_READ_FAILURE;
     }
 
     err = (fs_err_t) lfs_file_close(&obc_lfs, &test_file);
+
     if (err != FS_OK) {
         return err;
     }
@@ -197,6 +207,7 @@ fs_err_t fs_self_test(void) {
 
     // Reformat before finishing
     err = (fs_err_t) lfs_format(&obc_lfs, &cfg);
+
     if (err != FS_OK) {
         return err;
     }
@@ -219,8 +230,8 @@ fs_err_t fs_self_test(void) {
  * @param size_bytes: size in bytes of data to read
  * @return Negative error code if unsuccessful
  */
-static int32_t bd_read(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, void* buffer, lfs_size_t size_bytes) {
-    return (int32_t) flash_read((block * cnfg->block_size) + off_bytes, size_bytes, (uint8_t*) buffer);
+static int32_t bd_read(const struct lfs_config *cnfg, lfs_block_t block, lfs_off_t off_bytes, void *buffer, lfs_size_t size_bytes) {
+    return (int32_t) flash_read((block * cnfg->block_size) + off_bytes, size_bytes, (uint8_t *) buffer);
 }
 
 /**
@@ -233,8 +244,8 @@ static int32_t bd_read(const struct lfs_config* cnfg, lfs_block_t block, lfs_off
  * @param size_bytes: size in bytes of data to write
  * @return Negative error code if unsuccessful
  */
-static int32_t bd_prog(const struct lfs_config* cnfg, lfs_block_t block, lfs_off_t off_bytes, const void* buffer, lfs_size_t size_bytes) {
-    return (int32_t) flash_write((block * cnfg->block_size) + off_bytes, size_bytes, (const uint8_t*) buffer);
+static int32_t bd_prog(const struct lfs_config *cnfg, lfs_block_t block, lfs_off_t off_bytes, const void *buffer, lfs_size_t size_bytes) {
+    return (int32_t) flash_write((block * cnfg->block_size) + off_bytes, size_bytes, (const uint8_t *) buffer);
 }
 
 /**
@@ -244,7 +255,7 @@ static int32_t bd_prog(const struct lfs_config* cnfg, lfs_block_t block, lfs_off
  * @param block: block number to erase (blocks are 4KiB size)
  * @return Negative error code if unsuccessful
  */
-static int32_t bd_erase(const struct lfs_config* cnfg, lfs_block_t block) {
+static int32_t bd_erase(const struct lfs_config *cnfg, lfs_block_t block) {
 #ifdef PLATFORM_LAUNCHPAD_1224
     return (int32_t) flash_erase(block * cnfg->block_size, SECTOR_1K);
 #else
@@ -260,6 +271,6 @@ static int32_t bd_erase(const struct lfs_config* cnfg, lfs_block_t block) {
  * @param cnfg: configuration structure used to initialize the filesystem
  * @return Always returns no error
  */
-static int32_t bd_sync(const struct lfs_config* cnfg) {
+static int32_t bd_sync(const struct lfs_config *cnfg) {
     return 0;
 }

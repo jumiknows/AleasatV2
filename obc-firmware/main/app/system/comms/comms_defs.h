@@ -68,11 +68,11 @@ typedef struct comms_command_struct {
 
 
 typedef enum {
-  COMMS_COMMON_MSG_ACK = 0x10,
-  COMMS_COMMON_MSG_NACK = 0xff,
-  COMMS_COMMON_MSG_ASCII = 0x11,
-  COMMS_CUSTOM_MSG_OBC_DATA = 0x60,
-  COMMS_CUSTOM_ALEA_ACK = 0xee
+    COMMS_COMMON_MSG_ACK = 0x10,
+    COMMS_COMMON_MSG_NACK = 0xff,
+    COMMS_COMMON_MSG_ASCII = 0x11,
+    COMMS_CUSTOM_MSG_OBC_DATA = 0x60,
+    COMMS_CUSTOM_ALEA_ACK = 0xee
 } comms_common_msg_no_t;
 
 typedef enum {
@@ -112,15 +112,15 @@ typedef enum {
 /******************************************************************************/
 
 comms_err_t comms_mngr_send_cmd(
-    comms_command_t* cmd
+    comms_command_t *cmd
 );
 
 void comms_service_packet_failure(
-    comms_command_t* cmd
+    comms_command_t *cmd
 );
 
 void comms_service_packet_input(
-    comms_command_t* cmd_in
+    comms_command_t *cmd_in
 );
 
 void comms_mngr_start_task(

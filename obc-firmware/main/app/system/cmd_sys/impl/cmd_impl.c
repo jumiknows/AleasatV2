@@ -48,6 +48,7 @@ cmd_sys_resp_code_t cmd_impl_PING(const cmd_sys_cmd_t *cmd) {
 
 cmd_sys_resp_code_t cmd_impl_GET_TIME(const cmd_sys_cmd_t *cmd, cmd_GET_TIME_resp_t *resp) {
     epoch_t epoch = rtc_get_epoch_time();
+
     if (epoch != -1) {
         resp->timestamp = epoch;
         return CMD_SYS_RESP_CODE_SUCCESS;
@@ -59,11 +60,13 @@ cmd_sys_resp_code_t cmd_impl_GET_TIME(const cmd_sys_cmd_t *cmd, cmd_GET_TIME_res
 cmd_sys_resp_code_t cmd_impl_SET_TIME(const cmd_sys_cmd_t *cmd, cmd_SET_TIME_args_t *args) {
     real_time_t set_time = { 0 };
     bool conv_success = epoch_to_real_time(args->timestamp, &set_time);
+
     if (!conv_success) {
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
     rtc_err_t err = rtc_set_current_time(&set_time);
+
     if (err == RTC_SUCCESS) {
         return CMD_SYS_RESP_CODE_SUCCESS;
     } else {
@@ -77,6 +80,7 @@ cmd_sys_resp_code_t cmd_impl_LOW_POWER(const cmd_sys_cmd_t *cmd, cmd_LOW_POWER_a
     } else {
         idle_sleep_off();
     }
+
     return CMD_SYS_RESP_CODE_SUCCESS;
 }
 
@@ -103,11 +107,13 @@ cmd_sys_resp_code_t cmd_impl_I2C_RESET(const cmd_sys_cmd_t *cmd) {
 
 cmd_sys_resp_code_t cmd_impl_HEARTBEAT(const cmd_sys_cmd_t *cmd, cmd_HEARTBEAT_args_t *args) {
 #ifdef FEATURE_HEARTBEAT
+
     if (args->enable) {
         start_heartbeat();
     } else {
         suspend_heartbeat();
     }
+
     return CMD_SYS_RESP_CODE_SUCCESS;
 #else
     return CMD_SYS_RESP_CODE_NOT_IMPL;
@@ -125,7 +131,7 @@ cmd_sys_resp_code_t cmd_impl_FW_INFO(const cmd_sys_cmd_t *cmd, cmd_FW_INFO_resp_
     const fw_structs_t fw_structs = *(FW_STRUCTS[CFG_FLASH_SLOT]);
 
     memcpy(resp->fw_version, fw_structs.info.version, sizeof(fw_structs.info.version));
-    resp->fw_hash       = fw_structs.info.githash;    
+    resp->fw_hash       = fw_structs.info.githash;
     resp->flash_address = fw_structs.entrypoint.flash_addr;
     resp->platform      = fw_structs.info.platform;
     resp->target        = fw_structs.info.target;

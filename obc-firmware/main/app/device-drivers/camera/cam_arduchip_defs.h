@@ -1,7 +1,7 @@
 /**
  * @file cam_arduchip_defs.h
  * @brief Definitions for the ArduChip (the processor on ArduCAM modules)
- * 
+ *
  * Reference Documentation: https://www.arducam.com/docs/spi-cameras-for-arduino/hardware/arducam-chip/
  */
 

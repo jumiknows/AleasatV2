@@ -90,10 +90,10 @@ static mibspi_tg_t flash_69bytes_tg = {.reg = FLASH_MIBSPI_REG, .transfer_group 
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static flash_err_t mt25ql_is_busy(bool* busy);
+static flash_err_t mt25ql_is_busy(bool *busy);
 static flash_err_t mt25ql_write_enable(bool enable);
-static flash_err_t mt25ql_read_register(uint8_t reg, uint8_t* reg_data);
-static flash_err_t mt25ql_write_register(uint8_t reg, const uint8_t* reg_data);
+static flash_err_t mt25ql_read_register(uint8_t reg, uint8_t *reg_data);
+static flash_err_t mt25ql_write_register(uint8_t reg, const uint8_t *reg_data);
 static flash_err_t mt25ql_enable_4byte_addressing(bool enable);
 
 /******************************************************************************/
@@ -121,12 +121,12 @@ void mt25ql_init(void) {
 
 /**
  * @brief Reads the Device ID data from the MT25QL
- * 
+ *
  * @param device_data: buffer to store raw device data (must be > 20 bytes)
- * 
+ *
  * @return FLASH_OK if no error, error code otherwise
  */
-flash_err_t mt25ql_read_id(uint8_t* device_data) {
+flash_err_t mt25ql_read_id(uint8_t *device_data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
     uint16_t tx_buffer[20] = {FLASH_RDID, [1 ... 19] = 0xFF};
     uint16_t rx_buffer[20] = { 0x00 };
@@ -137,6 +137,7 @@ flash_err_t mt25ql_read_id(uint8_t* device_data) {
     for (uint8_t i = 0; i < (sizeof(rx_buffer) / sizeof(uint16_t) - 1); i++) {
         device_data[i] = (uint8_t) rx_buffer[i + 1];
     }
+
     return (err != MIBSPI_NO_ERR) ? FLASH_MIBSPI_ERR : FLASH_OK;
 }
 
@@ -146,7 +147,7 @@ flash_err_t mt25ql_read_id(uint8_t* device_data) {
  * @param reg_data: buffer to store the read register value
  * @return FLASH_OK if no error, error code otherwise
  */
-flash_err_t mt25ql_read_status_register(uint8_t* reg_data) {
+flash_err_t mt25ql_read_status_register(uint8_t *reg_data) {
     return mt25ql_read_register(READ_STATUS_REG, reg_data);
 }
 
@@ -156,7 +157,7 @@ flash_err_t mt25ql_read_status_register(uint8_t* reg_data) {
  * @param reg_data: buffer to store the read register value
  * @return FLASH_OK if no error, error code otherwise
  */
-flash_err_t mt25ql_read_flag_status_register(uint8_t* reg_data) {
+flash_err_t mt25ql_read_flag_status_register(uint8_t *reg_data) {
     return mt25ql_read_register(READ_FLAG_STATUS_REG, reg_data);
 }
 
@@ -166,7 +167,7 @@ flash_err_t mt25ql_read_flag_status_register(uint8_t* reg_data) {
  * @param reg_data: value to write to the status register
  * @return FLASH_OK if no error, error code otherwise
  */
-flash_err_t mt25ql_write_status_register(const uint8_t* reg_data) {
+flash_err_t mt25ql_write_status_register(const uint8_t *reg_data) {
     return mt25ql_write_register(WRITE_STATUS_REG, reg_data);
 }
 
@@ -201,6 +202,7 @@ flash_err_t mt25ql_erase(uint32_t addr, flash_erase_sz_t erase_size) {
     } else {
         err = tms_mibspi_tx(&flash_5bytes_tg, tx_buffer, FLASH_MIBSPI_TIMEOUT_MS);
     }
+
     if (err != MIBSPI_NO_ERR) {
         return FLASH_MIBSPI_ERR;
     }
@@ -209,10 +211,12 @@ flash_err_t mt25ql_erase(uint32_t addr, flash_erase_sz_t erase_size) {
     bool busy              = TRUE;
     flash_err_t err_flash  = FLASH_OK;
     uint8_t timeout_ctr_ms = 0;
+
     do {
         if (timeout_ctr_ms == MAX_ERASE_TIMEOUT_MS) {
             return FLASH_ERASE_TIMEOUT_ERR;
         }
+
         timeout_ctr_ms += FLASH_ERASE_INCREMENT_MS;
         vTaskDelay(pdMS_TO_TICKS(FLASH_ERASE_INCREMENT_MS));
         err_flash = mt25ql_is_busy(&busy);
@@ -228,7 +232,7 @@ flash_err_t mt25ql_erase(uint32_t addr, flash_erase_sz_t erase_size) {
  * @param data: Buffer storing the data to write
  * @return: FLASH_OK if no error, error code otherwise
  */
-flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t* data) {
+flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t *data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     // Validate no data will be written outside address bounds
@@ -256,6 +260,7 @@ flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t* data) {
     }
 
     err = tms_mibspi_tx(&flash_69bytes_tg, tx_buffer, FLASH_MIBSPI_TIMEOUT_MS);
+
     if (err != MIBSPI_NO_ERR) {
         return FLASH_MIBSPI_ERR;
     }
@@ -264,10 +269,12 @@ flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t* data) {
     bool busy              = TRUE;
     flash_err_t err_flash  = FLASH_OK;
     uint8_t timeout_ctr_ms = 0;
+
     do {
         if (timeout_ctr_ms == MAX_WRITE_TIMEOUT_MS) {
             return FLASH_WRITE_TIMEOUT_ERR;
         }
+
         timeout_ctr_ms += FLASH_WRITE_INCREMENT_MS;
         vTaskDelay(pdMS_TO_TICKS(FLASH_WRITE_INCREMENT_MS));
         err_flash = mt25ql_is_busy(&busy);
@@ -283,7 +290,7 @@ flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t* data) {
  * @param data: Buffer where read data will be stored
  * @return: FLASH_OK if no error, error code otherwise
  */
-flash_err_t mt25ql_read_64(uint32_t addr, uint8_t* data) {
+flash_err_t mt25ql_read_64(uint32_t addr, uint8_t *data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
 
     // Validate no data will be read outside address bounds
@@ -299,10 +306,11 @@ flash_err_t mt25ql_read_64(uint32_t addr, uint8_t* data) {
     /* Transmit read command is structured as follows:
      *    command byte | 32-bit address | N-byte meaningless data (to clock in read bytes)
      */
-    uint16_t tx_buffer[READ_WRITE_DATA_LEN + 5] = {FLASH_READ_4B_ADDR, (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, [5 ... (READ_WRITE_DATA_LEN+4)] = 0xFF};
+    uint16_t tx_buffer[READ_WRITE_DATA_LEN + 5] = {FLASH_READ_4B_ADDR, (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, [5 ...(READ_WRITE_DATA_LEN + 4)] = 0xFF};
     uint16_t rx_buffer[READ_WRITE_DATA_LEN + 5] = {0};
 
     err = tms_mibspi_tx_rx(&flash_69bytes_tg, tx_buffer, rx_buffer, FLASH_MIBSPI_TIMEOUT_MS);
+
     if (err != MIBSPI_NO_ERR) {
         return FLASH_MIBSPI_ERR;
     }
@@ -325,7 +333,7 @@ flash_err_t mt25ql_read_64(uint32_t addr, uint8_t* data) {
  * @param busy: Stores the status of the being busy
  * @return FLASH_OK if no error, error code otherwise
  */
-static flash_err_t mt25ql_is_busy(bool* busy) {
+static flash_err_t mt25ql_is_busy(bool *busy) {
     mibspi_err_t err;
 
     do {
@@ -333,6 +341,7 @@ static flash_err_t mt25ql_is_busy(bool* busy) {
         uint16_t rx_buffer[2] = {0};
 
         err = tms_mibspi_tx_rx(&flash_2bytes_tg, tx_buffer, rx_buffer, FLASH_MIBSPI_TIMEOUT_MS);
+
         if (err != MIBSPI_NO_ERR) {
             break;
         }
@@ -372,7 +381,7 @@ static flash_err_t mt25ql_write_enable(bool enable) {
  * @param reg_data: Buffer to store returned data
  * @return: FLASH_OK if no error, error code otherwise
  */
-static flash_err_t mt25ql_read_register(uint8_t reg, uint8_t* reg_data) {
+static flash_err_t mt25ql_read_register(uint8_t reg, uint8_t *reg_data) {
     mibspi_err_t err      = MIBSPI_NO_ERR;
     uint16_t tx_buffer[2] = {(uint16_t)reg, 0xFF};
     uint16_t rx_buffer[2] = {0};
@@ -395,7 +404,7 @@ static flash_err_t mt25ql_read_register(uint8_t reg, uint8_t* reg_data) {
  * @param reg_data: Buffer with data to write
  * @return: FLASH_OK if no error, error code otherwise
  */
-static flash_err_t mt25ql_write_register(uint8_t reg, const uint8_t* reg_data) {
+static flash_err_t mt25ql_write_register(uint8_t reg, const uint8_t *reg_data) {
     uint16_t tx_buffer[2] = {(uint16_t)reg, (uint16_t)reg_data[0]};
 
     // Transmit the write register command and data to write
@@ -406,7 +415,7 @@ static flash_err_t mt25ql_write_register(uint8_t reg, const uint8_t* reg_data) {
 
 /**
  * @brief Enable/disable 4 byte addressing mode
- * 
+ *
  * @param enable: true to enable 4 byte addressing mode, false to disable
  * @return: FLASH_OK if no error, error code otherwise
  */

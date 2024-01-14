@@ -44,7 +44,7 @@ typedef struct {
     ADIS16260_ID_t dev_id;
 
     /*TMS570 SPI port*/
-    spiBASE_t* spi_port;
+    spiBASE_t *spi_port;
 
     /*SPI chip select port*/
     gpio_port_t cs_port;
@@ -141,12 +141,12 @@ extern ADIS16260_t panel_gyro_3;
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-ADIS16260_error_t ADIS16260_init(ADIS16260_t* gyro);
-ADIS16260_error_t ADIS16260_whoami(ADIS16260_t* gyro, ADIS16260_ID_t* buf);
-ADIS16260_error_t ADIS16260_soft_reset(ADIS16260_t* gyro);
-ADIS16260_error_t ADIS16260_read_gyro(ADIS16260_t* gyro, ADIS16260_gdata_t* buf);
-ADIS16260_error_t ADIS16260_read_temp(ADIS16260_t* gyro, ADIS16260_tdata_t* buf);
-ADIS16260_error_t ADIS16260_set_sleep(ADIS16260_t* gyro, uint8_t sleep_ticks);
-ADIS16260_error_t ADIS16260_set_filter(ADIS16260_t* gyro, ADIS_range_t range, ADIS_bw_t bw, uint8_t taps);
+ADIS16260_error_t ADIS16260_init(ADIS16260_t *gyro);
+ADIS16260_error_t ADIS16260_whoami(ADIS16260_t *gyro, ADIS16260_ID_t *buf);
+ADIS16260_error_t ADIS16260_soft_reset(ADIS16260_t *gyro);
+ADIS16260_error_t ADIS16260_read_gyro(ADIS16260_t *gyro, ADIS16260_gdata_t *buf);
+ADIS16260_error_t ADIS16260_read_temp(ADIS16260_t *gyro, ADIS16260_tdata_t *buf);
+ADIS16260_error_t ADIS16260_set_sleep(ADIS16260_t *gyro, uint8_t sleep_ticks);
+ADIS16260_error_t ADIS16260_set_filter(ADIS16260_t *gyro, ADIS_range_t range, ADIS_bw_t bw, uint8_t taps);
 
 #endif /*ADIS16260_GYRO_H_*/

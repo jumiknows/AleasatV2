@@ -10,7 +10,7 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-// OBC 
+// OBC
 #include "obc_time.h"
 
 /******************************************************************************/
@@ -23,8 +23,8 @@
 typedef enum rtc_errors {
 
     /**
-     * @brief Returned when the HW RTC is re-configured during an 
-     * OBC startup. 
+     * @brief Returned when the HW RTC is re-configured during an
+     * OBC startup.
      */
     RTC_CONFIG_SUCCESS = 1,
 
@@ -81,16 +81,16 @@ void rtc_init_backup(void);
 
 // General application API
 epoch_t rtc_get_epoch_time(void);
-rtc_err_t rtc_get_current_time(real_time_t* curr_time);
+rtc_err_t rtc_get_current_time(real_time_t *curr_time);
 
 // RTC configuration
-rtc_err_t rtc_set_current_time(real_time_t* curr_time);
+rtc_err_t rtc_set_current_time(real_time_t *curr_time);
 
 // RTC alarm
 rtc_err_t rtc_set_absolute_alarm(uint32_t timestamp, rtc_alarm_cb_t cb, void *cb_arg);
 void rtc_alarm_isr(void);
 
 // RTC timestamp
-rtc_err_t rtc_capture_timestamp(real_time_t* ts);
+rtc_err_t rtc_capture_timestamp(real_time_t *ts);
 
 #endif /* OBC_RTC_H_ */

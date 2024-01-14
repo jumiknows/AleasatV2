@@ -27,7 +27,8 @@ typedef struct __attribute__((__packed__)) {
     uint32_t enabled : 1;
     uint32_t valid_trigger_states : 5;
     uint32_t current_state : 3;
-} invalid_transition_log_t;
+}
+invalid_transition_log_t;
 
 #define STATE_ENABLED  0b1
 #define STATE_DISABLED 0b0
@@ -61,14 +62,14 @@ const TickType_t xDelay1s = pdMS_TO_TICKS(1000UL);
 
 // --------------------------------- FUN DEF ----------------------------------
 
-void vStateHandlerTask(void* pvParameters);
-state_transition_t* get_state_transition(state_transition_id_t transition_id);
-bool valid_trigger_state(state_transition_t* state_transition);
+void vStateHandlerTask(void *pvParameters);
+state_transition_t *get_state_transition(state_transition_id_t transition_id);
+bool valid_trigger_state(state_transition_t *state_transition);
 void make_state_transition(state_transition_id_t transition_id);
 
 // ---------------------------------- STATE -----------------------------------
 
-state_transition_t* state_transition_table;
+state_transition_t *state_transition_table;
 state_t current_state;
 
 TaskHandle_t xStateHandlerTaskHandle = NULL;
@@ -96,7 +97,8 @@ state_err_enum_t init_state_handler(void) {
         return STATE_FAILED_TO_CREATE_MUTEX;
     }
 
-    xStateHandlerTaskHandle = xTaskCreateStatic(&vStateHandlerTask, "STATE_HANDLER", STATE_HANDLER_STACK_DEPTH, NULL, STATE_HANDLER_TASK_PRIORITY, xStateHandlerTaskStack, &xStateHandlerTaskBuffer);
+    xStateHandlerTaskHandle = xTaskCreateStatic(&vStateHandlerTask, "STATE_HANDLER", STATE_HANDLER_STACK_DEPTH, NULL, STATE_HANDLER_TASK_PRIORITY,
+                              xStateHandlerTaskStack, &xStateHandlerTaskBuffer);
 
     current_state          = SLEEP;
     state_transition_table = DEFAULT_STATE_TRANSISION_TABLE;
@@ -111,7 +113,7 @@ state_err_enum_t init_state_handler(void) {
  * @param state: pointer to space in memory to store the current-state
  * @return STATE_SUCCESS if it can copy the current state into the provided memory space.
  */
-state_err_enum_t get_current_state(state_t* state) {
+state_err_enum_t get_current_state(state_t *state) {
     if (xSemaphoreTake(xStateMutex, xDelay1s) == pdTRUE) {
         *state = current_state;
         xSemaphoreGive(xStateMutex);
@@ -150,7 +152,8 @@ state_err_enum_t send_event(state_transition_id_t transition_id) {
  * @return STATE_SUCCESS if it can successfully enable a transition
  */
 state_err_enum_t enable_transition(state_transition_id_t transition_id) {
-    state_transition_t* state_transition = get_state_transition(transition_id);
+    state_transition_t *state_transition = get_state_transition(transition_id);
+
     if (xSemaphoreTake(xStateMutex, xDelay1s) == pdTRUE) {
         state_transition->enabled = STATE_ENABLED;
         xSemaphoreGive(xStateMutex);
@@ -167,7 +170,8 @@ state_err_enum_t enable_transition(state_transition_id_t transition_id) {
  * @return STATE_SUCCESS if it can successfully disable a transition
  */
 state_err_enum_t disable_transition(state_transition_id_t transition_id) {
-    state_transition_t* state_transition = get_state_transition(transition_id);
+    state_transition_t *state_transition = get_state_transition(transition_id);
+
     if (xSemaphoreTake(xStateMutex, xDelay1s) == pdTRUE) {
         state_transition->enabled = STATE_DISABLED;
         xSemaphoreGive(xStateMutex);
@@ -185,7 +189,8 @@ state_err_enum_t disable_transition(state_transition_id_t transition_id) {
  * @return STATE_SUCCESS if it can successfully enable a from state
  */
 state_err_enum_t enable_transition_from_state(state_transition_id_t transition_id, state_t state) {
-    state_transition_t* state_transition = get_state_transition(transition_id);
+    state_transition_t *state_transition = get_state_transition(transition_id);
+
     if (xSemaphoreTake(xStateMutex, xDelay1s) == pdTRUE) {
         state_transition->valid_trigger_states |= (0b00001 << (uint8_t)state);
         xSemaphoreGive(xStateMutex);
@@ -203,7 +208,8 @@ state_err_enum_t enable_transition_from_state(state_transition_id_t transition_i
  * @return STATE_SUCCESS if it can successfully disable a from state
  */
 state_err_enum_t disable_transition_from_state(state_transition_id_t transition_id, state_t state) {
-    state_transition_t* state_transition = get_state_transition(transition_id);
+    state_transition_t *state_transition = get_state_transition(transition_id);
+
     if (xSemaphoreTake(xStateMutex, xDelay1s) == pdTRUE) {
         state_transition->valid_trigger_states &= (uint8_t)(~(0b00001 << (uint8_t)state));
         xSemaphoreGive(xStateMutex);
@@ -220,7 +226,7 @@ state_err_enum_t disable_transition_from_state(state_transition_id_t transition_
  * - Blocks on state-transition notifications.
  * - Expects the notification value to be a state_transition_id_t.
  */
-void vStateHandlerTask(void* pvParameters) {
+void vStateHandlerTask(void *pvParameters) {
     state_transition_id_t transition_id;
     xSemaphoreGive(xStateMutex);
 
@@ -242,9 +248,9 @@ void vStateHandlerTask(void* pvParameters) {
  * @param transition_id: identifies a row in the state transition table
  * @return a pointer to a row in the state transition table with the matching transition_id
  */
-state_transition_t* get_state_transition(state_transition_id_t transition_id) {
+state_transition_t *get_state_transition(state_transition_id_t transition_id) {
     uint8_t state_transition_idx = ((uint8_t)transition_id) - 1;
-    return (state_transition_t*)(state_transition_table + state_transition_idx);
+    return (state_transition_t *)(state_transition_table + state_transition_idx);
 }
 
 /**
@@ -253,7 +259,7 @@ state_transition_t* get_state_transition(state_transition_id_t transition_id) {
  * @param state_transition: pointer to a row in the state transition table
  * @return true only if current state is in the valid trigger states
  */
-bool valid_trigger_state(state_transition_t* state_transition) {
+bool valid_trigger_state(state_transition_t *state_transition) {
     return (bool)((state_transition->valid_trigger_states >> ((uint8_t)current_state)) & 0b00000001);
 }
 
@@ -264,7 +270,8 @@ bool valid_trigger_state(state_transition_t* state_transition) {
  * @param transition_id: identifies a row in the state transition table
  */
 void make_state_transition(state_transition_id_t transition_id) {
-    state_transition_t* state_transition = get_state_transition(transition_id);
+    state_transition_t *state_transition = get_state_transition(transition_id);
+
     if ((valid_trigger_state(state_transition)) && (state_transition->enabled == STATE_ENABLED)) {
         current_state = (state_t)state_transition->end_state;
         LOG_PRINT_GENERAL__CURRENT_STATE(current_state);

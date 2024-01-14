@@ -56,8 +56,9 @@ mram_err_t mram_mr25h256_init(void) {
  * @param data:         Buffer storing the data to write
  * @return: MRAM_OK if no error, error code otherwise
  */
-mram_err_t mram_mr25h256_write(uint16_t addr, uint16_t size_bytes, const uint8_t* data) {
+mram_err_t mram_mr25h256_write(uint16_t addr, uint16_t size_bytes, const uint8_t *data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
+
     if ((addr + size_bytes) > MR25H256_MRAM_MAX_ADDRESS) {
         return MRAM_INDEX_OUT_OF_BOUND;
     }
@@ -67,7 +68,9 @@ mram_err_t mram_mr25h256_write(uint16_t addr, uint16_t size_bytes, const uint8_t
         mram_mr25h256_write_enable(FALSE);
         return MRAM_MIBSPI_ERR;
     }
+
     uint16_t index = 0;
+
     while (index < size_bytes) {
         /* Transmit write command is structured as follows:
          *    command byte | 16-bit address | 1 byte data buffer
@@ -77,14 +80,17 @@ mram_err_t mram_mr25h256_write(uint16_t addr, uint16_t size_bytes, const uint8_t
         uint16_t tx_buffer[4] = {MRAM_WRITE, (addr >> 8) & 0xFF, addr & 0xFF, data[index]};
         // Write to the mram. 4 byte tg <cmd> <addr high> <addr low> <data byte>
         err = mibspi_transmit(mram_4bytes_tg, tx_buffer);
+
         if (err != MIBSPI_NO_ERR) {
             break;
         }
+
         // Increment to next data byte write address and index until all indicated bytes
         // transmitted
         addr++;
         index++;
     }
+
     mram_mr25h256_write_enable(FALSE);
     return (err != MIBSPI_NO_ERR) ? MRAM_MIBSPI_ERR : MRAM_OK;
 }
@@ -100,12 +106,15 @@ mram_err_t mram_mr25h256_write(uint16_t addr, uint16_t size_bytes, const uint8_t
  * @param data:         Buffer where read data will be stored
  * @return: MRAM_OK if no error, error code otherwise
  */
-mram_err_t mram_mr25h256_read(uint16_t addr, uint16_t size_bytes, uint8_t* data) {
+mram_err_t mram_mr25h256_read(uint16_t addr, uint16_t size_bytes, uint8_t *data) {
     mibspi_err_t err = MIBSPI_NO_ERR;
+
     if ((addr + size_bytes) > MR25H256_MRAM_MAX_ADDRESS) {
         return MRAM_INDEX_OUT_OF_BOUND;
     }
+
     uint16_t index = 0;
+
     while (index < size_bytes) {
         /* Transmit read command is structured as follows:
          *    command byte | 16-bit address
@@ -114,10 +123,12 @@ mram_err_t mram_mr25h256_read(uint16_t addr, uint16_t size_bytes, uint8_t* data)
         uint16_t rx_buffer[4] = {0};
         // Read the address in mram
         err = mibspi_transmit_receive(mram_4bytes_tg, tx_buffer, rx_buffer);
+
         // is this check necessary?
         if (err != MIBSPI_NO_ERR) {
             break;
         }
+
         // copy rx buffer into our data buffer
         data[index] = (uint8_t)rx_buffer[3];
 
@@ -125,6 +136,7 @@ mram_err_t mram_mr25h256_read(uint16_t addr, uint16_t size_bytes, uint8_t* data)
         addr++;
         index++;
     }
+
     return (err != MIBSPI_NO_ERR) ? MRAM_MIBSPI_ERR : MRAM_OK;
 }
 
@@ -136,7 +148,7 @@ mram_err_t mram_mr25h256_read(uint16_t addr, uint16_t size_bytes, uint8_t* data)
  * @param reg_data: Buffer to store returned data
  * @return: MRAM_OK if no error, error code otherwise
  */
-mram_err_t mram_mr25h256_read_status(uint8_t* reg_data) {
+mram_err_t mram_mr25h256_read_status(uint8_t *reg_data) {
     mibspi_err_t err      = MIBSPI_NO_ERR;
     uint16_t tx_buffer[2] = {MRAM_RDSR, 0xFF}; // Dummy transmit value
     uint16_t rx_buffer[2] = {0};
@@ -167,6 +179,7 @@ mram_err_t mram_mr25h256_write_status(const uint8_t reg_data) {
         mram_mr25h256_write_enable(FALSE);
         return MRAM_MIBSPI_ERR;
     }
+
     // Transmit the write status register command and data to write
     err = mibspi_transmit(mram_2bytes_tg, tx_buffer);
 

@@ -56,10 +56,10 @@ void flash_identify(void) {
 
     if (manufacturer == MANUFACTURER_ID_JEDEC_MICRON_TECHNOLOGY) {
         LOG_FLASH__IDENTIFIED_AS_MICRON();
-    }
-    else {
+    } else {
         LOG_FLASH__FAILED_TO_IDENTIFY();
     }
+
 #endif
 }
 
@@ -89,19 +89,21 @@ flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size) {
  * @param data: Buffer storing the data to write
  * @return: FLASH_OK if no error, error code otherwise
  */
-flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data) {
+flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data) {
 #ifdef PLATFORM_LAUNCHPAD_1224
     // TODO ALEA-855 Enable mock filesystem
     return FLASH_MOCK_ERR;
     // return flash_write_mock(addr, size_bytes, data);
 #endif
 #ifdef PLATFORM_ALEA_V1
+
     if (size_bytes == 64) {
         return mt25ql_write_64(addr, data);
     } else {
         // Unhandled case: can only do 64 byte writes
         return FLASH_INVALID_SIZE_ERR;
     }
+
 #endif
 }
 
@@ -113,18 +115,20 @@ flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data)
  * @param data: Buffer where read data will be stored
  * @return: FLASH_OK if no error, error code otherwise
  */
-flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data) {
+flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t *data) {
 #ifdef PLATFORM_LAUNCHPAD_1224
     // TODO ALEA-855 Enable mock filesystem
     return FLASH_MOCK_ERR;
     // return flash_read_mock(addr, size_bytes, data);
 #endif
 #ifdef PLATFORM_ALEA_V1
+
     if (size_bytes == 64) {
         return mt25ql_read_64(addr, data);
     } else {
         // Unhandled case: can only do 64 byte reads
         return FLASH_INVALID_SIZE_ERR;
     }
+
 #endif
 }

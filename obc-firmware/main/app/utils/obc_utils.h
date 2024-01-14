@@ -22,7 +22,7 @@
 
 /**
  * Source: https://stackoverflow.com/questions/807244/c-compiler-asserts-how-to-implement
- * 
+ *
  * A compile time assertion check.
  *
  * Validate at compile time that the predicate is true without
@@ -89,7 +89,7 @@
 /******************************************************************************/
 
 // String Manipulation
-int32_t cseq_to_num(char* seq);
+int32_t cseq_to_num(char *seq);
 
 // Timing
 void busy_wait(uint32_t ticks_to_wait);

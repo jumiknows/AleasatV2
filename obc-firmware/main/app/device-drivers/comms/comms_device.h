@@ -21,7 +21,7 @@
 /**
  * @brief Minimum buffer size that should be used by code when passing buffers
  * to a comms device.
- * 
+ *
  * This is driven by the fact that the MIBSPI comms device implementation requires
  * fixed size transfers of 256 bytes.
  */
@@ -37,14 +37,14 @@ typedef enum comms_dev_err_type {
     COMMS_DEV_ERR_INVALID_ARG = -2
 } comms_dev_err_type_t;
 
-typedef void* comms_dev_handle_t;
-typedef void (*comms_dev_cb_func_t)(bool is_isr, void* param);
+typedef void *comms_dev_handle_t;
+typedef void (*comms_dev_cb_func_t)(bool is_isr, void *param);
 
 typedef struct {
-    comms_dev_err_type_t (*tx)(const uint16_t* buffer, uint16_t msg_len);
-    comms_dev_err_type_t (*rx)(uint16_t* buffer, uint16_t buffer_len);
+    comms_dev_err_type_t (*tx)(const uint16_t *buffer, uint16_t msg_len);
+    comms_dev_err_type_t (*rx)(uint16_t *buffer, uint16_t buffer_len);
     comms_dev_cb_func_t cb; // (c)all(b)ack function to notify upper layers of incoming data
-    void* cb_param;
+    void *cb_param;
 } comms_device_t;
 
 /******************************************************************************/
@@ -53,20 +53,20 @@ typedef struct {
 
 comms_dev_err_type_t comms_dev_send(
     comms_dev_handle_t cdev_hdl,
-    const uint16_t* buffer,
+    const uint16_t *buffer,
     uint16_t msg_len
 );
 
 comms_dev_err_type_t comms_dev_receive(
     comms_dev_handle_t cdev_hdl,
-    uint16_t* buffer,
+    uint16_t *buffer,
     uint16_t buffer_len
 );
 
 void comms_dev_register_callback(
     comms_dev_handle_t cdev_hdl,
     comms_dev_cb_func_t cb,
-    void* cb_param
+    void *cb_param
 );
 
 #endif // COMMS_DEVICE_H_

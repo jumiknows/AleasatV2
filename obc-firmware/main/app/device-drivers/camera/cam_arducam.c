@@ -92,7 +92,7 @@ static arducam_err_t wait_for_capture(uint32_t timeout_ms);
 
 /**
  * @brief Initialize the ArduCAM and prepare it for JPEG image capture
- * 
+ *
  * @return Status code:
  *            - ARDUCAM_SUCCESS if the initialization is successful
  *            - ARDUCAM_ERR_ARDUCHIP if an error with the ArduChip occurs
@@ -107,6 +107,7 @@ arducam_err_t arducam_init(void) {
 
         // Initialize ArduChip
         arduchip_err = arduchip_init();
+
         if (arduchip_err != ARDUCHIP_SUCCESS) {
             err = ARDUCAM_ERR_ARDUCHIP;
             break;
@@ -114,6 +115,7 @@ arducam_err_t arducam_init(void) {
 
         // Initialize OV5642 image sensor
         ov5642_err = ov5642_init();
+
         if (ov5642_err != OV5642_SUCCESS) {
             err = ARDUCAM_ERR_OV5642;
             break;
@@ -121,6 +123,7 @@ arducam_err_t arducam_init(void) {
 
         // Setup default sensor settings for JPEG
         ov5642_err = ov5642_set_format(OV5642_FMT_JPEG);
+
         if (ov5642_err != OV5642_SUCCESS) {
             err = ARDUCAM_ERR_OV5642;
             break;
@@ -131,12 +134,14 @@ arducam_err_t arducam_init(void) {
         //   - VSYNC is active-low
         //   - PCLK is not reversed
         arduchip_err = arduchip_configure_sensor_timing(false, true, false);
+
         if (arduchip_err != ARDUCHIP_SUCCESS) {
             err = ARDUCAM_ERR_ARDUCHIP;
             break;
         }
 
         ov5642_err = ov5642_set_jpeg_size(OV5642_JPEG_SIZE_320X240);
+
         if (ov5642_err != OV5642_SUCCESS) {
             err = ARDUCAM_ERR_OV5642;
             break;
@@ -146,12 +151,14 @@ arducam_err_t arducam_init(void) {
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         arduchip_err = arduchip_fifo_clear_wr_done();
+
         if (arduchip_err != ARDUCHIP_SUCCESS) {
             err = ARDUCAM_ERR_ARDUCHIP;
             break;
         }
 
         arduchip_err = arduchip_set_num_frames(1);
+
         if (arduchip_err != ARDUCHIP_SUCCESS) {
             err = ARDUCAM_ERR_ARDUCHIP;
             break;
@@ -167,13 +174,13 @@ arducam_err_t arducam_init(void) {
 
 /**
  * @brief Capture an image. The ArduCAM must be IDLE before calling this function.
- * 
+ *
  * After triggering an image capture, we have to poll the ArduCAM to determine if the capture
  * is complete. The polling is spaced out by a time period of CAPTURE_POLL_PERIOD_MS.
  * The task calling this function will be suspended during these waiting periods.
- * 
+ *
  * @param[in] timeout_ms Timeout for the total amount of time the capture can take
- * 
+ *
  * @return Status code:
  *            - ARDUCAM_SUCCESS if the capture is successful
  *            - ARDUCAM_ERR_ARDUCHIP if an error with the ArduChip occurs
@@ -193,6 +200,7 @@ arducam_err_t arducam_capture(uint32_t timeout_ms) {
 
         // Clear FIFO flag so we're starting from a fresh state
         arduchip_err = arduchip_fifo_clear_wr_done();
+
         if (arduchip_err != ARDUCHIP_SUCCESS) {
             err = ARDUCAM_ERR_ARDUCHIP;
             break;
@@ -200,6 +208,7 @@ arducam_err_t arducam_capture(uint32_t timeout_ms) {
 
         // Trigger the image
         arduchip_err = arduchip_fifo_start_capture();
+
         if (arduchip_err != ARDUCHIP_SUCCESS) {
             err = ARDUCAM_ERR_ARDUCHIP;
             break;
@@ -207,12 +216,14 @@ arducam_err_t arducam_capture(uint32_t timeout_ms) {
 
         // Wait for the ArduCAM to finish capturing
         err = wait_for_capture(timeout_ms);
+
         if (err != ARDUCAM_SUCCESS) {
             break;
         }
 
         // Read and store the fifo length
         arduchip_err = arduchip_read_fifo_len(&(state_data.fifo_len));
+
         if (arduchip_err == ARDUCHIP_SUCCESS) {
             state_data.fifo_rem = state_data.fifo_len;
         } else {
@@ -231,11 +242,11 @@ arducam_err_t arducam_capture(uint32_t timeout_ms) {
 
 /**
  * @brief Retrieve the size of the most recently captured image.
- * 
+ *
  * This function can only be called after calling arducam_capture(...).
- * 
+ *
  * @param[out] img_size Pointer to where the image size will be stored.
- * 
+ *
  * @return Status code:
  *            - ARDUCAM_SUCCESS if the image size can be retrieved
  *            - ARDUCAM_ERR_INVALID_STATE if the ArduCAM was in an invalid state
@@ -247,7 +258,7 @@ arducam_err_t arducam_get_img_size(uint32_t *img_size) {
     }
 
     if (!((state_data.state == ARDUCAM_STATE_IMG_CAPTURED) ||
-          (state_data.state == ARDUCAM_STATE_TRANSFER_IN_PROGRESS))) {
+            (state_data.state == ARDUCAM_STATE_TRANSFER_IN_PROGRESS))) {
 
         return ARDUCAM_ERR_INVALID_STATE;
     }
@@ -258,18 +269,18 @@ arducam_err_t arducam_get_img_size(uint32_t *img_size) {
 
 /**
  * @brief Transfer image data from the ArduCAM to the provided buffer.
- * 
+ *
  * This function can only be called after calling arducam_capture(...).
- * 
+ *
  * After all image data has been transferred, the next call to this function will return 0 in
  * the data_len output parameter and return an ARDUCAM_SUCCESS status code. Any subsequent calls
  * to this function (without calling arducam_capture(...)) will cause an ARDUCAM_ERR_INVALID_STATE
  * error to be returned.
- * 
+ *
  * @param[out] buf      Buffer where image data will be transferred
  * @param[in]  buf_len  Size of the buffer, must be at least ARDUCAM_READ_SIZE
  * @param[out] data_len Number of bytes actually transferred to buf
- * 
+ *
  * @return Status code:
  *            - ARDUCAM_SUCCESS if the image data transfer is successful
  *            - ARDUCAM_ERR_INVALID_ARGS if the provided arguments are invalid
@@ -326,9 +337,9 @@ arducam_err_t arducam_transfer_img_data(uint8_t *buf, uint32_t buf_len, uint32_t
 /**
  * @brief Repeatedly poll the ArduCAM (with a period of CAPTURE_POLL_PERIOD_MS)
  * until the capture is complete or a timeout occurs.
- * 
+ *
  * @param[in] timeout_ms Maximum time to wait for the capture
- * 
+ *
  * @return Status code:
  *            - ARDUCAM_SUCCESS if the capture is successful
  *            - ARDUCAM_ERR_ARDUCHIP if an error with the ArduChip occurs
@@ -342,11 +353,13 @@ static arducam_err_t wait_for_capture(uint32_t timeout_ms) {
     uint32_t poll_ticks = start_ticks;
 
     bool capture_done = false;
+
     while (!capture_done) {
         vTaskDelayUntil(&poll_ticks, pdMS_TO_TICKS(CAPTURE_POLL_PERIOD_MS));
 
         // Poll ArduCAM
         arduchip_err_t arduchip_err = arduchip_is_capture_done(&capture_done);
+
         if (arduchip_err != ARDUCHIP_SUCCESS) {
             err = ARDUCAM_ERR_ARDUCHIP;
             break;

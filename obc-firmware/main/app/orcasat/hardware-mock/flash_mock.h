@@ -14,7 +14,7 @@
 
 void flash_init_mock(void);
 flash_err_t flash_erase_mock(uint32_t addr, flash_erase_sz_t erase_size);
-flash_err_t flash_write_mock(uint32_t addr, uint32_t size_bytes, const uint8_t* data);
-flash_err_t flash_read_mock(uint32_t addr, uint32_t size_bytes, uint8_t* data);
+flash_err_t flash_write_mock(uint32_t addr, uint32_t size_bytes, const uint8_t *data);
+flash_err_t flash_read_mock(uint32_t addr, uint32_t size_bytes, uint8_t *data);
 
 #endif /* FLASH_MOCK_H_ */

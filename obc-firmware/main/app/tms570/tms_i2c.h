@@ -5,7 +5,7 @@
  *      - Main goal of the tms_i2c adaptations from halcogen I2C functions is to ensure that we
  * never get stuck in an infinite loop
  *      - DO NOT use the halcogen functions that do anything more than set or read a register.
- *      	- Complicated halcogen functions will wait forever for things to happen and lock up the
+ *          - Complicated halcogen functions will wait forever for things to happen and lock up the
  * system.
  *
  *      ERROR HANDLING
@@ -95,7 +95,9 @@ void tms_i2c_create_infra(void);
 void tms_i2c_init(void);
 
 i2c_err_t tms_i2c_reset(uint8_t max_retry, uint32_t mtx_timeout_ms);
-i2c_err_t tms_i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t rcv_bytes, uint8_t* rcv_data, bool ignore_nack, uint32_t mtx_timeout_ms);
-i2c_err_t tms_i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t* reg_data, uint32_t send_bytes, const uint8_t* send_data, bool ignore_nack, uint32_t mtx_timeout_ms);
+i2c_err_t tms_i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t rcv_bytes, uint8_t *rcv_data, bool ignore_nack,
+                       uint32_t mtx_timeout_ms);
+i2c_err_t tms_i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data, bool ignore_nack,
+                        uint32_t mtx_timeout_ms);
 
 #endif // TMS_I2C_H_

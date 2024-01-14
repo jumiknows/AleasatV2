@@ -48,7 +48,7 @@
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void log_signal_internal(uint8_t log_id, uint8_t sig_id, size_t raw_payload_len, const void* payload_ptr, bool use_rtc);
+static void log_signal_internal(uint8_t log_id, uint8_t sig_id, size_t raw_payload_len, const void *payload_ptr, bool use_rtc);
 static void encode_header(uint8_t log_id, uint8_t sig_id, uint8_t size, uint8_t header_ptr[HEADER_SIZE], bool use_rtc);
 
 /******************************************************************************/
@@ -56,16 +56,16 @@ static void encode_header(uint8_t log_id, uint8_t sig_id, uint8_t size, uint8_t 
 /******************************************************************************/
 
 /* This is a special LOG_ function used as a debug printf */
-void LOG_PRINTF(char* format, ...) {
+void LOG_PRINTF(char *format, ...) {
     log_LOG_PRINTF__reserved_data_t log_data = { 0 };
 
     va_list args_ptr;
     va_start(args_ptr, format);
-    vsnprintf((char*)log_data.message, sizeof(log_data.message), format, args_ptr);
+    vsnprintf((char *)log_data.message, sizeof(log_data.message), format, args_ptr);
     va_end(args_ptr);
 
     const data_fmt_field_desc_t data_field_descs[1] = {
-      { .type = DATA_FMT_FIELD_TYPE_U8, .struct_offset = offsetof(log_LOG_PRINTF__reserved_data_t, message), .array_len = sizeof(log_data.message) },
+        { .type = DATA_FMT_FIELD_TYPE_U8, .struct_offset = offsetof(log_LOG_PRINTF__reserved_data_t, message), .array_len = sizeof(log_data.message) },
     };
 
     const data_fmt_desc_t data_desc = { .fields = data_field_descs, .count = 1 };
@@ -74,7 +74,7 @@ void LOG_PRINTF(char* format, ...) {
 }
 
 /* This is a special LOG_ function used for cmd system schedule responses */
-void LOG_CMD_SYS_SCHED_RESP(uint32_t num_bytes, const uint8_t* data) {
+void LOG_CMD_SYS_SCHED_RESP(uint32_t num_bytes, const uint8_t *data) {
     log_signal_internal(LOG_CMD_SYS_SCHED_RESP_LOG_ID, LOG_CMD_SYS_SCHED_RESP_SIG_ID, num_bytes, data, true);
 }
 
@@ -100,10 +100,12 @@ void log_sys_log_signal_with_data(uint8_t log_id, uint8_t sig_id, uint32_t data_
 
     // Serialize the response
     uint32_t written_bytes = data_fmt_serialize_struct(data_struct, data_desc, buf, sizeof(buf));
+
     if (written_bytes != data_len) {
         LOG_LOGGING_SYS__DATA_FMT_WRONG_DATA_LEN();
         return;
     }
+
     log_signal_internal(log_id, sig_id, written_bytes, buf, true);
 }
 
@@ -111,9 +113,10 @@ void log_sys_log_signal_with_data(uint8_t log_id, uint8_t sig_id, uint32_t data_
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/
 
-static void log_signal_internal(uint8_t log_id, uint8_t sig_id, size_t raw_payload_len, const void* payload_ptr, bool use_rtc) {
+static void log_signal_internal(uint8_t log_id, uint8_t sig_id, size_t raw_payload_len, const void *payload_ptr, bool use_rtc) {
     // Determine payload len -> if too large, cap at MAX_PAYLOAD_SIZE
     uint8_t payload_len;
+
     if (raw_payload_len <= MAX_PAYLOAD_SIZE) {
         payload_len = raw_payload_len;
     } else {

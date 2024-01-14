@@ -52,7 +52,7 @@ typedef enum {
 } state_t;
 
 state_err_enum_t init_state_handler(void);
-state_err_enum_t get_current_state(state_t* state);
+state_err_enum_t get_current_state(state_t *state);
 state_err_enum_t send_event(state_transition_id_t transition_id);
 
 // The following functions modify the state transition table

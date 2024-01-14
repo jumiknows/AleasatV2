@@ -71,7 +71,7 @@ void obc_serial_tx_create_task(obc_task_id_t task_id, obc_serial_tx_task_params_
 
 /**
  * @brief OBC serial TX servicing task
- * 
+ *
  * @param pvParameters Task parameters (see obc_rtos)
  */
 static void obc_serial_tx_task(void *pvParameters) {
@@ -81,6 +81,7 @@ static void obc_serial_tx_task(void *pvParameters) {
         obc_watchdog_pet(params->task_id);
 
         uint32_t data_len = xMessageBufferReceive(params->msg_buf, params->data_buf, params->data_buf_len, pdMS_TO_TICKS(OBC_SERIAL_TX_POLL_PERIOD_MS));
+
         if (data_len > 0) {
             send_datagram(params->datagram_type, params->data_buf, data_len);
         }
@@ -89,7 +90,7 @@ static void obc_serial_tx_task(void *pvParameters) {
 
 /**
  * @brief Frame a datagram and send it over the OBC serial
- * 
+ *
  * @param[in] type     Type of datagram to send
  * @param[in] data     Pointer to data buffer to send
  * @param[in] data_len Length of the data buffer

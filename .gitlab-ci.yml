@@ -60,6 +60,12 @@
         path: "obc-firmware/test/build/artifacts/gcov/GcovCoverageCobertura.xml"
     expire_in: 1 month
 
+.formattest:
+  stage: test
+  only:
+    - merge_requests
+    - web
+
 build-launchpad-ext:
   extends: .build
   script:
@@ -106,3 +112,10 @@ unittest-alea:
   extends: .unittest
   script:
     - ceedling gcov:all utils:gcov
+
+formattest-alea:
+  extends: .formattest
+  script:
+    - apt update && apt install -y astyle=3.1-3+b1
+    - cd ./obc-firmware/tools/infra/
+    - ./check-style.sh --dry-run

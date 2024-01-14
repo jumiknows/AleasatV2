@@ -29,7 +29,7 @@ typedef uint32_t firmware_version_t;
 
 // Setting API: for regular use
 nvct_err_enum_t init_nvct(firmware_version_t firmware_v);
-nvct_err_enum_t get_nvct_value(uint8_t index, nvct_value_t* value);
+nvct_err_enum_t get_nvct_value(uint8_t index, nvct_value_t *value);
 nvct_err_enum_t set_nvct_value(bool mutable, uint8_t index, nvct_value_t value);
 
 // Provisioning API: for creating new tables

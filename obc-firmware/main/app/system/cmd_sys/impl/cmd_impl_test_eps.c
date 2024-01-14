@@ -37,7 +37,8 @@
  * @brief Tests the EPS I2C interface: eps_read_float function
  * @brief Sends a test read command to the EPS module
  */
-cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_FLOAT_args_t *args, cmd_TEST_EPS_READ_FLOAT_resp_t *resp) {
+cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_FLOAT_args_t *args,
+        cmd_TEST_EPS_READ_FLOAT_resp_t *resp) {
     // Validate arguments
     if ((args->read_cmd < 1) || (args->read_cmd > 52)) {
         TEST_EPS_READ_CMD__READ_FLOAT_INVALID_CMD(args->read_cmd);
@@ -56,7 +57,8 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT(const cmd_sys_cmd_t *cmd, cmd_T
  * @brief Tests the EPS I2C interface: eps_read_float_raw function
  * @brief Sends a test read command to the EPS module
  */
-cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT_RAW(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_FLOAT_RAW_args_t *args, cmd_TEST_EPS_READ_FLOAT_RAW_resp_t *resp) {
+cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_FLOAT_RAW(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_FLOAT_RAW_args_t *args,
+        cmd_TEST_EPS_READ_FLOAT_RAW_resp_t *resp) {
     // Validate arguments
     if ((args->read_cmd < 1) || (args->read_cmd > 52)) {
         TEST_EPS_READ_CMD__READ_FLOAT_RAW_INVALID_CMD(args->read_cmd);
@@ -292,7 +294,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_WRITEREAD_SANITY(const cmd_sys_cmd_t *cmd,
 
         err = eps_read_float(EPS_READ_RBAT_INITIAL, &retf);
         ASSERT_EPS_SUCCESS(err)
-        ASSERT_INT_EQUAL((uint8_t) (retf / 1.497), 0x30)
+        ASSERT_INT_EQUAL((uint8_t)(retf / 1.497), 0x30)
 
         success = true; // Every test passed
     } while (0);

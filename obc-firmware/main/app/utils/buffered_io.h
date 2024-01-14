@@ -31,12 +31,12 @@ typedef struct {
     /**
      * @brief Buffer to store data before writing it to the output stream
      */
-    uint8_t * const buf;
+    uint8_t *const buf;
 
     /**
      * @brief Output stream to which data will be written
      */
-    const io_ostream_t * const output;
+    const io_ostream_t *const output;
 
     /**
      * @brief Current amount of data in the buffer
@@ -50,7 +50,7 @@ typedef struct {
 typedef struct {
     /**
      * @brief Identifier for the stream
-     * 
+     *
      * Can be passed to write and flush functions if the same function is re-used
      * for multiple streams.
      */
@@ -58,21 +58,21 @@ typedef struct {
 
     /**
      * @brief Maximum block size for the stream
-     * 
+     *
      * i.e. Largest amount of data that could be returned by read_block.
      */
     uint32_t max_block_size;
 
     /**
      * @brief Read a block of data from the stream
-     * 
+     *
      * @param[in]  handle       Handle to identify the stream
      * @param[out] buf          Pointer to buffer where received data will be stored
      * @param[in]  buf_len      Size of the buffer (if the buffer is too small, no data will be returned)
      * @param[in]  timeout      Timeout (units determined by implementation)
      * @param[out] timeout_left Pointer to store remaining timeout after the read operation.
      *                          Can be NULL if the caller doesn't care about the remaining timeout.
-     * 
+     *
      * @return Number of bytes read (size of the block)
      */
     uint32_t (*read_block)(void *handle, uint8_t *buf, uint32_t buf_len, uint32_t timeout, uint32_t *timeout_left);
@@ -86,12 +86,12 @@ typedef struct {
     /**
      * @brief Buffer to store data as it's read from the input stream
      */
-    uint8_t * const buf;
+    uint8_t *const buf;
 
     /**
      * @brief Input stream from which blocks will be read
      */
-    const buffered_block_istream_t * const input;
+    const buffered_block_istream_t *const input;
 
     /**
      * @brief Starting point in the buffer for valid data
@@ -125,7 +125,8 @@ uint32_t buffered_io_read(void *handle, uint8_t *buf, uint32_t num_bytes, uint32
 /**
  * @brief Wrapper for buffered_block_istream_t->read_block() that automatically passes the handle
  */
-static inline uint32_t buffered_block_istream_read_block(const buffered_block_istream_t *stream, uint8_t *buf, uint32_t buf_len, uint32_t timeout, uint32_t *timeout_left) {
+static inline uint32_t buffered_block_istream_read_block(const buffered_block_istream_t *stream, uint8_t *buf, uint32_t buf_len, uint32_t timeout,
+        uint32_t *timeout_left) {
     return stream->read_block(stream->handle, buf, buf_len, timeout, timeout_left);
 }
 

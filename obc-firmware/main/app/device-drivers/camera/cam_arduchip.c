@@ -1,7 +1,7 @@
 /**
  * @file cam_arduchip.c
  * @brief Driver for the ArduChip (the processor on ArduCAM modules)
- * 
+ *
  * Reference Documentation: https://www.arducam.com/docs/spi-cameras-for-arduino/hardware/arducam-chip/
  */
 
@@ -78,7 +78,7 @@ static arduchip_err_t test_reg(uint8_t test_val);
 static mibspi_err_t read_ardu_burst(uint8_t addr, uint8_t *data);
 
 static mibspi_err_t write_ardu_reg(uint8_t addr, uint8_t data);
-static mibspi_err_t read_ardu_reg(uint8_t addr, uint8_t* data);
+static mibspi_err_t read_ardu_reg(uint8_t addr, uint8_t *data);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -86,7 +86,7 @@ static mibspi_err_t read_ardu_reg(uint8_t addr, uint8_t* data);
 
 /**
  * @brief Reset and initialize the ArduChip
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the full initialization procedure is successful
  *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs
@@ -103,6 +103,7 @@ arduchip_err_t arduchip_init(void) {
     do {
         // Reset ArduChip
         err = arduchip_reset();
+
         if (err != ARDUCHIP_SUCCESS) {
             break;
         }
@@ -113,6 +114,7 @@ arduchip_err_t arduchip_init(void) {
         // Check firmware version to confirm ArduChip is responsive
         uint8_t fw_ver = 0;
         err = read_ardu_fw_ver(&fw_ver);
+
         if (err != ARDUCHIP_SUCCESS) {
             break;
         } else {
@@ -124,6 +126,7 @@ arduchip_err_t arduchip_init(void) {
 
         // Write/read from test register
         err = test_reg(TEST_REG_VALUE);
+
         if (err != ARDUCHIP_SUCCESS) {
             break;
         }
@@ -134,7 +137,7 @@ arduchip_err_t arduchip_init(void) {
 
 /**
  * @brief Reset the ArduChip through software
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the reset is successful
  *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs
@@ -146,6 +149,7 @@ arduchip_err_t arduchip_reset(void) {
         mibspi_err_t mibspi_err;
 
         mibspi_err = write_ardu_reg(ARDUCHIP_REG_RESET, ARDUCHIP_REG_RESET_RESET);
+
         if (mibspi_err != MIBSPI_NO_ERR) {
             err = ARDUCHIP_ERR_MIBSPI;
         }
@@ -155,6 +159,7 @@ arduchip_err_t arduchip_reset(void) {
 
         // Clear reset register
         mibspi_err = write_ardu_reg(ARDUCHIP_REG_RESET, 0);
+
         if (mibspi_err != MIBSPI_NO_ERR) {
             err = ARDUCHIP_ERR_MIBSPI;
             break;
@@ -166,11 +171,11 @@ arduchip_err_t arduchip_reset(void) {
 
 /**
  * @brief Configure the sensor timing behaviour expected by the ArduChip
- * 
+ *
  * @param[in] hsync_active_low true if the HSYNC signal is active-low
  * @param[in] vsync_active_low true if the VSYNC signal is active-low
- * @param[in] pclk_reverse     true if the PCLK is reversed 
- * 
+ * @param[in] pclk_reverse     true if the PCLK is reversed
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the configuration is successful
  *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs
@@ -179,17 +184,21 @@ arduchip_err_t arduchip_configure_sensor_timing(bool hsync_active_low, bool vsyn
     arduchip_err_t err = ARDUCHIP_SUCCESS;
 
     uint8_t sensor_timing = 0x0;
+
     if (hsync_active_low) {
         sensor_timing |= ARDUCHIP_REG_SENSOR_TIMING_HSYNC_ACTIVE_LOW;
     }
+
     if (vsync_active_low) {
         sensor_timing |= ARDUCHIP_REG_SENSOR_TIMING_VSYNC_ACTIVE_LOW;
     }
+
     if (pclk_reverse) {
         sensor_timing |= ARDUCHIP_REG_SENSOR_TIMING_PCLK_REVERSE;
     }
 
     mibspi_err_t mibspi_err = write_ardu_reg(ARDUCHIP_REG_SENSOR_TIMING, sensor_timing);
+
     if (mibspi_err != MIBSPI_NO_ERR) {
         err = ARDUCHIP_ERR_MIBSPI;
     }
@@ -199,9 +208,9 @@ arduchip_err_t arduchip_configure_sensor_timing(bool hsync_active_low, bool vsyn
 
 /**
  * @brief Set the number of frames to be captured
- * 
+ *
  * @param[in] num_frames Number of frames to capture (>= 1)
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the configuration is successful
  *            - ARDUCHIP_ERR_INVALID_ARGS if an invalid number of frames is specified
@@ -215,6 +224,7 @@ arduchip_err_t arduchip_set_num_frames(uint8_t num_frames) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
 
     mibspi_err_t mibspi_err = write_ardu_reg(ARDUCHIP_REG_CAPTURE_CTRL, (num_frames - 1)); // Actual number of frames is register value + 1
+
     if (mibspi_err != MIBSPI_NO_ERR) {
         err = ARDUCHIP_ERR_MIBSPI;
     }
@@ -224,7 +234,7 @@ arduchip_err_t arduchip_set_num_frames(uint8_t num_frames) {
 
 /**
  * @brief Trigger an image capture.
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the capture is successfully started
  *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs
@@ -233,6 +243,7 @@ arduchip_err_t arduchip_fifo_start_capture(void) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
 
     mibspi_err_t mibspi_err = write_ardu_reg(ARDUCHIP_REG_FIFO_CTRL, ARDUCHIP_REG_FIFO_CTRL_START_CAPTURE);
+
     if (mibspi_err != MIBSPI_NO_ERR) {
         err = ARDUCHIP_ERR_MIBSPI;
     }
@@ -242,9 +253,9 @@ arduchip_err_t arduchip_fifo_start_capture(void) {
 
 /**
  * @brief Check if an image capture is complete
- * 
+ *
  * @param[out] done Pointer to where the done status will be stored
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the check is successful (regardless of if the capture is complete or not)
  *            - ARDUCHIP_ERR_INVALID_ARGS if a null pointer is passed
@@ -259,6 +270,7 @@ arduchip_err_t arduchip_is_capture_done(bool *done) {
 
     uint8_t status = 0;
     mibspi_err_t mibspi_err = read_ardu_reg(ARDUCHIP_REG_STATUS, &status);
+
     if (mibspi_err != MIBSPI_NO_ERR) {
         err = ARDUCHIP_ERR_MIBSPI;
     } else {
@@ -274,9 +286,9 @@ arduchip_err_t arduchip_is_capture_done(bool *done) {
 
 /**
  * @brief Retrieve the length of the image data FIFO after an image capture
- * 
+ *
  * @param[out] fifo_len Pointer to where the FIFO length will be stored
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the length is successfully retrieved
  *            - ARDUCHIP_ERR_INVALID_ARGS if a null pointer is passed
@@ -297,26 +309,32 @@ arduchip_err_t arduchip_read_fifo_len(uint32_t *fifo_len) {
 
         // Read fifo_len[7:0]
         mibspi_err = read_ardu_reg(ARDUCHIP_REG_FIFO_SIZE_0, &fifo_len_byte);
+
         if (mibspi_err != MIBSPI_NO_ERR) {
             err = ARDUCHIP_ERR_MIBSPI;
             break;
         }
+
         *fifo_len |= ((uint32_t)fifo_len_byte << 0);
 
         // Read fifo_len[15:8]
         mibspi_err = read_ardu_reg(ARDUCHIP_REG_FIFO_SIZE_1, &fifo_len_byte);
+
         if (mibspi_err != MIBSPI_NO_ERR) {
             err = ARDUCHIP_ERR_MIBSPI;
             break;
         }
+
         *fifo_len |= ((uint32_t)fifo_len_byte << 8);
 
         // Read fifo_len[23:16]
         mibspi_err = read_ardu_reg(ARDUCHIP_REG_FIFO_SIZE_2, &fifo_len_byte);
+
         if (mibspi_err != MIBSPI_NO_ERR) {
             err = ARDUCHIP_ERR_MIBSPI;
             break;
         }
+
         *fifo_len |= ((uint32_t)fifo_len_byte << 16);
     } while (0);
 
@@ -325,12 +343,12 @@ arduchip_err_t arduchip_read_fifo_len(uint32_t *fifo_len) {
 
 /**
  * @brief Read data from the image data FIFO in a burst.
- * 
+ *
  * The size of the burst read is given by ARDUCHIP_BURST_READ_SIZE.
- * 
+ *
  * @param[out] data Buffer to store read data. Must have a size at least as big as ARDUCHIP_BURST_READ_SIZE.
  *                  If NULL is passed, the data will still be read but discarded immediately.
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the read is successful
  *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs
@@ -339,6 +357,7 @@ arduchip_err_t arduchip_read_fifo_burst(uint8_t *data) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
 
     mibspi_err_t mibspi_err = read_ardu_burst(ARDUCHIP_REG_BURST_FIFO_RD, data);
+
     if (mibspi_err != MIBSPI_NO_ERR) {
         err = ARDUCHIP_ERR_MIBSPI;
     }
@@ -348,9 +367,9 @@ arduchip_err_t arduchip_read_fifo_burst(uint8_t *data) {
 
 /**
  * @brief Clear the FIFO write done flag.
- * 
+ *
  * Call this after transferring an image to allow the next image to be captured
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the flag is successfully cleared
  *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs
@@ -359,6 +378,7 @@ arduchip_err_t arduchip_fifo_clear_wr_done(void) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
 
     mibspi_err_t mibspi_err = write_ardu_reg(ARDUCHIP_REG_FIFO_CTRL, ARDUCHIP_REG_FIFO_CTRL_CLEAR_WR_DONE);
+
     if (mibspi_err != MIBSPI_NO_ERR) {
         err = ARDUCHIP_ERR_MIBSPI;
     }
@@ -372,12 +392,12 @@ arduchip_err_t arduchip_fifo_clear_wr_done(void) {
 
 /**
  * @brief Read the firmware version from the ArduChip
- * 
+ *
  * @param[out] fw_ver Pointer to where the firmware version will be stored. Cannot be NULL.
- * 
+ *
  * @return Status code:
  *            - ARDUCHIP_SUCCESS if the read is successful
- *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs 
+ *            - ARDUCHIP_ERR_MIBSPI if a SPI error occurs
  */
 static arduchip_err_t read_ardu_fw_ver(uint8_t *fw_ver) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
@@ -385,6 +405,7 @@ static arduchip_err_t read_ardu_fw_ver(uint8_t *fw_ver) {
     mibspi_err_t mibspi_err;
 
     mibspi_err = read_ardu_reg(ARDUCHIP_REG_FW_VER, fw_ver);
+
     if (mibspi_err != MIBSPI_NO_ERR) {
         err = ARDUCHIP_ERR_MIBSPI;
     }
@@ -394,11 +415,11 @@ static arduchip_err_t read_ardu_fw_ver(uint8_t *fw_ver) {
 
 /**
  * @brief Perform a register write/read test using the TEST register.
- * 
+ *
  * Writes the test_val to the TEST register then reads the same register and confirms the result matches.
- * 
+ *
  * @param[in] test_val Value to write to the TEST register
- * 
+ *
  * @return Test result:
  *            - ARDUCHIP_SUCCESS if the test passes
  *            - ARDUCHIP_ERR_TEST_FAIL if the read value does not match test_val
@@ -413,6 +434,7 @@ static arduchip_err_t test_reg(uint8_t test_val) {
 
         // Write to TEST register
         mibspi_err = write_ardu_reg(ARDUCHIP_REG_TEST, test_val);
+
         if (mibspi_err != MIBSPI_NO_ERR) {
             err = ARDUCHIP_ERR_MIBSPI;
             break;
@@ -420,6 +442,7 @@ static arduchip_err_t test_reg(uint8_t test_val) {
 
         // Read from TEST register
         mibspi_err = read_ardu_reg(ARDUCHIP_REG_TEST, &test_val_rx);
+
         if (mibspi_err != MIBSPI_NO_ERR) {
             err = ARDUCHIP_ERR_MIBSPI;
             break;
@@ -437,11 +460,11 @@ static arduchip_err_t test_reg(uint8_t test_val) {
 
 /**
  * @brief Read from the ArduChip over SPI in burst mode
- * 
+ *
  * @param[in]  addr Register address (the first byte transmitted)
  * @param[out] data Pointer to where the received data will be stored (all data received after the address is transmitted).
  *                  If NULL is passed, the data will still be read but discarded immediately.
- * 
+ *
  * @return Result code from the SPI operation
  */
 static mibspi_err_t read_ardu_burst(uint8_t addr, uint8_t *data) {
@@ -463,10 +486,10 @@ static mibspi_err_t read_ardu_burst(uint8_t addr, uint8_t *data) {
 
 /**
  * @brief Write a single register value to the ArduChip over SPI
- * 
+ *
  * @param[in]  addr Register address
  * @param[out] data Value to write
- * 
+ *
  * @return Result code from the SPI operation
  */
 static mibspi_err_t write_ardu_reg(uint8_t addr, uint8_t data) {
@@ -478,18 +501,20 @@ static mibspi_err_t write_ardu_reg(uint8_t addr, uint8_t data) {
 
 /**
  * @brief Read a single register value from the ArduChip over SPI
- * 
+ *
  * @param[in]  addr Register address
  * @param[out] data Pointer to where the received register value will be stored. Cannot be NULL.
- * 
+ *
  * @return Result code from the SPI operation
  */
-static mibspi_err_t read_ardu_reg(uint8_t addr, uint8_t* data) {
+static mibspi_err_t read_ardu_reg(uint8_t addr, uint8_t *data) {
     uint16_t rx = 0;
     uint16_t tx = ((uint16_t)addr << 8U);
     mibspi_err_t status = tms_mibspi_tx_rx(&transfer_group_single, &tx, &rx, MIBSPI_TIMEOUT_MS);
+
     if (status == MIBSPI_NO_ERR) {
         *data = (rx & 0xFF);
     }
+
     return status;
 }

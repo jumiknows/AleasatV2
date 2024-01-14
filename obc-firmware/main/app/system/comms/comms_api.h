@@ -140,7 +140,7 @@ typedef int comms_session_handle_t;
  */
 typedef void (*comms_event_notify_cb)(comms_session_handle_t session_handle,
                                       comms_event_id_t ev_id,
-                                      void* arg);
+                                      void *arg);
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
@@ -148,7 +148,7 @@ typedef void (*comms_event_notify_cb)(comms_session_handle_t session_handle,
 
 comms_err_t comms_session_init(
     comms_endpoint_id_t ep_id,
-    comms_session_handle_t* session_handle
+    comms_session_handle_t *session_handle
 );
 
 comms_err_t comms_register_events(
@@ -160,14 +160,14 @@ comms_err_t comms_register_events(
 comms_err_t comms_send_command(
     comms_session_handle_t session_handle,
     comms_command_id_t cmd_id,
-    uint8_t* payload,
+    uint8_t *payload,
     uint16_t payload_len,
     uint32_t timeout_ticks
 );
 
 comms_err_t comms_wait_cmd_resp(
     comms_session_handle_t session_handle,
-    comms_cmd_resp_t* resp,
+    comms_cmd_resp_t *resp,
     uint32_t timeout_ticks
 );
 

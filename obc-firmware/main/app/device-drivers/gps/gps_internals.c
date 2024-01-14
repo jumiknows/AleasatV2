@@ -30,11 +30,13 @@
  * @param size length of GPS message.
  * @return uint8_t XOR checksum bit.
  */
-uint8_t calculate_ctrl_msg_checksum(const uint8_t* msg, const uint8_t size) {
+uint8_t calculate_ctrl_msg_checksum(const uint8_t *msg, const uint8_t size) {
     uint8_t checksum = 0;
+
     for (uint8_t i = 0; i < size; i++) {
         checksum = checksum ^ msg[i];
     }
+
     return checksum;
 }
 
@@ -45,7 +47,7 @@ uint8_t calculate_ctrl_msg_checksum(const uint8_t* msg, const uint8_t size) {
  * @param[in] size: length of message buffer.
  * @return bool: True if checksum is valid.
  */
-bool is_pkts_checksum_valid(const uint8_t* msg, const uint16_t size) {
+bool is_pkts_checksum_valid(const uint8_t *msg, const uint16_t size) {
     uint16_t payload_length = (uint16_t)((uint16_t)msg[GPS_CMD_LEN_POS_0] << 8) | msg[GPS_CMD_LEN_POS_1];
     uint8_t packet_checksum = msg[GPS_CMD_PAYLOAD_START + payload_length];
     uint8_t calculated_ctrl_msg_checksum = calculate_ctrl_msg_checksum(msg + GPS_CMD_PAYLOAD_START,  payload_length);
@@ -62,7 +64,7 @@ bool is_pkts_checksum_valid(const uint8_t* msg, const uint16_t size) {
  * @param[out] packet
  * @return gps_parsing_err_t
  */
-gps_parsing_err_t parse_control_packet(const uint8_t* data, const uint8_t data_len, gps_packet_t* packet) {
+gps_parsing_err_t parse_control_packet(const uint8_t *data, const uint8_t data_len, gps_packet_t *packet) {
     if (data_len < GPS_ACK_PKT_SIZE) {
         packet->id  = 0;
         packet->len = 0;
@@ -82,6 +84,7 @@ gps_parsing_err_t parse_control_packet(const uint8_t* data, const uint8_t data_l
 
     // Extract the packet data from the input array
     uint16_t payload_len = (uint16_t)((uint16_t)data[GPS_CMD_LEN_POS_0] << 8) | data[GPS_CMD_LEN_POS_1];
+
     if (payload_len > packet->payload_len) {
         packet->ack = false;
         packet->len = 0;
@@ -91,7 +94,7 @@ gps_parsing_err_t parse_control_packet(const uint8_t* data, const uint8_t data_l
 
     // -1 Because body_len contains the Message ID.
     packet->ack = true;
-    packet->len = payload_len-1;
+    packet->len = payload_len - 1;
     packet->id  = data[GPS_CMD_ID_POS];
     // +2 because payload is composed of ID + payload.
     memcpy(packet->payload, data + GPS_CMD_PAYLOAD_START + 1, payload_len);
@@ -109,16 +112,19 @@ gps_parsing_err_t parse_control_packet(const uint8_t* data, const uint8_t data_l
  *
  * @return gps_sys_msg_output_t
  */
-gps_sys_msg_output_t get_packet_type(const uint8_t* msg, const uint16_t data_len) {
+gps_sys_msg_output_t get_packet_type(const uint8_t *msg, const uint16_t data_len) {
     if (data_len < GPS_ACK_PKT_SIZE) {
         return GPS_SYS_MSG_NACK;
     }
+
     if (msg[GPS_CMD_ID_POS] == GPS_SYS_MSG_ACK) {
         return GPS_SYS_MSG_ACK;
     }
+
     if (msg[GPS_CMD_ID_POS] == GPS_SYS_MSG_NACK) {
         return GPS_SYS_MSG_NACK;
     }
+
     return GPS_SYS_MSG_PAYLOAD;
 }
 
@@ -133,9 +139,10 @@ gps_sys_msg_output_t get_packet_type(const uint8_t* msg, const uint16_t data_len
  *
  * @return bool: true if its an ack packet.
  */
-bool is_ack_pkt(const uint8_t* msg, const uint16_t data_len) {
+bool is_ack_pkt(const uint8_t *msg, const uint16_t data_len) {
     if (data_len < GPS_ACK_PKT_SIZE) {
         return false;
     }
+
     return msg[GPS_CMD_ID_POS] == GPS_SYS_MSG_ACK;
 }

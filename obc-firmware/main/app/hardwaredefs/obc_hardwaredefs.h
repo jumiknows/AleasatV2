@@ -21,7 +21,7 @@
 /******************************************************************************
  *
  * SETTINGS FOR LAUNCHPAD-1224
- * 	- TMS570LS1224-equipped launchpads acquired in 2018
+ *  - TMS570LS1224-equipped launchpads acquired in 2018
  *
  *****************************************************************************/
 #ifdef PLATFORM_LAUNCHPAD_1224
@@ -31,7 +31,7 @@
 /******************************************************************************
  *
  * SETTINGS FOR PLATFORM-ALEA-V1
- * 	- initial ALEA hardware
+ *  - initial ALEA hardware
  *
  *****************************************************************************/
 #ifdef PLATFORM_ALEA_V1

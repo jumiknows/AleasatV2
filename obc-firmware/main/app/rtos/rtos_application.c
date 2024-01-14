@@ -26,23 +26,24 @@
 
 /**
  * @brief This function is called when a stack overflow event is detected by FreeRTOS.
- * 
+ *
  * See https://www.freertos.org/Stacks-and-stack-overflow-checking.html for more information.
- * 
+ *
  * @param[in] xTask      Handle of the task whose stack overflowed
  * @param[in] pcTaskName Name of the task whose stack overflowed
  */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
-    LOG_TASK_OVERFLOW__OVERFLOW((uint8_t*)pcTaskName);
+    LOG_TASK_OVERFLOW__OVERFLOW((uint8_t *)pcTaskName);
     taskDISABLE_INTERRUPTS();
+
     while (1) {};
 }
 
 /**
  * @brief This function is called repeatedly by the idle task (lowest priority task) when it is allowed to run.
- * 
+ *
  * DO NOT call any API functions that could block the current task.
- * 
+ *
  * See https://www.freertos.org/a00016.html for more information.
  */
 void vApplicationIdleHook(void) {
@@ -54,27 +55,27 @@ void vApplicationIdleHook(void) {
 
 /**
  * @brief This function provides pointers to the statically allocated memory for the idle task.
- * 
+ *
  * See https://www.freertos.org/a00110.html#configSUPPORT_STATIC_ALLOCATION for more information.
- * 
+ *
  * @param[out] ppxIdleTaskTCBBuffer   Pointer to where the pointer to the idle task TCB is allocated
  * @param[out] ppxIdleTaskStackBuffer Pointer to where the pointer to the idle task stack is allocated
  * @param[out] pulIdleTaskStackSize   Pointer to where the size of the idle task will be written
  */
-void vApplicationGetIdleTaskMemory(StaticTask_t** ppxIdleTaskTCBBuffer, StackType_t** ppxIdleTaskStackBuffer, uint32_t* pulIdleTaskStackSize) {
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
     obc_rtos_get_idle_task_memory(ppxIdleTaskTCBBuffer, ppxIdleTaskStackBuffer, pulIdleTaskStackSize);
 }
 
 /**
  * @brief This function provides pointers to the statically allocated memory for the timer service task.
- * 
+ *
  * See https://www.freertos.org/a00110.html#configSUPPORT_STATIC_ALLOCATION for more information.
- * 
+ *
  * @param[out] ppxTimerTaskTCBBuffer   Pointer to where the pointer to the timer task TCB is allocated
  * @param[out] ppxTimerTaskStackBuffer Pointer to where the pointer to the timer task stack is allocated
  * @param[out] pulTimerTaskStackSize   Pointer to where the size of the timer task will be written
  */
-void vApplicationGetTimerTaskMemory(StaticTask_t** ppxTimerTaskTCBBuffer, StackType_t** ppxTimerTaskStackBuffer, uint32_t* pulTimerTaskStackSize) {
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize) {
     // If the buffers to be provided to the Timer task are declared inside this
     // function then they must be declared static - otherwise they will be allocated on
     // the stack and so not exists after this function exits.

@@ -25,7 +25,7 @@
 
 /**
  * @brief Maximum number of bytes that can be logged in a single message
- * 
+ *
  */
 #define MAX_PAYLOAD_SIZE 245U /* bytes */
 
@@ -35,7 +35,7 @@
 
 /**
  * @brief Represents the severity of the log message
- * 
+ *
  */
 typedef enum {
     DEBUG   = 0,  ///< Debug message
@@ -50,7 +50,7 @@ typedef enum {
 
 /**
  * Creates the logging system infrastructure
- * 
+ *
  * @note must be called before calling any other functions in the logger API
  */
 void log_sys_create_infra(void);

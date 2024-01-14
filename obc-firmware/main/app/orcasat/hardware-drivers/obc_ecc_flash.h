@@ -34,14 +34,14 @@ typedef enum ecc_flash_erase_sz {
 
 void ecc_flash_init(void);
 
-flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t* data);
-flash_err_t ecc_flash_read(uint32_t addr, uint32_t size_bytes, uint8_t* data);
+flash_err_t ecc_flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data);
+flash_err_t ecc_flash_read(uint32_t addr, uint32_t size_bytes, uint8_t *data);
 flash_err_t ecc_flash_erase(uint32_t addr, ecc_flash_erase_sz_t erase_size);
 
-flash_err_t ecc_flash_read_status_register_1(uint8_t* reg_data);
-flash_err_t ecc_flash_read_status_register_2(uint8_t* reg_data);
-flash_err_t ecc_flash_read_ecc_status_register(uint32_t ecc_unit_addr, uint8_t* reg_data);
-flash_err_t ecc_flash_read_config_register(uint8_t* reg_data);
+flash_err_t ecc_flash_read_status_register_1(uint8_t *reg_data);
+flash_err_t ecc_flash_read_status_register_2(uint8_t *reg_data);
+flash_err_t ecc_flash_read_ecc_status_register(uint32_t ecc_unit_addr, uint8_t *reg_data);
+flash_err_t ecc_flash_read_config_register(uint8_t *reg_data);
 
 flash_err_t ecc_flash_write_register(ecc_flash_reg_t reg, const uint8_t reg_data);
 

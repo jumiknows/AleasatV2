@@ -74,21 +74,21 @@ const epoch_t no_epoch = -1;
  * The base time is 12:00:00 PM on January 1, 2020.
  *
  * Algorithm:
- * 	- Figure out how many complete years since 2020 have passed. Add that * number of seconds in a
+ *  - Figure out how many complete years since 2020 have passed. Add that * number of seconds in a
  * year.
- * 	- Figure out how many complete months have occurred. Add the cumulative number of seconds to get
+ *  - Figure out how many complete months have occurred. Add the cumulative number of seconds to get
  * to that month.
- * 	- Do the same for days/hours/minutes.
- * 	- Add in leap years if applicable.
+ *  - Do the same for days/hours/minutes.
+ *  - Add in leap years if applicable.
  *
- * 	@warning This conversion is only valid up to 2027 end of year. Leap years after this point are
+ *  @warning This conversion is only valid up to 2027 end of year. Leap years after this point are
  * not handled by the conversion.
  *
  *  @param[in] real_time The real_time to convert to epoch.
- * 	@return the epoch, the number of seconds since 12:00:00 on January 1, 2020. Returns -1
+ *  @return the epoch, the number of seconds since 12:00:00 on January 1, 2020. Returns -1
  * (no_epoch) if an invalid real_time_t was given.
  */
-epoch_t real_time_to_epoch(const real_time_t* real_time) {
+epoch_t real_time_to_epoch(const real_time_t *real_time) {
     if (is_real_time_valid(real_time) == false) {
         return no_epoch;
     }
@@ -104,7 +104,8 @@ epoch_t real_time_to_epoch(const real_time_t* real_time) {
 
     // Calculate the epoch, assuming it is not a leap year
     the_time =
-        (years_past_2020 * SECONDS_IN_YEAR) + (cumulative_seconds_in_month[(month_1 - 1)]) + ((day_1 - 1) * SECONDS_IN_DAY) + (hour_0 * SECONDS_IN_HOUR) + (minute_0 * SECONDS_IN_MINUTE) + second_0;
+        (years_past_2020 * SECONDS_IN_YEAR) + (cumulative_seconds_in_month[(month_1 - 1)]) + ((day_1 - 1) * SECONDS_IN_DAY) + (hour_0 * SECONDS_IN_HOUR) +
+        (minute_0 * SECONDS_IN_MINUTE) + second_0;
 
     /*
      * The first case handles the leap year 2020. If we are past 2020, then add an extra
@@ -138,11 +139,12 @@ epoch_t real_time_to_epoch(const real_time_t* real_time) {
  * @param[out] real_time The real time to populate.
  * @return True if a valid epoch was given. False otherwise.
  */
-bool epoch_to_real_time(const epoch_t epoch, real_time_t* real_time) {
+bool epoch_to_real_time(const epoch_t epoch, real_time_t *real_time) {
     // Set to default value just in case real_time is not properly initialized and epoch is 0,
     memcpy(real_time, &alea_time_init, sizeof(real_time_t));
 
     real_time->epoch = epoch;
+
     if (epoch < 0) {
         return false;
     }
@@ -162,8 +164,10 @@ bool epoch_to_real_time(const epoch_t epoch, real_time_t* real_time) {
     uint32_t years_past_2020 = 0;
 
     uint8_t i = 0;
+
     for (i = 0; i < 27; i++) {
         uint16_t days_in_year;
+
         if (is_leap_year(years_past_2020 + START_YEAR)) {
             days_in_year = 366;
         } else {
@@ -184,7 +188,8 @@ bool epoch_to_real_time(const epoch_t epoch, real_time_t* real_time) {
 
     // Calculate month by looping through the days in each month and checking
     // if num_days is within the boundary of this month
-    const uint8_t* days_in_month;
+    const uint8_t *days_in_month;
+
     if (is_leap_year(years_past_2020 + START_YEAR)) {
         days_in_month = max_days_in_month_leap_year;
     } else {
@@ -193,6 +198,7 @@ bool epoch_to_real_time(const epoch_t epoch, real_time_t* real_time) {
 
     i                 = 0;
     uint16_t cum_days = 0;
+
     for (i = 0; i < (MAX_MONTHS + 1); i++) {
         if (num_days < cum_days) {
             real_time->month = i;
@@ -218,7 +224,7 @@ bool epoch_to_real_time(const epoch_t epoch, real_time_t* real_time) {
  *
  * @param[in] real_time The real time to increment.
  */
-void increment_real_time(real_time_t* real_time) {
+void increment_real_time(real_time_t *real_time) {
     real_time->second++;
 
     // Adjust for overflow
@@ -226,10 +232,12 @@ void increment_real_time(real_time_t* real_time) {
         real_time->second = 0;
         real_time->minute++;
     }
+
     if (real_time->minute > MAX_MINUTES) {
         real_time->minute = 0;
         real_time->hour++;
     }
+
     if (real_time->hour > MAX_HOURS) {
         real_time->hour = 0;
         real_time->day++;
@@ -268,7 +276,7 @@ void increment_real_time(real_time_t* real_time) {
  *
  * @return True if the epoch was calculated successfully and is valid. False otherwise.
  */
-bool set_real_time_epoch(real_time_t* real_time) {
+bool set_real_time_epoch(real_time_t *real_time) {
     real_time->epoch = real_time_to_epoch(real_time);
     return !(real_time->epoch == no_epoch);
 }
@@ -293,13 +301,15 @@ bool is_leap_year(uint16_t year) {
  * @param[in] real_time The real_time_t to check.
  * @return True if the real_time is valid, false if it's not.
  */
-bool is_real_time_valid(const real_time_t* real_time) {
+bool is_real_time_valid(const real_time_t *real_time) {
     if (!is_year_valid(real_time->year)) {
         return false;
     }
+
     if (!is_month_valid(real_time->month)) {
         return false;
     }
+
     if (!is_day_valid(real_time->year, real_time->month, real_time->day)) {
         return false;
     }
@@ -307,12 +317,15 @@ bool is_real_time_valid(const real_time_t* real_time) {
     if (!is_hour_valid(real_time->hour)) {
         return false;
     }
+
     if (!is_minute_valid(real_time->minute)) {
         return false;
     }
+
     if (!is_second_valid(real_time->second)) {
         return false;
     }
+
     return true;
 }
 
@@ -327,6 +340,7 @@ bool is_year_valid(const uint32_t year) {
     if ((year < MIN_YEARS) || (year > MAX_YEARS)) {
         return false;
     }
+
     return true;
 }
 
@@ -341,6 +355,7 @@ bool is_month_valid(const uint32_t month) {
     if ((month < MIN_MONTHS) || (month > MAX_MONTHS)) {
         return false;
     }
+
     return true;
 }
 
@@ -367,6 +382,7 @@ bool is_day_valid(const uint32_t year, const uint32_t month, const uint32_t day)
             return false;
         }
     }
+
     return true;
 }
 
@@ -381,6 +397,7 @@ bool is_hour_valid(const uint32_t hour) {
     if (hour > MAX_HOURS) {
         return false;
     }
+
     return true;
 }
 
@@ -395,6 +412,7 @@ bool is_minute_valid(const uint32_t minute) {
     if (minute > MAX_MINUTES) {
         return false;
     }
+
     return true;
 }
 
@@ -409,6 +427,7 @@ bool is_second_valid(const uint32_t second) {
     if (second > MAX_SECONDS) {
         return false;
     }
+
     return true;
 }
 
@@ -444,7 +463,7 @@ bool times_are_within(const epoch_t time_a, const epoch_t time_b, epoch_t within
  *
  * @return Date as a string
  */
-void time_to_ymd_string(const real_time_t* curr_time, char* buf) {
+void time_to_ymd_string(const real_time_t *curr_time, char *buf) {
     snprintf(buf, YMD_STRING_LEN, "%02d%s%04d", curr_time->day, month_to_string[curr_time->month - 1], curr_time->year + START_CENTURY);
 }
 
@@ -458,7 +477,7 @@ void time_to_ymd_string(const real_time_t* curr_time, char* buf) {
  * @param[in] from another real_time_t value
  * @return to - from
  */
-int32_t delta(real_time_t* to, real_time_t* from) {
+int32_t delta(real_time_t *to, real_time_t *from) {
     epoch_t to_epoch   = real_time_to_epoch(to);
     epoch_t from_epoch = real_time_to_epoch(from);
     return to_epoch - from_epoch;

@@ -13,6 +13,7 @@ Tag anyone else you would like to review your MR
 # Checklist
 
 ## Before Review (Submitter)
+* [ ] You have run the auto-formatter on this branch (in VSCode: CTRL + P -> "task Format code style")
 * [ ] This branch has been rebased on top of the latest version of `dev`.
 * [ ] I have done a self-review of this MR, and left comments on anything that may be unclear
 * [ ] I have added unit & hill tests to any code that can be tested

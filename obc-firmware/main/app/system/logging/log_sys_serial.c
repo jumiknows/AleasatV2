@@ -91,9 +91,9 @@ void log_sys_serial_create_task(void) {
 
 /**
  * @brief Write a log to the serial output stream.
- * 
+ *
  * This function uses a mutex internally and therefore may be called from multiple threads.
- * 
+ *
  * @param log_data      Pointer to data buffer to log
  * @param data_len      Length of data to log
  * @param timeout_ticks Timeout in ticks

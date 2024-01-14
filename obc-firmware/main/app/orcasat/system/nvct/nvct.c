@@ -70,10 +70,12 @@ static _nvct_entry_t create_nvct_entry(bool mutable, nvct_value_t value);
  */
 static nvct_err_enum_t write_to_store(uint32_t table_idx, uint8_t index, _nvct_entry_t entry) {
     uint32_t addr    = mram_offset(table_idx, TABLE_ENTRY_SIZE * index);
-    mram_err_t error = write_mram(addr, TABLE_ENTRY_SIZE, (const uint8_t*)&entry);
+    mram_err_t error = write_mram(addr, TABLE_ENTRY_SIZE, (const uint8_t *)&entry);
+
     if (error != MRAM_OK) {
         return NVCT_FAILED_TO_WRITE_TO_MRAM_ERROR;
     }
+
     // TODO: read back
     return NVCT_SUCCESS;
 }
@@ -149,10 +151,12 @@ nvct_err_enum_t init_nvct(firmware_version_t firmware_v) {
     // Look through each table in the NVCT and try to find one with the
     // correct firmware version.
     uint8_t test_table_offset = 0;
+
     for (test_table_offset = 0; test_table_offset < NVCT_MAX_NUM_TABLES; test_table_offset++) {
         // Read setting, check CRC and check against FW version.
         _nvct_entry_t entry = { 0 };
-        if (read_mram(mram_offset(test_table_offset, FIRMWARE_VERSION_NVCT_INDEX), TABLE_ENTRY_SIZE, (uint8_t*)&entry) == MRAM_OK) {
+
+        if (read_mram(mram_offset(test_table_offset, FIRMWARE_VERSION_NVCT_INDEX), TABLE_ENTRY_SIZE, (uint8_t *)&entry) == MRAM_OK) {
             if (calculate_crc(entry.config, entry.value) == entry.crc) {
                 if (entry.value == firmware_v) {
                     table_offset       = test_table_offset;
@@ -163,6 +167,7 @@ nvct_err_enum_t init_nvct(firmware_version_t firmware_v) {
             }
         }
     }
+
     return table_offset_valid ? NVCT_SUCCESS : NVCT_NO_TABLE_WITH_MATCHING_FIRMWARE_VERSION;
 }
 
@@ -202,7 +207,7 @@ nvct_err_enum_t set_nvct_value(bool mutable, uint8_t index, nvct_value_t value) 
  * @retval NVCT_FAILED_TO_READ_FROM_MRAM_ERROR if the value could not be read.
  * @retval NVCT_NO_TABLE_WITH_MATCHING_FIRMWARE_VERSION if the table was not initialized.
  */
-nvct_err_enum_t get_nvct_value(uint8_t index, nvct_value_t* value) {
+nvct_err_enum_t get_nvct_value(uint8_t index, nvct_value_t *value) {
     if (!table_offset_valid) {
         return NVCT_NO_TABLE_WITH_MATCHING_FIRMWARE_VERSION;
     }
@@ -213,7 +218,8 @@ nvct_err_enum_t get_nvct_value(uint8_t index, nvct_value_t* value) {
 
     // Read the entry from storage.
     _nvct_entry_t entry = { 0 };
-    if (read_mram(mram_offset(table_offset, entry_offset(index)), TABLE_ENTRY_SIZE, (uint8_t*)&entry) != MRAM_OK) {
+
+    if (read_mram(mram_offset(table_offset, entry_offset(index)), TABLE_ENTRY_SIZE, (uint8_t *)&entry) != MRAM_OK) {
         return NVCT_FAILED_TO_READ_FROM_MRAM_ERROR;
     }
 
@@ -238,6 +244,7 @@ nvct_err_enum_t provision_new_table(uint32_t table_index, firmware_version_t fir
     if (!(table_index < NVCT_MAX_NUM_TABLES)) {
         return NVCT_TABLE_INDEX_ERROR;
     }
+
     return provision_nvct_value(table_index, false, FIRMWARE_VERSION_NVCT_INDEX, firmware_v);
 }
 
@@ -255,6 +262,7 @@ nvct_err_enum_t provision_nvct_value(uint32_t table_index, bool mutable, uint8_t
     if (!(table_index < NVCT_MAX_NUM_TABLES)) {
         return NVCT_TABLE_INDEX_ERROR;
     }
+
     if (!(index < NVCT_MAX_NUM_ENTRIES)) {
         return NVCT_INDEX_OUT_OF_BOUND;
     }
@@ -291,9 +299,11 @@ nvct_err_enum_t erase_nvct_table(uint32_t table_index) {
     // Keep going if writes fail since a bad write still probably means an invalidated table.
     for (idx = 0; idx < NVCT_MAX_NUM_ENTRIES; idx++) {
         uint32_t addr = mram_offset(table_index, TABLE_ENTRY_SIZE * idx);
-        if (write_mram(addr, TABLE_ENTRY_SIZE, (const uint8_t*)&erased_entry) != MRAM_OK) {
+
+        if (write_mram(addr, TABLE_ENTRY_SIZE, (const uint8_t *)&erased_entry) != MRAM_OK) {
             had_mram_errors = true;
         }
     }
+
     return !had_mram_errors ? NVCT_SUCCESS : NVCT_FAILED_TO_WRITE_TO_MRAM_ERROR;
 }

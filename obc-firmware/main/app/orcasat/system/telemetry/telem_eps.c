@@ -146,13 +146,15 @@ void eps_condn_telem_collect(void) {
     // Record the timestamp
     EPS_CONDN_TS = rtc_get_epoch_time();
 
-    if (EPS_CONDN_TS == 0)
+    if (EPS_CONDN_TS == 0) {
         EPS_CONDN.sw_ver = 0xFFFF;
+    }
 
     EPS_CONDN.swswelf_lock = 0xFFFF & 0b1;
 
-    if (battery_bus_enabled == BUS_ENABLED)
+    if (battery_bus_enabled == BUS_ENABLED) {
         EPS_CONDN.bat_bus_en = 0xFFFF & (0b1 << 1);
+    }
 
     EPS_CONDN.lup_3v3 = 0xFFFF & 0b1;
     EPS_CONDN.lup_5v  = 0xFFFF & (0b1 << 1);

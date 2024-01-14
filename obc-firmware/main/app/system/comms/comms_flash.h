@@ -36,7 +36,7 @@ typedef struct comms_app_image_page_struct {
 /******************************************************************************/
 
 comms_err_t comms_flash_image(comms_session_handle_t session_handle,
-                              const comms_app_image_page_t* pages,
+                              const comms_app_image_page_t *pages,
                               uint8_t num_pages);
 
 #endif /* COMMS_FLASH_H_ */

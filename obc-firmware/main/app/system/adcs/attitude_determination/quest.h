@@ -21,8 +21,7 @@
 /******************************************************************************/
 
 //structure to contain tri-axial vector inputs for the QUEST algorithm
-typedef struct
-{
+typedef struct {
     float32_t mag_obs[3];
     float32_t mag_ref[3];
     float32_t sun_obs[3];
@@ -33,6 +32,6 @@ typedef struct
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t* weights, float32_t *out_quat);
+adcs_err_t quest_estimate(const adcs_ad_triax_vectors_t *ad_vectors, float32_t *weights, float32_t *out_quat);
 
 #endif // QUEST_H_

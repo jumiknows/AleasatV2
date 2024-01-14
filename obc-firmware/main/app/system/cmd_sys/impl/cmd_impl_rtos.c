@@ -33,9 +33,13 @@ cmd_sys_err_t cmd_impl_GET_MIN_STACK_SPACE(const cmd_sys_cmd_t *cmd) {
     // Iterate over the tasks and record the minimum free stack space (called the high watermark by FreeRTOS)
     for (uint8_t task_id = 0; task_id < OBC_TASK_COUNT; task_id++) {
         TaskHandle_t task_handle = obc_rtos_get_task_handle((obc_task_id_t)task_id);
+
         if (task_handle == NULL) {
             err = cmd_sys_begin_response(cmd, CMD_SYS_RESP_CODE_ERROR, 0);
-            if (err != CMD_SYS_SUCCESS) return err;
+
+            if (err != CMD_SYS_SUCCESS) {
+                return err;
+            }
 
             err = cmd_sys_finish_response(cmd);
             return err;
@@ -48,13 +52,22 @@ cmd_sys_err_t cmd_impl_GET_MIN_STACK_SPACE(const cmd_sys_cmd_t *cmd) {
 
     // Send response
     err = cmd_sys_begin_response(cmd, CMD_SYS_RESP_CODE_SUCCESS, sizeof(resp_buf));
-    if (err != CMD_SYS_SUCCESS) return err;
+
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
 
     uint32_t bytes_written = io_stream_write(cmd->output, resp_buf, sizeof(resp_buf), pdMS_TO_TICKS(CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS), NULL);
-    if (bytes_written != sizeof(resp_buf)) return CMD_SYS_ERR_WRITE_TIMEOUT;
+
+    if (bytes_written != sizeof(resp_buf)) {
+        return CMD_SYS_ERR_WRITE_TIMEOUT;
+    }
 
     err = cmd_sys_finish_response(cmd);
-    if (err != CMD_SYS_SUCCESS) return err;
+
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
 
     return err;
 }
@@ -69,11 +82,15 @@ cmd_sys_err_t cmd_impl_CAPTURE_RTOS_TRACE(const cmd_sys_cmd_t *cmd, cmd_CAPTURE_
     cmd_sys_err_t err = CMD_SYS_SUCCESS;
 
     err = cmd_sys_begin_response(cmd, CMD_SYS_RESP_CODE_SUCCESS, (len * sizeof(trace_entries[0])));
-    if (err != CMD_SYS_SUCCESS) return err;
+
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
 
     // Send data 8 entries at a time
-    uint8_t buf[8*sizeof(trace_entries[0])];
+    uint8_t buf[8 * sizeof(trace_entries[0])];
     uint8_t buf_idx = 0;
+
     for (uint32_t i = 0; i < len; i++) {
         data_fmt_u32_to_arr_be(trace_entries[i], &buf[buf_idx]);
         buf_idx += sizeof(trace_entries[0]);
@@ -83,12 +100,16 @@ cmd_sys_err_t cmd_impl_CAPTURE_RTOS_TRACE(const cmd_sys_cmd_t *cmd, cmd_CAPTURE_
             if (io_stream_write(cmd->output, buf, buf_idx, pdMS_TO_TICKS(CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS), NULL) != buf_idx) {
                 return CMD_SYS_ERR_WRITE_TIMEOUT;
             }
+
             buf_idx = 0;
         }
     }
 
     err = cmd_sys_finish_response(cmd);
-    if (err != CMD_SYS_SUCCESS) return err;
+
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
 
     return err;
 }

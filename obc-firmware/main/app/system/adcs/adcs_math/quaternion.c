@@ -1,7 +1,7 @@
 /**
  * @file quaternion.h
  * @brief Functions for manipulating quaternions (float32_t[4])
- * https://en.wikipedia.org/wiki/Quaternion 
+ * https://en.wikipedia.org/wiki/Quaternion
  */
 
 /******************************************************************************/
@@ -24,7 +24,7 @@ float32_t quaternion_norm(const float32_t *quat) {
 }
 
 float32_t quaternion_norm2(const float32_t *quat) {
-    return ((quat[0]*quat[0]) + (quat[1]*quat[1]) + (quat[2]*quat[2]) + (quat[3]*quat[3]));
+    return ((quat[0] * quat[0]) + (quat[1] * quat[1]) + (quat[2] * quat[2]) + (quat[3] * quat[3]));
 }
 
 void quaternion_normalize(float32_t *quat) {
@@ -35,7 +35,7 @@ void quaternion_normalize(float32_t *quat) {
     quat[3] /= norm;
 }
 
-void quaternion_conjugate(const float32_t *quat, float32_t *q_dest){
+void quaternion_conjugate(const float32_t *quat, float32_t *q_dest) {
     q_dest[0] = quat[0];
     q_dest[1] = -1.0f * quat[1];
     q_dest[2] = -1.0f * quat[2];
@@ -43,13 +43,13 @@ void quaternion_conjugate(const float32_t *quat, float32_t *q_dest){
 }
 
 void quaternion_product(const float32_t *q1, const float32_t *q2, float32_t *q_dest) {
-    q_dest[0] = ((q1[0]*q2[0]) - (q1[1]*q2[1]) - (q1[2]*q2[2]) - (q1[3]*q2[3]));
-    q_dest[1] = ((q1[1]*q2[0]) + (q1[0]*q2[1]) - (q1[3]*q2[2]) + (q1[2]*q2[3]));
-    q_dest[2] = ((q1[2]*q2[0]) + (q1[3]*q2[1]) + (q1[0]*q2[2]) - (q1[1]*q2[3]));
-    q_dest[3] = ((q1[3]*q2[0]) - (q1[2]*q2[1]) + (q1[1]*q2[2]) + (q1[0]*q2[3]));
+    q_dest[0] = ((q1[0] * q2[0]) - (q1[1] * q2[1]) - (q1[2] * q2[2]) - (q1[3] * q2[3]));
+    q_dest[1] = ((q1[1] * q2[0]) + (q1[0] * q2[1]) - (q1[3] * q2[2]) + (q1[2] * q2[3]));
+    q_dest[2] = ((q1[2] * q2[0]) + (q1[3] * q2[1]) + (q1[0] * q2[2]) - (q1[1] * q2[3]));
+    q_dest[3] = ((q1[3] * q2[0]) - (q1[2] * q2[1]) + (q1[1] * q2[2]) + (q1[0] * q2[3]));
 }
 
-float32_t quaternion_abs_angle_diff(const float32_t *q1, const float32_t *q2){
+float32_t quaternion_abs_angle_diff(const float32_t *q1, const float32_t *q2) {
     float32_t temp[4];
     float32_t q_diff[4];
     quaternion_conjugate(q1, temp);
@@ -57,6 +57,6 @@ float32_t quaternion_abs_angle_diff(const float32_t *q1, const float32_t *q2){
     arm_sqrt_f32(((q_diff[1]*q_diff[1]) + (q_diff[2]*q_diff[2]) + (q_diff[3]*q_diff[3])), &(temp[0]));
     arm_atan2_f32(temp[0], q_diff[0], &(temp[1]));
     temp[1] *= 2.0f;
-    arm_abs_f32(&(temp[1]),&(temp[0]), 1u);
+    arm_abs_f32(&(temp[1]), &(temp[0]), 1u);
     return temp[0];
 }

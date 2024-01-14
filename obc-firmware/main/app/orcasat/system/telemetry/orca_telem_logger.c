@@ -25,10 +25,10 @@
 // Telemetry logging queue setup
 #define QUEUE_LENGTH \
     (8) // Number of outstanding telemetry requests. This should be greater than the greatest number \
-        // of data bins with identical collection rates.
+    // of data bins with identical collection rates.
 #define TIMEOUT_MS \
     (2000) // Time to wait for the telemetry logging queue to have free space before abandoning the \
-                                       // telemetry log request.
+    // telemetry log request.
 
 #define TELEM_FAST_RATE 30000 // Telemetry collection rate (in ms)
 
@@ -44,10 +44,10 @@ uint8_t telem_queue_storage[QUEUE_LENGTH * ITEM_SIZE];
 QueueHandle_t telem_queue = NULL;
 
 // Private Function Declarations
-static void log_file(data_bin_t data_bin, const char* filename, const void* data, uint32_t size);
+static void log_file(data_bin_t data_bin, const char *filename, const void *data, uint32_t size);
 
-static void vTelemCollect(void* pvParameters);
-static void vTelemLoggerTask(void* pvParameters);
+static void vTelemCollect(void *pvParameters);
+static void vTelemLoggerTask(void *pvParameters);
 
 /**
  * @brief Creates the telemetry logging queue.
@@ -81,7 +81,7 @@ void telem_start_task(void) {
  */
 void log_telem(data_bin_t bin) {
     if (telem_queue != 0) {
-        if (!xQueueSend(telem_queue, (void*)&bin, 0)) {
+        if (!xQueueSend(telem_queue, (void *)&bin, 0)) {
             LOG_TELEM__QUEUE_FULL();
         }
     }
@@ -89,7 +89,7 @@ void log_telem(data_bin_t bin) {
 
 //-------- Private Functions -----------
 
-static void vTelemCollect(void* pvParameters) {
+static void vTelemCollect(void *pvParameters) {
     static uint32_t collectIndex = 0;
 
     /* Initialize Tick Count Variable With the Current Time. */
@@ -117,7 +117,7 @@ static void vTelemCollect(void* pvParameters) {
         /* Telemetry is Collected At Fast Rate. */
         vTaskDelayUntil(&xLastWakeTime,                // Time At Which Task Was Last Unblocked
                         pdMS_TO_TICKS(TELEM_FAST_RATE) // Fast Telemetry Rate
-        );
+                       );
     }
 }
 
@@ -128,7 +128,7 @@ static void vTelemCollect(void* pvParameters) {
  * be logged. It writes the telemetry data bin wrapper (such as obc_fast_telem_wrapper_t) to the
  * file, which includes the timestamp and the telemetry values.
  */
-static void vTelemLoggerTask(void* pvParameters) {
+static void vTelemLoggerTask(void *pvParameters) {
     data_bin_t bin;
 
     while (1) {
@@ -137,28 +137,34 @@ static void vTelemLoggerTask(void* pvParameters) {
 
             // Log the appropriate data based on the request type
             switch (bin) {
-                case OBC_FAST_TELEM:
-                    // TODO: should never need to reference file names outside of obc_filesystem
-                    log_file(bin, "OBC_FAST_FILENAME", (const void*)&snapshot.obc_fast, sizeof(snapshot.obc_fast));
-                    break;
-                case OBC_SLOW_TELEM:
-                    log_file(bin, "OBC_SLOW_FILENAME", (const void*)&snapshot.obc_slow, sizeof(snapshot.obc_slow));
-                    break;
-                case EPS_NORMAL_TELEM:
-                    log_file(bin, "EPS_NORMAL_FILENAME", (const void*)&snapshot.eps_normal, sizeof(snapshot.eps_normal));
-                    break;
-                case EPS_FAST_TELEM:
-                    log_file(bin, "EPS_FAST_FILENAME", (const void*)&snapshot.eps_fast, sizeof(snapshot.eps_fast));
-                    break;
-                case EPS_SLOW_TELEM:
-                    log_file(bin, "EPS_SLOW_FILENAME", (const void*)&snapshot.eps_slow, sizeof(snapshot.eps_slow));
-                    break;
-                case EPS_CONDN_TELEM:
-                    log_file(bin, "EPS_CONDN_FILENAME", (const void*)&snapshot.eps_condn, sizeof(snapshot.eps_condn));
-                    break;
-                default:
-                    LOG_TELEM__INVALID_REQUEST_BIN(bin);
-                    break;
+            case OBC_FAST_TELEM:
+                // TODO: should never need to reference file names outside of obc_filesystem
+                log_file(bin, "OBC_FAST_FILENAME", (const void *)&snapshot.obc_fast, sizeof(snapshot.obc_fast));
+                break;
+
+            case OBC_SLOW_TELEM:
+                log_file(bin, "OBC_SLOW_FILENAME", (const void *)&snapshot.obc_slow, sizeof(snapshot.obc_slow));
+                break;
+
+            case EPS_NORMAL_TELEM:
+                log_file(bin, "EPS_NORMAL_FILENAME", (const void *)&snapshot.eps_normal, sizeof(snapshot.eps_normal));
+                break;
+
+            case EPS_FAST_TELEM:
+                log_file(bin, "EPS_FAST_FILENAME", (const void *)&snapshot.eps_fast, sizeof(snapshot.eps_fast));
+                break;
+
+            case EPS_SLOW_TELEM:
+                log_file(bin, "EPS_SLOW_FILENAME", (const void *)&snapshot.eps_slow, sizeof(snapshot.eps_slow));
+                break;
+
+            case EPS_CONDN_TELEM:
+                log_file(bin, "EPS_CONDN_FILENAME", (const void *)&snapshot.eps_condn, sizeof(snapshot.eps_condn));
+                break;
+
+            default:
+                LOG_TELEM__INVALID_REQUEST_BIN(bin);
+                break;
             }
         }
     }
@@ -176,8 +182,9 @@ static void vTelemLoggerTask(void* pvParameters) {
  * telemetry snapshot.
  * @param[in] size Size (bytes) of the data to log into the file.
  */
-static void log_file(data_bin_t data_bin, const char* filename, const void* data, uint32_t size) {
+static void log_file(data_bin_t data_bin, const char *filename, const void *data, uint32_t size) {
 #if 0 // TODO ALEA-572 implement saving on EPS telem in FS
+
     if (!fs_initialized) {
         //log_str(ERROR, LOG_TELEM_INFRA, "No FS: %s", filename);
         return;
@@ -188,11 +195,13 @@ static void log_file(data_bin_t data_bin, const char* filename, const void* data
     make_file_path(filename, file_path);
 
     // Write the data to the file.
-    fs_err_t err = fs_write((const char*)file_path, 0, (const uint8_t*)data, size, LFS_SEEK_END);
+    fs_err_t err = fs_write((const char *)file_path, 0, (const uint8_t *)data, size, LFS_SEEK_END);
+
     if (err == FS_OK) {
         //log_str(DEBUG, LOG_TELEM_INFRA, "Logged telem: %s", filename);
     } else {
         //log_str(DEBUG, LOG_TELEM_INFRA, "%s failed", filename, err);
     }
+
 #endif
 }

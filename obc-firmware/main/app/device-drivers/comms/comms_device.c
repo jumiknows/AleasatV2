@@ -33,13 +33,13 @@
  *         COMMS_DEV_BUS_FAILURE if communication to the comms device failed
  */
 comms_dev_err_type_t comms_dev_send(
-        comms_dev_handle_t cdev_hdl,
-        const uint16_t* buffer,
-        uint16_t msg_len
+    comms_dev_handle_t cdev_hdl,
+    const uint16_t *buffer,
+    uint16_t msg_len
 ) {
     comms_dev_err_type_t ret = COMMS_DEV_SUCCESS;
 
-    comms_device_t* cdev = (comms_device_t*) cdev_hdl;
+    comms_device_t *cdev = (comms_device_t *) cdev_hdl;
 
     ret = cdev->tx(buffer, msg_len);
 
@@ -56,13 +56,13 @@ comms_dev_err_type_t comms_dev_send(
  *         COMMS_DEV_BUS_FAILURE if communication to the comms device failed
  */
 comms_dev_err_type_t comms_dev_receive(
-        comms_dev_handle_t cdev_hdl,
-        uint16_t* buffer,
-        uint16_t buffer_len
+    comms_dev_handle_t cdev_hdl,
+    uint16_t *buffer,
+    uint16_t buffer_len
 ) {
     comms_dev_err_type_t ret = COMMS_DEV_SUCCESS;
 
-    comms_device_t* cdev = (comms_device_t*) cdev_hdl;
+    comms_device_t *cdev = (comms_device_t *) cdev_hdl;
 
     ret = cdev->rx(buffer, buffer_len);
 
@@ -77,12 +77,12 @@ comms_dev_err_type_t comms_dev_receive(
  */
 void comms_dev_register_callback(comms_dev_handle_t cdev_hdl,
                                  comms_dev_cb_func_t cb,
-                                 void* cb_param
-) {
-    comms_device_t* cdev;
+                                 void *cb_param
+                                ) {
+    comms_device_t *cdev;
 
     if ((cdev_hdl != NULL) && (cb != NULL)) {
-        cdev = (comms_device_t*) cdev_hdl;
+        cdev = (comms_device_t *) cdev_hdl;
         cdev->cb = cb;
         cdev->cb_param = cb_param;
     }

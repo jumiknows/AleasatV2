@@ -10,6 +10,6 @@
 #include <stdint.h>
 
 extern const uint8_t comms_test_app_image_num_pages;
-extern const comms_app_image_page_t * const comms_test_app_image_pages;
+extern const comms_app_image_page_t *const comms_test_app_image_pages;
 
 #endif /* COMMS_APP_IMAGE_H_ */

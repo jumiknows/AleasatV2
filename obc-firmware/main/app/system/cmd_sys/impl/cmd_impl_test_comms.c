@@ -43,7 +43,7 @@ static SemaphoreHandle_t comms_reboot_sem;
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void comms_reboot_callback(comms_session_handle_t session_handle, comms_event_id_t ev_id, void* arg);
+static void comms_reboot_callback(comms_session_handle_t session_handle, comms_event_id_t ev_id, void *arg);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -59,7 +59,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_RX(const cmd_sys_cmd_t *cmd, cmd_TEST
     comms_cmd_resp_t comms_resp = {COMMS_CMD_RESULT_OK, {0}};
 
     // open a comms session to communicate with the radio card
-    if(session < 0) {
+    if (session < 0) {
         err = comms_session_init(COMMS_ENDPOINT_RADIO, &session);
     }
 
@@ -68,17 +68,18 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_TX_RX(const cmd_sys_cmd_t *cmd, cmd_TEST
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-    // send a command to request telemtry 
+    // send a command to request telemtry
     err = comms_send_command(session, COMMS_CMD_GET_TELEM, NULL, 0, 0);
-    if(err != COMMS_SUCCESS) {
+
+    if (err != COMMS_SUCCESS) {
         LOG_TEST_COMMS_CMD__FAILED_TO_SEND_CMD(err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-        // block and wait for response
+    // block and wait for response
     err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
 
-    if(err != COMMS_SUCCESS) {
+    if (err != COMMS_SUCCESS) {
         LOG_TEST_COMMS_CMD__FAILED_TO_RECEIVE_CMD_RESPONSE(err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
@@ -101,7 +102,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_STRESS1(const cmd_sys_cmd_t *cmd, cmd_TE
     uint32_t i;
 
     // open a comms session to communicate with the radio card
-    if(session < 0) {
+    if (session < 0) {
         err = comms_session_init(COMMS_ENDPOINT_RADIO, &session);
     }
 
@@ -114,14 +115,16 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_STRESS1(const cmd_sys_cmd_t *cmd, cmd_TE
         memset(&comms_resp, 0, sizeof(comms_resp));
         comms_send_command(session, COMMS_CMD_PING, NULL, 0, 0);
         err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
+
         if ((err != COMMS_SUCCESS) || (comms_resp.result != COMMS_CMD_RESULT_OK)) {
             num_fail++;
+
             if (num_fail >= 5) {
                 break;
             }
+
             vTaskDelay(pdMS_TO_TICKS(80));  // make it easier to see in logic analyzer waveform
-        }
-        else {
+        } else {
             num_success++;
         }
     }
@@ -140,7 +143,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_FLASH_APP(const cmd_sys_cmd_t *cmd, cmd_
     comms_err_t err = COMMS_SUCCESS;
 
     // open a comms session to communicate with the radio card
-    if(session < 0) {
+    if (session < 0) {
         err = comms_session_init(COMMS_ENDPOINT_RADIO, &session);
     }
 
@@ -150,7 +153,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_FLASH_APP(const cmd_sys_cmd_t *cmd, cmd_
     }
 
     err = comms_flash_image(session, comms_test_app_image_pages,
-                               comms_test_app_image_num_pages);
+                            comms_test_app_image_num_pages);
 
     resp->comms_err = err;
     return CMD_SYS_RESP_CODE_SUCCESS;
@@ -160,12 +163,11 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_FLASH_APP(const cmd_sys_cmd_t *cmd, cmd_
  * @brief Unblock reboot test thread after receiving radio app start message
  */
 static void comms_reboot_callback(comms_session_handle_t session_handle,
-                           comms_event_id_t ev_id,
-                           void* arg)
-{
-    comms_command_t* cmd = (comms_command_t*)arg;
+                                  comms_event_id_t ev_id,
+                                  void *arg) {
+    comms_command_t *cmd = (comms_command_t *)arg;
 
-    if(cmd->header.command == COMMS_RADIO_MSG_START) {
+    if (cmd->header.command == COMMS_RADIO_MSG_START) {
         xSemaphoreGive(comms_reboot_sem);
     }
 }
@@ -184,38 +186,40 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_REBOOT(const cmd_sys_cmd_t *cmd) {
     static StaticSemaphore_t comms_reboot_sem_buf = {0};
 
     // open a comms session to communicate with the radio card
-    if(session < 0) {
+    if (session < 0) {
         comms_session_init(COMMS_ENDPOINT_RADIO, &session);
     }
 
-    if(!comms_reboot_sem) {
+    if (!comms_reboot_sem) {
         comms_reboot_sem = xSemaphoreCreateBinaryStatic(&comms_reboot_sem_buf);
     }
 
-    err = comms_register_events(session, (1<<COMMS_EVENT_MSG_RCV), &comms_reboot_callback);
-    if(err != COMMS_SUCCESS) {
+    err = comms_register_events(session, (1 << COMMS_EVENT_MSG_RCV), &comms_reboot_callback);
+
+    if (err != COMMS_SUCCESS) {
         LOG_TEST_COMMS_CMD__FAILED_TO_REGISTER_EVENTS(err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
     err = comms_send_command(session, COMMS_CMD_REBOOT, NULL, 0, 0);
-    if(err != COMMS_SUCCESS) {
+
+    if (err != COMMS_SUCCESS) {
         LOG_TEST_COMMS_CMD__REBOOT_FAIL_1(err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
     // block and wait for response
     err = comms_wait_cmd_resp(session, &comms_resp, pdMS_TO_TICKS(500));
-    if((err != COMMS_SUCCESS) || (comms_resp.result == COMMS_CMD_RESULT_ERR)) {
+
+    if ((err != COMMS_SUCCESS) || (comms_resp.result == COMMS_CMD_RESULT_ERR)) {
         LOG_TEST_COMMS_CMD__REBOOT_FAIL_2(err);
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
-    if(xSemaphoreTake(comms_reboot_sem, pdMS_TO_TICKS(2000)) == pdTRUE) {
+    if (xSemaphoreTake(comms_reboot_sem, pdMS_TO_TICKS(2000)) == pdTRUE) {
         LOG_TEST_COMMS_CMD__REBOOT_PASS();
         return CMD_SYS_RESP_CODE_SUCCESS;
-    }
-    else {
+    } else {
         LOG_TEST_COMMS_CMD__REBOOT_FAIL_WAITING();
         return CMD_SYS_RESP_CODE_ERROR;
     }
@@ -230,11 +234,12 @@ cmd_sys_resp_code_t cmd_impl_TEST_COMMS_GET_TELEM(const cmd_sys_cmd_t *cmd, cmd_
     comms_err_t err = COMMS_SUCCESS;
     comms_telem_t telem_recv = { 0 };
 
-    if(session < 0) {
+    if (session < 0) {
         comms_session_init(COMMS_ENDPOINT_RADIO, &session);
     }
 
     err = comms_get_telem(session, &telem_recv);
+
     if (err != COMMS_SUCCESS) {
         LOG_TEST_COMMS_CMD__UNABLE_TO_GET_TELEM();
         return CMD_SYS_RESP_CODE_ERROR;

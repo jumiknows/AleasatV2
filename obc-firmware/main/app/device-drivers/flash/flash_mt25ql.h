@@ -56,12 +56,12 @@
 void mt25ql_init(void);
 
 /* User API */
-flash_err_t mt25ql_read_id(uint8_t* device_data);
-flash_err_t mt25ql_read_status_register(uint8_t* reg_data);
-flash_err_t mt25ql_read_flag_status_register(uint8_t* reg_data);
-flash_err_t mt25ql_write_status_register(const uint8_t* reg_data);
+flash_err_t mt25ql_read_id(uint8_t *device_data);
+flash_err_t mt25ql_read_status_register(uint8_t *reg_data);
+flash_err_t mt25ql_read_flag_status_register(uint8_t *reg_data);
+flash_err_t mt25ql_write_status_register(const uint8_t *reg_data);
 flash_err_t mt25ql_erase(uint32_t addr, flash_erase_sz_t erase_size);
-flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t* data);
-flash_err_t mt25ql_read_64(uint32_t addr, uint8_t* data);
+flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t *data);
+flash_err_t mt25ql_read_64(uint32_t addr, uint8_t *data);
 
 #endif // FLASH_MT25QL_H_

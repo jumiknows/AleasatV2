@@ -81,7 +81,7 @@ static QueueHandle_t gioInterruptQueue = NULL;
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
 /******************************************************************************/
 
-static void vGPIOServiceTask(void* pvParameters);
+static void vGPIOServiceTask(void *pvParameters);
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -108,7 +108,7 @@ void gpio_init_irq(void) {
 #endif
 #if FEATURE_HW_RTC
     gioEnableNotification(RTC_ALARM_IRQ_N_PORT, RTC_ALARM_IRQ_N_PIN);
-#endif    
+#endif
     /* MODIFY HERE: add further interrupt enable calls, if required */
 }
 
@@ -135,6 +135,7 @@ void gpio_create_infra(void) {
  */
 void gpio_expander_init(void) {
 #if FEATURE_GPIO_EXPANDER
+
     /* Initialize the expander with reset values */
     if (pcal6416a_init() != GPIO_SUCCESS) {
         LOG_GPIO_EXPANDER__INIT_FAILED();
@@ -146,10 +147,12 @@ void gpio_expander_init(void) {
     }
 
 #ifdef PLATFORM_ORCA_V1
+
     /* Configure the example input GPIO expander interrupt */
     if (pcal6416a_configure_interrupt(OBC_EXPAND_IN_TEST_PORT, OBC_EXPAND_IN_TEST_PIN, 1, PULLUP, &default_expander_callback) != GPIO_SUCCESS) {
         LOG_GPIO_EXPANDER__IRQ_INIT_FAILED();
     }
+
 #endif // PLATFORM_ORCA_V1
 
     /* MODIFY HERE: add further pcal6416a_configure_output(), pcal6416a_configure_input(), pcal6416a_configure_interrupt()
@@ -160,6 +163,7 @@ void gpio_expander_init(void) {
     if (pcal6416a_validate_regs() != GPIO_SUCCESS) {
         LOG_GPIO_EXPANDER__VERIFY_FAILED();
     }
+
 #endif
 }
 
@@ -194,7 +198,7 @@ void service_gpio_irq(gpio_irq_t irq_info) {
     xHigherPriorityTaskWoken = pdFALSE;
 
     if (gioInterruptQueue != NULL) {
-        if ((xQueueSendToBackFromISR(gioInterruptQueue, (void*)&irq_info, 0)) == errQUEUE_FULL) {
+        if ((xQueueSendToBackFromISR(gioInterruptQueue, (void *)&irq_info, 0)) == errQUEUE_FULL) {
             // TODO ALEA-774 Should we have a log_from_isr function?
             //log_str(ERROR, LOG_GPIO, "IRQ queue full");
         }
@@ -217,25 +221,29 @@ void service_gpio_irq(gpio_irq_t irq_info) {
  */
 gpio_err_t obc_gpio_write(gpio_port_t port, uint32_t pin, uint32_t value) {
     gpio_err_t err;
-    switch(port.type)
-    {
-        case GPIO_PORT_GIO:
-            gioSetBit(port.reg.gio, pin, value);
-            err = GPIO_SUCCESS;
-            break;
-        case GPIO_PORT_CAN:
-            tms_can_gpio_write(port.reg.can, (can_pin_t)pin, value);
-            err = GPIO_SUCCESS;
-            break;
+
+    switch (port.type) {
+    case GPIO_PORT_GIO:
+        gioSetBit(port.reg.gio, pin, value);
+        err = GPIO_SUCCESS;
+        break;
+
+    case GPIO_PORT_CAN:
+        tms_can_gpio_write(port.reg.can, (can_pin_t)pin, value);
+        err = GPIO_SUCCESS;
+        break;
 #if FEATURE_GPIO_EXPANDER
-        case GPIO_PORT_EXP:
-            err = pcal6416a_gpio_write(port.reg.exp, pin, value);
-            break;
+
+    case GPIO_PORT_EXP:
+        err = pcal6416a_gpio_write(port.reg.exp, pin, value);
+        break;
 #endif
-        default:
-            err = GPIO_FAILURE;
-            break;
+
+    default:
+        err = GPIO_FAILURE;
+        break;
     }
+
     return err;
 }
 
@@ -251,27 +259,31 @@ gpio_err_t obc_gpio_write(gpio_port_t port, uint32_t pin, uint32_t value) {
  * @return GPIO_SUCCESS for all internal GPIO reads, and if the expander read did not experience
  * any IO errors. GPIO_FAILURE if the port type was invalid or I2C communication with the expander failed.
  */
-gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t* value) {
+gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t *value) {
     gpio_err_t err;
-    switch(port.type)
-    {
-        case GPIO_PORT_GIO:
-            *value = gioGetBit(port.reg.gio, pin);
-            err = GPIO_SUCCESS;
-            break;
-        case GPIO_PORT_CAN:
-            *value = tms_can_gpio_read(port.reg.can, (can_pin_t)pin);
-            err = GPIO_SUCCESS;
-            break;
+
+    switch (port.type) {
+    case GPIO_PORT_GIO:
+        *value = gioGetBit(port.reg.gio, pin);
+        err = GPIO_SUCCESS;
+        break;
+
+    case GPIO_PORT_CAN:
+        *value = tms_can_gpio_read(port.reg.can, (can_pin_t)pin);
+        err = GPIO_SUCCESS;
+        break;
 #if FEATURE_GPIO_EXPANDER
-        case GPIO_PORT_EXP:
-            err = pcal6416a_gpio_read(port.reg.exp, pin, value);
-            break;
+
+    case GPIO_PORT_EXP:
+        err = pcal6416a_gpio_read(port.reg.exp, pin, value);
+        break;
 #endif
-        default:
-            err = GPIO_FAILURE;
-            break;
+
+    default:
+        err = GPIO_FAILURE;
+        break;
     }
+
     return err;
 }
 
@@ -291,7 +303,7 @@ gpio_err_t obc_gpio_read(gpio_port_t port, uint32_t pin, uint32_t* value) {
  *
  * @param pvParameters: used implicitly for watchdog handling.
  */
-static void vGPIOServiceTask(void* pvParameters) {
+static void vGPIOServiceTask(void *pvParameters) {
     gpio_irq_t irq_info  = {.port = NULL, .pin = 0};
 
     while (1) {
@@ -299,7 +311,7 @@ static void vGPIOServiceTask(void* pvParameters) {
 
         if ((xQueueReceive(gioInterruptQueue, &(irq_info), pdMS_TO_TICKS(GIO_IRQ_POLL_PERIOD_MS))) == pdPASS) {
 
-/* Handle pins on the GPIO expander if it exists */
+            /* Handle pins on the GPIO expander if it exists */
 #if FEATURE_GPIO_EXPANDER
             if ((irq_info.port == OBC_EXPAND_IRQ_N_PORT) && (irq_info.pin == OBC_EXPAND_IRQ_N_PIN)) {
                 pcal6416a_handle_interrupts();
@@ -314,10 +326,12 @@ static void vGPIOServiceTask(void* pvParameters) {
              * functions. Keep in mind the priority of this task. */
             // Your code here
 
-#if FEATURE_HW_RTC            
+#if FEATURE_HW_RTC
+
             if ((irq_info.port == RTC_ALARM_IRQ_N_PORT) && (irq_info.pin == RTC_ALARM_IRQ_N_PIN)) {
                 rtc_alarm_isr();
             }
+
 #endif
             /* END MODIFIABLE REGION */
 

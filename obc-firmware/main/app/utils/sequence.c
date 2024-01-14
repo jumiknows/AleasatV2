@@ -1,11 +1,11 @@
 /**
  * @file sequence.c
  * @brief Sequence utils
- * 
+ *
  * A sequence represents a sorted list of items. The underlying implementation
  * is similar to a linked list which allows efficient insertion of items anywhere
  * in the list.
- * 
+ *
  * The implementation is designed for statically allocated list items.
  */
 
@@ -34,20 +34,22 @@
 
 /**
  * @brief Initialize a sequence
- * 
+ *
  * This must be called before any other operations on the sequence.
- * 
+ *
  * After initialization, all of the items belong to the empty linked list
  * in the sequence 0 -> 1 -> 2 etc. and none of the items belong to the active
  * linked list.
- * 
+ *
  * @param[in] seq Pointer to sequence struct
  */
 void sequence_init(sequence_t *seq) {
     uint32_t i = 0;
+
     for (i = 0; i < (uint8_t)(seq->size - 1); i++) {
         seq->links[i] = i + 1;
     }
+
     seq->links[i] = NULL_IDX(seq);
 
     seq->active_list_head = NULL_IDX(seq);
@@ -56,9 +58,9 @@ void sequence_init(sequence_t *seq) {
 
 /**
  * @brief Checks if there is space to store one more item in the sequence.
- * 
+ *
  * @param[in] seq Pointer to the sequence struct
- * 
+ *
  * @return true if there is space, otherwise false
  */
 bool sequence_has_space(const sequence_t *seq) {
@@ -67,9 +69,9 @@ bool sequence_has_space(const sequence_t *seq) {
 
 /**
  * @brief Checks if the sequence is empty
- * 
+ *
  * @param[in] seq Pointer to the sequence struct
- * 
+ *
  * @return true if the sequence is empty, otherwise false
  */
 bool sequence_is_empty(const sequence_t *seq) {
@@ -78,18 +80,18 @@ bool sequence_is_empty(const sequence_t *seq) {
 
 /**
  * @brief Insert an item into the sequence if there is space.
- * 
+ *
  * Storing the item in the underlying data buffer will be handled by
  * calling store_item on the sequence.
- * 
+ *
  * Positioning the item in the sequence will be handled by iterating
  * over the sequence and calling goes_before for each item.
- * 
+ *
  * This is a worst case O(n) operation where n is the current size of the sequence.
- * 
+ *
  * @param[in] seq  Pointer to the sequence struct
  * @param[in] item Pointer to the item to insert
- * 
+ *
  * @return true if there was space to insert the item, otherwise false
  */
 bool sequence_insert(sequence_t *seq, const void *item) {
@@ -133,11 +135,11 @@ bool sequence_insert(sequence_t *seq, const void *item) {
 /**
  * @brief Retrieves the index of the item currently at the head
  * of the populated list.
- * 
+ *
  * This operation is O(1).
- * 
+ *
  * @param[in] seq Pointer to the sequence struct
- * 
+ *
  * @return Index of the first item in the sequence
  */
 uint8_t sequence_peek_first(const sequence_t *seq) {
@@ -146,17 +148,17 @@ uint8_t sequence_peek_first(const sequence_t *seq) {
 
 /**
  * @brief Advance to the next item in the sequence.
- * 
+ *
  * The current head of the active list will be removed and the second
  * item will become the new head.
- * 
+ *
  * The previous active head will become the new head of the empty list
  * and will point to the previous head of the empty list.
- * 
+ *
  * This operation is O(1).
- * 
+ *
  * @param[in] seq Pointer to the sequence struct
- * 
+ *
  * @return true if the sequence can advance (i.e. is not empty), false if the sequence is empty
  */
 bool sequence_pop_first(sequence_t *seq) {

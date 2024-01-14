@@ -55,12 +55,12 @@
 
 // Public API
 void update_settings_from_nvct(void);
-setting_err_t set_uint32_from_internal(const char* setting_name, uint32_t value);
-setting_err_t get_uint32_from_internal(const char* setting_name, uint32_t* value);
+setting_err_t set_uint32_from_internal(const char *setting_name, uint32_t value);
+setting_err_t get_uint32_from_internal(const char *setting_name, uint32_t *value);
 
 // Command-only API
 setting_err_t provision_new_settings_table(uint32_t table_index);
-setting_err_t set_uint32_from_command(const char* setting_name, uint32_t value);
-setting_err_t get_uint32_from_command(const char* setting_name, uint32_t* value, setting_nvct_t* nvct_info);
+setting_err_t set_uint32_from_command(const char *setting_name, uint32_t value);
+setting_err_t get_uint32_from_command(const char *setting_name, uint32_t *value, setting_nvct_t *nvct_info);
 
 #endif /* OBC_SETTINGS_H_ */

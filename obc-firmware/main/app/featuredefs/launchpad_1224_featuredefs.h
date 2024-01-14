@@ -16,8 +16,8 @@
 /**
  * @brief OBC IDLE SLEEP ENABLE
  *
- * 	1: OBC will enter a sleep mode during the RTOS idle task
- * 	0: OBC will not enter a sleep mode during the RTOS idle task
+ *  1: OBC will enter a sleep mode during the RTOS idle task
+ *  0: OBC will not enter a sleep mode during the RTOS idle task
  */
 #define OBC_IDLE_SLEEP_EN 1
 

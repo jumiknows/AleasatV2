@@ -14,25 +14,25 @@
 volatile uint8_t enable_sleep;
 
 #define OBC_IDLE_SLEEP_1 0x00021B32
-/*	                          21B32
- *   						   |  |
+/*                            21B32
+ *                             |  |
  *                             |  }-------------- CSDISSET: 32 will disable PLL1, LPOs. OSCIN
  *enabled (clock source disable set, 1 = disabled)
  *                             }----------------- CDDIS: 21B will disable GCLK, HCLK, VCLK2, VCLKA1,
  *VCLK4. RTICLK and peripheral VCLK remain enabled. (clock domain disable)
  *
- *	Note: this assumes the define is used with the systemPowerDown Function.
+ *  Note: this assumes the define is used with the systemPowerDown Function.
  */
 
 #define OBC_IDLE_SLEEP_2 0x00021B02
-/*	                          21B02
- *   						   |  |
+/*                            21B02
+ *                             |  |
  *                             |  }-------------- CSDISSET: 32 will disable PLL1. OSCIN and LPOs are
  *enabled still (clock source disable set, 1 = disabled)
  *                             }----------------- CDDIS: 21B will disable GCLK, HCLK, VCLK2, VCLKA1,
  *VCLK4. RTICLK and peripheral VCLK remain enabled. (clock domain disable)
  *
- *	Note: this assumes the define is used with the default systemPowerDown Function.
+ *  Note: this assumes the define is used with the default systemPowerDown Function.
  */
 static void asm_dsb(void);
 

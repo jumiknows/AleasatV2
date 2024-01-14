@@ -12,15 +12,15 @@
  * This time corresponds to an epoch of 0.
  *
  * Assumptions across this module:
- * 	- Month 1 is January. Month 12 is December.
- * 	- Start year is 2020, but the RTC counters and structures can't hold the value 2020.
- * 	  They instead count from 0 (which we take to mean year 2000), so would be initialized
- * 	  with a value of 20 in most cases.
- * 	- Minutes/seconds range: 0 - 59
- * 	- Days range: 1 - 31, with leap years being handled as a special case.
- * 	- 24-hour time, with valid hours being 0 - 23.
+ *  - Month 1 is January. Month 12 is December.
+ *  - Start year is 2020, but the RTC counters and structures can't hold the value 2020.
+ *    They instead count from 0 (which we take to mean year 2000), so would be initialized
+ *    with a value of 20 in most cases.
+ *  - Minutes/seconds range: 0 - 59
+ *  - Days range: 1 - 31, with leap years being handled as a special case.
+ *  - 24-hour time, with valid hours being 0 - 23.
  *
- * 	See the MAX_ and MIN_ defines for the limits.
+ *  See the MAX_ and MIN_ defines for the limits.
  */
 
 #ifndef OBC_TIME_H_
@@ -119,7 +119,7 @@ extern const epoch_t no_epoch;
 
 /**
  * @brief Length in chars of the string returned by the time_to_ymd_string function
- * 
+ *
  * @ref time_to_ymd_string
  */
 #define YMD_STRING_LEN 11
@@ -127,14 +127,14 @@ extern const epoch_t no_epoch;
 /* Public API -------------- */
 
 // Time conversion utilities
-epoch_t real_time_to_epoch(const real_time_t* real_time);
-bool epoch_to_real_time(const epoch_t epoch, real_time_t* real_time);
-void time_to_ymd_string(const real_time_t* curr_time, char* buf);
-int32_t delta(real_time_t* to, real_time_t* from);
+epoch_t real_time_to_epoch(const real_time_t *real_time);
+bool epoch_to_real_time(const epoch_t epoch, real_time_t *real_time);
+void time_to_ymd_string(const real_time_t *curr_time, char *buf);
+int32_t delta(real_time_t *to, real_time_t *from);
 
 // General Validation
 bool is_leap_year(uint16_t year);
-bool is_real_time_valid(const real_time_t* real_time);
+bool is_real_time_valid(const real_time_t *real_time);
 bool times_are_within(const epoch_t time_a, const epoch_t time_b, epoch_t within_sec);
 bool is_year_valid(const uint32_t year);
 bool is_month_valid(const uint32_t month);
@@ -144,7 +144,7 @@ bool is_minute_valid(const uint32_t minute);
 bool is_second_valid(const uint32_t second);
 
 // Backend
-void increment_real_time(real_time_t* real_time);
-bool set_real_time_epoch(real_time_t* real_time);
+void increment_real_time(real_time_t *real_time);
+bool set_real_time_epoch(real_time_t *real_time);
 
 #endif /* ORCASAT_HARDWARE_DRIVERS_RTC_OBC_TIME_H_ */

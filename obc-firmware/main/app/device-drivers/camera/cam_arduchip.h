@@ -23,11 +23,11 @@
 
 /**
  * @brief The number of bytes that are transferred on each burst read operation
- * 
+ *
  * This is controlled by the MIBSPI buffer length settings. For each burst read
  * a single byte is consumed for the regiser address and the remaining bytes can
  * be used to read data.
- * 
+ *
  * Each word is 16 bits (2 byte).
  */
 #define ARDUCHIP_BURST_READ_SIZE ((CAMERA_TG_BURST_WORDS * 2U) - 1U)
