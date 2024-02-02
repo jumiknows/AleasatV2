@@ -7,7 +7,7 @@ Insert overview of changes here.
 Describe how your changes were tested.
 
 # Reviewers
-@EthanJoyce @noah.tajwar.orbit @Julian-Mentasti
+@EthanJoyce @noah.tajwar.orbit @Julian-Mentasti @Joshuah143 @doosha
 Tag anyone else you would like to review your MR
 
 # Checklist
