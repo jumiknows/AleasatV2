@@ -75,6 +75,26 @@
             "group": "test",
         },
         {
+            "label": "San Antonio - Build Executable",
+            "type": "shell",
+            "command": "pipenv",
+            "args": [
+              "install",
+              "&&",
+              "pipenv",
+              "run",
+              "python",
+              "build.py"
+            ],
+            "options": {
+              "cwd": "${workspaceFolder}/san-antonio"
+            },
+            "group": {
+                  "kind": "build",
+                  "isDefault": true
+              }
+          },
+        {
             "label": "Format code style",
             "type": "shell",
             "command": "./check-style.sh",
@@ -164,6 +184,6 @@
                 "fieldSeparator": "%%%",
                 "description": "Select the OBC USB serial device"
             }
-        }
+        },
     ]
 }

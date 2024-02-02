@@ -2,6 +2,7 @@ from typing import Union, Dict
 import pathlib
 import datetime
 import json
+import sys
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QAction
@@ -25,6 +26,14 @@ from sanantonio.utils import console as console_utils
 from sanantonio.utils.session_manager import SessionManager 
 
 GRAPHICS_DIR = pathlib.Path(__file__).resolve().parent.parent / "graphics"
+
+# Override Graphics DIR if we're an executable
+if getattr(sys, 'frozen', False):
+    # executed if run as an executable
+    from pathlib import Path
+    import os
+    GRAPHICS_DIR = Path(getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))) / "graphics"
+
 ALEASAT_LOGO_PATH = GRAPHICS_DIR / "ALEASAT_logo.png"
 ALEASAT_ICON_PATH = GRAPHICS_DIR / "ALEASAT_icon.png"
 

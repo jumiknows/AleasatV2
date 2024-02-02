@@ -3,3 +3,6 @@
 !.vscode/launch.json
 .san_antoniorc
 .DS_Store
+san-antonio/dist/*
+san-antonio/*.spec
+san-antonio/requirements.txt
