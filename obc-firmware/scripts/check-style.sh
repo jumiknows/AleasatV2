@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Code style verification tool
@@ -7,7 +7,9 @@
 # run with argument "--dry-run", i.e. "./check-style.sh --dry-run"
 #
 
-ROOT_DIR="../../../obc-firmware"
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+ROOT_DIR="."
 
 INCLUDE_PATH="$ROOT_DIR/main/*.c,*.h"
 EXCLUDE_PATH=""
@@ -18,7 +20,7 @@ STYLE_OPTIONS="--style=java --indent=spaces=4 --lineend=linux --attach-closing-w
 
 if astyle "$@" $STYLE_OPTIONS --recursive ${INCLUDE_PATH} --exclude=$EXCLUDE_PATH | grep "Formatted";
 then
-    echo "Error: code style is incorrect. Please run the "Format code style" task, or ./check-style.sh."
+    echo "Error: code style is incorrect. Please run the "Format code style" task"
     exit 1
 else
     echo "Code style is OK."

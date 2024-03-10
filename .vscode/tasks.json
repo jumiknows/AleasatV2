@@ -94,9 +94,9 @@
         {
             "label": "Format code style",
             "type": "shell",
-            "command": "./check-style.sh",
+            "command": "./docker_wrapper.sh ./scripts/check-style.sh",
             "options": {
-                "cwd": "${workspaceFolder}/obc-firmware/tools/infra"
+                "cwd": "${workspaceFolder}/obc-firmware/scripts"
             },
             "problemMatcher": []
         }

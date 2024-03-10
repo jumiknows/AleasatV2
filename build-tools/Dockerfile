@@ -14,7 +14,8 @@ RUN apt-get update \
         git \
         python3 \
         python3-pip \
-        ruby-full
+        ruby-full \
+        astyle
 
 # Install necessary python modules
 RUN pip3 install \
