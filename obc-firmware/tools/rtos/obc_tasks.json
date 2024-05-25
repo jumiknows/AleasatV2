@@ -11,7 +11,7 @@
     "CMD_SYS_SCHED":       { "id": 10, "stack_size":  256, "priority": 3 },
     "OBC_SERIAL_TX_COMMS": { "id": 11, "stack_size":  256, "priority": 2 },
     "GNDSTN_LINK":         { "id": 12, "stack_size":  256, "priority": 2 },
-    "BLINKY":              { "id": 13, "stack_size":  128, "priority": 1 },
+    "BLINKY":              { "id": 13, "stack_size":  256, "priority": 1 },
     "MAIN":                { "id": 14, "stack_size": 1024, "priority": 1 },
     "IDLE":                { "id":  0, "stack_size":  128, "priority": 0 }
 }
