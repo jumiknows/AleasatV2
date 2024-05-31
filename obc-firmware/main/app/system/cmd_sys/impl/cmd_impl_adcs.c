@@ -13,6 +13,9 @@
 // WMM
 #include "wmm.h"
 
+// Sun model
+#include "sun_model.h"
+
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
@@ -51,4 +54,16 @@ cmd_sys_resp_code_t cmd_impl_WMM_GET_MAG_REF(const cmd_sys_cmd_t *cmd, cmd_WMM_G
     } else {
         return CMD_SYS_RESP_CODE_ERROR;
     }
+}
+
+/**
+ * @brief Check if sun model returns the correct sun vector
+ *
+ */
+cmd_sys_resp_code_t cmd_impl_TEST_ADCS_SUN_MODEL(const cmd_sys_cmd_t *cmd, cmd_TEST_ADCS_SUN_MODEL_args_t *args,
+        cmd_TEST_ADCS_SUN_MODEL_resp_t *resp) {
+
+    sun_model_get_pos(args->time, &(resp->jul), resp->pos);
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
 }

@@ -27,6 +27,7 @@ list(APPEND SRC_DIRS
 
     ${.}/system
     ${.}/system/adcs
+    ${.}/system/adcs/sun_model
     ${.}/system/adcs/wmm
     ${.}/system/adcs/adcs_math
     ${.}/system/adcs/attitude_determination

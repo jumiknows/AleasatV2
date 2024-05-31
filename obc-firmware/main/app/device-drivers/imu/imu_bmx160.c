@@ -418,7 +418,7 @@ static float32 mag_comp_x(bmx160_t *imu, uint16_t rhall, int16_t raw) {
 
         result = ((((float32)raw * ((((((float32)imu->trimming_data.dig_xy2) *
                                        (result * (result / (float32)268435456.0))) + (result *
-                                               (((float32)imu->trimming_data.dig_xy1) / (float32)16384.0))) + (float32)256.0) *
+                                           (((float32)imu->trimming_data.dig_xy1) / (float32)16384.0))) + (float32)256.0) *
                                     (((float32)imu->trimming_data.dig_x2) + (float32)160.0))) / (float32)8192.0) +
                   (((float32)imu->trimming_data.dig_x1) * (float32)8.0)) / (float32)16.0;
     } else {
@@ -444,7 +444,7 @@ static float32 mag_comp_y(bmx160_t *imu, uint16_t rhall, int16_t raw) {
 
         result = (((raw * (((((((float32)imu->trimming_data.dig_xy2) *
                                ((result * (result / (float32)268435456.0)))) + (result *
-                                       (((float32)imu->trimming_data.dig_xy1) / (float32)16384.0)))) + (float32)256.0) *
+                                   (((float32)imu->trimming_data.dig_xy1) / (float32)16384.0)))) + (float32)256.0) *
                            (((float32)imu->trimming_data.dig_y2) + (float32)160.0))) / (float32)8192.0) +
                   (((float32)imu->trimming_data.dig_y1) * (float32)8.0)) / (float32)16.0;
     } else {
@@ -472,7 +472,7 @@ static float32 mag_comp_z(bmx160_t *imu, uint16_t rhall, int16_t raw) {
                     (float32)131072.0) - (((float32)imu->trimming_data.dig_z3) * (((float32)rhall)
                                           - ((float32)imu->trimming_data.dig_xyz1)))) /
                   ((((float32)imu->trimming_data.dig_z2) + (((float32)imu->trimming_data.dig_z1) *
-                          (((float32)raw) / (float32)32768.0))) * (float32)4.0)) / (float32)16.0;
+                      (((float32)raw) / (float32)32768.0))) * (float32)4.0)) / (float32)16.0;
     }
 
     return result;

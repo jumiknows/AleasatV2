@@ -315,5 +315,15 @@
             {"duration_s": "u8"}
         ],
         "resp": []
+    },
+    "TEST_ADCS_SUN_MODEL": {
+        "id": 199,
+        "args": [
+            {"time":    "s16[6]"}
+        ],
+        "resp": [
+            {"jul":     "f32"},
+            {"pos":     "f32[3]"}
+        ]
     }
 }

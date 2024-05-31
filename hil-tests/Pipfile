@@ -9,6 +9,7 @@ unittest-xml-reporting = "*"
 ahrs = "*"
 parameterized = "*"
 pandas = "*"
+astropy = "*"
 
 [dev-packages]
 
