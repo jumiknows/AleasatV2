@@ -49,6 +49,7 @@ class SystemTest(obc_test.OBCTest):
 
     @timeout.timeout(10)
     def test_hang(self):
+        self.clear_signals()
         self.obc.send_cmd("TEST_HANG", 4000000)
         self.wait_for_signal("LOG_WATCHDOG", "SW_WD_BITE", 5)
 

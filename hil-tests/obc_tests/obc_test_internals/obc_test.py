@@ -62,6 +62,7 @@ class OBCTest(unittest.TestCase):
 
     def setUp(self) -> None:
         # Put the OBC in a known state
+        self.clear_signals() # We don't want to detect an old STARTUP_COMPLETE message
         self.obc.reset()
         self.wait_for_signal("LOG_PRINT_GENERAL", "STARTUP_COMPLETE", timeout=3) # TODO ALEA-853 use a less ambiguous log message to indicate system is booted
         time.sleep(1) # TODO remove once ALEA-853 is implemented
@@ -83,6 +84,9 @@ class OBCTest(unittest.TestCase):
             if logs:
                 for log in logs:
                     print(log)
+
+    def clear_signals(self):
+        self.logs.reset()
 
     def wait_for_signal(self, group_name: str, pass_sig: str, fail_sig: str = None, timeout: float = None) -> app_log.OBCLog:
         start = time.time()
