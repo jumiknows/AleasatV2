@@ -97,6 +97,7 @@
             {"flash_address": "u32"},
             {"platform": "u8"},
             {"target": "u8"},
+            {"flags": "u16"},
             {"size": "u32"},
             {"crc32": "u32"}
         ]

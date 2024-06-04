@@ -135,6 +135,7 @@ cmd_sys_resp_code_t cmd_impl_FW_INFO(const cmd_sys_cmd_t *cmd, cmd_FW_INFO_resp_
     resp->flash_address = fw_structs.entrypoint.flash_addr;
     resp->platform      = fw_structs.info.platform;
     resp->target        = fw_structs.info.target;
+    resp->flags         = fw_structs.info.flags;
     resp->size          = fw_structs.header.size;
     resp->crc32         = fw_structs.header.crc32;
 
