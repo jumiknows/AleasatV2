@@ -274,8 +274,8 @@
 #define CAMERA_CS_PORT        mibspiPORT1
 #define CAMERA_CS_PIN         0
 #define CAMERA_RX_INT_LEVEL   0
-#define CAMERA_TG_SINGLE      0
-#define CAMERA_TG_BURST       1
-#define CAMERA_TG_BURST_WORDS 127 // one word is 16 bits
+#define CAMERA_TG_SINGLE      6
+#define CAMERA_TG_BURST       7
+#define CAMERA_TG_BURST_WORDS 100 // one word is 16 bits
 
 #endif /* LAUNCHPAD_1224_HARDWAREDEFS_H_ */
