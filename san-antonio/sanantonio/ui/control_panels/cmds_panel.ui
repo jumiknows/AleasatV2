@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>803</width>
-    <height>280</height>
+    <height>418</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -296,6 +296,43 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text">
+         <string>Clear</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="comms_box">
+     <property name="title">
+      <string>COMMS</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="comms_ack_btn">
+        <property name="text">
+         <string>ACK</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="comms_ack_resp_lbl">
+        <property name="text">
+         <string>Response:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="comms_ack_resp_val">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="comms_ack_clear_btn">
         <property name="text">
          <string>Clear</string>
         </property>

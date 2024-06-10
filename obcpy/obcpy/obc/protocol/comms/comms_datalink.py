@@ -1,4 +1,4 @@
-from typing import List, ClassVar
+from typing import List, ClassVar, Dict
 from dataclasses import dataclass
 from enum import IntEnum
 import struct
@@ -24,6 +24,7 @@ class CommsCommand(IntEnum):
 @dataclass
 class CommsDatagram(packet.Packet):
     HEADER_FMT: ClassVar[str] = "<HHHB"
+    HEADER_FMT_NO_CMD: ClassVar[str] = "<HHH"
 
     seq_num: int
     resp: bool
@@ -38,9 +39,19 @@ class CommsDatagram(packet.Packet):
     def serialize(self) -> bytes:
         seq_num = (int(self.resp) << 15) | self.seq_num
 
-        fmt = f"{CommsDatagram.HEADER_FMT}{len(self.data)}s"
+        base_fmt = CommsDatagram.HEADER_FMT
+        if self.cmd_num is None:
+            base_fmt = CommsDatagram.HEADER_FMT_NO_CMD
 
-        return struct.pack(fmt, seq_num, self.dest_hwid, self.src_hwid, self.cmd_num, self.data)
+        fmt = f"{base_fmt}{len(self.data)}s"
+
+        if self.cmd_num is None:
+            return struct.pack(fmt, seq_num, self.dest_hwid, self.src_hwid, self.data)
+        else:
+            return struct.pack(fmt, seq_num, self.dest_hwid, self.src_hwid, self.cmd_num, self.data)
+
+    def __str__(self) -> str:
+        return f"[COMMS DATAGRAM] SEQ = {self.seq_num} | RESP = {self.resp} | DEST HWID = {self.dest_hwid} | SRC HWID = {self.src_hwid} | CMD = {self.cmd_num} | DATA = {self.data}"
 
     @classmethod
     def deserialize(cls, data: bytes) -> "CommsDatagram":
@@ -74,7 +85,7 @@ class CommsDataLinkTX(layer.ProtocolLayer[CommsDatagram]):
                         resp      = False,
                         dest_hwid = self._dest_hwid.value,
                         src_hwid  = self._src_hwid.value,
-                        cmd_num   = self._cmd_num.value,
+                        cmd_num   = self._cmd_num.value if self._cmd_num is not None else None,
                         data      = packet_in.serialize()
                     )
         self._seq_num += 1
@@ -87,22 +98,27 @@ class CommsDataLinkTX(layer.ProtocolLayer[CommsDatagram]):
 class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[CommsDatagram]):
     RESP_QUEUE_SIZE = 100 # Allow 100 in flight packets (should be plenty)
 
-    def __init__(self, src_hwid: HWID, rx_dest: routing.PacketDest[CommsDatagram] = None, tx_src: routing.PacketSource[packet.Packet] = None):
+    def __init__(self, src_hwid: HWID, tx_src_obc: routing.PacketSource[packet.Packet] = None, tx_src_comms: routing.PacketSource[packet.Packet] = None):
         self._rx_protocol_layer = CommsDataLinkRX()
-        self._rx_dest = rx_dest
+        self._rx_dests: Dict[HWID, routing.PacketDest[CommsDatagram]] = {}
 
-        self._tx_protocol_layer = CommsDataLinkTX(src_hwid, HWID.OBC, CommsCommand.OBC_DATA)
-        self._tx_src = tx_src
+        self._tx_protocol_layer_obc   = CommsDataLinkTX(src_hwid, HWID.OBC, CommsCommand.OBC_DATA)
+        self._tx_protocol_layer_comms = CommsDataLinkTX(src_hwid, HWID.COMMS, None)
+        self._tx_src_obc = tx_src_obc
+        self._tx_src_comms = tx_src_comms
 
         self._ack_sent = threading.Event()
 
         self.reset()
 
-    def set_rx_dest(self, dest: routing.PacketDest[CommsDatagram]):
-        self._rx_dest = dest
+    def set_rx_dest(self, src_hwid: HWID, dest: routing.PacketDest[CommsDatagram]):
+        self._rx_dests[src_hwid] = dest
 
-    def set_tx_src(self, src: routing.PacketSource[packet.Packet]):
-        self._tx_src = src
+    def set_tx_src_obc(self, src: routing.PacketSource[packet.Packet]):
+        self._tx_src_obc = src
+
+    def set_tx_src_comms(self, src: routing.PacketSource[packet.Packet]):
+        self._tx_src_comms = src
 
     def write(self, packet_in: packet.Packet, timeout: float = None):
         # RX Stack
@@ -115,8 +131,10 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
         else:
             # If it's not a response, send an ACK then pass it to the next layer
             self._send_ack(packet_out)
-            if self._rx_dest is not None:
-                self._rx_dest.write(packet_out, timeout=timeout)
+            if packet_out.src_hwid in self._rx_dests:
+                rx_dest = self._rx_dests[packet_out.src_hwid]
+                if rx_dest is not None:
+                    rx_dest.write(packet_out, timeout=timeout)
 
     def read(self, timeout: float = None) -> List[CommsDatagram]:
         # TX Stack
@@ -133,24 +151,33 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
         # TODO Maybe caring about ACKs would be a good idea
         all_packets_out: List[CommsDatagram] = []
 
-        if self._tx_src is not None:
-            packets_in = self._tx_src.read(timeout=timeout)
+        if self._tx_src_obc is not None:
+            packets_in = self._tx_src_obc.read(timeout=timeout)
             for packet_in in packets_in:
-                packets_out = self._tx_protocol_layer.transform_packet(packet_in)
+                packets_out = self._tx_protocol_layer_obc.transform_packet(packet_in)
+                all_packets_out.extend(packets_out)
+
+        if self._tx_src_comms is not None:
+            packets_in = self._tx_src_comms.read(timeout=timeout)
+            for packet_in in packets_in:
+                packets_out = self._tx_protocol_layer_comms.transform_packet(packet_in)
                 all_packets_out.extend(packets_out)
 
         return all_packets_out
 
     def reset(self):
         self._rx_protocol_layer.reset()
-        self._tx_protocol_layer.reset()
+        self._tx_protocol_layer_obc.reset()
+        self._tx_protocol_layer_comms.reset()
 
         self._resp_queue = queue.Queue(maxsize=self.RESP_QUEUE_SIZE)
 
-        if self._rx_dest is not None:
-            self._rx_dest.reset()
-        if self._tx_src is not None:
-            self._tx_src.reset()
+        for rx_dest in self._rx_dests.values():
+            rx_dest.reset()
+        if self._tx_src_obc is not None:
+            self._tx_src_obc.reset()
+        if self._tx_src_comms is not None:
+            self._tx_src_comms.reset()
 
         self._ack_sent.set()
 
@@ -159,7 +186,12 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
     def _handle_response(self, rx_packet: CommsDatagram):
         # Yay we got a response packet, we don't have any error handling for a lack of
         # response packet so I guess we'll just ignore it for now
-        pass
+
+        # Hack to forward responses coming from COMMS only
+        if rx_packet.src_hwid == HWID.COMMS:
+            if HWID.COMMS in self._rx_dests:
+                self._rx_dests[HWID.COMMS].write(rx_packet)
+
 
     def _send_ack(self, rx_packet: CommsDatagram):
         resp_packet = CommsDatagram(

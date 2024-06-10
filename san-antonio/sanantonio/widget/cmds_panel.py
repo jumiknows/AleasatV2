@@ -5,6 +5,7 @@ from PyQt5 import QtWidgets, QtCore
 from obcpy.utils import exc
 from obcpy.utils import obc_time
 from obcpy import cmd_sys
+from obcpy.obc.protocol.comms import comms_datalink
 
 from sanantonio.backend import obcqt
 from sanantonio.ui.control_panels import cmds_panel_ui
@@ -38,6 +39,10 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
         self.repo_state_val: QtWidgets.QLineEdit
         self.fw_info_clear_btn: QtWidgets.QPushButton
 
+        self.comms_ack_btn: QtWidgets.QPushButton
+        self.comms_ack_resp_val: QtWidgets.QLineEdit
+        self.comms_ack_clear_btn: QtWidgets.QPushButton
+
         self.setupUi(self)
 
         cmd_names = list(map(lambda cmd_sys_spec: cmd_sys_spec.name, self.obc.cmd_sys_specs))
@@ -58,6 +63,8 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
         self.custom_cmd_now_btn.clicked.connect(self.handle_now_clicked)
         self.fw_info_btn.clicked.connect(self.handle_get_fw_info)
         self.fw_info_clear_btn.clicked.connect(self.handle_clear_fw_info)
+        self.comms_ack_btn.clicked.connect(self.handle_comms_ack)
+        self.comms_ack_clear_btn.clicked.connect(self.handle_comms_ack_clear)
 
     @property
     def obc(self) -> obcqt.OBCQT:
@@ -142,3 +149,20 @@ class CmdsPanel(QtWidgets.QWidget, cmds_panel_ui.Ui_CmdsPanel):
     def handle_clear_fw_info(self):
         self.githash_val.setText("")
         self.repo_state_val.setText("")
+
+    @QtCore.pyqtSlot()
+    def handle_comms_ack(self):
+        self.obc.execute(obcqt.OBCQTRequest(
+            lambda obc: obc.send_comms_cmd(comms_datalink.CommsCommand.ACK, timeout=1),
+            self._comms_ack_callback
+        ))
+
+    def _comms_ack_callback(self, resp: comms_datalink.CommsDatagram):
+        if resp is None:
+            self.comms_ack_resp_val.setText("Error: Timeout")
+        else:
+            self.comms_ack_resp_val.setText(str(resp))
+
+    @QtCore.pyqtSlot()
+    def handle_comms_ack_clear(self):
+        self.comms_ack_resp_val.setText("")

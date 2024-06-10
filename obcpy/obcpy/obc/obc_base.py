@@ -14,6 +14,8 @@ from obcpy.utils import data as data_utils
 from obcpy.protocol import routing
 
 from .protocol import obc_upper_protocol
+from .protocol.comms import comms_app_protocol
+from .protocol.comms import comms_datalink
 from .protocol.app import app_protocol
 from .protocol.app import app_cmd_sys
 from .protocol.app import app_log
@@ -153,6 +155,10 @@ class OBCBase:
     @property
     def _app_protocol(self) -> app_protocol.OBCAppProtocol:
         return self._upper_protocol.app
+
+    @property
+    def _comms_app_protocol(self) -> comms_app_protocol.CommsAppProtocol:
+        return self._upper_protocol.app_comms
 
     def load_cmd_sys_specs(self, specs_paths: List[pathlib.Path]):
         """Load one or more collections of command system specifications from the filesystem.
@@ -409,3 +415,6 @@ class OBCBase:
                     # (This is fine because if the caller didn't keep their reference, they clearly don't care about
                     #  ever receiving the response)
                     del self._pending_responses[cmd_inst_id]
+
+    def send_comms_cmd(self, cmd: comms_datalink.CommsCommand, data: bytes = b'', timeout: float = None) -> comms_datalink.CommsDatagram:
+        return self._comms_app_protocol.send_cmd_recv_resp(cmd, data=data, timeout=timeout)
