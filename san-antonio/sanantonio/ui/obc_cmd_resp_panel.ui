@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>301</width>
-    <height>661</height>
+    <width>818</width>
+    <height>670</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,12 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QGroupBox" name="obc_cmd_resp_box">
+     <property name="minimumSize">
+      <size>
+       <width>800</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="title">
       <string>OBC Commands / Responses</string>
      </property>

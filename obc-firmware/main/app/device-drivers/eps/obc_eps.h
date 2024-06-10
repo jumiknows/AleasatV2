@@ -42,8 +42,8 @@ typedef enum {
     EPS_READ_ZP_CURRENT          = 13U, ///< Solar panel Z+ current (amps)
     EPS_READ_BUS_3V3_CURRENT     = 14U, ///< 3V3 bus current (amps)
     EPS_READ_BUS_5V_CURRENT      = 15U, ///< 5V bus current (amps)
-    EPS_READ_LUP_3V3             = 16U, ///< 3V3 latch up fault (volts)
-    EPS_READ_LUP_5V              = 17U, ///< 5V latch up fault (volts)
+    EPS_READ_LUP_3V3_VOLTAGE     = 16U, ///< 3V3 LUP voltage (volts)
+    EPS_READ_LUP_5V_VOLTAGE      = 17U, ///< 5V LUP voltage (volts)
     EPS_READ_MCU_TEMP            = 18U, ///< MCU temperature (degrees celsius)
     EPS_READ_BATTERY_TEMP_C1     = 19U, ///< Battery cell 1 temperature (degrees celsius)
     EPS_READ_BATTERY_TEMP_C2     = 20U, ///< Battery cell 2 temperature (degrees celsius)
@@ -61,7 +61,6 @@ typedef enum {
     EPS_READ_TEMP_SENSOR_5       = 38U, ///< External temperature sensor 5 (degrees celsius)
     EPS_READ_TEMP_SENSOR_6       = 39U, ///< External temperature sensor 6 (degrees celsius)
     EPS_READ_TEMP_SENSOR_7       = 40U, ///< External temperature sensor 7 (degrees celsius)
-    EPS_READ_RESERVED            = 41U, ///< Reserved for external temperature sensor 8
     /* ... */
     EPS_READ_RBAT_INITIAL        = 45U, ///< Initial battery resistance in milli-ohms
     EPS_READ_RBAT_RAW            = 46U, ///< Raw battery resistance in milli-ohms
@@ -89,8 +88,8 @@ typedef enum {
     /* ... */
     EPS_READ_CHARGE_CYCLES       = 48U, ///< Charge cycles counter
     /* ... */
-    EPS_READ_UPTIME_LOWER_WORD   = 51U, ///< Lower 16 bits of uptime counter (measured in seconds)
-    EPS_READ_UPTIME_HIGHER_WORD  = 52U  ///< Upper 16 bits of uptime counter (measured in seconds)
+    EPS_READ_UPTIME_HIGHER_WORD  = 51U, ///< Upper 16 bits of uptime counter (measured in seconds)
+    EPS_READ_UPTIME_LOWER_WORD   = 52U  ///< lower 16 bits of uptime counter (measured in seconds)
 } eps_cmd_read_int_t;
 
 /**
@@ -125,10 +124,10 @@ typedef enum {
  * @brief Write command states
  */
 typedef enum {
-    AUTO_OFF    = 0U,
-    AUTO_ON     = 1U,
-    FORCED_OFF  = 2U,
-    FORCED_ON   = 3U
+    EPS_STATE_OFF        = 0U,
+    EPS_STATE_ON         = 1U,
+    EPS_STATE_FORCED_OFF = 2U,
+    EPS_STATE_FORCED_ON  = 3U
 } eps_write_state_t;
 
 #define EPS_WRITE_CMD_RBAT_RAW_INITIAL  0x20U  ///< Initial value for internal battery resistance calculations (see user manual)
@@ -158,10 +157,10 @@ typedef enum {
 /******************************************************************************/
 
 // Read APIs
-
 eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32 *data);
 eps_err_t eps_read_float_raw(eps_cmd_read_float_t cmd, uint16_t *data);
 eps_err_t eps_read_int(eps_cmd_read_int_t cmd, uint16_t *data);
+eps_err_t eps_read_uptime(uint32_t *data);
 
 // Write APIs
 eps_err_t eps_write_state(eps_cmd_write_state_t cmd, eps_write_state_t state);

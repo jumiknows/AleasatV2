@@ -11,6 +11,11 @@ class SessionManager:
         self.main_window.obc_serial_log.handle_clear()
         self.main_window.san_antonio_log.clear_output()
         self.main_window.obc_cmd_resp_panel.immediate.clear_output()
+        self.main_window.control_panels.eps_panel.reset_eps_panel()
+        self.main_window.control_panels.eps_graph_panel.reset_graph_panel()
+        
+
+
 
     def save_session_helper(self):
         # Get file location from user
@@ -47,8 +52,13 @@ class SessionManager:
                 else:
                     row_data.append("")
                 session_json['obc_serial_log_table'].append(row_data)
+
+        session_json['eps_data'] = self.main_window.control_panels.eps_panel.eps_data
         
         session_json['san_antonio_log_text'] = self.main_window.san_antonio_log.sa_log_text.toPlainText()
+
+        session_json['eps_graph_data'] = self.main_window.control_panels.eps_graph_panel.graphData
+        session_json['eps_graph_count'] = self.main_window.control_panels.eps_graph_panel.graphDataCount
 
         try:
             with open(file_name, 'w') as outfile:
@@ -93,7 +103,26 @@ class SessionManager:
         except KeyError:
             print("No San Antonio log found in session file")
 
+        try:
+            self._load_eps_data(session_json['eps_data'])
+        except KeyError:
+            print("No EPS data found in session file")
+
+        try:
+            self._load_eps_graph(session_json['eps_graph_data'], session_json['eps_graph_count'])
+        except KeyError:
+            print("No EPS graph data found in session file")
+
         print(f"Loaded from: {file_name}")
+
+    def _load_eps_data(self, eps_data):
+        self.main_window.control_panels.eps_panel.eps_data = eps_data
+        self.main_window.control_panels.eps_panel.write_status()
+
+    def _load_eps_graph(self, eps_graph_data, eps_graph_count):
+        self.main_window.control_panels.eps_graph_panel.graphData = eps_graph_data
+        self.main_window.control_panels.eps_graph_panel.graphDataCount = eps_graph_count
+        self.main_window.control_panels.eps_graph_panel.plotGraphs()
 
     def _load_resp_imm_table(self, obc_serial_log):
         table = self.main_window.obc_cmd_resp_panel.immediate.obc_cmd_resp_imm_table
@@ -104,6 +133,7 @@ class SessionManager:
             table.insertRow(row_count)
             for column, item in enumerate(row):
                 table.setItem(row_count, column, QtWidgets.QTableWidgetItem(item))
+            table.resizeRowToContents(row_count)
 
         table.setUpdatesEnabled(True)  # Re-enable updates
         table.resizeColumnsToContents()  # Adjust column size after filling
@@ -117,6 +147,7 @@ class SessionManager:
             table.insertRow(row_count)
             for column, item in enumerate(row):
                 table.setItem(row_count, column, QtWidgets.QTableWidgetItem(item))
+            table.resizeRowToContents(row_count)
         
         table.setUpdatesEnabled(True) # Re-enable updates
         table.resizeColumnsToContents() # Adjust column size after filling

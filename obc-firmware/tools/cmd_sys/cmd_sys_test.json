@@ -125,6 +125,53 @@
             {"success_counter": "u8"}
         ]
     },
+    "TEST_EPS_MEASURE_BUSES": {
+        "id": 219,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"batt_V": "f32"},
+            {"batt_A": "f32"},
+            {"bcr_V": "f32"},
+            {"bcr_A": "f32"},
+            {"bus_3v3_V": "f32"},
+            {"bus_3v3_A": "f32"},
+            {"bus_5v_V": "f32"},
+            {"bus_5v_A": "f32"},
+            {"lup_3v3_V": "f32"},
+            {"lup_5v_V": "f32"}
+        ]
+    },
+    "TEST_EPS_MEASURE_TEMPS": {
+        "id": 218,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"cell_temps": "f32[4]"},
+            {"mcu_temp": "f32"}
+        ]
+    },
+    "TEST_EPS_READ_COUNTERS": {
+        "id": 217,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"uptime": "u32"},
+            {"power_on_cycles": "u16"},
+            {"under_voltage": "u16"},
+            {"short_circuit": "u16"},
+            {"over_temp": "u16"}
+        ]
+    },
+    "TEST_EPS_READ_STATUS": {
+        "id": 216,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"out_cond_1": "u16"},
+            {"out_cond_2": "u16"}
+        ]
+    },
     "TEST_MAG" : {
         "id": 241,
         "args": [

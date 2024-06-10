@@ -170,13 +170,13 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_SANITY(const cmd_sys_cmd_t *cmd, cmd_
         retf = -1.0f;
 
         // Read 3V3 LUP voltage
-        err = eps_read_float(EPS_READ_LUP_3V3, &retf);
+        err = eps_read_float(EPS_READ_LUP_3V3_VOLTAGE, &retf);
         ASSERT_EPS_SUCCESS(err)
         ASSERT_VOLTAGE_HIGH(retf)
         retf = -1.0f;
 
         // Read 5V LUP voltage
-        err = eps_read_float(EPS_READ_LUP_5V, &retf);
+        err = eps_read_float(EPS_READ_LUP_5V_VOLTAGE, &retf);
         ASSERT_EPS_SUCCESS(err)
         ASSERT_VOLTAGE_HIGH(retf)
         retf = -1.0f;
@@ -267,7 +267,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_WRITEREAD_SANITY(const cmd_sys_cmd_t *cmd,
         retf = -1.0f;
 
         // Disable raw battery output
-        err = eps_write_state(EPS_WRITE_V_BATT_EN, AUTO_OFF);
+        err = eps_write_state(EPS_WRITE_V_BATT_EN, EPS_STATE_OFF);
         ASSERT_EPS_SUCCESS(err)
 
         // Read battery voltage again
@@ -277,7 +277,7 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_WRITEREAD_SANITY(const cmd_sys_cmd_t *cmd,
         retf = -1.0f;
 
         // Enable raw battery output
-        err = eps_write_state(EPS_WRITE_V_BATT_EN, AUTO_ON);
+        err = eps_write_state(EPS_WRITE_V_BATT_EN, EPS_STATE_ON);
         ASSERT_EPS_SUCCESS(err)
 
         // Read battery voltage again again
@@ -305,4 +305,58 @@ cmd_sys_resp_code_t cmd_impl_TEST_EPS_WRITEREAD_SANITY(const cmd_sys_cmd_t *cmd,
     } else {
         return CMD_SYS_RESP_CODE_ERROR;
     }
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_EPS_MEASURE_BUSES(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_MEASURE_BUSES_resp_t *resp) {
+    eps_err_t eps_err = EPS_SUCCESS;
+
+    eps_err |= eps_read_float(EPS_READ_BATTERY_VOLTAGE, &(resp->batt_V));
+    eps_err |= eps_read_float(EPS_READ_BATTERY_CURRENT, &(resp->batt_A));
+    eps_err |= eps_read_float(EPS_READ_BCR_VOLTAGE,     &(resp->bcr_V));
+    eps_err |= eps_read_float(EPS_READ_BCR_CURRENT,     &(resp->bcr_A));
+    eps_err |= eps_read_float(EPS_READ_BUS_3V3_VOLTAGE, &(resp->bus_3v3_V));
+    eps_err |= eps_read_float(EPS_READ_BUS_3V3_CURRENT, &(resp->bus_3v3_A));
+    eps_err |= eps_read_float(EPS_READ_BUS_5V_VOLTAGE,  &(resp->bus_5v_V));
+    eps_err |= eps_read_float(EPS_READ_BUS_5V_CURRENT,  &(resp->bus_5v_A));
+    eps_err |= eps_read_float(EPS_READ_LUP_3V3_VOLTAGE, &(resp->lup_3v3_V));
+    eps_err |= eps_read_float(EPS_READ_LUP_5V_VOLTAGE,  &(resp->lup_5v_V));
+
+    resp->eps_err = eps_err;
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_EPS_MEASURE_TEMPS(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_MEASURE_TEMPS_resp_t *resp) {
+    eps_err_t eps_err = EPS_SUCCESS;
+
+    eps_err |= eps_read_float(EPS_READ_BATTERY_TEMP_C1, &(resp->cell_temps[0]));
+    eps_err |= eps_read_float(EPS_READ_BATTERY_TEMP_C2, &(resp->cell_temps[1]));
+    eps_err |= eps_read_float(EPS_READ_BATTERY_TEMP_C3, &(resp->cell_temps[2]));
+    eps_err |= eps_read_float(EPS_READ_BATTERY_TEMP_C4, &(resp->cell_temps[3]));
+    eps_err |= eps_read_float(EPS_READ_MCU_TEMP,        &(resp->mcu_temp));
+
+    resp->eps_err = eps_err;
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_COUNTERS(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_COUNTERS_resp_t *resp) {
+    eps_err_t eps_err = EPS_SUCCESS;
+
+    eps_err |= eps_read_uptime(&(resp->uptime));
+    eps_err |= eps_read_int(EPS_READ_POWER_ON_CYCLES,    &(resp->power_on_cycles));
+    eps_err |= eps_read_int(EPS_READ_V_UNDER_VOLTAGE,    &(resp->under_voltage));
+    eps_err |= eps_read_int(EPS_READ_V_SHORT_CIRCUIT,    &(resp->short_circuit));
+    eps_err |= eps_read_int(EPS_READ_V_OVER_TEMPERATURE, &(resp->over_temp));
+
+    resp->eps_err = eps_err;
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_EPS_READ_STATUS(const cmd_sys_cmd_t *cmd, cmd_TEST_EPS_READ_STATUS_resp_t *resp) {
+    eps_err_t eps_err = EPS_SUCCESS;
+
+    eps_err |= eps_read_int(EPS_READ_OUTPUT_CONDITIONS_1, &(resp->out_cond_1));
+    eps_err |= eps_read_int(EPS_READ_OUTPUT_CONDITIONS_2, &(resp->out_cond_2));
+
+    resp->eps_err = eps_err;
+    return CMD_SYS_RESP_CODE_SUCCESS;
 }

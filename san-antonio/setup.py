@@ -10,5 +10,6 @@ setup(name='sanantonio',
       install_requires=[
           'pyserial',
           'pyqt5',
+          'pyqtgraph',
       ],
       zip_safe=False)

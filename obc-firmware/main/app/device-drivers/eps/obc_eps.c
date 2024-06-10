@@ -28,7 +28,7 @@
  *
  * From EnduroSAT EPS I user manual rev4.1: https://drive.google.com/file/d/1d5Aa7zZRk3Kt3gV23Raj6aAEnOZ6MK1U/view?usp=sharing
  */
-#define EPS_BATTERY_VOLTAGE_COEFF   0.0023394775f
+#define EPS_BUS_VOLTAGE_COEFF       0.0023394775f
 #define EPS_BATTERY_CURRENT_COEFF   0.0030517578f
 #define EPS_BCR_CURRENT_COEFF       0.0015258789f
 #define EPS_SOLAR_VOLTAGE_COEFF     0.0024414063f
@@ -64,15 +64,16 @@ eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32 *data) {
     // Determine conversion coefficient based on cmd
     switch (cmd) {
     case EPS_READ_BATTERY_VOLTAGE:
-        coeff = EPS_BATTERY_VOLTAGE_COEFF;
+    case EPS_READ_BCR_VOLTAGE:
+    case EPS_READ_LUP_3V3_VOLTAGE:
+    case EPS_READ_LUP_5V_VOLTAGE:
+    case EPS_READ_BUS_3V3_VOLTAGE:
+    case EPS_READ_BUS_5V_VOLTAGE:
+        coeff = EPS_BUS_VOLTAGE_COEFF;
         break;
 
     case EPS_READ_BATTERY_CURRENT:
         coeff = EPS_BATTERY_CURRENT_COEFF;
-        break;
-
-    case EPS_READ_BCR_VOLTAGE:
-        coeff = EPS_BATTERY_VOLTAGE_COEFF;
         break;
 
     case EPS_READ_BCR_CURRENT:
@@ -80,27 +81,15 @@ eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32 *data) {
         break;
 
     case EPS_READ_X_VOLTAGE:
+    case EPS_READ_Y_VOLTAGE:
+    case EPS_READ_Z_VOLTAGE:
         coeff = EPS_SOLAR_VOLTAGE_COEFF;
         break;
 
     case EPS_READ_XM_CURRENT:
     case EPS_READ_XP_CURRENT:
-        coeff = EPS_SOLAR_CURRENT_COEFF;
-        break;
-
-    case EPS_READ_Y_VOLTAGE:
-        coeff = EPS_SOLAR_VOLTAGE_COEFF;
-        break;
-
     case EPS_READ_YM_CURRENT:
     case EPS_READ_YP_CURRENT:
-        coeff = EPS_SOLAR_CURRENT_COEFF;
-        break;
-
-    case EPS_READ_Z_VOLTAGE:
-        coeff = EPS_SOLAR_VOLTAGE_COEFF;
-        break;
-
     case EPS_READ_ZM_CURRENT:
     case EPS_READ_ZP_CURRENT:
         coeff = EPS_SOLAR_CURRENT_COEFF;
@@ -109,11 +98,6 @@ eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32 *data) {
     case EPS_READ_BUS_3V3_CURRENT:
     case EPS_READ_BUS_5V_CURRENT:
         coeff = EPS_BUS_CURRENT_COEFF;
-        break;
-
-    case EPS_READ_LUP_3V3:
-    case EPS_READ_LUP_5V:
-        coeff = EPS_BATTERY_VOLTAGE_COEFF;
         break;
 
     case EPS_READ_MCU_TEMP:
@@ -146,11 +130,6 @@ eps_err_t eps_read_float(eps_cmd_read_float_t cmd, float32 *data) {
 
     case EPS_READ_VBAT_IDEAL:
         coeff = EPS_VBATT_IDEAL_COEFF;
-        break;
-
-    case EPS_READ_BUS_3V3_VOLTAGE:
-    case EPS_READ_BUS_5V_VOLTAGE:
-        coeff = EPS_BATTERY_VOLTAGE_COEFF;
         break;
 
     default:
@@ -236,6 +215,25 @@ eps_err_t eps_read_int(eps_cmd_read_int_t cmd, uint16_t *data) {
 
     // Return the final, converted value
     *data = raw_data;
+    return err;
+}
+
+eps_err_t eps_read_uptime(uint32_t *data) {
+    eps_err_t err = EPS_SUCCESS;
+
+    uint16_t uptime[2] = { 0 };
+
+    err = eps_read_int(EPS_READ_UPTIME_LOWER_WORD, &uptime[0]);
+    if (err != EPS_SUCCESS) {
+        return err;
+    }
+
+    err = eps_read_int(EPS_READ_UPTIME_HIGHER_WORD, &uptime[1]);
+    if (err != EPS_SUCCESS) {
+        return err;
+    }
+
+    *data = (((uint32_t)uptime[1]) << 16) | uptime[0];
     return err;
 }
 

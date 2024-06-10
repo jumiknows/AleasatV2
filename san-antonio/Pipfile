@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-obcpy = {path = "./../obcpy", editable = true}
+obcpy = {path = "./../obcpy", editable = true, extras = ["ndarrays"]}
 sanantonio = {path = "./", editable = true}
 pyserial = "*"
 pyqt5 = "*"

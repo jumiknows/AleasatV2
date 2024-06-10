@@ -6,6 +6,8 @@ from sanantonio.widget import cmds_panel
 from sanantonio.widget import tasks_panel
 from sanantonio.widget import camera_panel
 from sanantonio.widget import gps_panel
+from sanantonio.widget import eps_panel
+from sanantonio.widget import eps_graph_panel
 
 from sanantonio.utils import ui as ui_utils
 
@@ -42,6 +44,14 @@ class ControlPanels(QtWidgets.QWidget, control_panels_ui.Ui_ControlPanels):
         # GPS Panel
         self.gps_panel = gps_panel.GpsPanel(obc_provider)
         self.control_tabs.addTab(self.gps_panel, "GPS")
+
+        # EPS Panel
+        self.eps_panel = eps_panel.EpsPanel(obc_provider)
+        self.control_tabs.addTab(self.eps_panel, "EPS Controls")
+
+        # EPS Graph Panel
+        self.eps_graph_panel = eps_graph_panel.EpsGraphPanel(obc_provider)
+        self.control_tabs.addTab(self.eps_graph_panel, "EPS Graphs")
 
     @QtCore.pyqtSlot()
     def handle_tasks_set_alert(self):
