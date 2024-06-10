@@ -58,7 +58,8 @@ static SemaphoreHandle_t xMibspi5MutexHandle;
 static mibspi_err_t mibspi_tx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *tx_buffer, uint32_t timeout);
 static mibspi_err_t mibspi_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *rx_buffer, uint32_t timeout);
 static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handle, uint16_t *tx_buffer, uint16_t *rx_buffer, uint32_t timeout);
-static mibspi_err_t mibspi_error_handler(uint32_t error_flags);
+static mibspi_err_t mibspi_tx_error_handler(uint32_t error_flags);
+static mibspi_err_t mibspi_rx_error_handler(uint32_t error_flags);
 static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg);
 
 /******************************************************************************/
@@ -296,7 +297,7 @@ static mibspi_err_t mibspi_tx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handl
 
     if (uxBits & MIBSPI_ERR_NOTIF) {
         // Read error flag register
-        return mibspi_error_handler(tg->reg->FLG);
+        return mibspi_tx_error_handler(tg->reg->FLG);
     } else if (uxBits == 0) {
         // If no bits were set, the event group wait call timed out
         return MIBSPI_TIMEOUT;
@@ -332,7 +333,7 @@ static mibspi_err_t mibspi_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_handl
     uint32_t error_flags = mibspiGetData(tg->reg, tg->transfer_group, rx_buffer);
 
     // check for errors
-    return mibspi_error_handler(error_flags);
+    return mibspi_rx_error_handler(error_flags);
 }
 
 /**
@@ -361,19 +362,19 @@ static mibspi_err_t mibspi_tx_rx(const mibspi_tg_t *tg, EventGroupHandle_t eg_ha
     // Recv data
     uint32_t error_flags = mibspiGetData(tg->reg, tg->transfer_group, rx_buffer);
 
-    return mibspi_error_handler(error_flags);
+    return mibspi_rx_error_handler(error_flags);
 }
 
 /**
- * @brief MIBSPI error handler. Parses the MibSPI error register to check
+ * @brief MIBSPI error handler. Parses the MibSPI flag register (SPIFLAG) to check
  * if an error has occurred.
  *
  * @pre @ref mibspi_init
  *
- * @param error_flags: Copy of the contents in the MibSPI error register.
+ * @param error_flags: Copy of the contents in the SPIFLAG register.
  * @return: Error code
  */
-static mibspi_err_t mibspi_error_handler(uint32_t error_flags) {
+static mibspi_err_t mibspi_tx_error_handler(uint32_t error_flags) {
     // No error, TXINT or RXINT, or ignore RX overflow error
     if ((error_flags == 0) || ((error_flags & 0x40) != 0)
             || ((error_flags & 0x100) != 0) || ((error_flags & 0x200) != 0)) {
@@ -390,7 +391,34 @@ static mibspi_err_t mibspi_error_handler(uint32_t error_flags) {
         return MIBSPI_DATALEN_ERR;
     }
 
-    return MIBSPI_UNKNOWN_ERR;
+    return MIBSPI_UNKNOWN_TX_ERR;
+}
+
+/**
+ * @brief Parse the flags from the RXRAM register (as returned by mibspiGetData - i.e. already
+ * shifted and masked).
+ * 
+ * @param error_flags Copy of the flags from the RXRAM register (bits 31-24) with TXFULL and RXEMPY
+ *                    masked off
+ * @return Error code
+ */
+static mibspi_err_t mibspi_rx_error_handler(uint32_t error_flags) {
+    // Allow no errors or only RX Overflow error
+    if ((error_flags == 0) || (error_flags == 0x40)) {
+        return MIBSPI_NO_ERR;
+    }
+
+    // TX bit error
+    if ((error_flags & 0x10) != 0) {
+        return MIBSPI_TX_BITERR;
+    }
+
+    // Data length error
+    if ((error_flags & 0x01) != 0) {
+        return MIBSPI_DATALEN_ERR;
+    }
+
+    return MIBSPI_UNKNOWN_RX_ERR;
 }
 
 /**

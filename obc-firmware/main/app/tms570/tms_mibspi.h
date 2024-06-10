@@ -89,9 +89,14 @@ typedef enum {
     MIBSPI_EVENTGROUP_INVALID_ERR = -7,
 
     /**
-     * @brief Unknown error occurred.
+     * @brief Unknown TX error occurred.
      */
-    MIBSPI_UNKNOWN_ERR = -8
+    MIBSPI_UNKNOWN_TX_ERR = -8,
+
+    /**
+     * @brief Unknown RX error occurred.
+     */
+    MIBSPI_UNKNOWN_RX_ERR = -9,
 } mibspi_err_t;
 
 /**
