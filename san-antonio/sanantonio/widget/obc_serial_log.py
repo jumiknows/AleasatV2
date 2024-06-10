@@ -29,6 +29,8 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
         self.obc_log_clear_btn: QtWidgets.QPushButton
         self.obc_log_save_btn: QtWidgets.QPushButton
 
+        self.watchdog_checkbox: QtWidgets.QCheckBox
+
         self.setupUi(self)
 
         header_labels = ["Timestamp", "Level", "Log", "Signal", "Data"]
@@ -61,6 +63,10 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
 
     @QtCore.pyqtSlot(app_log.OBCLog)
     def handle_log(self, log: app_log.OBCLog):
+        if not self.watchdog_checkbox.isChecked():
+            if (log.signal_name == "SW_WD_HAPPY") or (log.signal_name == "HW_WD_PET"):
+                return
+
         if self.obc_log_table.rowCount() == self.MAX_LOGS:
             self.obc_log_table.removeRow(0)
 
@@ -98,7 +104,7 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
         item = QtWidgets.QTableWidgetItem(str(text))
         item.setForeground(color.as_qcolor())
         return item
-    
+
     def handle_clear(self):
         self.obc_log_table.clearContents()
         self.obc_log_table.setRowCount(0)
