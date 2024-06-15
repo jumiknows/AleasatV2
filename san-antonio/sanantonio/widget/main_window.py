@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Union, Dict, Tuple
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QAction
@@ -34,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, obc_base.O
     resp_recvd = QtCore.pyqtSignal(object)
     cmd_error = QtCore.pyqtSignal(object)
 
-    def __init__(self, obcs: Dict[str, obcqt.OBCQT], parent=None):
+    def __init__(self, obcs: Dict[int, obcqt.OBCQT], parent=None):
         super().__init__(parent)
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
@@ -96,6 +96,7 @@ class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, obc_base.O
 
         # Connect signals / slots
         self.sat_interface.conn_state_changed.connect(self.handle_conn_state_changed)
+        self.sat_interface.obc_cmd_interface_changed.connect(self.handle_obc_cmd_interface_changed)
         self.cmd_sent.connect(self.obc_cmd_resp_panel.handle_cmd_sent)
         self.resp_recvd.connect(self.obc_cmd_resp_panel.handle_resp_recvd)
         self.cmd_error.connect(self.obc_cmd_resp_panel.handle_cmd_error)
@@ -141,3 +142,24 @@ class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, obc_base.O
             except ValueError:
                 # Raised if event listener was not previously attached, can ignore
                 pass
+
+    @QtCore.pyqtSlot(object)
+    def handle_obc_cmd_interface_changed(self, args: Tuple[obc_base.OBCBase.InterfaceType, obc_base.OBCBase.InterfaceType]):
+        # Deal with previous interface
+        if args[0] is not None:
+            prev_cmd_obc = self.sat_interface.get_obc_interface(args[0])
+            if prev_cmd_obc.connected:
+                prev_cmd_obc.obc_error.disconnect(self._obc_error_connection)
+
+                try:
+                    self.obc.remove_event_listener(self)
+                except ValueError:
+                    # Raised if event listener was not previously attached, can ignore
+                    pass
+
+        # New interface
+        if args[1] is not None:
+            new_cmd_obc = self.sat_interface.get_obc_interface(args[1])
+            if new_cmd_obc.connected:
+                self._obc_error_connection = self.obc.obc_error.connect(self.handle_obc_error)
+                self.obc.add_event_listener(self)

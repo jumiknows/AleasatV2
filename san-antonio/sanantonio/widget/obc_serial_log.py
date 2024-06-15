@@ -4,7 +4,6 @@ from PyQt5 import QtWidgets, QtCore
 
 from obcpy import log_sys
 from obcpy.obc.protocol.app import app_log
-from obcpy.utils import data as data_utils
 
 from sanantonio.backend import obcqt
 from sanantonio.ui import obc_serial_log_ui
@@ -42,24 +41,14 @@ class OBCSerialLog(QtWidgets.QWidget, obc_serial_log_ui.Ui_OBCSerialLog):
         self.obc_log_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         # Connect signals / slots
-        self._obc_provider.conn_state_changed.connect(self.handle_conn_state_changed)
         self.obc_log_clear_btn.clicked.connect(self.handle_clear)
         self.obc_log_save_btn.clicked.connect(self.handle_save)
 
-        self._logs_connection: QtCore.QMetaObject.Connection = None
+        self._obc_provider.logs.connect(self.handle_log)
 
     @property
     def obc(self) -> obcqt.OBCQT:
         return self._obc_provider.obc
-
-    @QtCore.pyqtSlot(bool)
-    def handle_conn_state_changed(self, connected: bool):
-        if connected:
-            self._logs_connection = self.obc.logs.connect(self.handle_log)
-        else:
-            if self._logs_connection is not None:
-                self.obc.logs.disconnect(self._logs_connection)
-                self._logs_connection = None
 
     @QtCore.pyqtSlot(app_log.OBCLog)
     def handle_log(self, log: app_log.OBCLog):

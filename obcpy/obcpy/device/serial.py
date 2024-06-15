@@ -177,12 +177,12 @@ class SerialDevice:
             return False
 
         if self._rx_dest is not None:
-            print("Starting serial RX worker")
+            print(f"Starting serial RX worker on port: {serial_port}")
             self._rx_worker = SerialRXWorker(self._device, self._rx_dest)
             self._rx_worker.start()
 
         if self._tx_src is not None:
-            print("Starting serial TX worker")
+            print(f"Starting serial TX worker on port: {serial_port}")
             self._tx_worker = SerialTXWorker(self._device, self._tx_src)
             self._tx_worker.start()
 
@@ -194,13 +194,18 @@ class SerialDevice:
         This method blocks waiting for the RX and TX worker threads to stop
         which should take a maximum of 0.1 seconds per thread.
         """
+        if self._device is None:
+            serial_port = "UNKNOWN"
+        else:
+            serial_port = self._device.port
+
         if self._rx_worker is not None:
-            print("Stopping serial RX worker")
+            print(f"Stopping serial RX worker on port: {serial_port}")
             self._rx_worker.stop()
             self._rx_worker = None
 
         if self._tx_worker is not None:
-            print("Stopping serial TX worker")
+            print(f"Stopping serial TX worker on port: {serial_port}")
             self._tx_worker.stop()
             self._tx_worker = None
 

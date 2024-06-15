@@ -373,6 +373,10 @@ class OBCInterfaceProvider:
         raise NotImplementedError()
 
     @property
+    def logs(self) -> QtCore.pyqtBoundSignal:
+        raise NotImplementedError()
+
+    @property
     def conn_state_changed(self) -> QtCore.pyqtBoundSignal:
         raise NotImplementedError()
 

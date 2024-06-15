@@ -99,8 +99,7 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
         self.capture_task_trace_btn.clicked.connect(self.handle_capture_task_trace)
 
         self._obc_provider.conn_state_changed.connect(self.handle_conn_state_changed)
-
-        self._logs_connection: QtCore.QMetaObject.Connection = None
+        self._obc_provider.logs.connect(self.handle_log)
 
         self._wd_timer = QtCore.QTimer(self)
         self._wd_timer.timeout.connect(self.handle_wd_timeout)
@@ -112,13 +111,9 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
     @QtCore.pyqtSlot(bool)
     def handle_conn_state_changed(self, connected: bool):
         if connected:
-            self._logs_connection = self.obc.logs.connect(self.handle_log)
             self._wd_timer.start(self.MAXIMUM_WD_PERIOD_MS)
         else:
             self._wd_timer.stop()
-            if self._logs_connection is not None:
-                self.obc.logs.disconnect(self._logs_connection)
-                self._logs_connection = None
 
     @QtCore.pyqtSlot(app_log.OBCLog)
     def handle_log(self, log: app_log.OBCLog):

@@ -1,8 +1,10 @@
+from typing import Dict, Tuple
+
 from PyQt5 import QtWidgets, QtCore
-from typing import Dict
 
 from obcpy.utils import serial as serial_utils
 from obcpy.obc import obc_base
+from obcpy.obc.protocol.app import app_log
 
 from sanantonio.backend import obcqt
 from sanantonio.ui import sat_interface_ui
@@ -10,14 +12,16 @@ from sanantonio.utils import ui as ui_utils
 
 class SatInterface(QtWidgets.QWidget, sat_interface_ui.Ui_SatInterface, obcqt.OBCInterfaceProvider):
     _conn_state_changed = QtCore.pyqtSignal(bool)
-    _obc_interface_changed = QtCore.pyqtSignal(obc_base.OBCBase.InterfaceType)
+    _obc_cmd_interface_changed = QtCore.pyqtSignal(object)
 
-    def __init__(self, obcs: Dict[str, obcqt.OBCQT], parent=None):
+    _logs = QtCore.pyqtSignal(app_log.OBCLog)
+
+    def __init__(self, obcs: Dict[int, obcqt.OBCQT], parent=None):
         super().__init__(parent)
 
         self._obcs = obcs
 
-        self._desired_interface = obc_base.OBCBase.InterfaceType.OBC_SERIAL
+        self._cmd_interface = obc_base.OBCBase.InterfaceType.OBC_SERIAL
         self._serial_ports = []
 
         # Declare UI members with type hints - these are assigned allocated in setupUI()
@@ -29,8 +33,8 @@ class SatInterface(QtWidgets.QWidget, sat_interface_ui.Ui_SatInterface, obcqt.OB
 
         self.refresh_devices_btn: QtWidgets.QPushButton
 
-        self.connect_btn: QtWidgets.QPushButton
-        self.conn_status_label: QtWidgets.QLabel
+        self.connect_obc_serial_btn: QtWidgets.QPushButton
+        self.connect_comms_serial_btn: QtWidgets.QPushButton
 
         self.setupUi(self)
 
@@ -44,24 +48,44 @@ class SatInterface(QtWidgets.QWidget, sat_interface_ui.Ui_SatInterface, obcqt.OB
         self.comms_serial_if_btn.clicked.connect(self.use_comms_serial_interface)
 
         self.refresh_devices_btn.clicked.connect(self.handle_refresh_clicked)
-        self.connect_btn.clicked.connect(self.toggle_connection)
-    
+
+        self.connect_obc_serial_btn.clicked.connect(self.toggle_obc_serial_connection)
+        self.connect_comms_serial_btn.clicked.connect(self.toggle_comms_serial_connection)
+
         # Update UI
         self._refresh_devices()
-        self._update_connection_state()
-        self._update_selected_interface()
+        self._update_obc_serial_connect_btn()
+        self._update_comms_serial_connect_btn()
+        self._update_cmd_interface()
 
     @property
     def obc(self) -> obcqt.OBCQT:
-        return self._obcs[self._desired_interface.id]
+        # OBC for commands
+        return self._obcs[self._cmd_interface.id]
+
+    @property
+    def logs(self) -> QtCore.pyqtBoundSignal:
+        # Logs are only available on the OBC_SERIAL interface
+        return self._obcs[obc_base.OBCBase.InterfaceType.OBC_SERIAL.id].logs
+
+    @property
+    def obc_serial_obc(self) -> obcqt.OBCQT:
+        return self._obcs[obc_base.OBCBase.InterfaceType.OBC_SERIAL.id]
+
+    @property
+    def comms_serial_obc(self) -> obcqt.OBCQT:
+        return self._obcs[obc_base.OBCBase.InterfaceType.COMMS_SERIAL.id]
 
     @property
     def conn_state_changed(self) -> QtCore.pyqtBoundSignal:
         return self._conn_state_changed
 
     @property
-    def obc_interface_changed(self) -> QtCore.pyqtBoundSignal:
-        return self._obc_interface_changed
+    def obc_cmd_interface_changed(self) -> QtCore.pyqtBoundSignal:
+        return self._obc_cmd_interface_changed
+
+    def get_obc_interface(self, interface_type: obc_base.OBCBase.InterfaceType) -> obcqt.OBCQT:
+        return self._obcs[interface_type.id]
 
     @QtCore.pyqtSlot()
     def handle_refresh_clicked(self):
@@ -83,73 +107,66 @@ class SatInterface(QtWidgets.QWidget, sat_interface_ui.Ui_SatInterface, obcqt.OB
         self.comms_serial_ports_cb.addItems(self._ports)
 
     @QtCore.pyqtSlot()
-    def toggle_connection(self):
-        if self.obc.connected:
-            self.obc.stop()
+    def toggle_obc_serial_connection(self):
+        if self.obc_serial_obc.connected:
+            self.obc_serial_obc.stop()
         else:
-            if self._desired_interface == obc_base.OBCBase.InterfaceType.OBC_SERIAL:
-                self.obc.start(str(self.obc_serial_ports_cb.currentText()))
-            elif self._desired_interface == obc_base.OBCBase.InterfaceType.COMMS_SERIAL:
-                self.obc.start(str(self.comms_serial_ports_cb.currentText()))
+            self.obc_serial_obc.start(str(self.obc_serial_ports_cb.currentText()))
 
-        self._update_connection_state()
+        self._update_obc_serial_connect_btn()
+        
+        if self._cmd_interface.id == obc_base.OBCBase.InterfaceType.OBC_SERIAL.id:
+            self.conn_state_changed.emit(self.obc.connected)
 
-    def _update_connection_state(self):
-        if self.obc.connected:
-            self.conn_status_label.setText("Connected")
-            self.conn_status_label.setStyleSheet(ui_utils.Color.GREEN.as_stylesheet())
-            self.connect_btn.setText("Disconnect")
-
-            self.obc_serial_ports_cb.setDisabled(True)
-            self.comms_serial_ports_cb.setDisabled(True)
-            self.refresh_devices_btn.setDisabled(True)
-
-            for interface_id in self._if_button_map:
-                btn = self._if_button_map[interface_id]
-                btn.setEnabled(False)
-
-                if interface_id == self._desired_interface.id:
-                    btn.setFlat(False)
-                    btn.setStyleSheet(ui_utils.Color.GREEN.as_stylesheet("background-color"))
-                else:
-                    btn.setFlat(True)
-                    btn.setStyleSheet("")
+    def _update_obc_serial_connect_btn(self):
+        if self.obc_serial_obc.connected:
+            self.connect_obc_serial_btn.setText("Connected")
+            self.connect_obc_serial_btn.setStyleSheet(ui_utils.Color.GREEN.as_stylesheet("background-color"))
+            self.obc_serial_ports_cb.setEnabled(False)
         else:
-            self.conn_status_label.setText("Disconnected")
-            self.conn_status_label.setStyleSheet(ui_utils.Color.RED.as_stylesheet())
-            self.connect_btn.setText("Connect")
+            self.connect_obc_serial_btn.setText("Connect")
+            self.connect_obc_serial_btn.setStyleSheet(None)
+            self.obc_serial_ports_cb.setEnabled(True)
 
-            self.obc_serial_ports_cb.setDisabled(False)
-            self.comms_serial_ports_cb.setDisabled(False)
-            self.refresh_devices_btn.setDisabled(False)
+    @QtCore.pyqtSlot()
+    def toggle_comms_serial_connection(self):
+        if self.comms_serial_obc.connected:
+            self.comms_serial_obc.stop()
+        else:
+            self.comms_serial_obc.start(str(self.comms_serial_ports_cb.currentText()))
 
-            for interface_id in self._if_button_map:
-                btn = self._if_button_map[interface_id]
-                btn.setEnabled(True)
-                btn.setFlat(False)
+        self._update_comms_serial_connect_btn()
 
-                if interface_id == self._desired_interface.id:
-                    btn.setStyleSheet(ui_utils.Color.RED.as_stylesheet("background-color"))
-                else:
-                    btn.setStyleSheet("")
+        if self._cmd_interface.id == obc_base.OBCBase.InterfaceType.COMMS_SERIAL.id:
+            self.conn_state_changed.emit(self.obc.connected)
 
-        self.conn_state_changed.emit(self.obc.connected)
+    def _update_comms_serial_connect_btn(self):
+        if self.comms_serial_obc.connected:
+            self.connect_comms_serial_btn.setText("Connected")
+            self.connect_comms_serial_btn.setStyleSheet(ui_utils.Color.GREEN.as_stylesheet("background-color"))
+            self.comms_serial_ports_cb.setEnabled(False)
+        else:
+            self.connect_comms_serial_btn.setText("Connect")
+            self.connect_comms_serial_btn.setStyleSheet(None)
+            self.comms_serial_ports_cb.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def use_obc_serial_interface(self) -> None:
-        self._desired_interface = obc_base.OBCBase.InterfaceType.OBC_SERIAL
-        self._update_selected_interface()
+        prev_cmd_interface = self._cmd_interface
+        self._cmd_interface = obc_base.OBCBase.InterfaceType.OBC_SERIAL
+        self._update_cmd_interface(prev_cmd_interface)
 
     @QtCore.pyqtSlot()
     def use_comms_serial_interface(self) -> None:
-        self._desired_interface = obc_base.OBCBase.InterfaceType.COMMS_SERIAL
-        self._update_selected_interface()
+        prev_cmd_interface = self._cmd_interface
+        self._cmd_interface = obc_base.OBCBase.InterfaceType.COMMS_SERIAL
+        self._update_cmd_interface(prev_cmd_interface)
 
-    def _update_selected_interface(self):
+    def _update_cmd_interface(self, prev_cmd_interface: obc_base.OBCBase.InterfaceType = None):
         for btn in self._if_button_map.values():
             btn.setStyleSheet("")
 
-        self._if_button_map[self._desired_interface.id].setStyleSheet(ui_utils.Color.RED.as_stylesheet("background-color"))
+        self._if_button_map[self._cmd_interface.id].setStyleSheet(ui_utils.Color.BLUE.as_stylesheet("background-color"))
 
-        self.obc_interface_changed.emit(self._desired_interface)
-        
+        # Send event
+        self.obc_cmd_interface_changed.emit((prev_cmd_interface, self._cmd_interface))
