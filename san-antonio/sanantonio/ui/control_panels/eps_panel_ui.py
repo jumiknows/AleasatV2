@@ -15,7 +15,7 @@ class Ui_EpsPanel(object):
     def setupUi(self, EpsPanel):
         EpsPanel.setObjectName("EpsPanel")
         EpsPanel.setEnabled(True)
-        EpsPanel.resize(792, 318)
+        EpsPanel.resize(897, 318)
         self.verticalLayout = QtWidgets.QVBoxLayout(EpsPanel)
         self.verticalLayout.setObjectName("verticalLayout")
         self.buttons_panel = QtWidgets.QFrame(EpsPanel)

@@ -93,6 +93,7 @@ class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, obc_base.O
         self.gridLayout.setRowStretch(0, 0)
         self.gridLayout.setRowStretch(1, 2)
         self.gridLayout.setRowStretch(2, 1)
+        self.setMinimumSize(800, 600)
 
         # Connect signals / slots
         self.sat_interface.conn_state_changed.connect(self.handle_conn_state_changed)
