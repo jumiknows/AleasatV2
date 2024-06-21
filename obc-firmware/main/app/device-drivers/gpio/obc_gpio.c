@@ -198,7 +198,7 @@ void service_gpio_irq(gpio_irq_t irq_info) {
     xHigherPriorityTaskWoken = pdFALSE;
 
     if (gioInterruptQueue != NULL) {
-        if ((xQueueSendToBackFromISR(gioInterruptQueue, (void *)&irq_info, 0)) == errQUEUE_FULL) {
+        if ((xQueueSendToBackFromISR(gioInterruptQueue, (void *)&irq_info, &xHigherPriorityTaskWoken)) == errQUEUE_FULL) {
             // TODO ALEA-774 Should we have a log_from_isr function?
             //log_str(ERROR, LOG_GPIO, "IRQ queue full");
         }
