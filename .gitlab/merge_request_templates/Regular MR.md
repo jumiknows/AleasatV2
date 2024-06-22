@@ -1,24 +1,12 @@
-Parent issue: #999
+Parent issue: PP#9999
 
 # Overview
 Insert overview of changes here.
 
 # Testing
-Describe how your changes were tested.
+Describe how your changes were tested. Did you test locally? With FlatSat? 
+How much did you trust the datasheet? Did you get any anomalous findings?
 
 # Reviewers
-@EthanJoyce @noah.tajwar.orbit @Julian-Mentasti @Joshuah143 @doosha
-Tag anyone else you would like to review your MR
-
-# Checklist
-
-## Before Review (Submitter)
-* [ ] You have run the auto-formatter on this branch (in VSCode: CTRL + P -> "task Format code style")
-* [ ] This branch has been rebased on top of the latest version of `dev`.
-* [ ] I have done a self-review of this MR, and left comments on anything that may be unclear
-* [ ] I have added unit & hill tests to any code that can be tested
-
-## After Review, Before Merge (Submitter)
-* [ ] Relevant design docs and wiki pages have been updated.
-* [ ] Issue has been closed, if appropriate.
-* [ ] Changes from review have been tested on OBC and LaunchPad
+@EthanJoyce @noah.tajwar.orbit @Julian-Mentasti @Joshuah143
+Tag anyone else you would like to review your MR.
