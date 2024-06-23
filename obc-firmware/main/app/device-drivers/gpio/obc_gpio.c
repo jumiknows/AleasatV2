@@ -146,15 +146,6 @@ void gpio_expander_init(void) {
         LOG_GPIO_EXPANDER__BLINK_INIT_FAILED();
     }
 
-#ifdef PLATFORM_ORCA_V1
-
-    /* Configure the example input GPIO expander interrupt */
-    if (pcal6416a_configure_interrupt(OBC_EXPAND_IN_TEST_PORT, OBC_EXPAND_IN_TEST_PIN, 1, PULLUP, &default_expander_callback) != GPIO_SUCCESS) {
-        LOG_GPIO_EXPANDER__IRQ_INIT_FAILED();
-    }
-
-#endif // PLATFORM_ORCA_V1
-
     /* MODIFY HERE: add further pcal6416a_configure_output(), pcal6416a_configure_input(), pcal6416a_configure_interrupt()
      * calls */
 

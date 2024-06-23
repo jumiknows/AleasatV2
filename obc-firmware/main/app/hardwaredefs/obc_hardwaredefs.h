@@ -36,6 +36,6 @@
  *****************************************************************************/
 #ifdef PLATFORM_ALEA_V1
 #include "alea_v1_hardwaredefs.h"
-#endif /* PLATFORM_ORCA_V1 */
+#endif /* PLATFORM_ALEA_V1 */
 
 #endif /* OBC_HWDEFS_H_ */
