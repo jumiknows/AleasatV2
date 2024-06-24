@@ -53,6 +53,32 @@ class SystemTest(obc_test.OBCTest):
         self.obc.send_cmd("TEST_HANG", 4000000)
         self.wait_for_signal("LOG_WATCHDOG", "SW_WD_BITE", 5)
 
+    @timeout.timeout(10)
+    def test_uptime_timing2(self):
+        resp = self.obc.send_cmd("GET_UPTIME") 
+        time.sleep(2) # System OS waits for 2 seconds 
+        resp2 = self.obc.send_cmd("GET_UPTIME")
+        # GET_UPTIME difference should be 2
+        self.assertEqual(resp2.data["seconds"] - resp.data["seconds"], 2)
+
+    @timeout.timeout(30)
+    def test_uptime_timing15(self):
+        resp = self.obc.send_cmd("GET_UPTIME") 
+        time.sleep(15) 
+        resp2 = self.obc.send_cmd("GET_UPTIME")
+        # GET_UPTIME difference should be 15  
+        self.assertEqual(resp2.data["seconds"] - resp.data["seconds"], 15)
+
+    @timeout.timeout(10)
+    def test_uptime_reset(self):
+        # RESET automatically called by test suite 
+        time.sleep(5) 
+        resp = self.obc.send_cmd("GET_UPTIME") 
+        # RESET is inconsistent and takes a little less than 1 second
+        # UPTIME should be 5 or 6
+        self.assertLess(resp.data["seconds"], 7)
+        self.assertGreater(resp.data["seconds"], 4)
+
 """
 This section is required if you want to run these tests independently.
 """
