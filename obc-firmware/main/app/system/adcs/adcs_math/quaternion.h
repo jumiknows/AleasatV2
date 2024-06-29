@@ -64,4 +64,13 @@ void quaternion_product(const float32_t *q1, const float32_t *q2, float32_t *q_d
  */
 float32_t quaternion_abs_angle_diff(const float32_t *q1, const float32_t *q2);
 
+/**
+  @brief         transforms/rotates a vector in accordance with a given quaternion 
+  @param         q         a unit quaternion that is used to transform vectors
+  @param         v         vector to transform
+  @param         v_dest    points to output vector
+  @return        None
+ */
+void quaternion_transform(const float32_t *q, const float32_t *v, float32_t *v_dest);
+
 #endif //QUATERNION_H

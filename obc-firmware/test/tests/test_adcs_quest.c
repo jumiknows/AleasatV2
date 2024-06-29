@@ -60,6 +60,9 @@ static quest_test_input_t test_input1 = {
     }
 };
 
+// make sure the answer is accurate up to 4th digit
+float32_t delta = 0.0001;
+
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
@@ -76,4 +79,58 @@ void test_quest_1(void) {
 
     quest_estimate(&(test_input1.ad_vecs), (float32_t *)weights, est_q);
     TEST_ASSERT_FLOAT_WITHIN(TOLERANCE_QUAT_ELEMENT, 0.0f, quaternion_abs_angle_diff(test_input1.true_q, est_q));
+}
+
+void test_quaternion_transform_simple(void) {
+
+    float32_t q[4] = {0, 1, 0, 0};
+    float32_t input[3] = {0, 1, 0};
+    float32_t dest[3] = {0, 0, 0};
+    float32_t ans[3] = {0, -1, 0};
+
+    quaternion_transform(q, input, dest);
+    // for SOME reason, ceedling doesn't recognize TEST_ASSERT_FLOAT_ARRAY_WITHIN
+    // so we must use TEST_ASSERT_FLOAT_WITHIN :/
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[0], dest[0]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[1], dest[1]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[2], dest[2]);
+}
+
+void test_quaternion_transform_complicated(void) {
+    // complicated quaternion test case
+    float32_t q[4] = {0.70711, 0.40825, 0.40825, 0.40825};
+    float32_t input[3] = {3, 9, 7};
+    float32_t dest[3] = {0, 0, 0};
+    float32_t ans[3] = {7.4880, 8.6428, 2.8692};
+
+    quaternion_transform(q, input, dest);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[0], dest[0]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[1], dest[1]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[2], dest[2]);
+}
+
+void test_quaternion_transform_null_angle(void) {
+    // test with an angle of 0
+    float32_t q[4] = {1, 0, 0, 0};
+    float32_t input[3] = {7, 18, 32};
+    float32_t dest[3] = {0, 0, 0};
+    float32_t ans[3] = {7, 18, 32};
+
+    quaternion_transform(q, input, dest);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[0], dest[0]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[1], dest[1]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[2], dest[2]);
+}
+
+void test_quaternion_transform_linearly_dependent(void) {
+    // test with a linearly dependent quaternion
+    float32_t q[4] = {0.08015, 0.3702, 0.55529, 0.74039};
+    float32_t input[3] = {2, 3, 4};
+    float32_t dest[3] = {0, 0, 0};
+    float32_t ans[3] = {2, 3, 4};
+
+    quaternion_transform(q, input, dest);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[0], dest[0]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[1], dest[1]);
+    TEST_ASSERT_FLOAT_WITHIN(delta, ans[2], dest[2]);
 }
