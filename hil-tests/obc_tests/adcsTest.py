@@ -17,11 +17,6 @@ class ADCSTest(obc_test.OBCTest):
         self.assertTrue(resp.is_success)
         self.assertAlmostEqual(abs(x), resp.data["x_abs"], places=4)
         self.assertAlmostEqual(abs(y), resp.data["y_abs"], places=4)
-    
-    @timeout.timeout(10)
-    def test_quaternions(self):
-        pass
-        
 
 """
 This section is required if you want to run these tests independently.
