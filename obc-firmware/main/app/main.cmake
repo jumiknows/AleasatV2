@@ -52,7 +52,6 @@ list(APPEND SRC_DIRS
     ${.}/orcasat/hardware-drivers/heartbeat
     ${.}/orcasat/hardware-drivers/mram
     ${.}/orcasat/hardware-mock
-    ${.}/orcasat/interfaces
     ${.}/orcasat/system
     ${.}/orcasat/system/nvct
     ${.}/orcasat/system/settings

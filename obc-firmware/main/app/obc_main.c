@@ -26,7 +26,6 @@
 #include "logger.h"
 #include "obc_filesystem.h"
 #include "obc_settings.h"
-#include "obc_adc.h"
 #include "obc_mram.h"
 
 #include "comms_api.h"
@@ -38,6 +37,7 @@
 #include "comms_mibspi.h"
 #endif
 
+#include "tms_adc.h"
 #include "tms_can.h"
 #include "tms_spi.h"
 #include "tms_i2c.h"
@@ -104,7 +104,7 @@ static void obc_main_task(void *pvParameters) {
     comms_mibspi_init();
 #endif
     hetInit();
-    adc_init();
+    tms_adc_init();
     tms_can_init();
     tms_spi_init();
 

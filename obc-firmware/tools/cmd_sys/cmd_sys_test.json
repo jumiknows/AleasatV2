@@ -372,5 +372,15 @@
             {"jul":     "f32"},
             {"pos":     "f32[3]"}
         ]
+    },
+    "TEST_ADC_VOLTAGE": {
+        "id": 221,
+        "args":[
+            {"channel" : "u32"}
+        ],
+        "resp": [
+            {"channel_voltage": "u16"},
+            {"adc_err_status": "u8"}
+        ]
     }
 }

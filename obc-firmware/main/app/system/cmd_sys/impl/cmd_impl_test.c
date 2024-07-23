@@ -15,6 +15,8 @@
 #include "obc_flash.h"
 #include "obc_gpio.h"
 #include "logger.h"
+#include "tms_adc.h"
+#include "adc.h"
 
 // Utils
 #include "io_stream.h"
@@ -163,5 +165,17 @@ cmd_sys_resp_code_t cmd_impl_TEST_FILESYSTEM(const cmd_sys_cmd_t *cmd, cmd_TEST_
     fs_init();
 
     resp->fs_err = err;
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_ADC_VOLTAGE(const cmd_sys_cmd_t *cmd, cmd_TEST_ADC_VOLTAGE_args_t *args, cmd_TEST_ADC_VOLTAGE_resp_t *resp){
+
+    uint16_t channel_val_raw;
+    uint16_t voltage;
+
+    //get the response data (testing adcREG1 and desired channel)
+    resp->adc_err_status = tms_adc_read_millivolts(adcREG1, args->channel, &channel_val_raw, &voltage);
+    resp->channel_voltage = voltage;
+
     return CMD_SYS_RESP_CODE_SUCCESS;
 }
