@@ -1,0 +1,29 @@
+// OpenLST
+// Copyright (C) 2018 Planet Labs Inc.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+// Interrupt enable/disable
+#ifdef BOOTLOADER
+// #pragma is a compiler directive: "The name to be used for the
+// code segment, default CSEG. This is useful if you need to tell the
+// compiler to put the code in a special segment so you can later on
+// tell the linker to put this segment in  a special place in memory."
+// pg. 27/97 SDCC Compiler User Guide. Use APP_UPDATER in this case as an
+// identifier
+#pragma codeseg APP_UPDATER
+#endif
+#include <cc1110.h>
+
+// TODO kill this file?
