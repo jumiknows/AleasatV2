@@ -1,0 +1,8 @@
+*.egg-info/
+__pycache__/
+build/
+*.bsp
+*restats
+*.log
+.vscode
+*.ipynb_checkpoints/
