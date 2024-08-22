@@ -6,3 +6,7 @@
 san-antonio/dist/*
 san-antonio/*.spec
 san-antonio/requirements.txt
+
+# Python
+.venv/
+__pycache__/
