@@ -47,7 +47,16 @@ class DynamicModel(AbstractModel):
         t = self.kernel.time
         t0 = t - dt
 
-        if self._integrator_type == 'rk45':
+        if self._integrator_type == 'rk4_inline':
+            #fast
+            k1 = self.state_update_fcn(t0, self._state, u, update_params)
+            k2 = self.state_update_fcn(t0+dt/2.0, self._state + dt*k1/2.0, u, update_params)
+            k3 = self.state_update_fcn(t0+dt/2.0, self._state + dt*k2/2.0, u, update_params)
+            k4 = self.state_update_fcn(t0+dt, self._state + dt*k3, u, update_params)
+
+            self._state_derivative = 1.0/6.0 * (k1 + 2.0*k2 + 2.0*k3 + k4)
+            self._state += dt * self._state_derivative
+        elif self._integrator_type == 'rk45':
             time_steps = [t0, t]
             res = solve_ivp(self.state_update_fcn, time_steps, self._state, method='RK45', t_eval=[t], dense_output=False, args=(u, update_params))
             self._state = res.y[:,0]

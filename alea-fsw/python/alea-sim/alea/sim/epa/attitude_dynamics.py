@@ -151,7 +151,6 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
         if self._disturbances is not None:
             disturbance_torque = self._disturbances.get_T_disturbance(self.quaternion)
             disturbance_torque = disturbance_torque.reshape((3,))
-            self.logger.debug(f'disturbance torque is {disturbance_torque} nM')
             saved_state[10:] = disturbance_torque
 
         u = actuator_torque + disturbance_torque

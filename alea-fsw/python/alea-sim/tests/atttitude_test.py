@@ -45,8 +45,11 @@ class AttitudeDynamicsTest(unittest.TestCase):
         adyn3 = AttitudeDynamicsModel(kernel, init_state=default_state)
         adyn3.integrator_type = 'rk45'
 
+        adyn4 = AttitudeDynamicsModel(kernel, init_state=default_state)
+        adyn4.integrator_type = 'rk4_inline'
+
         final_kes = []
-        for adyn in [adyn1, adyn2, adyn3]:
+        for adyn in [adyn1, adyn2, adyn3, adyn4]:
             start_time = time.monotonic()
             print(f'testing attitude dynamics with {adyn._integrator_type} integrator.')
             ke_initial = adyn.calculate_rotational_kinetic_energy()
@@ -68,7 +71,7 @@ class AttitudeDynamicsTest(unittest.TestCase):
             #we just want error in energy conversation to be small enough that its not a worry
             assert errmean < 1e-20
             
-        assert final_kes[0] == final_kes[1] and final_kes[1] == final_kes[2]
+        assert final_kes[0] == final_kes[1] and final_kes[1] == final_kes[2] and final_kes[2] == final_kes[3]
 
     def test_attitude_integration_timesteps_rk45(self):
         dt = 1e-4

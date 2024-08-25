@@ -115,8 +115,7 @@ class FrameManager():
         (see comments in __init__ and _grab_models)
         """
         #eci->ecef transformation update
-        q_eciecef = Quaternion.from_dcm(eci_to_ecef_rot_mat(self._sim_kernel.gmst_rad))
-        self._ecef_frame.derive_from(self._eci_frame, FrameTransformation(q_eciecef, np.zeros(3)))
+        self._ecef_frame.derive_from(self._eci_frame, FrameTransformation(eci_to_ecef_rot_mat(self._sim_kernel.gmst_rad), np.zeros(3)))
         # self.logger.log(logging.DEBUG, f'updated ECI->ECEF relation to \n{self._eci_frame.get_transformation_to(self._ecef_frame)}')
         
         if self._update_spacecraft_enabled:
@@ -131,8 +130,7 @@ class FrameManager():
             lla = self._odyn.position_lonlat
             lon = lla[0]
             lat = lla[1]
-            q_ecefned = Quaternion.from_dcm(ecef_to_ned_rot_mat(lon, lat))
-            self._ned_frame.derive_from(self._ecef_frame, FrameTransformation(q_ecefned, r_ecef))
+            self._ned_frame.derive_from(self._ecef_frame, FrameTransformation(ecef_to_ned_rot_mat(lon, lat), r_ecef))
             
             #update orbital frame
             #https://rhodesmill.org/skyfield/elements.html
@@ -145,8 +143,7 @@ class FrameManager():
             #ok now we make the transformation and update the refeerence frame object
             #rotation matrix from eci to orbit frame
             #position is just the spacecraft position in eci
-            q_eciorbit = Quaternion.from_dcm(eci_to_orbit_rot_mat(raan, incl, argp, mean_anomaly))
-            self._orbit_frame.derive_from(self._eci_frame, FrameTransformation(q_eciorbit, r_eci))
+            self._orbit_frame.derive_from(self._eci_frame, FrameTransformation(eci_to_orbit_rot_mat(raan, incl, argp, mean_anomaly), r_eci))
         
         self._last_update_time: float = float(self._sim_kernel.time)
         

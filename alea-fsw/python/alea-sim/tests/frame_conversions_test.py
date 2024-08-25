@@ -18,11 +18,10 @@ import skyfield.units
 
 from alea.sim.epa.frame_conversions import *
 from alea.sim.kernel.time_utils import seconds_since_J2000
-from alea.sim.math_lib.math_ahrs import AHRSQuaternion
+from alea.sim.math_lib import Quaternion
 from alea.sim.kernel.kernel import AleasimKernel
 import numpy as np
 import datetime
-Quaternion = AHRSQuaternion
 
 import skyfield
 
@@ -82,10 +81,10 @@ class FrameConversionsTest(unittest.TestCase):
         
         q = np.array([0.5,0,1,0])
         q/=np.linalg.norm(q)
-        q_body2sens = AHRSQuaternion(q)
+        q_body2sens = Quaternion(q)
         sens_frame = kernel.universe.create_frame("sens_frame", kernel.body_frame, FrameTransformation(q_body2sens))
         
-        q_eci2body = kernel.eci_frame.get_transformation_to(kernel.body_frame).rotation
+        q_eci2body = kernel.eci_frame.get_transformation_to(kernel.body_frame).quaternion
         q_eci2sens = kernel.eci_frame.get_transformation_to(sens_frame)
         
         print(q_eci2sens)
@@ -107,7 +106,7 @@ class FrameConversionsTest(unittest.TestCase):
 
         v = np.random.rand(3)
         np.testing.assert_array_almost_equal(
-            FrameTransformation(q_body2sens * kernel.eci_frame.get_transformation_to(kernel.body_frame).rotation).rotate_vector(v), 
+            FrameTransformation(q_body2sens * kernel.eci_frame.get_transformation_to(kernel.body_frame).quaternion).rotate_vector(v), 
             sens_frame.transform_vector_from_frame(v, kernel.eci_frame),
             verbose=True)
         
@@ -115,7 +114,7 @@ class FrameConversionsTest(unittest.TestCase):
     
         v = np.random.rand(3)
         np.testing.assert_array_almost_equal(
-            FrameTransformation(q_body2sens * kernel.eci_frame.get_transformation_to(kernel.body_frame).rotation).rotate_vector(v), 
+            FrameTransformation(q_body2sens * kernel.eci_frame.get_transformation_to(kernel.body_frame).quaternion).rotate_vector(v), 
             sens_frame.transform_vector_from_frame(v, kernel.eci_frame), verbose=True)
 
 
@@ -127,7 +126,7 @@ class FrameConversionsTest(unittest.TestCase):
         rotmat_ecibody = q_ecibody.to_DCM()
         rotmat_nedecef = ned_to_ecef_rot_mat(odyn.position_lonlat[0], odyn.position_lonlat[1])
         rotmat_eciecef = eci_to_ecef_rot_mat(kernel.gmst_rad)
-        rotmat_ecisens = kernel.eci_frame.get_transformation_to(sens_frame).rotation.to_DCM()
+        rotmat_ecisens = kernel.eci_frame.get_transformation_to(sens_frame).quaternion.to_DCM()
 
         np.testing.assert_array_almost_equal(rotmat_ecisens, rotmat_bodysens @ rotmat_ecibody, verbose=True)
         
@@ -178,7 +177,7 @@ class FrameConversionsTest(unittest.TestCase):
         tf = kernel.body_frame.get_transformation_to(kernel.ecef_frame)
         #error accumilates, usually off by some amount of centimeters, not an issue atm
         #TODO , check why this isnt working
-        # np.testing.assert_array_almost_equal(tf.translation, -1 * tf.rotation.to_DCM() @ odyn.position_ecef, decimal=0)
+        # np.testing.assert_array_almost_equal(tf.translation, -1 * tf.quaternion.to_DCM() @ odyn.position_ecef, decimal=0)
         
         tf = kernel.eci_frame.get_transformation_to(kernel.body_frame)
         np.testing.assert_array_almost_equal(tf.translation, odyn.position_eci)

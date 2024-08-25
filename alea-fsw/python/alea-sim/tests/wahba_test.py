@@ -113,8 +113,8 @@ class WahbaTest(unittest.TestCase):
         rotmat_nedbody = rotmat_ecibody @ rotmat_nedeci
         
         #sanity checks that the frame manager (which the sensors rely on) agrees with the ground truth
-        np.testing.assert_array_almost_equal(rotmat_nedeci, kernel.ned_frame.get_transformation_to(kernel.eci_frame).rotation.to_DCM())
-        np.testing.assert_array_almost_equal(rotmat_nedbody, kernel.ned_frame.get_transformation_to(kernel.body_frame).rotation.to_DCM())
+        np.testing.assert_array_almost_equal(rotmat_nedeci, kernel.ned_frame.get_transformation_to(kernel.eci_frame).rotation)
+        np.testing.assert_array_almost_equal(rotmat_nedbody, kernel.ned_frame.get_transformation_to(kernel.body_frame).rotation)
         
         
         magtest = kernel.body_frame.transform_vector_from_frame(magm.get_mag_vector_ned(), kernel.ned_frame)

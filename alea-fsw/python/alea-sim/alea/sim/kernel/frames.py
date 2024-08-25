@@ -19,17 +19,25 @@ from alea.sim.math_lib import Quaternion
 
 @dataclass
 class FrameTransformation:
-    rotation: adcs_math.Quaternion
+    rotation: np.ndarray
     translation: np.ndarray = None
 
     def __post_init__(self):
         if self.translation is None:
             self.translation = np.zeros(3)
+        if type(self.rotation) is np.ndarray:
+            if self.rotation.size == 4:
+                self.rotation = Quaternion(self.rotation).to_DCM()
+            elif self.rotation.shape != (3,3):
+                raise ValueError('incorrect rotation shape')
+        elif type(self.rotation) is Quaternion:
+            self.rotation = self.rotation.to_DCM()
+            
         self.tf = self._create_transformation_matrix()
         self.inv_tf = self._create_transformation_matrix_inverse()
 
-    def _create_transformation_matrix(self) -> np.ndarray :
-        dcm = self.rotation.to_DCM() #rotation matrix
+    def _create_transformation_matrix(self) -> np.ndarray:
+        dcm = self.rotation
         tf = np.zeros((4,4)) #homogenous transform matrix
         tf[0:3,0:3] = dcm
         tf[0:3, 3] = self.translation
@@ -37,24 +45,30 @@ class FrameTransformation:
         return tf
     
     def _create_transformation_matrix_inverse(self) -> np.ndarray :
-        inv_rot = self.rotation.to_DCM().T #rotation matrix inverse = transpose
+        inv_rot = self.rotation.T #rotation matrix inverse = transpose
         inv_translation = -1*(inv_rot @ self.translation)
         tf = np.zeros((4,4)) #homogenous transform matrix
         tf[0:3,0:3] = inv_rot
         tf[0:3, 3] = inv_translation
         tf[3,3] = 1
         return tf
+    
+    @property
+    def quaternion(self) -> Quaternion:
+        if not hasattr(self, '_quat'):
+            self._quat = Quaternion.from_dcm(self.rotation)
+        return self._quat
 
     @classmethod
     def identity(cls) -> "FrameTransformation":
         """Identity frame transformation. (no rotation or translation)"""
-        return FrameTransformation(Quaternion.from_dcm(np.eye(3)), np.zeros(3))
+        return FrameTransformation(np.eye(3), np.zeros(3))
     
     @classmethod
     def from_tf_mat(cls, value: np.ndarray) -> "FrameTransformation":
         r = value[0:3, 0:3]
         t = value[0:3, 3]
-        return FrameTransformation(Quaternion.from_dcm(r), t)
+        return FrameTransformation(r, t)
 
     @classmethod
     def random(cls, translation_max_magnitude: int = 1000) -> "FrameTransformation":
@@ -62,7 +76,7 @@ class FrameTransformation:
         return FrameTransformation(Quaternion.random(), np.random.random(3)*np.random.randint(1, translation_max_magnitude))
 
     def rotate_by_axang(self, axis: np.ndarray, angle: float):
-        q = type(self.rotation).from_axang(axis, angle)
+        q = Quaternion.from_axang(axis, angle)
         return self.rotate_by_q(q)
 
     def rotate_by_q(self, q: adcs_math.Quaternion) -> "FrameTransformation":
@@ -74,6 +88,7 @@ class FrameTransformation:
     
     def inverse(self) -> "FrameTransformation":
         return self.from_tf_mat(self.inv_transformation_matrix())
+    
 
     def transformation_matrix(self) -> np.ndarray:
         return self.tf
@@ -122,7 +137,7 @@ class FrameTransformation:
         return pt[0:3]
 
     def __repr__(self) -> str:
-        return f'FrameTransformation(rotation={self.rotation.__repr__()}, translation={self.translation.__repr__()},{self.tf.__str__()}'
+        return f'FrameTransformation(tf={self.tf.__str__()})'
 
     def __str__(self) -> str:
         return self.tf.__str__()

@@ -62,7 +62,7 @@ class DisturbanceModel(AbstractModel):
     def get_T_disturbance(self,q) -> np.ndarray:
         sun_vector = (self.odyn.sun_vector_norm).T
         #body to orbit rot mat
-        R_BO = self.kernel.orbit_frame.get_transformation_to(self.kernel.body_frame).rotation.to_DCM()
+        R_BO = self.kernel.orbit_frame.get_transformation_to(self.kernel.body_frame).rotation
         return self.gravitational_torque(R_BO) + self.solar_pressure(R_BO,sun_vector) + self.magnetic_residual_torque()
     
     def gravitational_torque(self,R_BO) -> np.ndarray:
