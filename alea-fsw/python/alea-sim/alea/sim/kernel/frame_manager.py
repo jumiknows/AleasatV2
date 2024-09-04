@@ -4,8 +4,6 @@ import logging
 
 import numpy as np
 
-from skyfield.elementslib import OsculatingElements
-
 from alea.sim.epa.frame_conversions import ecef_to_ned_rot_mat, eci_to_ecef_rot_mat, eci_to_orbit_rot_mat
 from alea.sim.kernel.frames import FrameTransformation, ReferenceFrame, Universe
 from alea.sim.math_lib import Quaternion
@@ -99,12 +97,11 @@ class FrameManager():
     def orbit_frame(self) -> ReferenceFrame:
         """Orbital frame"""
         return self._orbit_frame
-    
+
     @property
-    def last_update_time(self) -> float:
+    def last_update_time(self) -> int:
         """
-        last update time in utc seconds since sim start
-        will return -1 if update_frames() has not been called yet
+        last update time in the simulation timebase (multiples of the timestep)
         """
         return self._last_update_time
 
@@ -116,8 +113,7 @@ class FrameManager():
         """
         #eci->ecef transformation update
         self._ecef_frame.derive_from(self._eci_frame, FrameTransformation(eci_to_ecef_rot_mat(self._sim_kernel.gmst_rad), np.zeros(3)))
-        # self.logger.log(logging.DEBUG, f'updated ECI->ECEF relation to \n{self._eci_frame.get_transformation_to(self._ecef_frame)}')
-        
+
         if self._update_spacecraft_enabled:
             q_ecibody = self._adyn.quaternion
             r_eci = self._odyn.position_eci
@@ -127,24 +123,22 @@ class FrameManager():
             self._body_frame.derive_from(self._eci_frame, FrameTransformation(q_ecibody, r_eci))
     
             #ecef->ned update
-            lla = self._odyn.position_lonlat
+            lla = self._odyn.position_lla
             lon = lla[0]
             lat = lla[1]
             self._ned_frame.derive_from(self._ecef_frame, FrameTransformation(ecef_to_ned_rot_mat(lon, lat), r_ecef))
             
             #update orbital frame
             #https://rhodesmill.org/skyfield/elements.html
-            elements: OsculatingElements = self._odyn.calculate_orbital_elements()
-            raan = elements.longitude_of_ascending_node.radians #also known as right ascension of ascending node ??
-            incl = elements.inclination.radians
-            mean_anomaly = elements.mean_anomaly.radians
-            argp = elements.argument_of_periapsis.radians #argument of periapsis is also known as argument of perigee for geocentric orbits???
-            
+            orbital_elements: np.ndarray = self._odyn.orbital_elements
+            argp = orbital_elements[0] # argument of periapsis is also known as argument of perigee for geocentric orbits
+            raan = orbital_elements[1] # right ascension of ascending node
+            incl = orbital_elements[2] 
+            mean_anomaly = orbital_elements[3] 
+
             #ok now we make the transformation and update the refeerence frame object
             #rotation matrix from eci to orbit frame
             #position is just the spacecraft position in eci
             self._orbit_frame.derive_from(self._eci_frame, FrameTransformation(eci_to_orbit_rot_mat(raan, incl, argp, mean_anomaly), r_eci))
-        
-        self._last_update_time: float = float(self._sim_kernel.time)
-        
-    
+
+        self._last_update_time = self._sim_kernel.time_n

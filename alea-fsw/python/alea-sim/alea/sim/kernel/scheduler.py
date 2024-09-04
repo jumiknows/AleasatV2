@@ -51,9 +51,12 @@ class EventPriority(IntEnum):
     Event priorities for different types of simulation events.
     A lower number represents a higher priority.
     """
-    KERNEL_EVENT = 0
+    CONNECT_EVENT = 0
+    START_EVENT = 1
+    KERNEL_EVENT = 2
 
-    DYNAMICS_EVENT = 10
+    ORBIT_DYNAMICS_EVENT = 10
+    ATTITUDE_DYNAMICS_EVENT = 12
 
     #coordinate transformations should be updated to current time instance BEFORE other models use them
     #since coordinate updates needs current dynamics info, dynamics events are updated first

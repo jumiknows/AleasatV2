@@ -36,17 +36,17 @@ class EarthMagneticFieldModel(AbstractModel):
     def get_mag_vector_at_time(self, pos: np.ndarray, year_fraction: float) -> np.ndarray:
         """
         Return the magnetic field vector N,E,D components in units of nT 
-            @param: pos (position is lat, long and height [km above ellipsoid surface])
+            @param: pos (position is lat, long and height [m above ellipsoid surface])
             @param: year-fraction between 2020.0 and 2025.0
         """
         latitude: float = pos[0]
         longitude: float = pos[1]
-        height: float = pos[2]
+        height_km: float = pos[2] / 1000
         if year_fraction < 2020.0 or year_fraction > 2025.0:
             raise ValueError(f'year fraction {year_fraction} is out of the valid range for the WMM2020 model 2020.0-2025.0')
         
         mag = np.zeros(3)
-        result = self._wmm.calculate(latitude, longitude, height, year_fraction, raise_in_warning_zone=True)
+        result = self._wmm.calculate(latitude, longitude, height_km, year_fraction, raise_in_warning_zone=True)
         mag[0] = result.x
         mag[1] = result.y
         mag[2] = result.z
@@ -67,7 +67,7 @@ class EarthMagneticFieldModel(AbstractModel):
             return self._last_mag_vec_ned
         else:
             #get spacecraft lla coords [lon radians, lat radians, altitude  km]
-            lla = self._odyn.position_lonlat
+            lla = self._odyn.position_lla
             #convert lon and lat to degrees from radians
             lla[0] = degrees(lla[0])
             lla[1] = degrees(lla[1])

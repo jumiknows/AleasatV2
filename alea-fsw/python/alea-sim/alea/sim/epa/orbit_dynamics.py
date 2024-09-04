@@ -1,314 +1,496 @@
+from typing import Iterable, Iterator, ClassVar
+from enum import Enum
+import datetime
+from datetime import timezone
+import dataclasses
+from pathlib import Path
 
 import numpy as np
 
-from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
-from alea.sim.kernel.generic.dynamic_model import DynamicModel
-from alea.sim.epa.frame_conversions import *
-from skyfield.elementslib import osculating_elements_of, OsculatingElements
-from alea.sim.kernel.scheduler import EventPriority
-
 from sgp4.api import Satrec, WGS84
+
+import skyfield
 from skyfield.api import EarthSatellite, load, wgs84
-import datetime
-import skyfield.api as sf
-from skyfield.positionlib import Barycentric
+import skyfield.vectorlib
+import skyfield.jpllib
+import skyfield.timelib
+import skyfield.positionlib
+from skyfield.positionlib import Barycentric, Geocentric, Apparent
+from skyfield.elementslib import osculating_elements_of, OsculatingElements
+from skyfield.toposlib import GeographicPosition
 
-from .orbit_utils import rv2coe
+from alea.sim.configuration import Configurable
+from alea.sim.kernel.generic.abstract_model import AbstractModel
+from alea.sim.kernel.time_cached import TimeCachedModel, time_cached_property
+from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
+from alea.sim.kernel.scheduler import EventPriority
+from alea.sim.epa.frame_conversions import eci_to_ecef_velocity
+from alea.sim.compute.precomputed_bg import PreComputedBG
+from alea.sim.utils import skyfield_utils
 
-mu_earth = 0.3986004415e15  # meters^3/s^2
-re_earth =  6378136.6  # meters
+@dataclasses.dataclass(frozen=True)
+class OrbitDynamicsData:
+    """Data point produced by OrbitDynamicsComputeFunc. This represents the orbit dynamics data either at a single time point
+    or at a series of time points.
 
-class OrbitDynamicsModel(DynamicModel, SharedMemoryModelInterface):
+    Instances of this class are iterable (even if the instance represents a single data point in which case the iterator will
+    only yield one item and len(instance) will return 1).
+    """
+
+    t                : skyfield.timelib.Time
+    sat_states       : np.ndarray
+    geo_positions    : np.ndarray
+    sun_vectors      : np.ndarray
+    is_sunlit        : Iterable[bool] | bool
+    orbital_elements : np.ndarray
+
+    def __len__(self) -> int:
+        return skyfield_utils.time_len(self.t)
+
+    def __iter__(self) -> Iterator["OrbitDynamicsData"]:
+        if len(self) > 1:
+            # Zip together data at each time point (all of the fields have an extra dimension corresponding to different time points)
+            as_tuple = dataclasses.astuple(self)
+            yield from map(lambda zipped : OrbitDynamicsData(*zipped), zip(*as_tuple))
+        else:
+            # Just a single data point - yield ourselves
+            yield self
+
+@dataclasses.dataclass
+class SGP4InitData:
+    """Data required to initialize a skyfield EarthSatellite using SGP4 orbital elements (rather than a TLE)
+    """
+
+    EPOCH_REF: ClassVar[datetime.datetime] = datetime.datetime(1949, 12, 31, 0, 0, 0, 0, timezone.utc)
+
+    t: skyfield.timelib.Time
+
+    ecc          : float       # eccentricity
+    argp         : float       # argument of perigee (radians)
+    incl         : float       # inclination (radians)
+    mean_anomaly : float       # mean anomaly (radians)
+    mean_motion  : float       # mean motion (radians)
+    raan         : float       # right ascension of ascending node (radians)
+    bstar        : float = 0.0 # bstar: drag coefficient (1/earth radii) TODO add drag
+
+@dataclasses.dataclass
+class OrbitDynamicsComputeFunc:
+    """
+    Class that contains methods to compute orbital dynamics values including:
+
+        - Satellite state (position and velocity)
+        - Geographic position (latitude, longitude, altitude)
+        - Sun vector
+        - Sunlit state
+        - Orbital elements
+    """
+    ts: skyfield.timelib.Timescale
+
+    # One of the following two fields must be provided to initialize the propagator.
+    # If both fields are provided, the sgp4_init_data will take precedence over the TLE.
+    tle: list[str] = None
+    sgp4_init_data: SGP4InitData = None
+
+    # ------------------------------------------------------------------------------
+    # These internal objects are not pickleable so they must be re-initialized in
+    # __setstate__
+
+    _satellite: EarthSatellite = None
+
+    _planets_ephemeris: skyfield.jpllib.SpiceKernel = None
+
+    _earth: skyfield.vectorlib.VectorFunction = None
+    _sun: skyfield.vectorlib.VectorFunction = None
+
+    # ------------------------------------------------------------------------------
+
+    def __post_init__(self):
+        """Initialize a skyfield EarthSatellite instance from either the TLE or SGP4InitData
+        provided at object instantiation. Also load DE421 and initialize ephemeris objects
+        for the Earth and Sun.
+        """
+        if self.sgp4_init_data is not None:
+            # See https://pypi.org/project/sgp4/#providing-your-own-elements
+
+            # sgp4 library uses days since 1949 December 31 00:00 UT for the epoch
+            now, leap_second = self.sgp4_init_data.t.utc_datetime_and_leap_second()
+            epoch = ((now - SGP4InitData.EPOCH_REF).total_seconds() + leap_second) / 86400.0
+
+            satrec = Satrec()
+            satrec.sgp4init(
+                WGS84, # gravity model
+                'i',   # 'a' = old AFSPC mode, 'i' = improved mode
+                5,     # satnum: Satellite number
+                epoch,
+                self.sgp4_init_data.bstar,
+                0.0,   # ndot: ballistic coefficient (radians/minute^2) - ignored by SGP4
+                0.0,   # nddot: second derivative of mean motion (radians/minute^3) - ignored by SGP4
+                self.sgp4_init_data.ecc,
+                self.sgp4_init_data.argp,
+                self.sgp4_init_data.incl,
+                self.sgp4_init_data.mean_anomaly,
+                self.sgp4_init_data.mean_motion,
+                self.sgp4_init_data.raan,
+            )
+            self._satellite = EarthSatellite.from_satrec(satrec, self.ts)
+        elif self.tle is not None:
+            # Although we could directly instantiate an EarthSatellite by passing the TLE to the constructor
+            # it will end up using the WGS72 gravity model by default. To use the WGS84 gravity model instead
+            # we have to create the Satrec manually
+            satrec = Satrec.twoline2rv(self.tle[0], self.tle[1], WGS84)
+            self._satellite = EarthSatellite.from_satrec(satrec, self.ts)
+        else:
+            raise ValueError(f"Either tle or sgp4_init_data must be provided")
+
+        self._planets_ephemeris = load("de421.bsp")
+
+        self._earth = self._planets_ephemeris["earth"]
+        self._sun   = self._planets_ephemeris["sun"]
+
+    def __getstate__(self) -> tuple[skyfield.timelib.Timescale, list[int], SGP4InitData]:
+        """Return state values to be pickled."""
+        # Omit all the unpickleable skyfield attributes.
+        # They will be restored by calling __post_init__() in __setstate__()
+        return (self.ts, self.tle, self.sgp4_init_data)
+
+    def __setstate__(self, state: tuple[skyfield.timelib.Timescale, list[int], SGP4InitData]):
+        """Restore state from the unpickled state values."""
+        self.ts, self.tle, self.sgp4_init_data = state
+        # Restore unpickleable skyfield attributes
+        self.__post_init__()
+
+    def calc_sat_states(self, t: skyfield.timelib.Time) -> tuple[Geocentric, np.ndarray]:
+        sat_states = self._satellite.at(t)
+
+        sat_positions = sat_states.position.m
+        sat_velocities = sat_states.velocity.m_per_s
+
+        values = [
+             sat_positions[0],  sat_positions[1],  sat_positions[2],
+            sat_velocities[0], sat_velocities[1], sat_velocities[2],
+        ]
+        sat_states_arr = skyfield_utils.values_to_np_array(t, values)
+
+        return (sat_states, sat_states_arr)
+
+    def calc_geo_positions(self, sat_states: Geocentric) -> tuple[GeographicPosition, np.ndarray]:
+        geo_positions = wgs84.geographic_position_of(sat_states)
+        values = [geo_positions.latitude.radians, geo_positions.longitude.radians, geo_positions.elevation.m]
+        geo_positions_arr = skyfield_utils.values_to_np_array(sat_states.t, values)
+        return (geo_positions, geo_positions_arr)
+
+    def calc_sun_vectors(self, t: skyfield.timelib.Time, sat_states: Geocentric) -> tuple[Apparent, np.ndarray]:
+        earth_states = self._earth.at(t)
+        sat_positions_barycentric = Barycentric(
+            earth_states.position.au       + sat_states.position.au,
+            earth_states.velocity.au_per_d + sat_states.velocity.au_per_d,
+            t = t,
+        )
+        sat_positions_barycentric._ephemeris = self._planets_ephemeris
+        sun_vectors = sat_positions_barycentric.observe(self._sun).apparent()
+
+        sun_positions = sun_vectors.position.au
+        values = [sun_positions[0], sun_positions[1], sun_positions[2]]
+        sun_vectors_arr = skyfield_utils.values_to_np_array(t, values)
+
+        return (sun_vectors, sun_vectors_arr)
+
+    def calc_is_sunlit(self, sat_states: Geocentric) -> Iterable[bool] | bool:
+        return sat_states.is_sunlit(self._planets_ephemeris)
+
+    def calc_orbital_elements(self, sat_states: Geocentric) -> tuple[OsculatingElements, np.ndarray]:
+        orbital_elements = osculating_elements_of(sat_states)
+        values = [
+            orbital_elements.argument_of_periapsis.radians,
+            orbital_elements.longitude_of_ascending_node.radians,
+            orbital_elements.inclination.radians,
+            orbital_elements.mean_anomaly.radians,
+            orbital_elements.mean_motion_per_day.radians,
+            orbital_elements.eccentricity
+        ]
+        orbital_elements_arr = skyfield_utils.values_to_np_array(sat_states.t, values)
+        return (orbital_elements, orbital_elements_arr)
+
+    def __call__(self, t: skyfield.timelib.Time) -> OrbitDynamicsData:
+        """Calculate all of the orbital dynamics data (see class description)
+
+        Args:
+            t:
+                A single time at which to calculate the data or a time series
+                in which case the data will be calculated at each time point
+                in the series
+
+        Returns:
+            An OrbitDynamicsData instance containing the orbit dynamics data
+            NOTE: The returned object is always iterable even if the time argument is 
+                  a single time point (in that case, the iterable has a length of 1).
+        """
+        sat_states, sat_states_arr = self.calc_sat_states(t)
+        _, geo_positions_arr       = self.calc_geo_positions(sat_states)
+        _, sun_vectors_arr         = self.calc_sun_vectors(t, sat_states)
+        is_sunlit                  = self.calc_is_sunlit(sat_states)
+        _, orbital_elements_arr    = self.calc_orbital_elements(sat_states)
+
+        return OrbitDynamicsData(t, sat_states_arr, geo_positions_arr, sun_vectors_arr, is_sunlit, orbital_elements_arr)
+
+@dataclasses.dataclass
+class OrbitDynamicsConfig:
+    class Propagator(Enum):
+        SGP4 = "sgp4"
+
+    class ParameterType(Enum):
+        TLE = "tle"
+        ORBIT_ELEMENTS = "orbit_elements"
+
+    propagator            : Propagator    = Propagator.SGP4
+    parameter_type        : ParameterType = ParameterType.TLE
+    use_precompute        : bool          = False
+    precompute_batch_size : int           = 2
+    tle                   : list[str]     = None
+    orbit_elements        : dict          = None
+    update_period         : float         = None # kernel timestep will be used if this is 0 or None
+
+    def __post_init__(self):
+        # Coerce enum type parameters - this will automatically throw exceptions if an invalid input was used
+        self.propagator     = self.Propagator(self.propagator)
+        self.parameter_type = self.ParameterType(self.parameter_type)
+
+        if self.parameter_type == self.ParameterType.TLE:
+            assert self.tle is not None
+        elif self.parameter_type == self.ParameterType.ORBIT_ELEMENTS:
+            assert self.orbit_elements is not None
+
+class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, SharedMemoryModelInterface, AbstractModel):
     """
     Model for the orbit dynamics of a spacecraft
-    
-    The spacecraft orbit state is is a 6 element state vector
-     - 3 position elements, 3 velocity elements
+
+    The spacecraft orbit state is a 6 element state vector
+     - 3 position elements
+     - 3 velocity elements
     """
-    
-    default_name = 'orbit_dynamics'
-    
-    def __init__(self, sim_kernel: AleasimKernel) -> None:
-        super().__init__(OrbitDynamicsModel.default_name, sim_kernel,'euler')
+
+    def __init__(self, sim_kernel: AleasimKernel, name: str = "orbit_dynamics", cfg: str | Path | dict | OrbitDynamicsConfig = "orbit_dynamics") -> None:
+        super().__init__(name=name, sim_kernel=sim_kernel, cfg=cfg, cfg_cls=OrbitDynamicsConfig)
+
+        # This will be a proxy for self.kernel.skyfield_time that is only updated when this model
+        # receives an update event so it is kept in sync with the models variables
+        self._skyfield_time = self.kernel.skyfield_time
+
         self.configure()
-        self.logger.info(f'initialized with state {self._state}')
-        
-    def configure(self):
-        cfg = self.get_config()
-        
-        self._propagator = cfg['propagator']
-        if self._propagator != 'sgp4':
-            raise Exception("sgp4 is the only propagator available at the moment.")
-        self._state = np.zeros(6)
-        self._state_derivative = np.zeros(6)
 
-        if cfg['parameter_type'] == 'tle':
-            tle = cfg['tle']
-            self._sat = EarthSatellite(tle[1], tle[2], tle[0])
-            self.logger.info(f'loaded sgp4 orbit parameters from tle {tle}')
-            self.logger.warn(f'overriding simulation epoch time to tle epoch {self._sat.epoch}')
-            if self.kernel.time > 0:
-                raise Exception("OrbitDynamics configured after simulation time was already propagated.")
-            else:
-                self.kernel._skyfield_epoch_time = self._sat.epoch
-                self.kernel._skyfield_time = self._sat.epoch
-        elif cfg['parameter_type'] == 'orbital_elements':
-            orbit_cfg:dict = cfg['orbit_elements']
-            e = orbit_cfg['e']
-            argp = orbit_cfg['argp']
-            incl = orbit_cfg['incl']
-            mean_anomaly = orbit_cfg['mean_anomaly']
-            mean_motion = orbit_cfg['mean_motion']
-            raan = orbit_cfg['raan']
-            
-            #OVERRIDE WITH 0 IF THEY DONT EXIST
-            bstar = orbit_cfg.get('bstar', 0)
-            raan = orbit_cfg.get('ndot', 0)
+    @property
+    def skyfield_time(self) -> skyfield.timelib.Time:
+        return self._skyfield_time
 
-            if self._propagator == 'sgp4':
-                self._init_sgp4_from_kep(e, argp, incl, mean_anomaly, mean_motion, raan)
-            else:
-                raise ValueError(f'propagator type {self._propagator} is not recognized!')
-        else:
-            raise ValueError("orbit dynamics cfg parameter_type was not recognized.")
-
-        # skyfield ephimeris
-        # DE421 is a JPL ephemeris file (skyfield handles loading it)
-        # see https://rhodesmill.org/skyfield/files.html
-        #TODO is DE421 up to date?
-        self._planets_ephem = load('de421.bsp')
-        self._earth_ephimeris = self._planets_ephem['earth']
-        self._sun_ephimeris = self._planets_ephem['sun']
-
-        #the last calculated sun vector
-        self._last_sun_vec = None
-        #the simulation integer time at which this sun vector was calculated
-        #the goal here is avoid recalculation of the sun vector
-        self._last_sun_vec_aq_t_n = -1.0
-
-    def connect(self):
-        self.kernel.schedule_event(0, EventPriority.DYNAMICS_EVENT, self.update, period=self.kernel.timestep)
+    # ==============================================================================
+    # Configuration
+    # ==============================================================================
 
     @property
     def config_name(self) -> str:
-        return self.default_name
+        """TODO: Remove from AbstractModel"""
+        raise NotImplementedError
 
-    def _init_sgp4_from_kep(self, ecc, argp, incl, mean_anomaly, mean_motion, raan, bstar=0.0, ndot=0.0):
-        """
-        init sgp4 satellite object from keplerian orbit elements
-        @param ecc - eccentricity
-        @param - argp, argument of perigee (radians)
-        @param - incl inclination (radians)
-        @param - mean anomaly (radians)
-        @param - mean_motion (radians/minute)
-        @param - raan, # RAAN , right ascension of ascending node (radians)
-        """
-        #get days since 1949 December 31 00:00 U
-        #why ? because it is the time param required for sgp4...
-        now, leap_second = self.kernel.date_and_leap_second
-        epoch = ((now-datetime.datetime(1949,12,31,0,0,0,0,now.tzinfo)).total_seconds() + leap_second)/86400.0
-        
-        self._satrec = Satrec()
-        self._satrec.sgp4init(
-            WGS84,           # gravity model
-            'i',             # 'a' = old AFSPC mode, 'i' = improved mode
-            5,               # satnum: Satellite number
-            epoch,       # epoch: days since 1949 December 31 00:00 UT
-            bstar,      # bstar: drag coefficient (/earth radii), TODO change this
-            ndot, # ndot: ballistic coefficient (radians/minute^2) TODO change this
-            0.0,             # nddot: second derivative of mean motion (radians/minute^3)
-            ecc,       # ecC: eccentricity
-            argp, # argp: argument of perigee (radians)
-            incl, # incl: inclination (radians)
-            mean_anomaly, # mean anomaly (radians)
-            mean_motion, # mean motion (radians/minute)
-            raan, # RAAN , right ascension of ascending node (radians)
-        )
-        self._ts = self.kernel.timescale
-        self._sat = EarthSatellite.from_satrec(self._satrec, self._ts)
-        self._sat.epoch
+    def configure(self):
+        if self.cfg.parameter_type == OrbitDynamicsConfig.ParameterType.TLE:
+            self._compute_func = OrbitDynamicsComputeFunc(self.kernel.timescale, tle=self.cfg.tle)
+        elif self.cfg.parameter_type == OrbitDynamicsConfig.ParameterType.ORBIT_ELEMENTS:
+            sgp4_init_data = SGP4InitData(self.skyfield_time, **self.cfg.orbit_elements)
+            self._compute_func = OrbitDynamicsComputeFunc(self.kernel.timescale, sgp4_init_data=sgp4_init_data)
+        else:
+            raise ValueError(f"Unsupported parameter type: {self.cfg.parameter_type}")
 
-        self._spg4_eci_state = self._sat.at(self.kernel.skyfield_time)
-        self._state[0:3] = self._spg4_eci_state.position.m
-        self._state[3:6] = self._spg4_eci_state.velocity.m_per_s
-        
-    @property
-    def saved_state_size(self) -> int:
-        return self._state.size + 7 #seven extra elements for geographic coords and osculating orbit elements
+        if self.cfg.use_precompute:
+            self._pre_computed: PreComputedBG[skyfield.timelib.Time, OrbitDynamicsData, OrbitDynamicsData] = PreComputedBG(
+                self._compute_func,
+                buffer_size   = 10,
+                batch         = True,
+            )
 
     @property
-    def saved_state_element_names(self) -> list[str]:
-        return ['x','y','z','vx','vy','vz','lon','lat','alt','argp','raan','incl','mean_anomaly']
+    def update_period(self) -> float:
+        return self.cfg.update_period or self.kernel.timestep
+
+    # ==============================================================================
+    # Kernel Events
+    # ==============================================================================
+
+    def connect(self):
+        if self.cfg.use_precompute:
+            self._pre_computed_arg_gen = skyfield_utils.SkyfieldTimeGen(self.skyfield_time, self.kernel.timestep, self.cfg.precompute_batch_size, self.kernel.timescale)
+            self._pre_computed_iter = iter(self._pre_computed.subscribe())
+
+    def start(self):
+        if self.cfg.use_precompute:
+            self._pre_computed.start(self._pre_computed_arg_gen)
+
+        self.kernel.schedule_event(0, EventPriority.ORBIT_DYNAMICS_EVENT, self.update, period=self.update_period)
+
+    # ==============================================================================
+    # Pre-Computation
+    # ==============================================================================
+
+    def subscribe_to_pre_computed(self) -> Iterable[OrbitDynamicsData]:
+        if not self.cfg.use_precompute:
+            raise RuntimeError(f"Cannot subscribe to PreComputed when use_precompute is False")
+
+        return self._pre_computed.subscribe()
+
+    # ==============================================================================
+    # Simulation Variables
+    # ==============================================================================
+
+    # By default, these are calculated only when called (and cached until the next time step)
+    # They can also be calculated in the update function if desired
+
+    @time_cached_property
+    def _state(self) -> np.ndarray:
+        sat_state_skyfield, sat_state = self._compute_func.calc_sat_states(self.skyfield_time)
+        self._state_skyfield = sat_state_skyfield
+        return sat_state
+
+    @time_cached_property
+    def _state_skyfield(self) -> Geocentric:
+        sat_state_skyfield, sat_state = self._compute_func.calc_sat_states(self.skyfield_time)
+        self._state = sat_state
+        return sat_state_skyfield
+
+    # Geographic Position (longitude [radians], latitude [radians], altitude [km] referenced to wgs84 ellipsoid)
+    @time_cached_property
+    def _position_lla(self) -> np.ndarray:
+        _, geo_position = self._compute_func.calc_geo_positions(self._state_skyfield)
+        return geo_position
 
     @property
-    def logger(self):
-        return self._logger
-    
+    def position_lla(self) -> np.ndarray:
+        return self._position_lla
+
+    # Sun Vector
+    @time_cached_property
+    def _sun_vector(self) -> np.ndarray:
+        _, sun_vector = self._compute_func.calc_sun_vectors(self.skyfield_time, self._state_skyfield)
+        return sun_vector
+
+    @property
+    def sun_vector(self) -> np.ndarray:
+        return self._sun_vector
+
+    # Is Sunlit
+    @time_cached_property
+    def _is_sunlit(self) -> bool:
+        return self._compute_func.calc_is_sunlit(self._state_skyfield)
+
     @property
     def is_sunlit(self) -> bool:
-        """Return whether the current position in Earth orbit is in sunlight."""
-        return self._spg4_eci_state.is_sunlit()
-    
+        return self._is_sunlit
+
+    # Orbital Elements in radians [argument_of_periapsis, longitude_of_ascending_node, inclination, mean_anomaly]
+    @time_cached_property
+    def _orbital_elements(self) -> np.ndarray:
+        _, orbital_elements = self._compute_func.calc_orbital_elements(self._state_skyfield)
+        return orbital_elements
+
+    @property
+    def orbital_elements(self) -> np.ndarray:
+        return self._orbital_elements
+
+    # ==============================================================================
+    # Derived Variables
+    # ==============================================================================
+
+    # Kinematics in ECI frame
+
     @property
     def position_eci(self) -> np.ndarray:
         """position [m] in ECI coordinates"""
         return self._state[0:3]
 
     @property
-    def position_ecef(self) -> np.ndarray:
-        """position [m] in ECEF  coordinates"""
-        #TODO compare values
-        # return self._spg4_eci_state.itrf_xyz().m
-        #for some reason there is an error for this
-        return  self.kernel.ecef_frame.transform_position_from_frame(self._state[0:3], self.kernel.eci_frame)
-    
-    @property
-    def position_lonlat(self):
-        """satellite longitude [radians], latitude [radians] and height [km] referenced to wgs84 ellipsoid"""
-        lla = wgs84.geographic_position_of(self._spg4_eci_state)
-        lat = lla.latitude.radians
-        lon = lla.longitude.radians
-        height = lla.elevation.km
-        return np.array([lat, lon, height])
-    
-    @property
     def velocity_eci(self) -> np.ndarray:
         """velocity [m/s] in ECI coordinates"""
         return self._state[3:6]
-    
-    @property
+
+    # Kinematics in ECEF frame
+
+    @time_cached_property
+    def position_ecef(self) -> np.ndarray:
+        """position [m] in ECEF  coordinates"""
+        return self.kernel.ecef_frame.transform_position_from_frame(self._state[0:3], self.kernel.eci_frame)
+
+    @time_cached_property
     def velocity_ecef(self) -> np.ndarray:
         """velocity [m/s] in ECEF coordinates"""
-        return eci_to_ecef_velocity(self.position_ecef, self._state[3:6])
+        return eci_to_ecef_velocity(self.position_ecef, self.velocity_eci)
 
-    @property
-    def acceleration_eci(self) -> np.ndarray:
-        """[m/s^2] ECI coordinates"""
-        return self._state_derivative[3:6]
+    # Other derived variables
 
-    @property
-    def acceleration_ecef(self) -> np.ndarray:
-        """[m/s^2] ECEF coordinates"""
-        return eci_to_ecef_acceleration(self.position_ecef, self.velocity_ecef, self._state_derivative[3:6])
-    
-    @property
+    @time_cached_property
     def sun_vector_norm(self) -> np.ndarray:
-        sun_vec_au = self.calculate_sun_vector()
-        return sun_vec_au/np.linalg.norm(sun_vec_au)
-    
-    def calculate_orbital_elements(self) -> OsculatingElements:
-        """
-        Returns skyfield OsculatingElements, which represent the keplerian orbital elements defining the satellites orbit with no disturbances.
-        Mainly useful for orbital frame calculations.
-        
-        see https://rhodesmill.org/skyfield/elements.html
-        """
-        elements = osculating_elements_of(self._spg4_eci_state)     
-        return elements
-    
-    def eci_state_vector_to_ecef(self, x) -> np.ndarray:
-        x_ecef = np.zeros(6)
-        x_ecef[0:3] = eci_to_ecef(x[0:3], self.kernel.gmst_rad)
-        x_ecef[3:6] = eci_to_ecef_velocity(x_ecef[0:3], x[3:6])
-        return x_ecef
+        return self.sun_vector / np.linalg.norm(self.sun_vector)
 
-    # I had a problem with @property decorator in position_lonlat function, therefore I coppied and pasted it to this new file
-    def calculate_pos_vector(self) -> np.ndarray:
-        lla = wgs84.geographic_position_of(self._spg4_eci_state)
-        lat = lla.latitude.radians
-        lon = lla.longitude.radians
-        height = lla.elevation.km
-        return np.array([lat, lon, height])
-    
-    def calculate_sun_vector(self) -> np.ndarray:
-        """
-        Get sun position relative to satellite location in intertial frame. Units are [au].
-        Wrapper for _calculate_sun_vector_internal which checks if we already calculated the sun vector at the current kernel.time.
-        The reason for doing this is because calculating the apparent sun vector is an expensive operation.
-        """
-
-        if self._last_sun_vec_aq_t_n == self.kernel._t_n:
-            return self._last_sun_vec
-        else:
-            return self._calculate_sun_vector_internal()
-        
-
-    def _calculate_sun_vector_internal(self) -> np.ndarray:
-        """
-        Get sun position relative to satellite location in intertial frame. Units are [au].
-        This function is expensive, avoid calling it too much.
-        """
-        #skyfield resources I used to write this code.
-        # https://rhodesmill.org/skyfield/positions.html#barycentric-astrometric-apparent
-        # https://github.com/skyfielders/python-skyfield/discussions/604
-        
-        t: sf.Time = self.kernel.skyfield_time #simulation represented as skyfield time
-        e = self._earth_ephimeris.at(t) #earth position at time t
-        p_au = sf.Distance(m=self.position_eci).au
-        v_au_per_d = sf.Velocity(km_per_s=self.velocity_eci/1e3).au_per_d
-
-        barycentric_sat_position = Barycentric(
-            e.position.au + p_au,
-            e.velocity.au_per_d + v_au_per_d,
-            t=t,
-        )
-        barycentric_sat_position._ephemeris = self._planets_ephem
-        # sun_vec = barycentric_sat_position.observe(self._sun_ephimeris).apparent().position.au
-        sun_vec = barycentric_sat_position.observe(self._sun_ephimeris).position.au
-        
-        #to avoid recalculation in same duration
-        self._last_sun_vec = sun_vec
-        self._last_sun_vec_aq_t_n = self.kernel._t_n
-        return sun_vec
-    
-    def calculate_translational_kinetic_energy(self) -> float:
-        """K= 0.5 * M V2  [Joules]"""
-        v = self._state[3:6]
+    @time_cached_property
+    def translational_kinetic_energy(self) -> float:
+        """K = 1/2 * M * v^2 [Joules]"""
+        v = self.velocity_eci
         M = self.params.get('M')
-        ke:float = (0.5 * M * (v @ v.T))
+        ke = (0.5 * M * (v @ v.T))
         return ke
 
-    def update(self):
-        if self._propagator == 'sgp4':
-            self._spg4_eci_state = self._sat.at(self.kernel.skyfield_time)
-            self._state[0:3] = self._spg4_eci_state.position.m
-            self._state[3:6] = self._spg4_eci_state.velocity.m_per_s
-            self._state_derivative[0:3] = self._state[3:6]
-        elif self._propagator == 'euler':
-            disturbance_forces = np.zeros(3) #TODO : get disturbance effects
-            self.step_system_dynamics(disturbance_forces, {})
-        else:
-            raise Exception(f'propagator type {self._propagator} is not recognized!')
-        
-        #save all the state elements we care about for analysis
-        saved_state = np.zeros(self.saved_state_size, dtype=np.float64)
-        saved_state[:6] = self._state
-        oe = self.calculate_orbital_elements()
-        saved_state[6:9] = self.position_lonlat
-        saved_state[9:13] = [oe.argument_of_periapsis.degrees, oe.longitude_of_ascending_node.degrees, oe.inclination.degrees, oe.mean_anomaly.degrees]
-        self.save_chunk_to_memory(saved_state)
-        
-    def state_update_fcn(self, t:np.ndarray, x:np.ndarray, u:np.ndarray, update_params = None) -> np.ndarray:
-        """
-        Parameters
-        ----------
-        x : array
-            System state: [x, y, z, vx, vy, vz]
-        u : array
-            System input: [f1, f2, f3]
+    # ==============================================================================
+    # State Update
+    # ==============================================================================
 
-        Returns
-        -------
-        dx : array
-            time deterivative of system state
-        """
-        dx = np.zeros(6)
-        
-        #TODO this function does nothing rn because sgp4 handles state updates
-        # dx[0:3] = x[3:6]
-        # x_ecef = self.eci_state_vector_to_ecef(x)
-        
-        # grav_accel = self.grav_model.get_accel_vector_eci(x_ecef[0:3], x_ecef[3:6])
-        
-        # dx[3:6] = grav_accel + u
-        return dx
+    def update(self, *args, **kwargs):
+        self.invalidate_cache(self.kernel.time_n)
+        self._skyfield_time = self.kernel.skyfield_time
+
+        if self.cfg.propagator == OrbitDynamicsConfig.Propagator.SGP4:
+            if self.cfg.use_precompute:
+                # Get next data point from the data iterator and update all the simulation variables
+                # (since they've been computed in the background already)
+                data_point = next(self._pre_computed_iter)
+
+                # Make sure this data is for a single point in time
+                assert(len(data_point) == 1)
+
+                # Verify the timestamp of the data point matches the current simulation timestamp
+                skyfield_utils.assert_time_match("Pre-Computed Time", data_point.t,
+                                                 "Actual Simulation Time", self.skyfield_time,
+                                                 self.update_period)
+
+                # Update simulation variables
+                self._state            = data_point.sat_states
+                self._position_lla     = data_point.geo_positions
+                self._sun_vector       = data_point.sun_vectors
+                self._is_sunlit        = data_point.is_sunlit
+                self._orbital_elements = data_point.orbital_elements
+            else:
+                # Compute only the satellite state, allow the other simulation variables to be updated on-the-fly if they're "gotten"
+                self._state_skyfield, self._state = self._compute_func.calc_sat_states(self.skyfield_time)
+        else:
+            raise ValueError(f"Unsupported propagator: {self.cfg.propagator}")
+
+        self._save_state()
+
+    # ==============================================================================
+    # Saved State
+    # ==============================================================================
+
+    @property
+    def saved_state_size(self) -> int:
+        return self._state.size + self._position_lla.size + self._orbital_elements.size
+
+    @property
+    def saved_state_element_names(self) -> list[str]:
+        return [
+            "x", "y", "z", "vx", "vy", "vz",
+            "lon", "lat", "alt",
+            "argp", "raan", "incl", "mean_anomaly", "mean_motion", "eccentricity"
+        ]
+
+    def _save_state(self):
+        saved_state = np.zeros(self.saved_state_size, dtype=np.float64)
+        saved_state[0:6]  = self._state
+        saved_state[6:9]  = self._position_lla
+        saved_state[9:15] = self._orbital_elements
+        self.save_chunk_to_memory(saved_state)

@@ -18,23 +18,26 @@ class AbstractModel(abc.ABC):
     """
     Abstract model tree.
     """
-    def __init__(self, name:str, sim_kernel: "AleasimKernel", params=None, parent: "AbstractModel" = None, children:dict[str, "AbstractModel"] = None) -> None:
-        super().__init__()
+    def __init__(self, name: str, sim_kernel: "AleasimKernel", params: dict = None, parent: "AbstractModel" = None, children: dict[str, "AbstractModel"] = None, **kwargs) -> None:
+        super().__init__(**kwargs)
+
         self._name = name
+        self._kernel: "AleasimKernel" = weakref.proxy(sim_kernel)
+
         if params is None:
             params = {}
         self._params = params
-        self._kernel: "AleasimKernel" = weakref.proxy(sim_kernel)
 
         if parent is not None:
             self._parent: AbstractModel = weakref.proxy(parent)
         else:
             self._parent = None
+
         if children is None or type(children) is not dict:
             self._children: dict[str, AbstractModel] = {}
         else:
             self._children = children
-        
+
         if not hasattr(self, '_logger'):
             self._logger = sim_kernel.logger.getChild(name)
 
@@ -46,15 +49,26 @@ class AbstractModel(abc.ABC):
     def config_name(self) -> str:
         raise NotImplementedError
 
-    @abc.abstractmethod
     def connect(self):
         """
-        connect models to each other, and obtain references to attributes of other models
+        Connect models to each other, and obtain references to attributes of other models
         this function may return an error if the parent is undefined or if a model is missing
         from the tree.
-        A design choice was made for the kernel to be responsible for calling this method.
+        
+        This method will be invoked as a kernel event at simulation time 0 before any other events
+        on this model.
         """
-        raise NotImplementedError
+        pass
+
+    def start(self):
+        """
+        Start any processes that require the connections established in self.connect() and must also
+        start before the main simulation.
+        
+        This method will be invoked as a kernel event at simulation time 0 after all connect events
+        but before any other events.
+        """
+        pass
 
     @property
     def logger(self) -> logging.Logger:

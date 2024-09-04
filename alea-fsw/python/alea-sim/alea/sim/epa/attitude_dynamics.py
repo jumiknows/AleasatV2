@@ -74,7 +74,7 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
             self.logger.warn(err)
             self._disturbances: DisturbanceModel = None
         
-        self.kernel.schedule_event(self.kernel.timestep, EventPriority.DYNAMICS_EVENT, self.update, period=self.kernel.timestep)
+        self.kernel.schedule_event(self.kernel.timestep, EventPriority.ATTITUDE_DYNAMICS_EVENT, self.update, period=self.kernel.timestep)
 
     @property
     def config_name(self) -> str:

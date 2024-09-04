@@ -107,7 +107,7 @@ class WahbaTest(unittest.TestCase):
         #ground truth rotation matrices based on the spacecraft state and underlying transform matrix functions
         q_ecibody: Quaternion = sc._adyn.quaternion
         rotmat_ecibody = q_ecibody.to_DCM()
-        rotmat_nedecef = ned_to_ecef_rot_mat(sc._orbit_dynamics.position_lonlat[0], sc._orbit_dynamics.position_lonlat[1])
+        rotmat_nedecef = ned_to_ecef_rot_mat(sc._orbit_dynamics.position_lla[0], sc._orbit_dynamics.position_lla[1])
         rotmat_eciecef = eci_to_ecef_rot_mat(kernel.gmst_rad)
         rotmat_nedeci = rotmat_eciecef.T @ rotmat_nedecef
         rotmat_nedbody = rotmat_ecibody @ rotmat_nedeci

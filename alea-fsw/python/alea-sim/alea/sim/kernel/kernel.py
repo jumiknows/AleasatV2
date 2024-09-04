@@ -10,11 +10,12 @@ from multiprocessing.shared_memory import SharedMemory
 import numpy as np
 
 import skyfield
+import skyfield.timelib
 from skyfield.api import load
 
 from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.kernel.aleasim_model import AleasimRootModel
-from alea.sim.kernel.scheduler import Scheduler
+from alea.sim.kernel.scheduler import Scheduler, EventPriority
 from alea.sim.kernel.frames import ReferenceFrame, Universe
 from alea.sim.kernel.time_utils import skyfield_time_to_gmst_radians
 from alea.sim.kernel.time_utils import skyfield_time_to_gmst_radians
@@ -25,7 +26,7 @@ _sentinel = object()
 class AleasimKernel():
     SCHEDULER_MAX_PRIORITY = 50
 
-    def __init__(self, dt: float = 0.001, date: datetime.datetime | float = None, root: AbstractModel = None) -> None:
+    def __init__(self, dt: float = 0.001, date: skyfield.timelib.Time | datetime.datetime | float = None, root: AbstractModel = None) -> None:
         logging.basicConfig(level=logging.DEBUG, format="%(msecs)d %(name)s %(levelname)s %(message)s")
         self._logger = logging.getLogger('AleasimKernel')
         
@@ -48,14 +49,16 @@ class AleasimKernel():
         if date is None:
             date = datetime.datetime.now(tz=datetime.timezone.utc)
 
-        if type(date) is datetime.datetime:
+        if isinstance(date, datetime.datetime):
             self._skyfield_time = self._timescale.from_datetime(date)
-            self._skyfield_epoch_time = self._timescale.from_datetime(date)
-        elif type(date) is float:
+        elif isinstance(date, float):
             self._skyfield_time = self._timescale.J(date)
-            self._skyfield_epoch_time = self._timescale.J(date)
+        elif isinstance(date, skyfield.timelib.Time):
+            self._skyfield_time = date
         else:
-            raise ValueError(f'passed date was not datetime or float!')
+            raise TypeError(f"Invalid type for date argument: {type(date)}")
+
+        self._skyfield_epoch_time = self._skyfield_time
 
         #handle shared memory
         self._smm = SharedMemoryManager()
@@ -108,15 +111,29 @@ class AleasimKernel():
     @property
     def time(self) -> float:
         """
-        Simulation time as accumilated seconds referenced to start epoch.
+        Simulation time as accumulated seconds referenced to start epoch.
         This simulation epoch is defined in TAI at self._skyfield_epoch_time.tai.
         """
         return self._t
 
     @property
+    def time_n(self) -> int:
+        """
+        Return simulation time as multiple of timestep since start
+        """
+        return self._t_n
+
+    @property
     def skyfield_time(self) -> skyfield.timelib.Time:
         """skyfield.timelib.Time class representation of sim time"""
         return self._skyfield_time
+
+    def skyfield_time_series(self, n_timesteps: int) -> skyfield.timelib.Time:
+        (year, month, day, hour, minute, second) = self._skyfield_time.tai_calendar() # Use TAI since we need a uniform time-scale (UTC has jumps due to leap seconds)
+        delta_seconds = (n_timesteps * self.timestep)
+        end_second = second + delta_seconds
+        time_series = self.timescale.tai(year, month, day, hour, minute, np.arange(second, end_second, self.timestep))
+        return time_series
 
     @property
     def timestep(self) -> float:
@@ -196,7 +213,8 @@ class AleasimKernel():
             self.logger.error(f'model {model} is already a root model or a child of root model')
             return
         self.root.add_child(model)
-        self.schedule_event(0, 0, model.connect)
+        self.schedule_event(0, EventPriority.CONNECT_EVENT, model.connect)
+        self.schedule_event(0, EventPriority.START_EVENT, model.start)
         if create_shared_mem:
             self.create_shared_memory(model)
 
@@ -247,17 +265,23 @@ class AleasimKernel():
 
         self._advance_sim_time(dt_n_to_next_event)
     
-    def advance(self, duration):
+    def advance(self, duration: float):
         """
         Run the simulation scheduler for x seconds relative to the current simulation time.
         This is a blocking method.
         Since the scheduler operates off integer timesteps, duration will be rounded to an integer multiple of timestep.
         """
-        start_seq = self.scheduler.queue[-1].sequence
         duration_n = self.duration_to_integer(duration)
+        self.advance_n(duration_n)
         
+    def advance_n(self, duration_n: int):
+        """
+        Run the simulation scheduler for n timesteps.
+        This is a blocking method.
+        """
+        start_seq = self.scheduler.queue[-1].sequence
         self.scheduler.run(duration_n)
-        
+
         self.logger.info(f'advanced the scheduler by {duration_n*self._dt} s to simulation time {self.time} s.\n {self.scheduler.queue[-1].sequence - start_seq} events were executed during this period.')
 
     def step(self):

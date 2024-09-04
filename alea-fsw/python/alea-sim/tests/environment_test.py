@@ -27,7 +27,7 @@ class MagneticEnvironmentTest(unittest.TestCase):
         kernel = AleasimKernel(date=date) #init kernal at the day this test was created
         mag_model = EarthMagneticFieldModel(kernel)
             
-        vec = mag_model.get_mag_vector_at_time(np.array([lat,lon,alt]), date)
+        vec = mag_model.get_mag_vector_at_time(np.array([lat,lon,alt*1000]), date)
         
         #test to the precision of the dataset
         np.testing.assert_array_almost_equal(vec, expected, decimal=1)

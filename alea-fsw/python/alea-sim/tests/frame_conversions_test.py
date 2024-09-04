@@ -124,14 +124,14 @@ class FrameConversionsTest(unittest.TestCase):
         q_ecibody = adyn.quaternion
         rotmat_bodysens = q_body2sens.to_DCM()
         rotmat_ecibody = q_ecibody.to_DCM()
-        rotmat_nedecef = ned_to_ecef_rot_mat(odyn.position_lonlat[0], odyn.position_lonlat[1])
+        rotmat_nedecef = ned_to_ecef_rot_mat(odyn.position_lla[0], odyn.position_lla[1])
         rotmat_eciecef = eci_to_ecef_rot_mat(kernel.gmst_rad)
         rotmat_ecisens = kernel.eci_frame.get_transformation_to(sens_frame).quaternion.to_DCM()
 
         np.testing.assert_array_almost_equal(rotmat_ecisens, rotmat_bodysens @ rotmat_ecibody, verbose=True)
         
         mag_ned = magm.get_mag_vector_ned()
-        sun_eci = odyn.calculate_sun_vector()
+        sun_eci = odyn.sun_vector
 
         sun_body1 = kernel.body_frame.transform_vector_from_frame(sun_eci, kernel.eci_frame)
         sun_body2 = rotmat_ecibody @ sun_eci
@@ -148,7 +148,7 @@ class FrameConversionsTest(unittest.TestCase):
         
         
     def test_frame_transform_tree(self):
-        kernel = AleasimKernel()
+        kernel = AleasimKernel(date=2024.0)
         kernel.set_log_level_all(log_level=logging.DEBUG)
         magm = EarthMagneticFieldModel(kernel)
         sens = SimpleMagSensor('mag_sens', kernel)
