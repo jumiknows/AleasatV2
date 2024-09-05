@@ -1,7 +1,7 @@
 from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
 from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
 from alea.sim.kernel.frame_manager import FrameManager
-from alea.sim.epa.magnetic_field_model import EarthMagneticFieldModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 
 from alea.sim.kernel.kernel import AleasimKernel
 

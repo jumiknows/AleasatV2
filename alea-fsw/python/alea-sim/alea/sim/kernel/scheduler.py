@@ -57,6 +57,7 @@ class EventPriority(IntEnum):
 
     ORBIT_DYNAMICS_EVENT = 10
     ATTITUDE_DYNAMICS_EVENT = 12
+    EARTH_MAGNETIC_FIELD_EVENT = 13
 
     #coordinate transformations should be updated to current time instance BEFORE other models use them
     #since coordinate updates needs current dynamics info, dynamics events are updated first

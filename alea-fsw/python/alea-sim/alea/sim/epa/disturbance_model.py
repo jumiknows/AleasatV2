@@ -3,7 +3,7 @@ import numpy as np
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
-from alea.sim.epa.magnetic_field_model import EarthMagneticFieldModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 import math 
 
 class DisturbanceModel(AbstractModel):
@@ -126,7 +126,7 @@ class DisturbanceModel(AbstractModel):
         rm (numpy array): Residual magnetic moment
         """
             
-        B_body = self.mag_model.get_mag_vector_body()*1E-9
+        B_body = self.mag_model.mag_field_vector_body*1E-9
 
         sign_vector = np.sign(-self.cosines)
         self.rm = self.mean_rm_base + (0.005 * (self.Area / self.maximum_area) * sign_vector) + 0.0005 * np.random.rand(3)

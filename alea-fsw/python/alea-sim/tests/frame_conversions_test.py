@@ -27,7 +27,7 @@ import skyfield
 
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.spacecraft.sensors.simple_sensors import SimpleMagSensor
-from alea.sim.epa.magnetic_field_model import EarthMagneticFieldModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.kernel.frames import *
 from alea.sim.api import AttitudeDynamicsModel, OrbitDynamicsModel
 
@@ -130,7 +130,7 @@ class FrameConversionsTest(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(rotmat_ecisens, rotmat_bodysens @ rotmat_ecibody, verbose=True)
         
-        mag_ned = magm.get_mag_vector_ned()
+        mag_ned = magm.mag_field_vector_ned
         sun_eci = odyn.sun_vector
 
         sun_body1 = kernel.body_frame.transform_vector_from_frame(sun_eci, kernel.eci_frame)

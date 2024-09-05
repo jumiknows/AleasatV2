@@ -4,8 +4,8 @@ import sys
 from compute.precomputed_test import PreComputedTest
 from kernel.time_cached_test import TimeCachedTest
 from attitude_test import AttitudeDynamicsTest
-from environment_test import MagneticEnvironmentTest
 from epa.orbit_dynamics_test import OrbitDynamicsTest
+from epa.earth_magnetic_field_test import EarthMagneticFieldTest
 from kernel_test import KernelTest
 from frames_test import FramesTest
 from frame_conversions_test import FrameConversionsTest
@@ -20,8 +20,8 @@ if __name__ == "__main__":
         # PreComputedTest,
         TimeCachedTest,
         AttitudeDynamicsTest,
-        MagneticEnvironmentTest,
         OrbitDynamicsTest,
+        EarthMagneticFieldTest,
         KernelTest,
         FramesTest,
         FrameConversionsTest,

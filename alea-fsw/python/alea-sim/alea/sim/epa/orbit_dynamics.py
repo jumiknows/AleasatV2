@@ -269,8 +269,10 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
      - 3 velocity elements
     """
 
-    def __init__(self, sim_kernel: AleasimKernel, name: str = "orbit_dynamics", cfg: str | Path | dict | OrbitDynamicsConfig = "orbit_dynamics") -> None:
+    def __init__(self, sim_kernel: AleasimKernel, name: str = "orbit_dynamics", cfg: str | Path | dict | OrbitDynamicsConfig = "orbit_dynamics",
+                 compute_func: OrbitDynamicsComputeFunc = None) -> None:
         super().__init__(name=name, sim_kernel=sim_kernel, cfg=cfg, cfg_cls=OrbitDynamicsConfig)
+        self._compute_func = compute_func
 
         # This will be a proxy for self.kernel.skyfield_time that is only updated when this model
         # receives an update event so it is kept in sync with the models variables
@@ -286,19 +288,15 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
     # Configuration
     # ==============================================================================
 
-    @property
-    def config_name(self) -> str:
-        """TODO: Remove from AbstractModel"""
-        raise NotImplementedError
-
     def configure(self):
-        if self.cfg.parameter_type == OrbitDynamicsConfig.ParameterType.TLE:
-            self._compute_func = OrbitDynamicsComputeFunc(self.kernel.timescale, tle=self.cfg.tle)
-        elif self.cfg.parameter_type == OrbitDynamicsConfig.ParameterType.ORBIT_ELEMENTS:
-            sgp4_init_data = SGP4InitData(self.skyfield_time, **self.cfg.orbit_elements)
-            self._compute_func = OrbitDynamicsComputeFunc(self.kernel.timescale, sgp4_init_data=sgp4_init_data)
-        else:
-            raise ValueError(f"Unsupported parameter type: {self.cfg.parameter_type}")
+        if self._compute_func is None:
+            if self.cfg.parameter_type == OrbitDynamicsConfig.ParameterType.TLE:
+                self._compute_func = OrbitDynamicsComputeFunc(self.kernel.timescale, tle=self.cfg.tle)
+            elif self.cfg.parameter_type == OrbitDynamicsConfig.ParameterType.ORBIT_ELEMENTS:
+                sgp4_init_data = SGP4InitData(self.skyfield_time, **self.cfg.orbit_elements)
+                self._compute_func = OrbitDynamicsComputeFunc(self.kernel.timescale, sgp4_init_data=sgp4_init_data)
+            else:
+                raise ValueError(f"Unsupported parameter type: {self.cfg.parameter_type}")
 
         if self.cfg.use_precompute:
             self._pre_computed: PreComputedBG[skyfield.timelib.Time, OrbitDynamicsData, OrbitDynamicsData] = PreComputedBG(
@@ -440,7 +438,7 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
     # State Update
     # ==============================================================================
 
-    def update(self, *args, **kwargs):
+    def update(self):
         self.invalidate_cache(self.kernel.time_n)
         self._skyfield_time = self.kernel.skyfield_time
 

@@ -45,8 +45,8 @@ class AbstractModel(abc.ABC):
             self._scheduler = sim_kernel.scheduler
 
     @property
-    @abc.abstractmethod
     def config_name(self) -> str:
+        # TODO: Remove this and use Config classes instead
         raise NotImplementedError
 
     def connect(self):

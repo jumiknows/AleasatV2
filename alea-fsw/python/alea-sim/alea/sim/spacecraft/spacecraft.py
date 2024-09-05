@@ -5,7 +5,7 @@ from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.kernel.frames import ReferenceFrame
 from .actuators.simple_actuators import SimpleActuator, SimpleMagnetorquer
 from .sensors.simple_sensors import SimpleMagSensor, SimpleSunSensor, SimpleGyroSensor
-from alea.sim.epa.magnetic_field_model import EarthMagneticFieldModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.math_lib import Quaternion
 from alea.sim.math_lib.math import skew
 from alea.sim.algorithms.attitude_determination import wahba_quest
@@ -73,8 +73,7 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
         saved_state = np.zeros(self.saved_state_size)
         q_desired = Quaternion.identity()
 
-        magned = self._magm.get_mag_vector_ned()
-        magref = self.kernel.eci_frame.transform_vector_from_frame(magned, self.kernel.ned_frame)
+        magref = self._magm.mag_field_vector_eci
         sunref = self._orbit_dynamics.sun_vector_norm
         
         if self._use_sensors:
@@ -82,7 +81,7 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
             sun = self._sun_sens.measure().value
             err_rate = self._gyro_sens.measure().value
         else:
-            mag = self.kernel.body_frame.transform_vector_from_frame(magned, self.kernel.ned_frame)
+            mag = self._magm.mag_field_vector_body
             sun = self.kernel.body_frame.transform_vector_from_frame(sunref, self.kernel.eci_frame)
             err_rate = self._adyn.angular_velocity
 
@@ -106,7 +105,7 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
             # self.logger.debug(f'set rw {i} torque to {self._rws[i].get_torque()} nM')
             supplement_torque[i] += torque_desired[i] - self._rws[i].get_torque()
 
-        b: np.ndarray = self._magm.get_mag_vector_body()
+        b: np.ndarray = self._magm.mag_field_vector_body
         m = np.linalg.pinv(skew(b)) @ supplement_torque
         for i in range(3):
             self._mtqs[i].set_moment(m[i])

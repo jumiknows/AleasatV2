@@ -36,7 +36,7 @@ alea/sim/
 │   │   ├── disturbances
 │   │   │   └── ...
 │   │   ├── frame_conversions.py
-│   │   ├── magnetic_field_model.py
+│   │   ├── earth_magnetic_field.py
 │   │   ├── orbit_dynamics.py
 │   │   └── ...
 │   ├── algorithms

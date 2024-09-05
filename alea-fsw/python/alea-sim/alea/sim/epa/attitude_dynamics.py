@@ -6,7 +6,7 @@ from alea.sim.kernel.kernel import SharedMemoryModelInterface
 from alea.sim.kernel.generic.dynamic_model import DynamicModel
 from alea.sim.math_lib import Quaternion
 from alea.sim.kernel.scheduler import EventPriority
-from alea.sim.epa.magnetic_field_model import EarthMagneticFieldModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.epa.disturbance_model import DisturbanceModel
 from alea.sim.kernel.generic.abstract_model import ModelNotFoundError
 
@@ -141,7 +141,7 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
                 actuator_torque[i] += sc._rws[i].get_torque()
                 mtq_moments[i] += sc._mtqs[i].get_moment()
 
-            b_body = self._magm.get_mag_vector_body()
+            b_body = self._magm.mag_field_vector_body
             t_mtq_body = np.cross(mtq_moments, b_body)
             actuator_torque += t_mtq_body
 

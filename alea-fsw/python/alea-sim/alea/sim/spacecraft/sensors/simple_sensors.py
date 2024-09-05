@@ -91,9 +91,9 @@ class SimpleSensor(AbstractModel, SharedMemoryModelInterface):
         return Measurement(t, value, self.frame)
     
 #simple sensor implementation
-from ...epa.magnetic_field_model import EarthMagneticFieldModel
-from ...epa.orbit_dynamics import OrbitDynamicsModel
-from ...epa.attitude_dynamics import AttitudeDynamicsModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
+from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
+from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
 from math import degrees
 
 # BMX160 IMU VALUES
@@ -125,7 +125,7 @@ class SimpleMagSensor(SimpleSensor):
         self._magm: EarthMagneticFieldModel = self.kernel.get_model(EarthMagneticFieldModel)
     
     def measure_ideal(self) -> np.ndarray:
-        return self._magm.get_mag_vector_body()
+        return self._magm.mag_field_vector_body
 
 class SimpleSunSensor(SimpleSensor):
     """

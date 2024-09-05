@@ -29,7 +29,7 @@ from skyfield.api import load
 
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.spacecraft.sensors.simple_sensors import SimpleMagSensor
-from alea.sim.epa.magnetic_field_model import EarthMagneticFieldModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.kernel.frames import *
 from alea.sim.api import AttitudeDynamicsModel, OrbitDynamicsModel
 from alea.sim.spacecraft.spacecraft import Spacecraft
@@ -117,12 +117,12 @@ class WahbaTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(rotmat_nedbody, kernel.ned_frame.get_transformation_to(kernel.body_frame).rotation)
         
         
-        magtest = kernel.body_frame.transform_vector_from_frame(magm.get_mag_vector_ned(), kernel.ned_frame)
+        magtest = kernel.body_frame.transform_vector_from_frame(magm.mag_field_vector_ned, kernel.ned_frame)
         
         #check that magnetic model and sensor agree
         np.testing.assert_array_almost_equal(magtest, sc._mag_sens.measure_ideal())
-        np.testing.assert_array_almost_equal(rotmat_ecibody @ rotmat_nedeci @ magm.get_mag_vector_ned(), sc._mag_sens.measure_ideal())
-        np.testing.assert_array_almost_equal(rotmat_nedbody.T @ magm.get_mag_vector_body(), magm.get_mag_vector_ned())
+        np.testing.assert_array_almost_equal(rotmat_ecibody @ rotmat_nedeci @ magm.mag_field_vector_ned, sc._mag_sens.measure_ideal())
+        np.testing.assert_array_almost_equal(rotmat_nedbody.T @ magm.mag_field_vector_body, magm.mag_field_vector_ned)
         
         #check that the sun model and sensor agree
         suntest = kernel.body_frame.transform_vector_from_frame(sc._orbit_dynamics.sun_vector_norm, kernel.eci_frame)
@@ -131,7 +131,7 @@ class WahbaTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(rotmat_ecibody @ sc._orbit_dynamics.sun_vector_norm, sc._sun_sens.measure_ideal())
     
         #another sanity check for mag field conversion
-        magned = magm.get_mag_vector_ned()
+        magned = magm.mag_field_vector_ned
         magref = kernel.eci_frame.transform_vector_from_frame(magned, kernel.ned_frame)
         magobs = kernel.body_frame.transform_vector_from_frame(magned, kernel.ned_frame)
         np.testing.assert_array_almost_equal( rotmat_ecibody @ rotmat_nedeci @ magned, magobs)
@@ -163,7 +163,7 @@ class WahbaTest(unittest.TestCase):
             q_true = sc._adyn.quaternion
 
             #generate measurements and references
-            magref = kernel.eci_frame.transform_vector_from_frame(magm.get_mag_vector_ned(), kernel.ned_frame)
+            magref = kernel.eci_frame.transform_vector_from_frame(magm.mag_field_vector_ned, kernel.ned_frame)
             sunref = sc._orbit_dynamics.sun_vector_norm
             ref = np.array([magref, sunref])
             obs = np.array([sc._mag_sens.measure_ideal(), sc._sun_sens.measure_ideal()])
