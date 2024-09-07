@@ -2,3 +2,8 @@
 __pycache__/
 
 *.bsp
+
+# Animations
+*.gif
+*.mp4
+*.html
