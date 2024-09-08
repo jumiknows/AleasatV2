@@ -328,11 +328,11 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
     # Pre-Computation
     # ==============================================================================
 
-    def subscribe_to_pre_computed(self) -> Iterable[OrbitDynamicsData]:
+    def subscribe_to_pre_computed(self, un_batch: bool = True) -> Iterable[OrbitDynamicsData]:
         if not self.cfg.use_precompute:
             raise RuntimeError(f"Cannot subscribe to PreComputed when use_precompute is False")
 
-        return self._pre_computed.subscribe()
+        return self._pre_computed.subscribe(un_batch=un_batch)
 
     # ==============================================================================
     # Simulation Variables

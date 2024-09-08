@@ -64,7 +64,8 @@ class PreComputed(ABC, Generic[A, R, D]):
         return self._started
 
     def start(self, args: Iterable[A]):
-        """Prepare this PreCompute instance for iteration. Must be called before you start iterating.
+        """Prepare this PreCompute instance for iteration. Must be called before you start iterating
+        and after creating all iterables via PreComputed.subscribe().
         
         The default implementation just stores args in an instance variable. Subclasses can override
         to provide custom functionality (e.g. starting a background process).
@@ -78,5 +79,18 @@ class PreComputed(ABC, Generic[A, R, D]):
         self._started = True
 
     @abstractmethod
-    def subscribe(self) -> Iterable[D]:
+    def subscribe(self, un_batch: bool = True) -> Iterable[D]:
+        """Create a new iterable over the pre-computed data produced by this class.
+
+        All iterables must be created before calling PreComputed.start().
+
+        Args:
+            un_batch (optional):
+                If True, "un-batch" the pre-computed data, yielding one item at a time
+                instead of one batch at a time. Has no effect if this PreComputed
+                instance was created with batch=False. Defaults to True.
+
+        Raises:
+            RuntimeError: If called after self.start()
+        """
         raise NotImplementedError

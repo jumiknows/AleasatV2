@@ -16,10 +16,10 @@ class ForegroundIterable(Generic[A, R, D]):
     iterables.
     """
 
-    def __init__(self, parent: "PreComputedFG", compute_func: Callable[[A], R], buffer_size: int = 2, batch: bool = False):
+    def __init__(self, parent: "PreComputedFG", compute_func: Callable[[A], R], buffer_size: int = 2, un_batch: bool = False):
         self._parent = parent
         self._compute_func = compute_func
-        self._batch = batch
+        self._un_batch = un_batch
 
         self._buffer = deque(maxlen=buffer_size)
 
@@ -53,8 +53,9 @@ class ForegroundIterable(Generic[A, R, D]):
                 return
 
             next_result = self._buffer.popleft()
-            if self._batch:
-                # In batch mode, the result from the buffer is an iterable itself
+            if self._un_batch:
+                # un_batch indicates next_result is an Iterable itself and we should yield
+                # from it rather than yield the whole thing at once
                 yield from next_result
             else:
                 yield next_result
@@ -83,14 +84,13 @@ class PreComputedFG(PreComputed[A, R, D]):
         for iterable in self._iterables:
             iterable.push(result)
 
-    def subscribe(self) -> Iterable[D]:
-        """Create a new iterable over the pre-computed data produced by this class.
-
-        All iterables must be created before you start iterating.
-        """
+    def subscribe(self, un_batch: bool = True) -> Iterable[D]:
         if self.started:
             raise RuntimeError("Cannot create new iterable after calling start()")
 
-        iterable: ForegroundIterable[A, R, D] = ForegroundIterable(self, self._compute_func, buffer_size=self._buffer_size, batch=self._batch)
+        # Can only un_batch if this PreComputed produces batches to begin with
+        un_batch = un_batch and self.batch
+
+        iterable: ForegroundIterable[A, R, D] = ForegroundIterable(self, self._compute_func, buffer_size=self._buffer_size, un_batch=un_batch)
         self._iterables.append(iterable)
         return iterable

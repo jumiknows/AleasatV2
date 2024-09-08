@@ -1,5 +1,5 @@
-from typing import TypeAlias, Generator, Iterator
-from dataclasses import dataclass
+from typing import TypeAlias, Generator, Iterator, Iterable
+import dataclasses
 from pathlib import Path
 from math import degrees
 
@@ -18,14 +18,35 @@ from alea.sim.compute.precomputed_bg import PreComputedBG
 from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel, OrbitDynamicsData
 from alea.sim.utils import skyfield_utils
 
-EarthMagneticFieldPreComputeDataPoint: TypeAlias = tuple[skyfield.timelib.Time, np.ndarray]
+@dataclasses.dataclass(frozen=True)
+class EarthMagneticFieldData:
+    """Data point produced by EarthMagneticFieldComputeFunc. This represents the Earth magnetic field vector at either at a
+    single time point or at a series of time points.
+
+    Instances of this class are iterable (even if the instance represents a single data point in which case the iterator will
+    only yield one item and len(instance) will return 1).
+    """
+
+    t                 : skyfield.timelib.Time
+    mag_field_vec_ned : np.ndarray | Iterable[np.ndarray]
+
+    def __len__(self) -> int:
+        return skyfield_utils.time_len(self.t)
+
+    def __iter__(self) -> Iterator["EarthMagneticFieldData"]:
+        if len(self) > 1:
+            # Zip together data at each time point (all of the fields have an extra dimension corresponding to different time points)
+            as_tuple = dataclasses.astuple(self)
+            yield from map(lambda zipped : EarthMagneticFieldData(*zipped), zip(*as_tuple))
+        else:
+            # Just a single data point - yield ourselves
+            yield self
 
 class EarthMagneticFieldComputeFunc:
     def __init__(self):
         self._wmm = GeoMag()
 
-    def __call__(self, geo_position: tuple[skyfield.timelib.Time, np.ndarray]) -> EarthMagneticFieldPreComputeDataPoint:
-        t, position_lla = geo_position
+    def calc_mag_field_vec_ned(self, t: skyfield.timelib.Time, position_lla: np.ndarray) -> np.ndarray:
         year_fraction = t.J
 
         if year_fraction < 2020.0 or year_fraction > 2025.0:
@@ -35,10 +56,19 @@ class EarthMagneticFieldComputeFunc:
         longitude_deg: float = degrees(position_lla[1])
         altitude_km:   float = position_lla[2] / 1000
 
-        result: GeoMagResult = self._wmm.calculate(latitude_deg, longitude_deg, altitude_km, year_fraction, raise_in_warning_zone=True)
+        result: GeoMagResult = self._wmm.calculate(latitude_deg, longitude_deg, altitude_km, year_fraction, raise_in_warning_zone=False)
 
         mag_field_vec_ned = np.array([result.x, result.y, result.z])
-        return (t, mag_field_vec_ned)
+        return mag_field_vec_ned
+
+    def __call__(self, odyn_data: tuple[skyfield.timelib.Time, np.ndarray]) -> EarthMagneticFieldData:
+        mag_field_vecs: list[np.ndarray] = []
+
+        for t, position_lla in zip(*odyn_data):
+            mag_field_vec_ned = self.calc_mag_field_vec_ned(t, position_lla)
+            mag_field_vecs.append(mag_field_vec_ned)
+
+        return EarthMagneticFieldData(odyn_data[0], mag_field_vecs)
 
 class EarthMagneticFieldPreComputeArgGen:
     def __init__(self, odyn_iter: Iterator[OrbitDynamicsData]):
@@ -46,12 +76,9 @@ class EarthMagneticFieldPreComputeArgGen:
 
     def __iter__(self) -> Generator[tuple[skyfield.timelib.Time, np.ndarray], None, None]:
         for odyn_data in self._odyn_iter:
-            # Make sure this data is for a single point in time
-            assert(len(odyn_data) == 1)
-
             yield (odyn_data.t, odyn_data.geo_positions)
 
-@dataclass
+@dataclasses.dataclass
 class EarthMagneticFieldConfig:
     use_precompute        : bool = False
     update_freq_divider   : int  = 1 # By default, magnetic field vector updates happen at the same frequency as orbit dynamics updates
@@ -79,10 +106,10 @@ class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCached
         self._compute_func = EarthMagneticFieldComputeFunc()
 
         if self.cfg.use_precompute:
-            self._pre_computed: PreComputedBG[skyfield.timelib.Time, np.ndarray, np.ndarray] = PreComputedBG(
+            self._pre_computed: PreComputedBG[skyfield.timelib.Time, EarthMagneticFieldData, EarthMagneticFieldData] = PreComputedBG(
                 self._compute_func,
-                buffer_size   = 10000,
-                batch         = False,
+                buffer_size   = 10,
+                batch         = True,
             )
 
     @property
@@ -101,7 +128,8 @@ class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCached
                 raise ValueError(f"Cannot pre-compute earth magnetic field model if orbit dynamics is not pre-computed")
 
             # Create argument generator
-            odyn_iter = self._odyn.subscribe_to_pre_computed()
+            odyn_iter = self._odyn.subscribe_to_pre_computed(un_batch=False) # We'll spend too long reading from queues if
+                                                                             # we process one element at a time
             self._pre_computed_arg_gen = EarthMagneticFieldPreComputeArgGen(odyn_iter)
 
             # Create iterator for ourselves
@@ -160,13 +188,15 @@ class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCached
         self._skyfield_time = self.kernel.skyfield_time
 
         if self.cfg.use_precompute:
-            t, self._mag_field_vector_ned = next(self._pre_computed_iter)
+            data_point = next(self._pre_computed_iter)
 
-            skyfield_utils.assert_time_match("Pre-Computed Time", t,
+            skyfield_utils.assert_time_match("Pre-Computed Time", data_point.t,
                                              "Actual Simulation Time", self.skyfield_time,
                                              self.update_period)
+
+            self._mag_field_vector_ned = data_point.mag_field_vec_ned
         else:
-            self._mag_field_vector_ned = self._compute_func((self.skyfield_time, self._odyn.position_lla))
+            self._mag_field_vector_ned = self._compute_func.calc_mag_field_vec_ned(self.skyfield_time, self._odyn.position_lla)
 
         self._save_state()
 

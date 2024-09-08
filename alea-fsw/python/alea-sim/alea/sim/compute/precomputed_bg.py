@@ -29,9 +29,9 @@ class QueueIterable(Generic[R, D]):
           longer be available if you iterate over the class again.
     """
 
-    def __init__(self, buffer_size: int = 2, batch: bool = False):
+    def __init__(self, buffer_size: int = 2, un_batch: bool = False):
         self._q = Queue(maxsize=buffer_size)
-        self._batch = batch
+        self._un_batch = un_batch
 
         # Object that indicates the dataset is complete when it's placed in the queue
         self._sentinel = _Sentinel()
@@ -51,8 +51,9 @@ class QueueIterable(Generic[R, D]):
                 # No more data so finish off the generator
                 return
 
-            if self._batch:
-                # In batch mode, the result from the queue is an iterable itself
+            if self._un_batch:
+                # un_batch indicates result is an Iterable itself and we should yield
+                # from it rather than yield the whole thing at once
                 yield from result
             else:
                 yield result
@@ -133,18 +134,13 @@ class PreComputedBG(PreComputed[A, R, D]):
         for iterable in self._iterables:
             iterable.finish()
 
-    def subscribe(self) -> Iterable[D]:
-        """Create a new iterable over the pre-computed data produced by this class.
-
-        All iterables must be created before calling self.start() and before starting
-        iterating.
-
-        Raises:
-            RuntimeError: If called after self.start()
-        """
+    def subscribe(self, un_batch: bool = True) -> Iterable[D]:
         if self.started:
             raise RuntimeError("Cannot create new iterable after calling start()")
 
-        iterable: QueueIterable[R, D] = QueueIterable(buffer_size=self._buffer_size, batch=self._batch)
+        # Can only un_batch if this PreComputed produces batches to begin with
+        un_batch = un_batch and self.batch
+
+        iterable: QueueIterable[R, D] = QueueIterable(buffer_size=self._buffer_size, un_batch=un_batch)
         self._iterables.append(iterable)
         return iterable
