@@ -4,7 +4,7 @@ from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
 from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.kernel.frames import ReferenceFrame
 from .actuators.simple_actuators import SimpleActuator, SimpleMagnetorquer
-from .sensors.simple_sensors import SimpleMagSensor, SimpleSunSensor, SimpleGyroSensor
+from alea.sim.spacecraft.sensors import SimpleGyroSensor, SimpleMagSensor, SimpleSunSensor
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.math_lib import Quaternion
 from alea.sim.math_lib.math import skew
@@ -63,6 +63,9 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
             self._sun_sens: SimpleSunSensor = self.kernel.get_model(SimpleSunSensor)
             self._gyro_sens: SimpleGyroSensor = self.kernel.get_model(SimpleGyroSensor)
             self._use_sensors = True
+            self._mag_sens.power_on()
+            self._sun_sens.power_on()
+            self._gyro_sens.power_on()
         except ModelNotFoundError as err:
             self.logger.error(err)
             self._use_sensors = False

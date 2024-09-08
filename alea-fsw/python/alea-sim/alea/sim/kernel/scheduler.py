@@ -64,6 +64,13 @@ class EventPriority(IntEnum):
     COORDINATE_EVENT = 20
 
     HARDWARE_EVENT = 30
+    
+    #power ticks update after hardware status changes
+    POWER_EVENT = 40
+
+    #update values in eps model after all the other models updates (sensor, actuators, solar panels, etc)
+    POWER_EVENT_SOLAR = 41
+    POWER_EVENT_EPS = 42
 
 @dataclass(frozen=True)
 class Event:

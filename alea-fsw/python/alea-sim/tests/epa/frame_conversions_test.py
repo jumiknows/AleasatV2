@@ -26,10 +26,11 @@ import datetime
 import skyfield
 
 from alea.sim.kernel.kernel import AleasimKernel
-from alea.sim.spacecraft.sensors.simple_sensors import SimpleMagSensor
+from alea.sim.spacecraft.sensors import SimpleMagSensor
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.kernel.frames import *
-from alea.sim.api import AttitudeDynamicsModel, OrbitDynamicsModel
+from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
+from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
 
 class FrameConversionsTest(unittest.TestCase):
 
@@ -67,7 +68,7 @@ class FrameConversionsTest(unittest.TestCase):
     def test_sensor_frame_conversion(self):
         kernel = AleasimKernel()
         magm = EarthMagneticFieldModel(kernel)
-        sens = SimpleMagSensor('mag_sens', kernel)
+        sens = SimpleMagSensor('mag_sens', kernel, sample_rate=int(1/kernel.timestep))
         adyn = AttitudeDynamicsModel(kernel)
         odyn = OrbitDynamicsModel(kernel)
         kernel.add_model(magm)
@@ -151,7 +152,7 @@ class FrameConversionsTest(unittest.TestCase):
         kernel = AleasimKernel(date=2024.0)
         kernel.set_log_level_all(log_level=logging.DEBUG)
         magm = EarthMagneticFieldModel(kernel)
-        sens = SimpleMagSensor('mag_sens', kernel)
+        sens = SimpleMagSensor('mag_sens', kernel, sample_rate=int(1/kernel.timestep))
         adyn = AttitudeDynamicsModel(kernel)
         odyn = OrbitDynamicsModel(kernel)
         kernel.add_model(magm)

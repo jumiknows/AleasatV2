@@ -28,13 +28,14 @@ import skyfield
 from skyfield.api import load
 
 from alea.sim.kernel.kernel import AleasimKernel
-from alea.sim.spacecraft.sensors.simple_sensors import SimpleMagSensor
+from alea.sim.spacecraft.sensors.simple_mag_sensor import SimpleMagSensor
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.kernel.frames import *
-from alea.sim.api import AttitudeDynamicsModel, OrbitDynamicsModel
+from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
+from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
 from alea.sim.spacecraft.spacecraft import Spacecraft
 
-from test_utils import create_aleasim_test_kernel
+from alea.sim.utils.test_scenarios import create_aleasim_test_kernel
 
 from alea.sim.algorithms.attitude_determination.wahba_solutions import *
 

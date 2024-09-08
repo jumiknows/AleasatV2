@@ -4,7 +4,6 @@ from alea.sim.kernel.frame_manager import FrameManager
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.spacecraft.actuators.simple_actuators import SimpleActuator, SimpleMagnetorquer
-from alea.sim.spacecraft.sensors.simple_sensors import SimpleGyroSensor, SimpleMagSensor, SimpleSunSensor
 from alea.sim.spacecraft.spacecraft import Spacecraft
 from alea.sim.epa.disturbance_model import DisturbanceModel
 

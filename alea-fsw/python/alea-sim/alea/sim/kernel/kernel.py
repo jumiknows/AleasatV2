@@ -74,7 +74,7 @@ class AleasimKernel():
             
         #frame manager init
         self._frame_manager = FrameManager(self)
-        
+
     @property
     def root(self) -> AbstractModel:
         """root model"""
@@ -196,10 +196,6 @@ class AleasimKernel():
     def orbit_frame(self) -> ReferenceFrame:
         """Earth centered Earth fixed frame"""
         return self._frame_manager.ecef_frame
-
-    @property
-    def is_dynamic(self) -> bool:
-        return True
     
     def duration_to_integer(self, dur:float) -> int:
         """
@@ -208,11 +204,15 @@ class AleasimKernel():
         """
         return math.floor(dur/self._dt)
 
-    def add_model(self, model:AbstractModel, create_shared_mem: bool = True):
+    def add_model(self, model:AbstractModel, create_shared_mem: bool = True, parent: AbstractModel = None):
         if model is self.root or model in self.root._children.values():
             self.logger.error(f'model {model} is already a root model or a child of root model')
             return
-        self.root.add_child(model)
+        if model.parent_model is None:
+            if parent is None:
+                self.root.add_child(model)
+            else:
+                parent.add_child(model)
         self.schedule_event(0, EventPriority.CONNECT_EVENT, model.connect)
         self.schedule_event(0, EventPriority.START_EVENT, model.start)
         if create_shared_mem:
@@ -222,6 +222,10 @@ class AleasimKernel():
     def get_model(self, name_or_type: str | type) -> "AbstractModel" :
         """get child from root"""
         return self._root.get_child(name_or_type)
+
+    def get_all_models_of_type(self, cls: type) -> list["AbstractModel"] | list:
+        """get all models of type cls, raises an error is cls is not a subclass of AbstractModel"""
+        return self._root.get_all_children_of_type(cls)
 
     def remove_model(self, child: "AbstractModel") -> None:
         """remove child from root"""
@@ -308,11 +312,11 @@ class AleasimKernel():
             model._state_array = np.ndarray((model.SHARED_ARRAY_SIZE, model.saved_state_size), np.float64, buffer=model._state_memory.buf)
             self._smm_size += size + (np.dtype(np.float64).itemsize * model.SHARED_ARRAY_SIZE) #state + time size
             model._sm_enabled = True
-            self.logger.info(f'Total shared memory size: {self._smm_size} bytes')
+            self.logger.info(f'Total shared memory size: {self._smm_size/1e6} MB')
         
 class SharedMemoryModelInterface(abc.ABC):
-    #TODO make this configurable somewhere...
-    #shared memory will start overwriting old date after reading SHARED_ARRAY_SIZE
+    # TODO make this configurable somewhere...
+    # shared memory will start overwriting old date after reading SHARED_ARRAY_SIZE
     SHARED_ARRAY_SIZE = 100000
 
     @property

@@ -9,9 +9,9 @@ import logging
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 from alea.sim.kernel.config_loader import load_config
 
-from test_utils import create_aleasim_test_kernel
+from alea.sim.utils.test_scenarios import create_aleasim_test_kernel
 
-from alea.sim.api import ModelNotFoundError
+from alea.sim.kernel.generic.abstract_model import ModelNotFoundError
 class KernelTest(unittest.TestCase):
     
     #TODO this test fails after spacecraft was updarted to pull in actuators

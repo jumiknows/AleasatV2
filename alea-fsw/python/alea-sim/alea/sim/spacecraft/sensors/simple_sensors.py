@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from alea.sim.kernel import frames
 from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
+from math import inf
+from alea.sim.kernel.generic.powered_unit_model import PoweredUnitModel
 
 @dataclass(frozen=True)
 class Measurement:
@@ -43,24 +45,66 @@ class MeasurementNoise:
         return self.generator.normal(scale=self.std_dev, size=self.axes)
 
 #generic simple sensor
-class SimpleSensor(AbstractModel, SharedMemoryModelInterface):
-    """Generic simple sensor that returns an intertial measurement vector (or scalar) in a certain frame of reference"""
-    def __init__(self, name: str, kernel: AleasimKernel, frame: frames.ReferenceFrame, axes: int = 3, sample_rate: int = 0, noise_asd: float = None):
+class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
+    """
+    Generic simple sensor that returns a 3-axis intertial measurement vector in a certain frame of reference
+    
+    noise_asd or noise_rms : only specify one, if both are not specified it will raise an error
+    axis_misalignment: a 3 element vector representing sensor axis skew as a percentage, defaults to [0,0,0] if None
+    constant_bias: a 3 element vector adding constant bias to the ground truth (after misalignment), defaults to [0,0,0] if None
+    measurement_range: maximum sensor reading, defaults to infinity
+    resolution: resolution of sensor reading as a float, defaults to 0 (no rounding occurs)
+    """
+    def __init__(self, 
+                 name: str, 
+                 kernel: AleasimKernel, 
+                 frame: frames.ReferenceFrame,
+                 sample_rate,
+                 noise_asd: float = None,
+                 noise_rms: float = None,
+                 axis_misalignment: np.ndarray = None,
+                 constant_bias: np.ndarray = None,
+                 measurement_range: float = inf,
+                 resolution: float = 0,
+                 ):
         super().__init__(name, kernel)
         self.frame       = frame
-        self.axes        = axes
+        self.axes        = 3 #3 axis sensor
         self.sample_rate = sample_rate
         self.noise       = None
         self._element_names = [f'{self.name}_truth_{i}' for i in range(1,self.axes+1)]
         self._element_names.extend([f'{self.name}_meas_{i}' for i in range(1,self.axes+1)])
+        self._element_names.extend(['power_usage', 'energy_consumed'])
+        self._saved_state_size = len(self._element_names)
+        self.measurement_range = measurement_range
+        self.resolution = resolution
 
         if noise_asd is not None:
-            self.noise = MeasurementNoise(noise_asd, self.sample_rate, axes=axes)
+            pass
+        elif noise_rms is not None:
+            noise_asd = noise_rms / np.sqrt(sample_rate)
+        else:
+            raise ValueError('noise_asd and noise_rms are both not specified.')
+        self.noise = MeasurementNoise(noise_asd, self.sample_rate, axes=self.axes)
+        
+        if axis_misalignment is None:
+            axis_misalignment = np.zeros(3)
+        ax = axis_misalignment
+        self.misaslignment_matrix = np.array([[1.0, ax[1]/100.0, ax[2]/100.0],
+                                              [ax[0]/100.0, 1.0, ax[2]/100.0],
+                                              [ax[0]/100.0, ax[1]/100.0, 1.0]])
+
+        if constant_bias is None:
+            self.constant_bias = np.zeros(3, dtype=np.float64)
+        else:
+            self.constant_bias = constant_bias
+            
+        self.power_off()
 
     @property
     def saved_state_size(self) -> int:
         #save ideal and ground truth
-        return self.axes*2
+        return self._saved_state_size
 
     @property
     def saved_state_element_names(self) -> list[str]:
@@ -73,97 +117,41 @@ class SimpleSensor(AbstractModel, SharedMemoryModelInterface):
         raise NotImplementedError()
 
     def measure(self) -> Measurement:
-        value = self.measure_ideal()
-        ideal = value
+        """
+        produce sensor measurement with all unideal affects
+        if the sensor is off, a null measurement ([0,0,0]) will be returned
+        """
         t = self.kernel.time
+        ideal = self.measure_ideal()
+        
+        #TODO what should sensors return when powered off?
+        if self.is_powered_off:
+            value = np.zeros(3, dtype=np.float64)
+        else:
+            value = ideal
+        
+            #apply sensor misalsignment and constant bias
+            value = self.misaslignment_matrix @ value + self.constant_bias
+            
+            #add noise
+            if self.noise is not None:
+                noise_sample = self.noise.sample()
+                value += noise_sample
 
-        if self.noise is not None:
-            noise_sample = self.noise.sample()
-            value = value + noise_sample
+            #clamp to measurement range clamp and resolution
+            for i in range(value.size):
+                if self.measurement_range < inf:
+                    value[i] = min(max(value[i], -self.measurement_range), self.measurement_range)
+                if self.resolution > 0:
+                    value[i] = self.resolution * round(value[i]/self.resolution)
         
         #save the sensor data for later processing/analysis
         saved_state = np.zeros(self.saved_state_size)
-        saved_state[:self.axes] = ideal
-        saved_state[self.axes:] = value
+        saved_state[:3] = ideal
+        saved_state[3:6] = value
+        saved_state[6] = self.power_usage
+        saved_state[7] = self.energy_consumed
         self.save_chunk_to_memory(saved_state)
 
         #return a measurement object
         return Measurement(t, value, self.frame)
-    
-#simple sensor implementation
-from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
-from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
-from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
-from math import degrees
-
-# BMX160 IMU VALUES
-BMX_160_GYRO_NOISE_ASD  = 0.007 * (np.pi / 180.0)  # [rad/s/sqrt(Hz)] - Specified in datasheet as: 0.007 deg/s/sqrt(Hz)
-BMX_160_ACCEL_NOISE_ASD = 180.0 * (1E-6 * 9.80665) # [m/s^2/sqrt(Hz)] - Specified in datasheet as: 180 ug/sqrt(Hz)
-BMX_160_MAG_NOISE_RMS   = 600           # [nT]              - Specified in datasheet as: 0.6 uT - NOTE: This is not a spectral density, it's just a standard deviation
-
-#ADIS16260 GYRO VALUES
-ADIS_16260_GYRO_NOISE_ASD = 0.044 * (np.pi / 180.0) # [rad/s/sqrt(Hz)] - Specified in datasheet as: 0.044 deg/s/sqrt(Hz)
-
-#made up value
-SUN_SENSOR_NOISE_ASD = 1e-3
-
-class SimpleMagSensor(SimpleSensor):
-    """
-    Simple sensor that produces 3 axis magnetic field measurement in body frame
-    Adds a noise distribution based on sample rate (multiple of simulation timestep) and noise_asd
-    """
-    def __init__(self, name: str, kernel: AleasimKernel, axes: int = 3, sample_rate: int = 0, noise_asd: float = None):
-        if noise_asd is None:
-            noise_asd = BMX_160_MAG_NOISE_RMS / np.sqrt(sample_rate)
-        super().__init__(name, kernel, kernel.body_frame, axes, sample_rate, noise_asd)
-    
-    @property
-    def config_name(self) -> str:
-        return 'magnetic_sensor'
-    
-    def connect(self):
-        self._magm: EarthMagneticFieldModel = self.kernel.get_model(EarthMagneticFieldModel)
-    
-    def measure_ideal(self) -> np.ndarray:
-        return self._magm.mag_field_vector_body
-
-class SimpleSunSensor(SimpleSensor):
-    """
-    Simple sensor that produces 3 axis sun vector measurement in body frame (normalized)
-    Adds a noise distribution based on sample rate (multiple of simulation timestep) and noise_asd
-    """
-    def __init__(self, name: str, kernel: AleasimKernel, axes: int = 3, sample_rate: int = 0, noise_asd: float = SUN_SENSOR_NOISE_ASD):
-        super().__init__(name, kernel, kernel.body_frame, axes, sample_rate, noise_asd)
-    
-    @property
-    def config_name(self) -> str:
-        return 'sun_sensor'
-    
-    def connect(self):
-        self._odyn: OrbitDynamicsModel = self.kernel.get_model(OrbitDynamicsModel)
-    
-    def measure_ideal(self) -> np.ndarray:
-        sun_vec_eci_norm = self._odyn.sun_vector_norm
-        
-        #transform from eci to desired frame
-        sun_vec_body_norm = self.frame.transform_vector_from_frame(sun_vec_eci_norm, self.kernel.eci_frame)
-        
-        return sun_vec_body_norm
-
-class SimpleGyroSensor(SimpleSensor):
-    """
-    Simple sensor that produces 3 axis inertial->body rate vector measurement [rad/s]
-    Adds a noise distribution based on sample rate (multiple of simulation timestep) and noise_asd
-    """
-    def __init__(self, name: str, kernel: AleasimKernel, axes: int = 3, sample_rate: int = 0, noise_asd: float = ADIS_16260_GYRO_NOISE_ASD):
-        super().__init__(name, kernel, kernel.body_frame, axes, sample_rate, noise_asd)
-    
-    @property
-    def config_name(self) -> str:
-        return 'gyro_sensor'
-    
-    def connect(self):
-        self._adyn: AttitudeDynamicsModel = self.kernel.get_model(AttitudeDynamicsModel)
-    
-    def measure_ideal(self) -> np.ndarray:
-        return self._adyn.angular_velocity

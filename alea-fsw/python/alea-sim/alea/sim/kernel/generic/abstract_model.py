@@ -22,7 +22,7 @@ class AbstractModel(abc.ABC):
         super().__init__(**kwargs)
 
         self._name = name
-        self._kernel: "AleasimKernel" = weakref.proxy(sim_kernel)
+        self._kernel: "AleasimKernel" = sim_kernel
 
         if params is None:
             params = {}
@@ -109,7 +109,6 @@ class AbstractModel(abc.ABC):
         is_base tells get_child whether it is the base caller or not for the recursion.
         if it is the base caller, an error is raised when models are not found, otherwise none is returned upwards.
         """
-        # print(f'searching for {name_or_type} from {self}')
         if type(name_or_type) is str:
             search_mode = 'name'
         elif issubclass(name_or_type, AbstractModel):
@@ -118,7 +117,6 @@ class AbstractModel(abc.ABC):
             search_mode = 'undefined'
 
         if not self._children:
-            self.logger.warning(f'{self.name} does not have any children models')
             if is_base:
                 raise  ModelNotFoundError(f'child model {name_or_type} could not be found from {self.name}')
             else: 
@@ -152,6 +150,30 @@ class AbstractModel(abc.ABC):
                 return None
         else:
             raise Exception(f'search mode is invalid: {search_mode}')
+
+    def get_all_children_of_type(self, cls: type) -> list["AbstractModel"]:
+        """
+        Traverse the tree opting for depth first to find children model of same class.
+        Returns an empty list if no models of class found.
+        
+        is_base tells get_child whether it is the base caller or not for the recursion.
+        """
+        if not issubclass(cls, AbstractModel):
+            raise Exception(f'{cls} is not a subclass of AbstractModel')
+
+        out_list: list[AbstractModel] = []
+
+        if not self._children:
+            return out_list
+
+        for child in self._children.values():
+            if isinstance(child, cls):
+                out_list.append(child)
+            val = child.get_all_children_of_type(cls)
+            if len(val) > 0:
+                out_list.extend(val)
+        
+        return out_list
 
     def add_child(self, child: "AbstractModel") -> None:
         self._children[child.name] = child
