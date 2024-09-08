@@ -18,6 +18,7 @@ A = TypeVar("A", plt.Artist, art3d.artist.Artist)
 
 class OrbitScene(BaseScene[X, A], ABC, Generic[X, A]):
     VECTOR_CLS: type[gfx.basic.Vector] = None
+    CLEAR_PATH_ON_JUMP: int = None
 
     def __init__(self, ax: X, odyn: OrbitDynamicsModel, orbit_trail_minutes: float = 30, **kwargs):
         super().__init__(ax, **kwargs)
@@ -26,7 +27,7 @@ class OrbitScene(BaseScene[X, A], ABC, Generic[X, A]):
 
         orbit_trail_points = int((orbit_trail_minutes * 60) / self._odyn.update_period)
         position = self.get_satellite_position()
-        self._satellite = self.VECTOR_CLS(position, "magenta", draw_line=False, trace_path=True, max_trace_points=orbit_trail_points)
+        self._satellite = self.VECTOR_CLS(position, "magenta", draw_line=False, trace_path=True, max_trace_points=orbit_trail_points, clear_on_jump=self.CLEAR_PATH_ON_JUMP, animated=True)
 
     def plot(self) -> list[A]:
         artists = []
@@ -52,6 +53,10 @@ class OrbitScene(BaseScene[X, A], ABC, Generic[X, A]):
 
 class OrbitScene2D(OrbitScene[plt.Axes, plt.Artist], BaseScene2D):
     VECTOR_CLS = gfx.basic.Vector2D
+
+    # Clear the satellite path if there is a jump of more than 180 degrees (in either coordinate)
+    # This avoids drawing straight lines spanning the map when the satellite wraps around the Earth
+    CLEAR_PATH_ON_JUMP = 180
 
     def __init__(self, ax: plt.Axes, odyn: OrbitDynamicsModel, orbit_trail_minutes: float = 30, use_blue_marble: bool = True, **kwargs):
         self._earth = gfx.earth.Earth2D(plot_prime_meridian=True, use_blue_marble=use_blue_marble)
@@ -110,5 +115,5 @@ class AltitudeScene(ModelDataScene[OrbitDynamicsModel]):
         return super().create(fig, subplot_spec,
                               model, xlim=xlim, ylim=ylim,
                               plot_args=plot_args,
-                              title="Spacecraft Altitude above WGS84 Reference Ellipsoid", xlabel="Time (s)", ylabel="Altitude [km]",
+                              title="Spacecraft Altitude above WGS84 Reference Ellipsoid", xlabel="Time [s]", ylabel="Altitude [km]",
                               **kwargs)

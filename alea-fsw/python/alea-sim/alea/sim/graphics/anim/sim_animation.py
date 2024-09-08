@@ -1,12 +1,25 @@
 from typing import Iterable
+from enum import Enum
 from pathlib import Path
 
-from mpl_toolkits.mplot3d import art3d
 import matplotlib.pyplot as plt
 from matplotlib import animation
+from matplotlib.backend_bases import KeyEvent
 
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.graphics.scene.base_scene import BaseScene
+
+class State(Enum):
+    AUTO_PAUSED = 0
+    START_DELAY = 1
+    RESUMING    = 2
+    RUNNING     = 3
+    PAUSED      = 4
+    DONE        = 5
+
+class StateEvent(Enum):
+    FRAME  = 0
+    TOGGLE_PAUSE_RESUME = 1
 
 class SimAnimation:
     def __init__(self, sim_kernel: AleasimKernel, title: str, layout: tuple[int, int] = (1,1), **kwargs):
@@ -18,10 +31,9 @@ class SimAnimation:
 
         self._anim: animation.FuncAnimation = None
 
-        self._started = False
-        self._paused = True
-        self._drawn = False
-        self._done = False
+        self._state = State.AUTO_PAUSED
+        self._start_delay = 0
+        self._start_delay_counter = 0
 
         self._scenes: list[BaseScene] = []
 
@@ -46,91 +58,117 @@ class SimAnimation:
     def add_scene(self, scene: BaseScene):
         self._scenes.append(scene)
 
-    def plot(self) -> list[art3d.artist.Artist]:
-        artists: list[art3d.artist.Artist] = []
+    def plot(self) -> list[plt.Artist]:
+        artists: list[plt.Artist] = []
         for scene in self._scenes:
             artists.extend(scene.plot())
         return artists
 
-    def update(self) -> list[art3d.artist.Artist]:
-        artists: list[art3d.artist.Artist] = []
+    def update(self) -> list[plt.Artist]:
+        artists: list[plt.Artist] = []
         for scene in self._scenes:
             artists.extend(scene.update())
         return artists
 
-    def animate(self, duration: float, auto_start: bool = False, start_delay: float = 0, blit: bool = True,
+    def animate(self, duration: float, auto_start: bool = False, start_delay: int = 0, blit: bool = True,
                 print_time: bool = False):
 
-        def init():
-            return self.plot()
+        self._start_delay = start_delay
+        self._start_delay_counter = 0
 
-        def frame_generator() -> Iterable[bool]:
-            start_delay_counter = 0
+        self.plot()
+
+        if auto_start:
+            self._state = State.START_DELAY
+
+        def frame_generator() -> Iterable[State]:
             while self.sim_kernel.time <= duration:
-                if self._paused:
-                    yield False
-                else:
-                    if auto_start:
-                        if (start_delay_counter * self.sim_kernel.timestep) >= start_delay:
-                            yield True
-                        else:
-                            start_delay_counter += 1
-                            yield False
-                    else:
-                        yield True
-            self._done = True
+                yield True
 
-        def anim_frame(advance: bool) -> list[art3d.artist.Artist]:
-            # It's not possible to pause the animation before showing it, so instead we pause
-            # it immediately after the first frame is drawn
-            if not auto_start:
-                if not self._started:
-                    self.pause()
+            self._state = State.DONE
 
-            # If we're keeping the animation stationary and we've drawn at least one frame, return immediately
-            if (not advance):# and self._drawn:
-                # Nothing changed, so return an empty list
-                return []
+        def anim_frame(_: bool) -> list[plt.Artist]:
+            state = self._state
 
-            if print_time:
-                print(f"Simulation Time: {self.sim_kernel.time} s / {duration} s")
+            # By default, assume nothing needs to be re-drawn
+            artists = []
 
-            if advance:
+            if state == State.RUNNING:
+
                 self.sim_kernel.step()
+                if print_time:
+                    print(f"Simulation Time: {self.sim_kernel.time} s / {duration} s")
+                artists = self.update()
 
-            artists = self.update()
-
-            self._drawn = True
+            self._update_state(StateEvent.FRAME)
 
             return artists
 
-        self._anim = animation.FuncAnimation(self.figure, anim_frame, frames=frame_generator(), init_func=init, interval=1, blit=blit, repeat=False)
-
-        if auto_start:
-            self.resume()
-        else:
-            self.pause()
+        self._anim = animation.FuncAnimation(self.figure, anim_frame, frames=frame_generator(), init_func=None, interval=1, blit=blit, cache_frame_data=False, repeat=False)
 
         self.figure.canvas.mpl_connect('key_press_event', self.toggle_pause)
 
-    def toggle_pause(self, event):
-        if not self._done:
+    def toggle_pause(self, event: KeyEvent):
+        if self._state != State.DONE:
             if event.key == " ":
-                if self._paused:
-                    self.resume()
-                else:
-                    self.pause()
+                self._update_state(StateEvent.TOGGLE_PAUSE_RESUME)
 
-    def pause(self):
+    def _pause_anim(self):
         if self._anim is not None:
             self._anim.pause()
-            self._paused = True
 
-    def resume(self):
+    def _resume_anim(self):
         if self._anim is not None:
             self._anim.resume()
-            self._paused = False
-            self._started = True
+
+    def _update_state(self, event: StateEvent):
+        state = self._state
+
+        if state == State.AUTO_PAUSED:
+
+            if event == StateEvent.TOGGLE_PAUSE_RESUME:
+                # Proceed to start delay once the user starts the animation
+                self._state = State.START_DELAY
+                self._resume_anim()
+            elif event == StateEvent.FRAME:
+                # We expect to receive a few FRAME events at the very beginning before the animation
+                # actually pauses, so we'll keep calling pause() until the animation pauses.
+                self._pause_anim()
+
+        elif state == State.START_DELAY:
+
+            if event == StateEvent.FRAME:
+                # Count the frames until we can actually start running
+                self._start_delay_counter += 1
+                if self._start_delay_counter >= self._start_delay:
+                    self._state = State.RESUMING
+            elif event == StateEvent.TOGGLE_PAUSE_RESUME:
+                # Return to AUTO_PAUSED so that when we exit this state, we return to START_DELAY
+                # and can finish the delay instead of directly to RUNNING
+                self._state = State.AUTO_PAUSED
+                self._pause_anim()
+
+        elif state == State.RESUMING:
+
+            # Intermediate state before RUNNING that exists so that the animation function
+            # can re-draw the entire frame when resuming
+            if event == StateEvent.FRAME:
+                self._state = State.RUNNING
+
+        elif state == State.RUNNING:
+
+            if event == StateEvent.TOGGLE_PAUSE_RESUME:
+                self._state = State.PAUSED
+                self._pause_anim()
+
+        elif state == State.PAUSED:
+
+            if event == StateEvent.TOGGLE_PAUSE_RESUME:
+                self._state = State.RESUMING
+                self._resume_anim()
+
+        elif state == State.DONE:
+            pass
 
     def save(self, dt: float, out_path: Path):
         writers = {

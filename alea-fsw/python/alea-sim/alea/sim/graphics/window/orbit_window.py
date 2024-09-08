@@ -1,7 +1,9 @@
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
+from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
 
 from alea.sim.graphics.scene.orbit_scene import OrbitScene2D, OrbitScene3D, AltitudeScene
+from alea.sim.graphics.scene.earth_magnetic_field_scene import EarthMagneticFieldIntensityScene
 from alea.sim.graphics.anim.sim_animation import SimAnimation
 
 class OrbitWindow:
@@ -9,12 +11,17 @@ class OrbitWindow:
         self._anim = SimAnimation(sim_kernel, "Orbit Simulation", (2, 2), **kwargs)
 
         odyn = sim_kernel.get_model(OrbitDynamicsModel)
+        earth_mag_field_model = sim_kernel.get_model(EarthMagneticFieldModel)
 
-        orbit_scene_3d = OrbitScene3D.create(self.anim.figure, self.anim.grid_spec[:, 0], odyn=odyn, orbit_trail_minutes=90)
+        orbit_scene_3d = OrbitScene3D.create(self.anim.figure, self.anim.grid_spec[0, 0], odyn=odyn, orbit_trail_minutes=90)
         self._anim.add_scene(orbit_scene_3d)
 
-        orbit_scene_2d = OrbitScene2D.create(self.anim.figure, self.anim.grid_spec[0, 1], odyn=odyn, orbit_trail_minutes=90, use_blue_marble=True)
+        orbit_scene_2d = OrbitScene2D.create(self.anim.figure, self.anim.grid_spec[1, 0], odyn=odyn, orbit_trail_minutes=90, use_blue_marble=True)
         self._anim.add_scene(orbit_scene_2d)
+
+        earth_mag_field_scene = EarthMagneticFieldIntensityScene.create(self.anim.figure, self.anim.grid_spec[0, 1], model=earth_mag_field_model,
+                                                                        xlim=[0, duration], ylim=[15000, 55000])
+        self._anim.add_scene(earth_mag_field_scene)
 
         altitude_scene = AltitudeScene.create(self.anim.figure, self.anim.grid_spec[1, 1], model=odyn, xlim=[0, duration], ylim=[500, 700])
         self._anim.add_scene(altitude_scene)
@@ -42,8 +49,15 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     sim_kernel = AleasimKernel(dt=dt)
+
     odyn = OrbitDynamicsModel(sim_kernel)
     sim_kernel.add_model(odyn)
+
+    earth_mag_field_model = EarthMagneticFieldModel(sim_kernel)
+    sim_kernel.add_model(earth_mag_field_model)
+
+    # Run initial events - this will become tidier after refactoring the event sequence
+    sim_kernel.step()
 
     window = OrbitWindow(sim_kernel, duration, figsize=(16, 8), dpi=100)
 

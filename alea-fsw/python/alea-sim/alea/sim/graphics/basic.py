@@ -11,7 +11,6 @@ from alea.sim.math_lib import math as adcs_math
 from alea.sim.math_lib import shapes
 
 X = TypeVar("X", plt.Axes, mplot3d.Axes3D)
-A = TypeVar("A", plt.Artist, art3d.artist.Artist)
 L = TypeVar("L", plt.Line2D, art3d.Line3D)
 
 class Cube:
@@ -48,7 +47,7 @@ class Cube:
         self._rotation = None
         self._faces: list[art3d.Poly3DCollection] = []
 
-    def plot(self, ax: mplot3d.Axes3D) -> list[art3d.artist.Artist]:
+    def plot(self, ax: mplot3d.Axes3D) -> list[plt.Artist]:
         for i in range(6):
             face = self._create_face((Cube.FACE_COORDS[i] * self._size), Cube.FACE_COLORS[i], alpha=Cube.TRANSPARENCY)
             ax.add_collection3d(face)
@@ -56,7 +55,7 @@ class Cube:
 
         return self._faces
 
-    def update(self, rotation: adcs_math.Quaternion = None) -> list[art3d.artist.Artist]:
+    def update(self, rotation: adcs_math.Quaternion = None) -> list[plt.Artist]:
         if rotation is None:
             dcm = np.eye(3)
         else:
@@ -82,7 +81,7 @@ class Cube:
 
 class Spheroid:
     def __init__(self, geometry: shapes.Spheroid, color: str = "lightgrey", wireframe: bool = True,
-                 phi_step_deg: int = 10, theta_step_deg: int = 10, **kwargs):
+                 phi_step_deg: int = 10, theta_step_deg: int = 10, animated: bool = False, **kwargs):
         """Initialize a Spheroid.
 
         Args:
@@ -99,6 +98,8 @@ class Spheroid:
             theta_step_deg (optional):
                 Step size for polar angle when plotting wireframe in degrees.
                 Defaults to 10.
+            animated (optional):
+                Set the True if the graphic will be animated. Defaults to False.
             kwargs (optional):
                 Additional arguments that will be passed to the matplotlib plot functions.
         """
@@ -109,6 +110,8 @@ class Spheroid:
         self._phi_step_deg = phi_step_deg
         self._theta_step_deg = theta_step_deg
 
+        self._animated = animated
+
         self.kwargs = kwargs
 
         self._artist: art3d.Poly3DCollection | art3d.Line3DCollection = None
@@ -117,25 +120,28 @@ class Spheroid:
     def geometry(self) -> shapes.Spheroid:
         return self._geometry
 
-    def plot(self, ax: mplot3d.Axes3D) -> list[art3d.artist.Artist]:
+    def plot(self, ax: mplot3d.Axes3D) -> list[plt.Artist]:
         x, y, z = self.geometry.cartesian_surface_grid(self._phi_step_deg, self._theta_step_deg)
         if self._wireframe:
-            self._artist = ax.plot_wireframe(x, y, z, rstride=1, cstride=1, color=self._color, **self.kwargs)
+            self._artist = ax.plot_wireframe(x, y, z, rstride=1, cstride=1, color=self._color, animated=self._animated, **self.kwargs)
         else:
-            self._artist = ax.plot_surface(x, y, z, rstride=1, cstride=1, color=self._color, **self.kwargs)
+            self._artist = ax.plot_surface(x, y, z, rstride=1, cstride=1, color=self._color, animated=self._animated, **self.kwargs)
 
         return [self._artist]
 
 class Sphere(Spheroid):
-    def __init__(self, r: float = 1.0, color: str = "lightgrey", wireframe: bool = True, phi_step_deg: int = 10, theta_step_deg: int = 10, **kwargs):
-        super().__init__(shapes.Sphere(r), color=color, wireframe=wireframe, phi_step_deg=phi_step_deg, theta_step_deg=theta_step_deg, **kwargs)
+    def __init__(self, r: float = 1.0, color: str = "lightgrey", wireframe: bool = True, phi_step_deg: int = 10, theta_step_deg: int = 10, animated: bool = False, **kwargs):
+        super().__init__(shapes.Sphere(r), color=color, wireframe=wireframe, phi_step_deg=phi_step_deg, theta_step_deg=theta_step_deg, animated=animated, **kwargs)
 
-class Path(ABC, Generic[X, A, L]):
-    def __init__(self, init_point: np.ndarray, color: str, alpha: float = 1.0, skip_first: bool = True, max_points: int = 0):
+class Path(ABC, Generic[X, L]):
+    def __init__(self, init_point: np.ndarray, color: str, alpha: float = 1.0, skip_first: bool = True, max_points: int = 0, clear_on_jump: int = None, animated: bool = False, **kwargs):
         self._init_point = init_point
         self._color = color
         self._alpha = alpha
         self._max_points = max_points
+        self._clear_on_jump = clear_on_jump
+        self._animated = animated
+        self._kwargs = kwargs
 
         self._points = []
 
@@ -147,11 +153,17 @@ class Path(ABC, Generic[X, A, L]):
     def calc_coords(self) -> np.ndarray:
         return np.array(self._points).T
 
-    def plot(self, ax: X) -> list[A]:
-        self._line, = ax.plot(*(self._init_point), color=self._color, alpha=self._alpha)
+    def plot(self, ax: X) -> list[plt.Artist]:
+        self._line, = ax.plot(*(self._init_point), color=self._color, alpha=self._alpha, animated=self._animated, **self._kwargs)
         return [self._line]
 
-    def update(self, new_point: np.ndarray) -> list[A]:
+    def update(self, new_point: np.ndarray) -> list[plt.Artist]:
+        # Check if the new_point has a jump discontinuity from the previous point at least as large as self._clear_on_jump.
+        # If it does, then we clear the path history
+        if (self._clear_on_jump is not None) and (len(self._points) > 0):
+            if np.max(np.abs(new_point - self._points[-1])) >= self._clear_on_jump:
+                self.clear()
+
         self._points.append(new_point)
         if (self._max_points > 0) and (len(self._points) > self._max_points):
             self._points = self._points[1:]
@@ -160,26 +172,29 @@ class Path(ABC, Generic[X, A, L]):
         self.set_data(self._line, coords)
         return [self._line]
 
+    def clear(self):
+        self._points.clear()
+
     @staticmethod
     @abstractmethod
     def set_data(line: L, coords: Iterable):
         raise NotImplementedError
 
-class Path2D(Path[plt.Axes, plt.Artist, plt.Line2D]):
+class Path2D(Path[plt.Axes, plt.Line2D]):
     @staticmethod
     def set_data(line: plt.Line2D, coords: Iterable):
         line.set_data(*coords)
 
-class Path3D(Path[mplot3d.Axes3D, art3d.artist.Artist, art3d.Line3D]):
+class Path3D(Path[mplot3d.Axes3D, art3d.Line3D]):
     @staticmethod
     def set_data(line: art3d.Line3D, coords: Iterable):
         line.set_data_3d(*coords)
 
-class Vector(Generic[X, A, L]):
-    PATH_CLS: type[Path[X, A, L]] = None
+class Vector(Generic[X, L]):
+    PATH_CLS: type[Path[X, L]] = None
 
     def __init__(self, value: np.ndarray, color: str, alpha: float = 1.0, draw_line: bool = True, marker_symbol: str = "o", label: str = None,
-                 normalize: bool = False, trace_path: bool = False, max_trace_points: int = 10):
+                 normalize: bool = False, trace_path: bool = False, max_trace_points: int = 10, clear_on_jump: int = None, animated: bool = False, **kwargs):
         self._value = value
         self._color = color
         self._alpha = alpha
@@ -188,9 +203,11 @@ class Vector(Generic[X, A, L]):
         self._label = label
         self._normalize = normalize
         self._trace_path = trace_path
+        self._animated = animated
+        self._kwargs = kwargs
 
         if self._trace_path:
-            self._path: Path[X, A, L] = self.PATH_CLS(self._value, self._color, alpha=self._alpha, max_points=max_trace_points, skip_first=True)
+            self._path: Path[X, L] = self.PATH_CLS(self._value, self._color, alpha=self._alpha, max_points=max_trace_points, skip_first=True, clear_on_jump=clear_on_jump, animated=animated, **kwargs)
 
         self._line: L = None
         self._marker: L = None
@@ -205,7 +222,10 @@ class Vector(Generic[X, A, L]):
         coords = np.array(list(map(lambda x : [0, x], value)))
         return coords
 
-    def plot(self, ax: X) -> list[A] | list[A]:
+    def clear_path(self):
+        self._path.clear()
+
+    def plot(self, ax: X) -> list[plt.Artist]:
         artists = []
 
         coords = self.calc_coords()
@@ -217,18 +237,18 @@ class Vector(Generic[X, A, L]):
 
         # Plot line
         if self._draw_line:
-            self._line, = ax.plot(*coords, color=self._color, alpha=self._alpha, label=self._label)
+            self._line, = ax.plot(*coords, color=self._color, alpha=self._alpha, label=self._label, animated=self._animated, **self._kwargs)
             artists.append(self._line)
 
         # Plot marker
         if self._marker_symbol is not None:
             end_coords = list(map(lambda x : x[1], coords))
-            self._marker, = ax.plot(*end_coords, marker=self._marker_symbol, color=self._color, alpha=self._alpha)
+            self._marker, = ax.plot(*end_coords, marker=self._marker_symbol, color=self._color, alpha=self._alpha, animated=self._animated, **self._kwargs)
             artists.append(self._marker)
 
         return artists
 
-    def update(self, value: np.ndarray) -> list[A] | list[A]:
+    def update(self, value: np.ndarray) -> list[plt.Artist]:
         artists = []
 
         self._value = value
@@ -252,15 +272,15 @@ class Vector(Generic[X, A, L]):
 
         return artists
 
-class Vector2D(Vector[plt.Axes, plt.Artist, plt.Line2D]):
+class Vector2D(Vector[plt.Axes, plt.Line2D]):
     PATH_CLS = Path2D
 
-class Vector3D(Vector[mplot3d.Axes3D, art3d.artist.Artist, art3d.Line3D]):
+class Vector3D(Vector[mplot3d.Axes3D, art3d.Line3D]):
     PATH_CLS = Path3D
 
 class CoordinateAxis:
     def __init__(self, axis: int, length: float, color: str, alpha: float = 1.0, marker_symbol: str = ">", label: str = None,
-                 include_neg: bool = False, trace_path: bool = False, max_trace_points: int = 10):
+                 include_neg: bool = False, trace_path: bool = False, max_trace_points: int = 10, animated: bool = False, **kwargs):
         self._axis = axis
         self._length = length
         self._color = color
@@ -272,11 +292,11 @@ class CoordinateAxis:
 
         pos_endpoint = self.calc_pos_endpoint()
         self._pos_axis = Vector(pos_endpoint, color, alpha=alpha, marker_symbol=marker_symbol, label=label,
-                                trace_path=trace_path, max_trace_points=max_trace_points)
+                                trace_path=trace_path, max_trace_points=max_trace_points, animated=animated, **kwargs)
 
         if self._include_neg:
             neg_endpoint = self.calc_neg_endpoint()
-            self._neg_axis = Vector(neg_endpoint, color, alpha=alpha, marker_symbol=None)
+            self._neg_axis = Vector(neg_endpoint, color, alpha=alpha, marker_symbol=None, animated=animated, **kwargs)
 
     def calc_pos_endpoint(self) -> np.ndarray:
         return self._endpoint(self._length)
@@ -294,7 +314,7 @@ class CoordinateAxis:
 
         return coords
 
-    def plot(self, ax: mplot3d.Axes3D) -> list[art3d.artist.Artist]:
+    def plot(self, ax: mplot3d.Axes3D) -> list[plt.Artist]:
         artists = []
 
         artists.extend(self._pos_axis.plot(ax))
@@ -304,7 +324,7 @@ class CoordinateAxis:
 
         return artists
 
-    def update(self, rotation: adcs_math.Quaternion) -> list[art3d.artist.Artist]:
+    def update(self, rotation: adcs_math.Quaternion) -> list[plt.Artist]:
         artists = []
 
         self._rotation = rotation
@@ -320,7 +340,8 @@ class CoordinateAxis:
 
 class CoordinateAxes:
     def __init__(self, length: float, colors: list[str], alpha: float = 1.0, marker_symbol: str = ">", labels: list[str] = None,
-                 include_neg: bool = False, trace_path: bool = False, max_trace_points: int = 10, draw_origin: bool = False, axes: list[int] = None):
+                 include_neg: bool = False, trace_path: bool = False, max_trace_points: int = 10, draw_origin: bool = False, axes: list[int] = None,
+                 animated: bool = False, **kwargs):
         self._draw_origin = draw_origin
 
         self._axes: list[CoordinateAxis] = []
@@ -331,9 +352,10 @@ class CoordinateAxes:
         for i, axis in enumerate(axes):
             label = labels[i] if labels is not None else None
             self._axes.append(CoordinateAxis(axis, length, colors[i], alpha=alpha, marker_symbol=marker_symbol, label=label,
-                                             include_neg=include_neg, trace_path=trace_path, max_trace_points=max_trace_points))
+                                             include_neg=include_neg, trace_path=trace_path, max_trace_points=max_trace_points,
+                                             animated=animated, **kwargs))
 
-    def plot(self, ax: mplot3d.Axes3D) -> list[art3d.artist.Artist]:
+    def plot(self, ax: mplot3d.Axes3D) -> list[plt.Artist]:
         if self._draw_origin:
             self._origin = ax.plot(0, 0, 0, color="black", marker="o")
 
@@ -345,7 +367,7 @@ class CoordinateAxes:
 
         return artists
 
-    def update(self, rotation: adcs_math.Quaternion) -> list[art3d.artist.Artist]:
+    def update(self, rotation: adcs_math.Quaternion) -> list[plt.Artist]:
         artists = []
 
         for axis in self._axes:
