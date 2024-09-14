@@ -13,12 +13,14 @@ class SimpleMagSensor(SimpleSensor):
     """
     def __init__(self, name: str, 
                  kernel: AleasimKernel, 
-                 sample_rate: int
+                 sample_rate: int,
+                 seed: int = None
                  ):
         cfg = self.get_config()
         rms_noise = cfg['rms_noise']
         bias = np.array(cfg['constant_bias'])
         misalignment = np.array(cfg['misalignment'])
+        scaling = cfg['scaling']
         self._voltage = cfg['voltage_nominal']
         self._current = cfg['current_nominal']
 
@@ -28,7 +30,9 @@ class SimpleMagSensor(SimpleSensor):
                          sample_rate, 
                          noise_rms=rms_noise, 
                          axis_misalignment=misalignment,
-                         constant_bias=bias
+                         constant_bias=bias,
+                         scaling=scaling,
+                         seed=seed
                          )
     @property
     def config_name(self) -> str:

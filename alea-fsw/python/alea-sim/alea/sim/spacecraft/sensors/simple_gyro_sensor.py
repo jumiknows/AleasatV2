@@ -17,6 +17,7 @@ class SimpleGyroSensor(SimpleSensor):
         asd_noise = cfg['asd_noise']
         bias = np.array(cfg['constant_bias'])
         misalignment = np.array(cfg['misalignment'])
+        scaling = cfg['scaling']
         self._voltage = cfg['voltage_nominal']
         self._current = cfg['current_nominal']
 
@@ -26,7 +27,8 @@ class SimpleGyroSensor(SimpleSensor):
                          sample_rate,
                          noise_asd=asd_noise, 
                          axis_misalignment=misalignment,
-                         constant_bias=bias
+                         constant_bias=bias,
+                         scaling=scaling
                          )
     @property
     def config_name(self) -> str:

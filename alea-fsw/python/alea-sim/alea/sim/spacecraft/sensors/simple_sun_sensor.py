@@ -9,11 +9,12 @@ class SimpleSunSensor(SimpleSensor):
     Simple sensor that produces 3 axis sun vector measurement in body frame (normalized)
     Adds a noise distribution based on sample rate (multiple of simulation timestep) and noise_asd
     """
-    def __init__(self, name: str, kernel: AleasimKernel, sample_rate):
+    def __init__(self, name: str, kernel: AleasimKernel, sample_rate, seed = None):
         cfg = self.get_config()
         rms_noise = cfg['rms_noise']
         bias = np.array(cfg['constant_bias'])
         misalignment = np.array(cfg['misalignment'])
+        scaling = cfg['scaling']
         self._voltage = cfg['voltage_nominal']
         self._current = cfg['current_nominal']
 
@@ -21,7 +22,9 @@ class SimpleSunSensor(SimpleSensor):
                          sample_rate, 
                          noise_rms=rms_noise, 
                          axis_misalignment=misalignment,
-                         constant_bias=bias
+                         constant_bias=bias,
+                         scaling=scaling,
+                         seed=seed
                          )
     
     @property

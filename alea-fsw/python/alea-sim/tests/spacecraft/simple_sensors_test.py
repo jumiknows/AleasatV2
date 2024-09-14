@@ -45,16 +45,16 @@ class SimpleSensorsTest(unittest.TestCase):
         
         kernel.advance(5)
         
-        self.assertEquals(mag_sens.energy_consumed, 0.0)
+        self.assertEqual(mag_sens.energy_consumed, 0.0)
         
         mag_sens.power_on()
         
-        self.assertEquals(mag_sens.powered_state, SimpleMagSensor.PoweredState.POWERED_ON)
+        self.assertEqual(mag_sens.powered_state, SimpleMagSensor.PoweredState.POWERED_ON)
         
         t0 = kernel.time
         kernel.advance(5)
         
-        self.assertEquals(mag_sens.power_usage, nom_power)
+        self.assertEqual(mag_sens.power_usage, nom_power)
         self.assertAlmostEqual(mag_sens.energy_consumed, nom_power * (kernel.time - t0))
     
     def test_sensor_signal(self):

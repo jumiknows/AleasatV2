@@ -22,12 +22,12 @@ class Measurement:
 class MeasurementNoise:
     amp_spectral_density: float # [measurement] / sqrt(Hz)
     sample_rate: int # [Hz]
-
     axes: int = 3
+    seed: int = None
 
     def __post_init__(self):
         self._std_dev = (self.amp_spectral_density * np.sqrt(self.sample_rate))
-        self.generator = np.random.default_rng()
+        self.generator = np.random.default_rng(self.seed)
 
     @property
     def std_dev(self) -> float:
@@ -66,6 +66,8 @@ class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
                  constant_bias: np.ndarray = None,
                  measurement_range: float = inf,
                  resolution: float = 0,
+                 scaling: float = 1,
+                 seed: int = None
                  ):
         super().__init__(name, kernel)
         self.frame       = frame
@@ -78,6 +80,8 @@ class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
         self._saved_state_size = len(self._element_names)
         self.measurement_range = measurement_range
         self.resolution = resolution
+        self.scaling = scaling
+        self.seed = seed
 
         if noise_asd is not None:
             pass
@@ -85,12 +89,12 @@ class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
             noise_asd = noise_rms / np.sqrt(sample_rate)
         else:
             raise ValueError('noise_asd and noise_rms are both not specified.')
-        self.noise = MeasurementNoise(noise_asd, self.sample_rate, axes=self.axes)
+        self.noise = MeasurementNoise(noise_asd, self.sample_rate, axes=self.axes, seed=self.seed)
         
         if axis_misalignment is None:
             axis_misalignment = np.zeros(3)
         ax = axis_misalignment
-        self.misaslignment_matrix = np.array([[1.0, ax[1]/100.0, ax[2]/100.0],
+        self.misalignment_matrix = np.array([[1.0, ax[1]/100.0, ax[2]/100.0],
                                               [ax[0]/100.0, 1.0, ax[2]/100.0],
                                               [ax[0]/100.0, ax[1]/100.0, 1.0]])
 
@@ -131,12 +135,15 @@ class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
             value = ideal
         
             #apply sensor misalsignment and constant bias
-            value = self.misaslignment_matrix @ value + self.constant_bias
+            value = self.misalignment_matrix @ value + self.constant_bias
             
             #add noise
             if self.noise is not None:
                 noise_sample = self.noise.sample()
                 value += noise_sample
+
+            #add scaling
+            value *= self.scaling
 
             #clamp to measurement range clamp and resolution
             for i in range(value.size):
