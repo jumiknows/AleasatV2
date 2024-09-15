@@ -141,7 +141,7 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
                 actuator_torque[i] += sc._rws[i].get_torque()
                 mtq_moments[i] += sc._mtqs[i].get_moment()
 
-            b_body = self._magm.mag_field_vector_body
+            b_body = self._magm.mag_field_vector_body * 1E-9
             t_mtq_body = np.cross(mtq_moments, b_body)
             actuator_torque += t_mtq_body
 

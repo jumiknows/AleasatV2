@@ -11,6 +11,7 @@ from alea.sim.math_lib import Quaternion
 from alea.sim.math_lib.math import skew
 from alea.sim.algorithms.attitude_determination import wahba_quest
 from alea.sim.algorithms.control.pid_control import pd_control_torque
+from alea.sim.algorithms.control.detumble import estimate_detumble_gain, bdot_detumble_control, magnetic_detumble_control, bang_bang_bdot_detumble_control
 from alea.sim.kernel.scheduler import EventPriority
 from alea.sim.kernel.generic.abstract_model import ModelNotFoundError
 from alea.sim.algorithms.attitude_determination import ExtendedKalmanFilter
@@ -19,8 +20,10 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
 
     class AOCSMode(IntEnum):
         IDLE = 0
-        # DETUMBLE = 1 # TODO ALEA-1305
-        SLEW = 2
+        DETUMBLE_MAG = 1
+        DETUMBLE_BDOT = 2
+        DETUMBLE_BANG_BANG = 3
+        SLEW = 4
     
     def __init__(self, sim_kernel: AleasimKernel, ctrl_sample_period: float = 0.1) -> None:
         super().__init__("spacecraft", sim_kernel)
@@ -35,6 +38,8 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
         self._mode = self.AOCSMode.SLEW
 
         self._q_desired = Quaternion.identity()
+
+        self._detumble_gain = estimate_detumble_gain(incl_mag=0) #estimate detumble gain near equator (should be peak)
 
         self._ekf_init = False
     
@@ -159,6 +164,14 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
             m = np.linalg.pinv(skew(b)) @ supplement_torque
             for i in range(3):
                 self._mtqs[i].set_moment(m[i])
+
+        elif self._mode == self.AOCSMode.DETUMBLE_MAG:
+            mag = mag*1E-9
+            m = magnetic_detumble_control(err_rate, mag, k_gain=self._detumble_gain)
+            for i in range(3):
+                self._mtqs[i].set_moment(m[i])
+        # TODO implement detumble bdot and bang bang
+        # calculate and filter mag derivative
 
         saved_state[0:3] = np.array([self._rws[i].get_torque() for i in range(3)])
         saved_state[3:6] = np.array([self._mtqs[i].get_moment() for i in range(3)])
