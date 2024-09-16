@@ -11,6 +11,7 @@ from frames_test import FramesTest
 from frame_conversions_test import FrameConversionsTest
 from scheduler_test import SchedulerTest
 from wahba_test import WahbaTest
+from mtq_test import MagnetorquerTest
 
 if __name__ == "__main__":
     cases = [
@@ -27,6 +28,7 @@ if __name__ == "__main__":
         FrameConversionsTest,
         SchedulerTest,
         WahbaTest,
+        MagnetorquerTest,
     ]
 
     runner = unittest.TextTestRunner(verbosity=2)
