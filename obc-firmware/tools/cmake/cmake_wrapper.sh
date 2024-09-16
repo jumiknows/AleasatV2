@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-FW_DIR="$(dirname "$SCRIPT_DIR")"
+FW_DIR="$(dirname $(dirname "$SCRIPT_DIR"))"
 
 PROJECT_NAME="ALEA_OBC"
 
@@ -124,20 +124,20 @@ cd "${BUILD_DIR}"
 
 # Run build
 echo "Building in ${BUILD_DIR}"
-cmake                                             \
-    -DPROJECT_NAME=${PROJECT_NAME}                \
-    -DCMAKE_TOOLCHAIN_FILE=cmake/ti-cgt-arm.cmake \
-    -G "Unix Makefiles"                           \
-    --clean-first                                 \
-    -DPLATFORM=${PLATFORM}                        \
-    -DTARGET=${TARGET}                            \
-    -DFLASH_SLOT_NAME=${FLASH_SLOT_NAME}          \
-    -DGITHASH=0x${GITHASH}                        \
-    -DGIT_DIRTY=${GIT_DIRTY}                      \
-    -DVERSION=${VERSION}                          \
-    -DSTANDALONE=${STANDALONE}                    \
-    -DCOMMS_OVER_SERIAL=${COMMS_OVER_SERIAL}      \
-    -DVERBOSE=${VERBOSE}                          \
+cmake                                                   \
+    -DPROJECT_NAME=${PROJECT_NAME}                      \
+    -DCMAKE_TOOLCHAIN_FILE=tools/cmake/ti-cgt-arm.cmake \
+    -G "Unix Makefiles"                                 \
+    --clean-first                                       \
+    -DPLATFORM=${PLATFORM}                              \
+    -DTARGET=${TARGET}                                  \
+    -DFLASH_SLOT_NAME=${FLASH_SLOT_NAME}                \
+    -DGITHASH=0x${GITHASH}                              \
+    -DGIT_DIRTY=${GIT_DIRTY}                            \
+    -DVERSION=${VERSION}                                \
+    -DSTANDALONE=${STANDALONE}                          \
+    -DCOMMS_OVER_SERIAL=${COMMS_OVER_SERIAL}            \
+    -DVERBOSE=${VERBOSE}                                \
     "${SOURCE_DIR}"
 
 cmake --build .

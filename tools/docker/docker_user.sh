@@ -2,10 +2,12 @@
 
 OWNER=$(stat -c '%u' ./)
 
+
+
 # Check if we should be operating as root. This is absolutely not foolproof, but should cover most relevant cases
 if [ "$OWNER" -eq "0" -o "$HOST_UID" -eq "0" ]; then
     if [ "$#" -ne 0 ]; then
-        ./scripts/entrypoint.sh "$@"
+        ./scripts/docker_git.sh "$@"
     else
         bash
     fi
@@ -15,7 +17,7 @@ else
     useradd -m -u $HOST_UID -g $HOST_GID dev
 
     if [ "$#" -ne 0 ]; then
-        su dev -c "./scripts/entrypoint.sh $*"
+        su dev -c "./scripts/docker_git.sh $*"
     else
         su dev
     fi

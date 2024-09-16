@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Firmware",
+            "label": "Build OBC Firmware",
             "type": "shell",
             "command": "./scripts/fw_build.sh ${input:platform} ${input:target} ${input:slot} ${input:standalone} ${input:comms_over_serial}",
             "options": {
@@ -82,11 +82,23 @@
         {
             "label": "Format code style",
             "type": "shell",
-            "command": "./docker_wrapper.sh ./scripts/check-style.sh",
+            "command": "./docker_wrapper.sh -d obc-fw-build-tools:latest ./scripts/check-style.sh;",
             "options": {
-                "cwd": "${workspaceFolder}/obc-firmware/scripts"
+                "cwd": "${workspaceFolder}/tools/scripts"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Clobber Build Directory",
+            "type": "shell",
+            "command": "rm -rf build",
+            "options": {
+                "cwd": "${workspaceFolder}/obc-firmware"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
         }
 
     ],

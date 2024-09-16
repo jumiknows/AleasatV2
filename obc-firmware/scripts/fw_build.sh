@@ -1,5 +1,6 @@
 #!/bin/bash
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(dirname $( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd ))
+WRAPPER_DIR=$(dirname ${SCRIPT_DIR})
 
-${SCRIPT_DIR}/docker_wrapper.sh ./scripts/cmake_wrapper.sh $@
+${WRAPPER_DIR}/tools/scripts/docker_wrapper.sh -d obc-fw-build-tools:latest ../obc-firmware/tools/cmake/cmake_wrapper.sh $@

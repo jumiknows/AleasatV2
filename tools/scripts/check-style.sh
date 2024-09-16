@@ -9,9 +9,9 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-ROOT_DIR="."
+ROOT_DIR="../"
 
-INCLUDE_PATH="$ROOT_DIR/main/*.c,*.h"
+INCLUDE_PATH="$ROOT_DIR/obc-firmware/main/*.c,*.h"
 EXCLUDE_PATH=""
 
 STYLE_OPTIONS="--style=java --indent=spaces=4 --lineend=linux --attach-closing-while --indent-preproc-define --convert-tabs \
