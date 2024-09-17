@@ -4,6 +4,10 @@ import weakref
 
 import logging
 
+from typing import TypeVar, Generic
+
+M = TypeVar("M")
+
 from alea.sim.kernel.scheduler import Scheduler
 from alea.sim.kernel.config_loader import load_config
 
@@ -151,15 +155,13 @@ class AbstractModel(abc.ABC):
         else:
             raise Exception(f'search mode is invalid: {search_mode}')
 
-    def get_all_children_of_type(self, cls: type) -> list["AbstractModel"]:
+    def get_all_children_of_type(self, cls: type[M]) -> list[M]:
         """
         Traverse the tree opting for depth first to find children model of same class.
         Returns an empty list if no models of class found.
         
         is_base tells get_child whether it is the base caller or not for the recursion.
         """
-        if not issubclass(cls, AbstractModel):
-            raise Exception(f'{cls} is not a subclass of AbstractModel')
 
         out_list: list[AbstractModel] = []
 

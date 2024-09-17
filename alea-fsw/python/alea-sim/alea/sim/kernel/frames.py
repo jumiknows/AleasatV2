@@ -19,18 +19,18 @@ from alea.sim.math_lib import Quaternion
 
 @dataclass
 class FrameTransformation:
-    rotation: np.ndarray
+    rotation: np.ndarray | Quaternion
     translation: np.ndarray = None
 
     def __post_init__(self):
         if self.translation is None:
             self.translation = np.zeros(3)
-        if type(self.rotation) is np.ndarray:
+        if isinstance(self.rotation, np.ndarray):
             if self.rotation.size == 4:
                 self.rotation = Quaternion(self.rotation).to_DCM()
             elif self.rotation.shape != (3,3):
                 raise ValueError('incorrect rotation shape')
-        elif type(self.rotation) is Quaternion:
+        elif isinstance(self.rotation, Quaternion):
             self.rotation = self.rotation.to_DCM()
             
         self.tf = self._create_transformation_matrix()

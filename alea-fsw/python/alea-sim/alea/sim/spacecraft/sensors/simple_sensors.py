@@ -45,7 +45,7 @@ class MeasurementNoise:
         return self.generator.normal(scale=self.std_dev, size=self.axes)
 
 #generic simple sensor
-class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
+class SimpleSensor(SharedMemoryModelInterface, PoweredUnitModel, AbstractModel):
     """
     Generic simple sensor that returns a 3-axis intertial measurement vector in a certain frame of reference
     
@@ -57,7 +57,7 @@ class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
     """
     def __init__(self, 
                  name: str, 
-                 kernel: AleasimKernel, 
+                 sim_kernel: AleasimKernel, 
                  frame: frames.ReferenceFrame,
                  sample_rate,
                  noise_asd: float = None,
@@ -69,7 +69,7 @@ class SimpleSensor(PoweredUnitModel, SharedMemoryModelInterface):
                  scaling: float = 1,
                  seed: int = None
                  ):
-        super().__init__(name, kernel)
+        super().__init__(name=name, sim_kernel=sim_kernel)
         self.frame       = frame
         self.axes        = 3 #3 axis sensor
         self.sample_rate = sample_rate

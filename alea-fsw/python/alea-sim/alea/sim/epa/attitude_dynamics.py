@@ -4,6 +4,7 @@ from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.math_lib.math import skew, normalize
 from alea.sim.kernel.kernel import SharedMemoryModelInterface
 from alea.sim.kernel.generic.dynamic_model import DynamicModel
+from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.math_lib import Quaternion
 from alea.sim.kernel.scheduler import EventPriority
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
@@ -14,7 +15,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from alea.sim.spacecraft.spacecraft import Spacecraft
 
-class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
+class AttitudeDynamicsModel(SharedMemoryModelInterface, DynamicModel, AbstractModel):
     """
     Model for the attitude dynamics of an inertial pointing spacecraft
 
@@ -26,8 +27,8 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
     - body angular rates (3) (angular velocity of body frame w.r.t inertial frame)
     """
     default_name = 'attitude_dynamics'
-    def __init__(self, sim_kernel: AleasimKernel, init_state:np.ndarray = None) -> None:
-        super().__init__(AttitudeDynamicsModel.default_name, sim_kernel)
+    def __init__(self, sim_kernel: AleasimKernel, init_state:np.ndarray = None, name = "attitude_dynamics", **kwargs) -> None:
+        super().__init__(name=name, sim_kernel=sim_kernel, **kwargs)
         if init_state is not None and init_state.size == 7:
             self._state = init_state
 
@@ -125,11 +126,8 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
     def update(self):
         #set current state of reaction wheels
         saved_state = np.zeros(self.saved_state_size)
-        h_wheels = np.zeros(3) #TODO : get reaction wheel state
         update_params = {}
-        update_params['wheel1_momentum'] = h_wheels[0]
-        update_params['wheel2_momentum'] = h_wheels[1]
-        update_params['wheel3_momentum'] = h_wheels[2]
+        update_params['h_wheels'] = np.zeros(3)
         
         actuator_torque = np.zeros(3)
         if self._spacecraft is not None and self._magm is not None:
@@ -138,8 +136,9 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
             sc = self._spacecraft
             mtq_moments = np.zeros(3)
             for i in range(3):
-                actuator_torque[i] += sc._rws[i].get_torque()
-                mtq_moments[i] += sc._mtqs[i].get_moment()
+                actuator_torque += sc._rws[i].torque_vector
+                update_params['h_wheels'] += sc._rws[i].angular_momentum_vector
+                mtq_moments += sc._mtqs[i].get_moment()
 
             b_body = self._magm.mag_field_vector_body * 1E-9
             t_mtq_body = np.cross(mtq_moments, b_body)
@@ -178,12 +177,7 @@ class AttitudeDynamicsModel(DynamicModel, SharedMemoryModelInterface):
         """
         
         #dynamic parameters
-        h_wheels = np.zeros(3)
-        
-        #in case update_params is None
-        h_wheels[0] = update_params.get('wheel1_momentum',0)
-        h_wheels[1] = update_params.get('wheel2_momentum',0)
-        h_wheels[2] = update_params.get('wheel3_momentum',0)         
+        h_wheels = update_params.get('h_wheels', np.zeros(3, dtype=np.float64))
         
         #state vectors
         q = normalize(x[:4]) #quaternion axes at time t
