@@ -9,6 +9,8 @@ from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
 from math import inf
 from alea.sim.kernel.generic.powered_unit_model import PoweredUnitModel
 
+from typing import Union
+
 @dataclass(frozen=True)
 class Measurement:
     t: float
@@ -23,7 +25,7 @@ class MeasurementNoise:
     amp_spectral_density: float # [measurement] / sqrt(Hz)
     sample_rate: int # [Hz]
     axes: int = 3
-    seed: int = None
+    seed: int | None = None
 
     def __post_init__(self):
         self._std_dev = (self.amp_spectral_density * np.sqrt(self.sample_rate))
@@ -67,17 +69,19 @@ class SimpleSensor(SharedMemoryModelInterface, PoweredUnitModel, AbstractModel):
                  measurement_range: float = inf,
                  resolution: float = 0,
                  scaling: float = 1,
-                 seed: int = None
+                 seed : int | None = None
                  ):
         super().__init__(name=name, sim_kernel=sim_kernel)
         self.frame       = frame
         self.axes        = 3 #3 axis sensor
         self.sample_rate = sample_rate
         self.noise       = None
+        
         self._element_names = [f'{self.name}_truth_{i}' for i in range(1,self.axes+1)]
         self._element_names.extend([f'{self.name}_meas_{i}' for i in range(1,self.axes+1)])
         self._element_names.extend(['power_usage', 'energy_consumed'])
         self._saved_state_size = len(self._element_names)
+        
         self.measurement_range = measurement_range
         self.resolution = resolution
         self.scaling = scaling
