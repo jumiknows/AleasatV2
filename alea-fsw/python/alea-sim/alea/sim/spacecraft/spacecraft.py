@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
 
-class Spacecraft(AbstractModel, SharedMemoryModelInterface):
+class Spacecraft(SharedMemoryModelInterface, AbstractModel):
 
     class AOCSMode(IntEnum):
         IDLE = 0
@@ -33,7 +33,7 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
         SLEW = 4
     
     def __init__(self, sim_kernel: AleasimKernel, ctrl_sample_period: float = 0.1) -> None:
-        super().__init__("spacecraft", sim_kernel)
+        super().__init__(name="spacecraft", sim_kernel=sim_kernel)
 
         self._ctrl_sample_period = ctrl_sample_period
         
@@ -53,8 +53,6 @@ class Spacecraft(AbstractModel, SharedMemoryModelInterface):
         #estimate detumble gain near equator (should be peak)
         # TODO ALEA-1533 analysis for detumbling gain
         self._detumble_gain = 1 #estimate_detumble_gain(incl_mag=0) 
-
-        self._ekf_init = False
         
         self.quest_weights = np.array([0.5, 0.5]) # TODO optimize weights based on sensor variances / need an algo for this
     

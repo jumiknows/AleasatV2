@@ -84,7 +84,7 @@ class EarthMagneticFieldConfig:
     update_freq_divider   : int  = 1 # By default, magnetic field vector updates happen at the same frequency as orbit dynamics updates
                                      # If this is set to a number > 1, then magnetic field vector updates will happen at the divided frequency
 
-class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCachedModel, AbstractModel, SharedMemoryModelInterface):
+class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCachedModel, SharedMemoryModelInterface, AbstractModel):
     def __init__(self, sim_kernel: AleasimKernel, name: str = "earth_magnetic_field", cfg: str | Path | dict | EarthMagneticFieldConfig = "earth_magnetic_field") -> None:
         super().__init__(name=name, sim_kernel=sim_kernel, cfg=cfg, cfg_cls=EarthMagneticFieldConfig)
 

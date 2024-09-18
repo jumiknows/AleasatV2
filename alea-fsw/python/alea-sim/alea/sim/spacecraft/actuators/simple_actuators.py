@@ -26,7 +26,7 @@ class SimpleMagnetorquer(SharedMemoryModelInterface, AbstractModel):
     """
     
     def __init__(self, name: str, sim_kernel: AbstractModel, saturation_moment: float):
-        super().__init__(name, sim_kernel)
+        super().__init__(name=name, sim_kernel=sim_kernel)
         self._saturation_moment = saturation_moment
         self._moment = 0
         self._update_period = 0.1

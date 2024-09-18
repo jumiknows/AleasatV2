@@ -12,6 +12,7 @@ from kernel.kernel_test import KernelTest
 from kernel.frames_test import FramesTest
 from kernel.scheduler_test import SchedulerTest
 from kernel.time_cached_test import TimeCachedTest
+from kernel.shared_memory_test import SharedMemoryTest
 
 from algorithms.wahba_test import WahbaTest
 
@@ -43,7 +44,8 @@ if __name__ == "__main__":
         SimpleSensorsTest,
         ReactionWheelTest,
         SimpleMagTest,
-        SpacecraftTest
+        SpacecraftTest,
+        SharedMemoryTest
     ]
 
     runner = unittest.TextTestRunner(verbosity=2)

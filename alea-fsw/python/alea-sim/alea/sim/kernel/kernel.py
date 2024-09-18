@@ -1,4 +1,4 @@
-from typing import Union
+from pathlib import Path
 import abc
 import datetime
 import logging
@@ -22,6 +22,9 @@ from alea.sim.kernel.time_utils import skyfield_time_to_gmst_radians
 from alea.sim.kernel.frame_manager import FrameManager
 
 _sentinel = object()
+
+datestr = datetime.datetime.now().strftime("%d-%m-%y_%H-%M")
+SESSION_DATA_PATH = Path(__file__).parent.parent.parent.parent / f"data/{datestr}"
 
 class AleasimKernel():
     SCHEDULER_MAX_PRIORITY = 50
@@ -302,22 +305,35 @@ class AleasimKernel():
     def create_shared_memory(self, model):
         """Create shared memory for any models implementing Shared"""
         if issubclass(type(model), SharedMemoryModelInterface) and not model.shared_memory_enabled:
-            size = np.dtype(np.float64).itemsize * model.saved_state_size * model.SHARED_ARRAY_SIZE
-            self.logger.info(f'Creating shared memory for {model.name} with byte size {size}')
+            size = np.dtype(np.float64).itemsize * (model.saved_state_size + 1) * model.shared_array_length
             model._state_memory = self._smm.SharedMemory(size)
-            model._time_memory = self._smm.SharedMemory(np.dtype(np.float64).itemsize * model.SHARED_ARRAY_SIZE)
-            
-            self.logger.info(f'Creating shared numpy array for {model.name} with buffer byte size {size}')
-            model._time_array = np.ndarray((model.SHARED_ARRAY_SIZE), np.float64) #, buffer=model._time_memory.buf
-            model._state_array = np.ndarray((model.SHARED_ARRAY_SIZE, model.saved_state_size), np.float64, buffer=model._state_memory.buf)
-            self._smm_size += size + (np.dtype(np.float64).itemsize * model.SHARED_ARRAY_SIZE) #state + time size
+            model._state_array = np.ndarray((model.shared_array_length, model.saved_state_size+1), np.float64, buffer=model._state_memory.buf)
+            self._smm_size += size
             model._sm_enabled = True
+
+            self.logger.info(f'Creating shared memory for {model.name} with size: {size/1e6} MB')
             self.logger.info(f'Total shared memory size: {self._smm_size/1e6} MB')
         
 class SharedMemoryModelInterface(abc.ABC):
-    # TODO make this configurable somewhere...
-    # shared memory will start overwriting old date after reading SHARED_ARRAY_SIZE
-    SHARED_ARRAY_SIZE = 100000
+    # default value, shared memory will start overwriting old data after writing to the size limit
+    DEFAULT_SHARED_ARRAY_LENGTH = 100000
+
+    def __init__(self, array_length: int | None = None, **kwargs):
+        super().__init__(**kwargs)
+        if array_length is None:
+            self.shared_array_length = self.DEFAULT_SHARED_ARRAY_LENGTH
+        else:
+            self.shared_array_length = array_length
+
+        self._cnt: int = 0
+        self._sm_enabled: bool = False
+        self._state_memory: np.ndarray = None
+        self._state_array: np.ndarray = None
+
+        self._session_file: Path = SESSION_DATA_PATH / f"{self.name}_data.npy"
+        if not SESSION_DATA_PATH.exists():
+            SESSION_DATA_PATH.mkdir(parents=True)
+        
 
     @property
     @abc.abstractmethod
@@ -345,37 +361,82 @@ class SharedMemoryModelInterface(abc.ABC):
     @property
     def state_array(self) -> np.ndarray:
         """model state date"""
-        return self._state_array[0:self.arr_size,:]
+        return self._state_array[:self.arr_size,1:]
 
     @property
     def time_array(self) -> np.ndarray:
         """model state timeseries data"""
-        return self._time_array[0:self.arr_size]
+        return self._state_array[:self.arr_size,0]
 
     @property
     def arr_size(self) -> int:
-        try:
-            return self._cnt
-        except AttributeError as err:
-            self.logger.error(err)
-            self._cnt = 0
-            return self._cnt
+        return self._cnt
     
     @property
     def shared_memory_enabled(self) -> bool:
         """is shared memory enabled"""
-        if not hasattr(self, "_sm_enabled"):
-            self._sm_enabled = False
         return self._sm_enabled
-    
+
+    def reset_count(self) -> None:
+        self.logger.debug(f"Resetting shared memory index to 0")
+        self._cnt = 0
+
     def save_chunk_to_memory(self, chunk:np.ndarray):
         if self.shared_memory_enabled:
-            if not hasattr(self, '_cnt'):
-                self._cnt = 0
-            self._state_array[self._cnt, :self.saved_state_size] = chunk
-            self._time_array[self._cnt] = self.kernel.time
+            self._state_array[self._cnt, 1:] = chunk
+            self._state_array[self._cnt, 0] = self.kernel.time
             self._cnt+=1
-            if self._cnt >= self.SHARED_ARRAY_SIZE:
-                """reset to the start of the shared memory"""
-                self._cnt = 0
+            if self._cnt >= self.shared_array_length:
+                # dump contents to .csv 
+                # and reset to the start of the shared memory
+                self.dump_state_array_to_file()
+                self.reset_count()
+    
+    def dump_state_array_to_file(self) -> None:
+        """Dump state array to .npy file"""
+        with open(self._session_file, "ab") as f:
+            np.save(f, self._state_array[:self._cnt,:])
+        self.logger.debug(f"Dumped data to session file (total size {self._session_file.stat().st_size / 1e6} [MB])")
+    
+    def load_state_array_from_file(self, filepath: str | Path | None = None) -> np.ndarray | None:
+        """
+        Load state array from self._session_file if it exists and return array.
+        This method will return None if session file does not exist.
+        Session file can be overridden with filepath.
+
+        Warning: the loaded array could be very large for long running simulation sessions.
+        """
+        if filepath is None:
+            if self._session_file.exists():
+                filepath = self._session_file
+            else:
+                return None
+        elif isinstance(filepath, str) and Path(filepath).exists():
+            filepath = Path(filepath)
+        elif isinstance(filepath, Path) and filepath.exists():
+            pass
+        else:
+            return None
+        
+        with open(filepath, "rb") as f:
+            out = np.load(f)
+
+            # load any additional arrays in file
+            # concatenate them to same array
+            eof_flag = False
+            while not eof_flag:
+                try:
+                    arr = np.load(f)
+                except EOFError:
+                    print("reached EOF when reading shared memory save file.")
+                    eof_flag = True
+                    continue
+
+                out = np.concatenate((out, arr), axis=0)
+        
+        return out
+            
+        
+        
+        
     

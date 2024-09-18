@@ -69,14 +69,6 @@ class KernelTest(unittest.TestCase):
         print(f'simulated 10 seconds of sim time in {duration} s with simulated time step of {0.1}s')
         kernel.kill()
 
-    def test_kernel_shared_memory_1(self):
-        kernel = AleasimKernel(dt=0.01)
-        adyn:AttitudeDynamicsModel = AttitudeDynamicsModel(kernel, np.array([1.0,0,0,0,25,10,1]))
-        kernel.add_model(adyn)
-        kernel.create_shared_memory(adyn)
-        assert adyn.shared_memory_enabled
-        kernel.kill()
-
     def test_kernel_time_1(self):
         kernel = AleasimKernel(dt='0.1')
 
