@@ -1,120 +1,36 @@
-# See https://docs.gitlab.com/ee/ci/yaml
-.docker:
-  image:
-    name: registry.gitlab.com/alea-2020/command-data-handling/obc2-firmware/obc-fw-build-tools:1.3
-    entrypoint: [""]
-  before_script:
-    - cd obc-firmware
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-.build:
+include:
+  # ==============================================================================
+  # OBC Firmware
+  # ==============================================================================
+  - local: "alea-fsw/obc-fw/obc-fw.gitlab-ci.yml"
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        changes:
+          - alea-fsw/obc-fw/**/*
+          - alea-fsw/python/alea-common/**/*
+          - tools/**/*
+  # ==============================================================================
+  # ALEA Tests
+  # ==============================================================================
+  - local: "alea-fsw/python/alea-test/alea-test.gitlab-ci.yml"
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        changes:
+          - alea-fsw/obc-fw/**/*
+          - alea-fsw/python/alea-common/**/*
+          - alea-fsw/python/alea-ttc/**/*
+          - alea-fsw/python/alea-test/**/*
+          - tools/**/*
+
+dummy:
   stage: build
-  extends: .docker
-  only:
-    - merge_requests
-    - web
-  artifacts:
-      when: always
-      paths:
-          - "obc-firmware/build/_bin/*.mot"
-          - "obc-firmware/build/**/*.elf"
-      expire_in: 1 month
-
-.test:
-  stage: test
-  tags:
-    - obc-alea-v1-runner
-  before_script:
-    - echo "Using Python ${ALEA_PY_VER}"
-    - cd hil-tests
-    - python${ALEA_PY_VER} -m pipenv install --python ${ALEA_PY_VER}
-    - cd ../
-    - echo "OBC connected to ${ALEA_OBC_PORT}"
-  only:
-    - merge_requests
-    - web
-  artifacts:
-    when: always
-    paths:
-        - "hil-tests/results/*.xml"
-    reports:
-      junit:
-          - "hil-tests/results/*.xml"
-    expire_in: 1 month
-
-.unittest:
-  stage: test
-  extends: .docker
-  only:
-    - merge_requests
-    - web
-  artifacts:
-    when: always
-    paths:
-      - "obc-firmware/test/build/artifacts/test/*.xml"
-      - "obc-firmware/test/build/artifacts/gcov/*.xml"
-    reports:
-      junit:
-        - "obc-firmware/test/build/artifacts/test/*.xml"
-      coverage_report:
-        coverage_format: cobertura
-        path: "obc-firmware/test/build/artifacts/gcov/GcovCoverageCobertura.xml"
-    expire_in: 1 month
-
-.formattest:
-  stage: test
-  extends: .docker
-  only:
-    - merge_requests
-    - web
-
-build-launchpad-ext:
-  extends: .build
+  rules:
+    - when: never
   script:
-    - ./tools/cmake/cmake_wrapper.sh launchpad ext A --standalone --comms-over-serial
-
-build-alea-v1-startup:
-  extends: .build
-  script:
-    - ./tools/cmake/cmake_wrapper.sh alea-v1 startup A --standalone
-
-build-alea-v1-ext-comms:
-  extends: .build
-  script:
-    - ./tools/cmake/cmake_wrapper.sh alea-v1 ext A
-
-build-alea-v1-ext:
-  extends: .build
-  script:
-    - ./tools/cmake/cmake_wrapper.sh alea-v1 ext A --comms-over-serial
-
-build-alea-v1:
-  extends: .build
-  dependencies:
-    - build-alea-v1-startup
-    - build-alea-v1-ext
-  needs:
-    - build-alea-v1-startup
-    - build-alea-v1-ext
-  script:
-    - python3 tools/build_sys/srec.py merge -i build/_bin/*.mot -o build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
-
-test-alea-v1:
-  extends: .test
-  dependencies:
-    - build-alea-v1
-  needs:
-    - build-alea-v1
-  script:
-    - obc-firmware/tools/infra/jlink-flash-alea-v1.sh -f obc-firmware/build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
-    - cd hil-tests
-    - python${ALEA_PY_VER} -m pipenv run ./run.sh
-
-unittest-alea:
-  extends: .unittest
-  script:
-    - ceedling gcov:all utils:gcov
-
-formattest-alea:
-  extends: .formattest
-  script:
-    - ../tools/scripts/check-style.sh --dry-run
+    - echo "This should never run"

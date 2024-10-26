@@ -1,0 +1,45 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build San Antonio UI File",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "./build_ui.sh ${input:sa_ui_file}",
+            "options": {
+                "cwd": "${workspaceFolder}/alea/sa/ui"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Run San Antonio",
+            "type": "shell",
+            "command": "./scripts/san_antonio.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+    ],
+    "inputs": [
+        {
+            "id": "sa_ui_file",
+            "type": "command",
+            // Need to have the Task Shell Input extension installed:
+            // https://marketplace.visualstudio.com/items?itemName=augustocdias.tasks-shell-input
+            "command": "shellCommand.execute",
+            "args": {
+                "command": "find * -iname '*.ui' | sed 's/.ui$//'",
+                "cwd": "${workspaceFolder}/alea/sa/ui",
+                "description": "Select UI to build"
+            }
+        },
+    ]
+}
