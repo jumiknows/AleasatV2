@@ -20,6 +20,8 @@
 // Utils
 #include "rtos_stream.h"
 #include "buffered_io.h"
+#include "obc_crc.h"
+#include "logger.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -216,9 +218,15 @@ static void obc_serial_rx_task(void *pvParameters) {
             xStreamBufferSetTriggerLevel(phy_stream_buffer, 2);
 
             if (xStreamBufferReceive(phy_stream_buffer, crc_buf, 2, pdMS_TO_TICKS(FRAME_TIMEOUT_MS)) == 2) {
-                // TODO ALEA-842 check CRC
                 // TODO ALEA-843 log error if false returned from handle_datagram
-                handle_datagram(data_buf, data_len, portMAX_DELAY);
+                uint16_t rec_crc = crc_buf[1] | (crc_buf[0] << 8);
+
+                if (crc_16_buf(CRC16_SEED, data_buf, data_len) == rec_crc) {
+                    handle_datagram(data_buf, data_len, portMAX_DELAY);
+                } else {
+                    LOG_RX_CRC_CHECK__CRC_MISMATCH();
+                }
+
                 state = OBC_SERIAL_RX_STATE_SYNC_0;
             }
 

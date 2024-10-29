@@ -17,6 +17,9 @@
 #include "obc_rtos.h"
 #include "obc_hardwaredefs.h"
 
+// Utils
+#include "obc_crc.h"
+
 // FreeRTOS
 #include "rtos.h"
 
@@ -103,8 +106,9 @@ static void send_datagram(obc_serial_datagram_type_t type, const uint8_t *data, 
         (uint8_t)type,
     };
 
-    // TODO ALEA-842 actually calculate CRC
-    uint8_t crc[2] = { 0x12, 0x34 };
+    uint16_t crc_bits = crc_16_buf(CRC16_SEED, &type, sizeof(type));
+    crc_bits = crc_16_buf(crc_bits, data, data_len);
+    uint8_t crc[2] = { crc_bits >> 8, crc_bits & 0xff };
 
     if (xSemaphoreTake(sci_mutex, pdMS_TO_TICKS(SCI_MUTEX_TIMEOUT_MS))) {
         // Send header

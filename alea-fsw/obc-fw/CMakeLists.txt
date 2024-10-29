@@ -159,6 +159,7 @@ add_executable(${PROJECT_NAME}
     main/main.c
     common/firmware/fw_structs.c
     common/util/asm_utils.asm
+    common/util/obc_crc.c
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

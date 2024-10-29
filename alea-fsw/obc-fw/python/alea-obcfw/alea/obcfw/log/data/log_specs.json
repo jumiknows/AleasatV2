@@ -1522,5 +1522,16 @@
         ]
       }
     }
+  },
+  "LOG_RX_CRC_CHECK": {
+    "id": 70,
+    "description": "CRC16 check on RX data",
+    "signals": {
+      "CRC_MISMATCH": {
+        "level": "ERROR",
+        "id": 0,
+        "description": "CRC calculated and received is different"
+      }
+    }
   }
 }
