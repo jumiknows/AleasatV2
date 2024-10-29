@@ -60,10 +60,20 @@
     },
     "CPU_USAGE": {
         "id": 9,
-        "args": [],
+        "args": [
+            {"task" : "u8"}
+        ],
         "resp": [
-            {"sys_time_us": "u32"},
-            {"idle_time_us": "u32"}
+            {"usage_pct" : "u8"}
+        ]
+    },
+    "TASK_RUNTIME": {
+        "id": 10,
+        "args": [
+            {"task" : "u8"}
+        ],
+        "resp": [
+            {"runtime" : "u32"}
         ]
     },
     "GPIO_EXP_RESET": {

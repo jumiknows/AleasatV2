@@ -89,12 +89,6 @@ cmd_sys_resp_code_t cmd_impl_SYS_TIME(const cmd_sys_cmd_t *cmd, cmd_SYS_TIME_res
     return CMD_SYS_RESP_CODE_SUCCESS;
 }
 
-cmd_sys_resp_code_t cmd_impl_CPU_USAGE(const cmd_sys_cmd_t *cmd, cmd_CPU_USAGE_resp_t *resp) {
-    resp->sys_time_us = SYSTEM_TIME_US();
-    resp->idle_time_us = portRUNTIME_TO_US(xTaskGetIdleRunTimeCounter());
-    return CMD_SYS_RESP_CODE_SUCCESS;
-}
-
 cmd_sys_resp_code_t cmd_impl_GPIO_EXP_RESET(const cmd_sys_cmd_t *cmd) {
     gpio_expander_reset();
     return CMD_SYS_RESP_CODE_SUCCESS;

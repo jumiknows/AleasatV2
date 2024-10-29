@@ -118,3 +118,53 @@ cmd_sys_resp_code_t cmd_impl_RTOS_STATE(const cmd_sys_cmd_t *cmd) {
     // TODO: requires work from ALEA-828
     return CMD_SYS_RESP_CODE_NOT_IMPL;
 }
+
+cmd_sys_resp_code_t cmd_impl_TASK_RUNTIME(const cmd_sys_cmd_t *cmd, cmd_TASK_RUNTIME_args_t *args, cmd_TASK_RUNTIME_resp_t *resp) {
+    // First get task in arg's run time
+    TaskHandle_t arg_task_handle = obc_rtos_get_task_handle((obc_task_id_t)args->task);
+    TaskStatus_t arg_task_details;
+
+    if (arg_task_handle == NULL) { // Check if task id out of bounds
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    vTaskGetInfo(arg_task_handle, &arg_task_details, pdFALSE, eRunning);
+
+    resp->runtime =  arg_task_details.ulRunTimeCounter; // ARG task run time
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_CPU_USAGE(const cmd_sys_cmd_t *cmd, cmd_CPU_USAGE_args_t *args, cmd_CPU_USAGE_resp_t *resp) {
+    // First get task in arg's run time
+    TaskHandle_t arg_task_handle = obc_rtos_get_task_handle((obc_task_id_t)args->task);
+    TaskStatus_t arg_task_details;
+
+    if (arg_task_handle == NULL) { // Check if task id out of bounds
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    vTaskGetInfo(arg_task_handle, &arg_task_details, pdFALSE, eRunning);
+    uint32_t arg_task_run_time = arg_task_details.ulRunTimeCounter; // ARG task run time
+
+    uint64_t all_tasks_run_time = 0;
+    // This is uint64_t as we don't want two nearly overflowing uint32_t's adding and overflowing the uint32_t
+
+    for (uint8_t task_id = 0; task_id < OBC_TASK_COUNT; task_id++) {
+        TaskHandle_t task_handle = obc_rtos_get_task_handle((obc_task_id_t)task_id);
+        TaskStatus_t task_details;
+
+        vTaskGetInfo(task_handle, &task_details, pdFALSE, eRunning);
+        // Now task_details should be full of details
+        all_tasks_run_time += task_details.ulRunTimeCounter;
+    }
+
+    float all_tasksF = (float)all_tasks_run_time;
+    float arg_taskF = (float)arg_task_run_time;
+
+    float ratio = arg_taskF / all_tasksF; // Ratio will always be between 0.0 and 1.0
+
+    resp->usage_pct = (uint8_t)(ratio * 100);
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}

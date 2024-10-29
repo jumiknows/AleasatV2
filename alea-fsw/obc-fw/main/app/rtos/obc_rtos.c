@@ -133,7 +133,11 @@ BaseType_t obc_rtos_task_hook(obc_task_id_t id, void *arg) {
  * @brief Retrieve the FreeRTOS handle for a task given its ID
  */
 TaskHandle_t obc_rtos_get_task_handle(obc_task_id_t id) {
-    return task_handles[id];
+    if ((uint8_t) id <= sizeof(task_handles) / sizeof(task_handles[0])) {
+        return task_handles[id];
+    } else {
+        return NULL;
+    }
 }
 
 /**
