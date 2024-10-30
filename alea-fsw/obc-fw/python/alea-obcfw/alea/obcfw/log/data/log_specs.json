@@ -1478,23 +1478,88 @@
         "id": 0,
         "description": "Initializing"
       },
-      "CAPTURING_IMAGE": {
+      "IMAGE_CAPTURED": {
         "level": "DEBUG",
         "id": 1,
-        "description": "Capturing image"
+        "description": "Image captured",
+        "data": [
+          {"arducam_err": "s8"}
+        ]
       },
-      "TRANSFERRING_IMAGE": {
+      "IMAGE_SIZE": {
         "level": "DEBUG",
         "id": 2,
-        "description": "Transfering image",
+        "description": "Image size",
         "data": [
-          {"size_kb": "u32"}
+          {"arducam_err": "s8"},
+          {"size_bytes": "u32"}
+        ]
+      },
+      "ARDUCAM_TRANSFER_ERR": {
+        "level": "DEBUG",
+        "id": 3,
+        "description": "Transfer error",
+        "data": [
+          {"arducam_err": "s8"}
+        ]
+      },
+      "DOWNLINK_TRANSFER_ERR": {
+        "level": "DEBUG",
+        "id": 4,
+        "description": "Transfer error",
+        "data": [
+          {"data_len": "u32"},
+          {"bytes_written": "u32"}
         ]
       }
     }
   },
-  "LOG_GNDSTN_DOWNLINK": {
+  "LOG_ARDUCHIP": {
     "id": 69,
+    "description": "ArduChip",
+    "signals": {
+      "READ_REG": {
+        "level": "DEBUG",
+        "id": 0,
+        "description": "ArduChip Read Register",
+        "data": [
+          {"mibspi_err": "s8"},
+          {"addr": "u8"},
+          {"data": "u8"}
+        ]
+      },
+      "WRITE_REG": {
+        "level": "DEBUG",
+        "id": 1,
+        "description": "ArduChip Write Register",
+        "data": [
+          {"mibspi_err": "s8"},
+          {"addr": "u8"},
+          {"data": "u8"}
+        ]
+      },
+      "RESET": {
+        "level": "DEBUG",
+        "id": 2,
+        "description": "ArduChip Reset"
+      },
+      "FW_VER": {
+        "level": "INFO",
+        "id": 3,
+        "description": "ArduChip FW Version",
+        "data": [
+          {"fw_ver": "u8"}
+        ]
+      },
+      "FIFO_START_CAPTURE": {
+        "level": "DEBUG",
+        "id": 4,
+        "description": "ArduChip FIFO Start Capture"
+      }
+    }
+  },
+  "LOG_GNDSTN_DOWNLINK": {
+    "id": 70,
     "description": "Ground Station Downlink",
     "signals": {
       "COMMS_SESS_INIT_ERR": {
@@ -1524,7 +1589,7 @@
     }
   },
   "LOG_RX_CRC_CHECK": {
-    "id": 70,
+    "id": 71,
     "description": "CRC16 check on RX data",
     "signals": {
       "CRC_MISMATCH": {

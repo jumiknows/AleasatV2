@@ -1,9 +1,11 @@
 import datetime
+import collections
 
 from PyQt5 import QtWidgets, QtCore
 
 from alea.ttc import cmd_sys
 from alea.ttc.util import data_utils
+from alea.ttc.protocol.app import app_log
 
 from alea.sa.backend import ttcqt
 from alea.sa.ui.control_panels import camera_panel_ui
@@ -23,6 +25,8 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
         self.init_btn: QtWidgets.QPushButton
         self.capture_btn: QtWidgets.QPushButton
         self.progress_bar: QtWidgets.QProgressBar
+        self.log_text: QtWidgets.QTextEdit
+        self.clear_log_btn: QtWidgets.QPushButton
 
         # Sensor Registers
         self.sreg_addr_edit: QtWidgets.QLineEdit
@@ -94,8 +98,13 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
 
         self.image_transfer_progress.connect(self.handle_image_transfer_progress)
 
+        self._obc_provider.obc_logs.connect(self.handle_log)
+        self.clear_log_btn.clicked.connect(self.handle_clear_log)
+
         # Configure UI
         self.configure_progress_bar(initializing=False, capturing=False)
+
+        self._arduchip_logs = collections.deque(maxlen=256)
 
     @property
     def obc(self) -> ttcqt.TTCQT:
@@ -268,3 +277,23 @@ class CameraPanel(QtWidgets.QWidget, camera_panel_ui.Ui_CameraPanel):
             ))
         except ValueError as e:
             console.print_err(f"Error parsing camera special digital effects fields: {e}")
+
+    @QtCore.pyqtSlot(app_log.OBCLog)
+    def handle_log(self, log: app_log.OBCLog):
+        if log.group_name == "LOG_ARDUCHIP":
+            if (log.signal_name == "READ_REG") or (log.signal_name == "WRITE_REG"):
+                text = f"[ {log.signal_name:<20} ] MIBSPI ERR = {log.data['mibspi_err']:4d} | ADDR = 0x{log.data['addr']:02x} | DATA = 0x{log.data['data']:02x} ({'R' if log.signal_name == 'READ_REG' else 'W'})"
+            else:
+                text = f"{log.signal_name:-^30}"
+            self._arduchip_logs.append(text)
+            self._update_log()
+
+    @QtCore.pyqtSlot()
+    def handle_clear_log(self):
+        self._arduchip_logs.clear()
+        self._update_log()
+
+    def _update_log(self):
+        text = "\n".join(self._arduchip_logs)
+        self.log_text.setText(text)
+        self.log_text.verticalScrollBar().setValue(self.log_text.verticalScrollBar().maximum())

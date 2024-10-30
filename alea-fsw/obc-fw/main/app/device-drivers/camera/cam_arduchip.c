@@ -14,6 +14,7 @@
 
 // OBC
 #include "obc_hardwaredefs.h"
+#include "logger.h"
 
 // FreeRTOS
 #include "rtos.h"
@@ -145,6 +146,8 @@ arduchip_err_t arduchip_init(void) {
 arduchip_err_t arduchip_reset(void) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
 
+    LOG_ARDUCHIP__RESET();
+
     do {
         mibspi_err_t mibspi_err;
 
@@ -244,7 +247,9 @@ arduchip_err_t arduchip_fifo_start_capture(void) {
 
     mibspi_err_t mibspi_err = write_ardu_reg(ARDUCHIP_REG_FIFO_CTRL, ARDUCHIP_REG_FIFO_CTRL_START_CAPTURE);
 
-    if (mibspi_err != MIBSPI_NO_ERR) {
+    if (mibspi_err == MIBSPI_NO_ERR) {
+        LOG_ARDUCHIP__FIFO_START_CAPTURE();
+    } else {
         err = ARDUCHIP_ERR_MIBSPI;
     }
 
@@ -401,12 +406,13 @@ arduchip_err_t arduchip_fifo_clear_wr_done(void) {
  */
 static arduchip_err_t read_ardu_fw_ver(uint8_t *fw_ver) {
     arduchip_err_t err = ARDUCHIP_SUCCESS;
-
     mibspi_err_t mibspi_err;
 
     mibspi_err = read_ardu_reg(ARDUCHIP_REG_FW_VER, fw_ver);
 
-    if (mibspi_err != MIBSPI_NO_ERR) {
+    if (mibspi_err == MIBSPI_NO_ERR) {
+        LOG_ARDUCHIP__FW_VER(*fw_ver);
+    } else {
         err = ARDUCHIP_ERR_MIBSPI;
     }
 
@@ -496,6 +502,7 @@ static mibspi_err_t write_ardu_reg(uint8_t addr, uint8_t data) {
     addr = (addr | ARDUCHIP_ADDR_WRITE);
     uint16_t tx = (uint16_t)((uint16_t)addr << 8U) | (uint16_t)data;
     mibspi_err_t status = tms_mibspi_tx(&transfer_group_single, &tx, MIBSPI_TIMEOUT_MS);
+    LOG_ARDUCHIP__WRITE_REG(status, addr, data);
     return status;
 }
 
@@ -511,6 +518,8 @@ static mibspi_err_t read_ardu_reg(uint8_t addr, uint8_t *data) {
     uint16_t rx = 0;
     uint16_t tx = ((uint16_t)addr << 8U);
     mibspi_err_t status = tms_mibspi_tx_rx(&transfer_group_single, &tx, &rx, MIBSPI_TIMEOUT_MS);
+
+    LOG_ARDUCHIP__READ_REG(status, addr, (rx & 0xFF));
 
     if (status == MIBSPI_NO_ERR) {
         *data = (rx & 0xFF);
