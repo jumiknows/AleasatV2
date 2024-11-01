@@ -1,0 +1,41 @@
+variables:
+  ALEA_SIM_DIR: "alea-fsw/python/alea-sim"
+
+# ==============================================================================
+# Job Templates
+# ==============================================================================
+
+.alea-sim:docker:
+  image:
+    name: $CI_REGISTRY_IMAGE/alea-sim:1.0
+    entrypoint: [""]
+  variables:
+    POETRY_CACHE_DIR: $CI_PROJECT_DIR/$ALEA_SIM_DIR/.cache
+  cache:
+    - key:
+        files:
+          - $ALEA_SIM_DIR/poetry.lock
+      paths:
+        - $ALEA_SIM_DIR/.venv/
+        - $ALEA_SIM_DIR/.cache/
+  before_script:
+    - cd $CI_PROJECT_DIR/$ALEA_SIM_DIR
+    - poetry install
+
+# ==============================================================================
+# Jobs
+# ==============================================================================
+
+alea-sim:unittest:
+  extends: .alea-sim:docker
+  stage: test
+  script:
+    - ./tests/run.sh
+  artifacts:
+    when: always
+    paths:
+      - "$ALEA_SIM_DIR/tests/results/*.xml"
+    reports:
+      junit:
+        - "$ALEA_SIM_DIR/tests/results/*.xml"
+    expire_in: 1 month

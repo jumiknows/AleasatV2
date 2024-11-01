@@ -27,6 +27,15 @@ include:
           - alea-fsw/python/alea-ttc/**/*
           - alea-fsw/python/alea-test/**/*
           - tools/**/*
+  # ==============================================================================
+  # ALEASIM
+  # ==============================================================================
+  - local: "alea-fsw/python/alea-sim/alea-sim.gitlab-ci.yml"
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        changes:
+          - alea-fsw/python/alea-sim/**/*
 
 dummy:
   stage: build

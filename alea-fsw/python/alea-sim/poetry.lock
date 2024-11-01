@@ -1849,7 +1849,17 @@ files = [
     {file = "wcwidth-0.2.13.tar.gz", hash = "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5"},
 ]
 
+[[package]]
+name = "xmlrunner"
+version = "1.7.7"
+description = "PyUnit-based test runner with JUnit like XML reporting."
+optional = false
+python-versions = "*"
+files = [
+    {file = "xmlrunner-1.7.7.tar.gz", hash = "sha256:5a6113d049eca7646111ee657266966e5bbfb0b5ceb2e83ee0772e16d7110f39"},
+]
+
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "551edab8396c49119267c84a99f125bbb25bbd8833dde2e5ea82b115d01179fb"
+content-hash = "94f5216a2514f5a363f1a425a3cc07a7cef957e85438c85a53984832dbd3746b"

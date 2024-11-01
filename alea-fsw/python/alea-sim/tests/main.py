@@ -1,59 +1,28 @@
 import unittest
 import sys
+from pathlib import Path
+import argparse
 
-from compute.precomputed_test import PreComputedTest
+import xmlrunner
 
-from epa.attitude_test import AttitudeDynamicsTest
-from epa.orbit_dynamics_test import OrbitDynamicsTest
-from epa.earth_magnetic_field_test import EarthMagneticFieldTest
-from epa.frame_conversions_test import FrameConversionsTest
+def main(test_dir: str | Path):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output_dir", action="store", dest="output_dir", help="Output directory for XML test reports")
+    ns, args = parser.parse_known_args(namespace=unittest)
 
-from kernel.kernel_test import KernelTest
-from kernel.frames_test import FramesTest
-from kernel.scheduler_test import SchedulerTest
-from kernel.time_cached_test import TimeCachedTest
-from kernel.shared_memory_test import SharedMemoryTest
+    loader = unittest.TestLoader()
+    test_suite = loader.discover(test_dir, pattern="*_test.py")
 
-from algorithms.wahba_test import WahbaTest
+    if ns.output_dir is not None:
+        runner = xmlrunner.XMLTestRunner(output=ns.output_dir, outsuffix="")
+    else:
+        runner = unittest.TextTestRunner(verbosity=2)
 
-from spacecraft.eps_test import EpsTest, SolarPanelsTest
-from spacecraft.simple_sensors_test import SimpleSensorsTest
-from spacecraft.simple_mag_test import SimpleMagTest
-from spacecraft.reaction_wheel_test import ReactionWheelTest
-from spacecraft.mtq_test import MagnetorquerTest
-from spacecraft.spacecraft_test import SpacecraftTest
-
-if __name__ == "__main__":
-    cases = [
-        # TODO: This test fails right now (only the time comparisons) when run through main.py
-        #       but it succeeds when run manually (python compute/precomputed_test.py). Only
-        #       the timing comparisons fail.
-        # PreComputedTest,
-        TimeCachedTest,
-        AttitudeDynamicsTest,
-        OrbitDynamicsTest,
-        EarthMagneticFieldTest,
-        KernelTest,
-        FramesTest,
-        FrameConversionsTest,
-        SchedulerTest,
-        WahbaTest,
-        MagnetorquerTest,
-        EpsTest,
-        SolarPanelsTest,
-        SimpleSensorsTest,
-        ReactionWheelTest,
-        SimpleMagTest,
-        SpacecraftTest,
-        SharedMemoryTest
-    ]
-
-    runner = unittest.TextTestRunner(verbosity=2)
-
-    test_suites = [unittest.makeSuite(test_case) for test_case in cases]
-    all_tests = unittest.TestSuite(test_suites)
-
-    result = runner.run(all_tests)
+    result = runner.run(test_suite)
 
     # Make sure exit code is set according to if tests failed or not
     sys.exit(not result.wasSuccessful())
+
+if __name__ == "__main__":
+    suites_dir = Path(__file__).parent
+    main(test_dir=suites_dir)
