@@ -32,7 +32,7 @@ class DynamicModel:
         Returns:
             Time derivative of system state.
         """
-        raise NotImplementedError
+        raise NotImplementedError()
     
     def step_system_dynamics(self, u:np.ndarray, update_params = None):
         """Integrate the state from the LAST simulation time to the CURRENT time"""

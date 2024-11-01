@@ -14,7 +14,6 @@ import skyfield.timelib
 from skyfield.api import load
 
 from alea.sim.kernel.generic.abstract_model import AbstractModel
-from alea.sim.kernel.aleasim_model import AleasimRootModel
 from alea.sim.kernel.scheduler import Scheduler, EventPriority
 from alea.sim.kernel.frames import ReferenceFrame, Universe
 from alea.sim.kernel.time_utils import skyfield_time_to_gmst_radians
@@ -29,7 +28,7 @@ SESSION_DATA_PATH = Path(__file__).parent.parent.parent.parent / f"data/{datestr
 class AleasimKernel():
     SCHEDULER_MAX_PRIORITY = 50
 
-    def __init__(self, dt: float = 0.001, date: skyfield.timelib.Time | datetime.datetime | float = None, root: AbstractModel = None) -> None:
+    def __init__(self, dt: float = 0.001, date: skyfield.timelib.Time | datetime.datetime | float = None) -> None:
         logging.basicConfig(level=logging.DEBUG, format="%(msecs)d %(name)s %(levelname)s %(message)s")
         self._logger = logging.getLogger('AleasimKernel')
         
@@ -67,13 +66,8 @@ class AleasimKernel():
         self._smm = SharedMemoryManager()
         self._smm.start()
         self._smm_size = 0
-        
-        #root model init check
-        if root is None:
-            self._logger.warning("root model parameter is None")
-            self._logger.info("creating new root model")
-            root = AleasimRootModel(self)
-        self._root = root
+
+        self._root: AbstractModel = None
             
         #frame manager init
         self._frame_manager = FrameManager(self)
@@ -86,9 +80,9 @@ class AleasimKernel():
     @root.setter
     def root(self, value: AbstractModel):
         if self._root is not None:
-            self._logger.warn("root model of kernel could not be set (it is already set)")
+            self.logger.warning("root model of kernel could not be set (it is already set)")
         else:
-            self._logger.info(f'root model of kernel set to {value}')
+            self.logger.info(f'root model of kernel set to {value}')
             self._root = value
     
     @property
@@ -97,6 +91,9 @@ class AleasimKernel():
     
     def set_log_level_all(self, log_level:int):
         """set log level for all models"""
+        if self._root is None:
+            self.logger.warning("set_log_level_all should not be called when root is none")
+            return
         self._root.propagate_log_level(log_level)
     
     @property
@@ -208,14 +205,27 @@ class AleasimKernel():
         return math.floor(dur/self._dt)
 
     def add_model(self, model:AbstractModel, create_shared_mem: bool = True, parent: AbstractModel = None):
-        if model is self.root or model in self.root._children.values():
-            self.logger.error(f'model {model} is already a root model or a child of root model')
+        """
+        Add a model to the simulation.
+        Creates shared memory for the model by default for any models implementing SharedMemoryModelInterface.
+        If parent is None, the parent will be set to root.
+        If the kernel does not currently have a root model, kernel._root will be set to to model
+        """
+        if self._root is None:
+            self._root = model
+            self.logger.info(f"added {self._root.name} as root model")
+        elif model is self.root:
+            self.logger.warning(f'model {model} is already the root model.')
             return
-        if model.parent_model is None:
+        elif self.root.is_child(model):
+            self.logger.warning(f'model {model} is already in the model tree.')
+            return
+        else:
             if parent is None:
                 self.root.add_child(model)
             else:
                 parent.add_child(model)
+
         self.schedule_event(0, EventPriority.CONNECT_EVENT, model.connect)
         self.schedule_event(0, EventPriority.START_EVENT, model.start)
         if create_shared_mem:
@@ -224,7 +234,12 @@ class AleasimKernel():
     #compatibility methods
     def get_model(self, name_or_type: str | type) -> "AbstractModel" :
         """get child from root"""
-        return self._root.get_child(name_or_type)
+        if isinstance(name_or_type, str) and self.root.name == name_or_type:
+            return self.root
+        elif isinstance(name_or_type, type) and isinstance(self.root, name_or_type):
+            return self.root
+        else:
+            return self.root.get_child(name_or_type)
 
     def get_all_models_of_type(self, cls: type) -> list["AbstractModel"] | list:
         """get all models of type cls, raises an error is cls is not a subclass of AbstractModel"""
@@ -303,7 +318,7 @@ class AleasimKernel():
         del self._root
 
     def create_shared_memory(self, model):
-        """Create shared memory for any models implementing Shared"""
+        """Create shared memory for any models implementing SharedMemoryModelInterface"""
         if issubclass(type(model), SharedMemoryModelInterface) and not model.shared_memory_enabled:
             size = np.dtype(np.float64).itemsize * (model.saved_state_size + 1) * model.shared_array_length
             model._state_memory = self._smm.SharedMemory(size)
@@ -339,20 +354,20 @@ class SharedMemoryModelInterface(abc.ABC):
     @abc.abstractmethod
     def saved_state_size(self) -> int:
         """
-        This method must be implemented by inheriting subclass.
+        This property must be implemented by inheriting subclass.
         length of a single chunk for model datastorage, typically composed of float64s
         this information is relevant to shared memory
         """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
     @abc.abstractmethod
     def saved_state_element_names(self) -> list[str]:
         """
-        This method must be implemented by inheriting subclass.
+        This property must be implemented by inheriting subclass.
         list of names for each element in the saved state
         """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
     def shared_memory(self) -> SharedMemory:

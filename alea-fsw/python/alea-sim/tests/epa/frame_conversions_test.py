@@ -150,7 +150,6 @@ class FrameConversionsTest(unittest.TestCase):
         
     def test_frame_transform_tree(self):
         kernel = AleasimKernel(date=2024.0)
-        kernel.set_log_level_all(log_level=logging.DEBUG)
         magm = EarthMagneticFieldModel(kernel)
         sens = SimpleMagSensor('mag_sens', kernel, sample_rate=int(1/kernel.timestep))
         adyn = AttitudeDynamicsModel(kernel)

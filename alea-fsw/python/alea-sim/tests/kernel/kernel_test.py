@@ -12,6 +12,8 @@ from alea.sim.kernel.config_loader import load_config
 from alea.sim.utils.test_scenarios import create_aleasim_test_kernel
 
 from alea.sim.kernel.generic.abstract_model import ModelNotFoundError
+
+from alea.sim.kernel.root_models import AleasimRootModel
 class KernelTest(unittest.TestCase):
     
     #TODO this test fails after spacecraft was updarted to pull in actuators
@@ -120,9 +122,10 @@ class KernelTest(unittest.TestCase):
         kernel.kill()
     
     def test_set_log_level_all(self):
-        from alea.sim.aleasim import create_aleasim_control_demo
         
-        kernel = create_aleasim_control_demo()
+        kernel = AleasimKernel()
+        root = AleasimRootModel(kernel)
+        kernel.add_model(root)
         
         kernel.set_log_level_all(logging.INFO)
 

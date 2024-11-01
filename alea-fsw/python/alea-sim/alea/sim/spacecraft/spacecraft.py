@@ -18,6 +18,7 @@ from alea.sim.kernel.scheduler import EventPriority
 from alea.sim.kernel.generic.abstract_model import ModelNotFoundError
 from alea.sim.algorithms.attitude_determination import ExtendedKalmanFilter
 from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
+from alea.sim.spacecraft.eps.power_system import PowerSystemModel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -50,13 +51,13 @@ class Spacecraft(SharedMemoryModelInterface, AbstractModel):
         self._ekf_init = False
         self._q_desired = Quaternion.identity()
 
-        #estimate detumble gain near equator (should be peak)
+        # estimate detumble gain near equator (should be peak)
         # TODO ALEA-1533 analysis for detumbling gain
         self._detumble_gain = 1 #estimate_detumble_gain(incl_mag=0) 
         
         self.quest_weights = np.array([0.5, 0.5]) # TODO optimize weights based on sensor variances / need an algo for this
     
-        #create sensors and actuators
+        # create sensors and actuators
         self._mag_sens = SimpleMagSensor('mag_sens', self.kernel, self._ctrl_sample_period)
         self._sun_sens = SimpleSunSensor('sun_sens', self.kernel, self._ctrl_sample_period)
         self._gyro_sens = SimpleGyroSensor('gyro_sens', self.kernel, self._ctrl_sample_period)
@@ -80,6 +81,10 @@ class Spacecraft(SharedMemoryModelInterface, AbstractModel):
             rw = ReactionWheelModel(name=f"rw_{temp[i]}", sim_kernel=self.kernel, spin_axis_body=normal)
             self._rws.append(rw)
             self.kernel.add_model(rw, parent=self)
+        
+        # create the power system
+        self.power_system = PowerSystemModel(self.kernel)
+        self.kernel.add_model(self.power_system, parent=self)
 
     # ==============================================================================
     # Kernel Events

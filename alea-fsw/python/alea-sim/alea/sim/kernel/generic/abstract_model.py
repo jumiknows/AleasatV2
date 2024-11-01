@@ -96,8 +96,12 @@ class AbstractModel(abc.ABC):
         return self._parent
 
     @property
-    def children_models(self) -> Set[str]:
-        return self._children.keys()
+    def children_models(self) -> Set["AbstractModel"]:
+        a = set(self._children.values())
+
+    @property
+    def children_model_names(self) -> Set[str]:
+        return set(self._children.keys())
     
     @property
     def scheduler(self) -> Scheduler:
@@ -154,6 +158,29 @@ class AbstractModel(abc.ABC):
                 return None
         else:
             raise Exception(f'search mode is invalid: {search_mode}')
+        
+    def is_child(self, name_or_model: str | object) -> bool:
+        """
+        Returns true if model or model name exists in the model tree.
+        """
+        if type(name_or_model) is str:
+            search_mode = 'name'
+        elif isinstance(name_or_model, AbstractModel):
+            search_mode = 'model'
+        else:
+            search_mode = 'undefined'
+
+        if search_mode == 'model':
+            mdls = self.get_all_children_of_type(type(name_or_model))
+            return (name_or_model in mdls)
+        elif search_mode == 'name':
+            try:
+                self.get_child(name_or_model)
+                return True
+            except ModelNotFoundError:
+                return False
+        else:
+            raise Exception(f'Search mode is invalid!')
 
     def get_all_children_of_type(self, cls: type[M]) -> list[M]:
         """
@@ -176,6 +203,30 @@ class AbstractModel(abc.ABC):
                 out_list.extend(val)
         
         return out_list
+
+    def get_children_model_names_nested(self, out: dict = None, include_types: bool = False) -> dict[str, dict[str, str]]:
+        """Returns a nested list of model names, and optionally model types.
+
+        Args:
+            out (dict, optional): Dictionary to fill. Defaults to None and a new dictionary is created.
+            include_types (bool, optional): Inlude type info. Defaults to False.
+
+        Returns:
+            dict[str, dict[str, str]]
+            
+        Example of model entry with type info:
+            "root : <class 'alea.sim.kernel.generic.abstract_model.RootModel'>"
+        """
+        if out is None:
+            out = {}
+        if include_types:
+            key = f"{self.name} : {type(self)}"
+        else:
+            key = self.name
+        out[key] = {}
+        for child in self._children.values():
+            _ = child.get_children_model_names_nested(out[key], include_types)
+        return out
 
     def add_child(self, child: "AbstractModel") -> None:
         self._children[child.name] = child

@@ -7,7 +7,7 @@ from abc import abstractmethod
 class PoweredUnitModel:
     """
     Simple powered unit that turns on and off and consumes power
-    The power calculation is DC power (resisitve loads).
+    The power calculation tracks a time varying current with a constant voltage source.
     Alternatively the load can be resistive and only have a constant power.
     """
     class PoweredState(IntEnum):

@@ -22,7 +22,8 @@ class AttitudeDynamicsTest(unittest.TestCase):
         kernel = AleasimKernel(dt=0.01) #init kernal at the day this test was created
 
         adyn1 = AttitudeDynamicsModel(kernel)
-        
+        kernel.add_model(adyn1)
+    
         kernel.step()
         np.testing.assert_array_almost_equal(adyn1._state, np.array([1.0, 0, 0 ,0, 0, 0, 0]))
         
