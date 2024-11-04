@@ -13,6 +13,8 @@ include:
         changes:
           - alea-fsw/obc-fw/**/*
           - alea-fsw/python/alea-common/**/*
+          - alea-fsw/python/alea-ttc/**/*
+          - alea-fsw/python/alea-test/**/*
           - tools/**/*
   # ==============================================================================
   # ALEA Tests
