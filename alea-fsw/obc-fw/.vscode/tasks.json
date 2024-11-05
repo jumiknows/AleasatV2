@@ -31,6 +31,15 @@
             }
         },
         {
+            "label": "Flash",
+            "type": "shell",
+            "command": "dslite --verbose --flash --run --config=tools/debug/ccs/${input:platform}.ccxml build/${input:platform}/${input:target}/${input:slot}/ALEA_OBC.elf",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+        },
+        {
             "label": "Run Unit Tests",
             "type": "shell",
             "command": "./scripts/fw_test_docker.sh",
