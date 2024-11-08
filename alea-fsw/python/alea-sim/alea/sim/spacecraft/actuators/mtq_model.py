@@ -63,6 +63,10 @@ class MagnetorquerModel(Configurable[MagnetorquerConfig], SharedMemoryModelInter
         """Set dipole moment [Am^2]"""
         
         if self.is_powered_on:
+
+            #Resets the moment to zero
+            self._dipole_moment = 0
+            
             # Limit the range of dutyclcle to [-100, 100]
             if dutycycle < -100:
                 dutycycle = -100
