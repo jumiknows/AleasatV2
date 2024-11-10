@@ -1,0 +1,4 @@
+:module_generator:
+  :project_root: ./
+  :source_root: orcasat_testing/src/
+  :test_root: orcasat_testing/test/

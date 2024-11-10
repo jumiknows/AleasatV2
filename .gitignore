@@ -1,0 +1,27 @@
+build-*/
+platform-*/*_bak.*
+
+*.pdf
+**/Debug/
+
+Release/
+.metadata
+.DS_Store
+**/.launch
+
+\.launches/
+
+orcasat/system/logging/token\.pickle
+
+# Ceedling
+orcasat-testing/build/artifacts
+orcasat-testing/build/gcov
+orcasat-testing/build/logs
+orcasat-testing/build/temp
+orcasat-testing/build/test
+
+# Editors
+.swo
+.swp
+\.vscode/
+\.vs/

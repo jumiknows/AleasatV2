@@ -1,0 +1,71 @@
+/**
+ * @file launchpad_1224_featuredefs.h
+ * @brief Feature definitions for TMS570LS1224 LaunchPad.
+ * @author Melvin Matthews
+ * @date November 04, 2018
+ *
+ *  A set of #defines to enable and disable features. This is intended to allow configurability
+ *  in cases where hardware features are damaged or unavailable, such as when operating with
+ *  just a LaunchPad.
+ */
+
+#ifndef LAUNCHPAD_1224_FEATUREDEFS_H_
+#define LAUNCHPAD_1224_FEATUREDEFS_H_
+#ifdef PLATFORM_LAUNCHPAD_1224
+
+/**
+ * @brief OBC IDLE SLEEP ENABLE
+ *
+ * 	1: OBC will enter a sleep mode during the RTOS idle task
+ * 	0: OBC will not enter a sleep mode during the RTOS idle task
+ */
+#define OBC_IDLE_SLEEP_EN 1
+
+/**
+ * @brief GIO INTERRUPT EXAMPLE ENABLE
+ *
+ * 1: GIO interrupt example will run.
+ * 0: GIO interrupt example will not run.
+ */
+#define GIO_EXAMPLE_EN 0
+
+/**
+ * @brief RTC MOCK ENABLE
+ *
+ * 1: RTC mock implementation is used.
+ * 0: Real hardware driver is used for RTC.
+ */
+#define RTC_MOCK_EN 1
+
+/**
+ * @brief TEMP SENSOR EXAMPLE ENABLE
+ *
+ * 1: temp sensor example is enabled (runs periodically)
+ * 0: the temp sensor example is disabled
+ */
+#define TEMP_SENSOR_EXAMPLE_EN 1
+
+/**
+ * @brief GPIO EXPANDER ENABLE
+ *
+ * 1: GPIO expander is present on the hardware
+ * 0: no GPIO expander is present and GPIO expander functions will not be used.
+ */
+#define GPIO_EXPANDER_EN 0
+
+/**
+ * @brief RTI and RTOS have vPortPreemptiveTick.
+ * In order to not have multiple declarations, RTI vPortPreemptiveTick needs to be commented out
+ *
+ * 1: Uncomments the RTI's vPortPreemptiveTick
+ * 0: USE THIS! Comments out the RTI's vPortPreemptiveTick
+ */
+#define USE_RTI_PREEMPTIVE_TICK 0
+
+/**
+ * @brief The message to be used for reply of board type through the command system
+ */
+#define BOARD_TYPE_MSG "LaunchPad"
+
+#endif /* PLATFORM_LAUNCHPAD_1224 */
+#endif /* LAUNCHPAD_1224_FEATUREDEFS_H_ */
