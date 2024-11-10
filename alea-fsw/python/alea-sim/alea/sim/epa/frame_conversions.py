@@ -97,7 +97,7 @@ def eci_to_orbit_rot_mat(raan, incl, argp, mean_anomaly):
     
     R = np.array(
         [
-        [np.cos(o)*np.sin(w) - np.sin(o)*np.cos(i)*np.sin(w), np.sin(o)*np.cos(w)+np.cos(o)*np.cos(i)*np.sin(w), np.sin(i)*np.sin(w)],
+        [np.cos(o)*np.cos(w) - np.sin(o)*np.cos(i)*np.sin(w), np.sin(o)*np.cos(w)+np.cos(o)*np.cos(i)*np.sin(w), np.sin(i)*np.sin(w)],
         [-np.cos(o)*np.sin(w) - np.sin(o)*np.cos(i)*np.cos(w), -np.sin(o)*np.sin(w)+np.cos(o)*np.cos(i)*np.cos(w), np.sin(i)*np.cos(w)],
         [np.sin(o)*np.sin(i), -np.cos(o)*np.sin(i), np.cos(i)],
         ])
