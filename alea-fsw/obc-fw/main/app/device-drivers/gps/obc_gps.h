@@ -27,7 +27,8 @@
  * nack response.
  */
 
-void gps_pre_init(void);
+void gps_init(void);
+void gps_create_infra(void);
 gps_err_t gps_handle_control_msg(uint8_t *buf, uint16_t length);
 gps_err_t gps_restart_receiver(gps_restart_modes_t restart_mode);
 gps_err_t gps_query_software_version(uint8_t *sw_version);

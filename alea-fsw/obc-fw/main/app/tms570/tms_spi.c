@@ -56,14 +56,14 @@ static inline uint8_t spi_get_hold_del(uint32_t delay_reg);
 /**
  * @brief Sets up the SPI hardware.
  */
-void tms_spi_init_hw(void) {
+void tms_spi_init(void) {
     spiInit();
 }
 
 /**
  * @brief Instantiates the mutex used to protect SPI access
  */
-void tms_spi_pre_init(void) {
+void tms_spi_create_infra(void) {
     static StaticSemaphore_t xSPIStaticMutex;
     xSPIMutex = xSemaphoreCreateMutexStatic(&xSPIStaticMutex);
 }

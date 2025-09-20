@@ -29,7 +29,7 @@ typedef enum {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void tms_can_init_hw(void);
+void tms_can_init(void);
 void tms_can_gpio_write(canBASE_t *port, can_pin_t pin, uint32_t value);
 uint32_t tms_can_gpio_read(canBASE_t *port, can_pin_t pin);
 

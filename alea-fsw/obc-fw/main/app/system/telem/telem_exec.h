@@ -23,7 +23,8 @@
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void telem_exec_pre_init(void);
+void telem_exec_create_infra(void);
+void telem_exec_start_task(void);
 
 void telem_exec_enqueue(const uint16_t telem_unit_id);
 

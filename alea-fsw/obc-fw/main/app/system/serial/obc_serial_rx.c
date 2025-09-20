@@ -84,22 +84,13 @@ static obc_serial_rx_handler_t rx_handlers[OBC_SERIAL_DATAGRAM_TYPE_COUNT] = { 0
 /**
  * @brief Initialize FreeRTOS data structures for the OBC serial RX
  */
-void obc_serial_rx_pre_init(void) {
+void obc_serial_rx_create_infra(void) {
     // Stream buffer for physical serial port
     static StaticStreamBuffer_t phy_stream_buffer_buf                    = { 0 };
     static uint8_t phy_stream_buffer_storage[PHY_STREAM_BUFFER_SIZE + 1] = { 0 }; // See https://www.freertos.org/xStreamBufferCreateStatic.html for explanation of + 1
 
     phy_stream_buffer = xStreamBufferCreateStatic(PHY_STREAM_BUFFER_SIZE, PHY_STREAM_BUFFER_DEF_TRIG_LVL, phy_stream_buffer_storage,
                         &phy_stream_buffer_buf);
-
-    obc_rtos_create_task(OBC_TASK_ID_OBC_SERIAL_RX, &obc_serial_rx_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
-}
-
-/**
- * @brief Enable interrupts in post-init section
- */
-void obc_serial_rx_post_init(void) {
-    obc_serial_rx_init_irq();
 }
 
 /**
@@ -131,6 +122,12 @@ void obc_serial_rx_init_irq(void) {
     sciReceive(UART_DEBUG, 1, &rx_byte);
 }
 
+/**
+ * @brief Create the OBC serial RX servicing task
+ */
+void obc_serial_rx_create_task(void) {
+    obc_rtos_create_task(OBC_TASK_ID_OBC_SERIAL_RX, &obc_serial_rx_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
+}
 
 /**
  * @brief ISR handler for RX events on the OBC serial port

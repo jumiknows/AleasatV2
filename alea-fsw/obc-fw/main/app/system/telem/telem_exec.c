@@ -56,8 +56,16 @@ static StaticQueue_t telem_queue_buf = { 0 };
 /**
  * @brief Initialize FreeRTOS data structures for the telem executor
  */
-void telem_exec_pre_init(void) {
+void telem_exec_create_infra(void) {
     telem_queue = xQueueCreateStatic(TELEM_QUEUE_LENGTH, TELEM_QUEUE_ITEM_SIZE, telem_queue_storage, &telem_queue_buf);
+}
+
+/**
+ * @brief Start the telem task for executing telem units
+ *
+ * @param[in] TaskHandle_t    Task handle of the companion telem task
+ */
+void telem_exec_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_TELEM_EXEC, &telem_exec_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 

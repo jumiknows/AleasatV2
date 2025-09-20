@@ -17,7 +17,8 @@
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void comms_obc_serial_pre_init(void);
+void comms_obc_serial_create_infra(void);
+void comms_obc_serial_create_task(void);
 
 comms_dev_handle_t comms_obc_serial_get_handle(void);
 

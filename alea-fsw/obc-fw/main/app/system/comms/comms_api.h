@@ -181,6 +181,6 @@ comms_err_t comms_wait_cmd_resp(
     uint32_t timeout_ticks
 );
 
-void comms_service_pre_init(void);
+void comms_service_create_infra(void);
 
 #endif

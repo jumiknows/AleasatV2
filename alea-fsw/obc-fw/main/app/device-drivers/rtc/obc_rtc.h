@@ -75,7 +75,7 @@ typedef void (*rtc_alarm_cb_t)(void *arg);
 /******************************************************************************/
 
 // Initialization steps
-void rtc_pre_init(void);
+void rtc_create_infra(void);
 void rtc_init(void);
 void rtc_init_backup(void);
 

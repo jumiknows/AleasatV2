@@ -227,5 +227,5 @@ target_link_options(${PROJECT_NAME} PRIVATE
 # 2) Generate the firmware header and overwrite the .mot file to include the header
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_HEX} --motorola=3 --memwidth=32 --romwidth=32 --map=${PROJECT_NAME}.mot.map --outfile=${PROJECT_NAME}.mot $<TARGET_FILE:${PROJECT_NAME}>
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/alea-obcfw/scripts/obcfw_post_build.py -i ${PROJECT_NAME}.mot -o ${PROJECT_NAME}.mot -e ${PROJECT_NAME}.elf
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/alea-obcfw/scripts/obcfw_post_build.py -i ${PROJECT_NAME}.mot -o ${PROJECT_NAME}.mot
 )

@@ -27,8 +27,8 @@ typedef enum {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void filesystem_pre_init(void);
-void filesystem_post_init(void);
+void filesystem_create_infra(void);
+void filesystem_start_task(void);
 
 fs_err_t fs_open(lfs_file_t *file, const char *filename, uint16_t mutex_timeout);
 fs_err_t fs_close(lfs_file_t *file);

@@ -52,7 +52,7 @@ static canreg_ioc_ptr_t get_canreg_ioc_ptr(canBASE_t *port, can_pin_t pin);
 /**
  * @brief Initialize CAN with HALCoGen settings
  */
-void tms_can_init_hw(void) {
+void tms_can_init(void) {
     canInit();
 }
 

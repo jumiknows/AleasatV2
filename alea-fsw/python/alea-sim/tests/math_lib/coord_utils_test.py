@@ -84,6 +84,3 @@ class CoordUtilsTest(unittest.TestCase):
                         self.assertAlmostEqual(x, x_2, places=8)
                         self.assertAlmostEqual(y, y_2, places=8)
                         self.assertAlmostEqual(z, z_2, places=8)
-
-if __name__ == '__main__':
-    unittest.main()

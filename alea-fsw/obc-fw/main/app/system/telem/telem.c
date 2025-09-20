@@ -104,20 +104,11 @@ struct telem_config_vars {
 /******************************************************************************/
 
 /**
- * @brief Starts the telemetry collection task.
-*/
-void telem_collect_post_init(void) {
-    telem_init_mram();
-    telem_exec_task_handle = xTaskGetHandle("TELEM_EXEC");
-    obc_rtos_create_task(OBC_TASK_ID_TELEM_COLLECT, &telem_collect_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
-}
-
-/**
  * @brief Initialise MRAM config with firmware values of telem unit priority and period
 */
-void telem_init_mram(void) {
-    // WARNING: This is assuming mram_init() has been called already
-    // Write the inital config values from flash into mram
+void telem_create_infra(void) {
+    // WARNING: this is assuming mram_init() has been called already
+    // write the inital config values from flash into mram
 
     struct telem_config_vars telem_vars[TELEM_COUNT];
 
@@ -138,6 +129,8 @@ void telem_init_mram(void) {
 
     return;
 }
+
+
 
 /**
  * @brief Puts the priority of the given telemetry id into output
@@ -161,7 +154,7 @@ telem_err_t telem_get_priority(telem_id_t id, uint8_t *output) {
         }
     } else {
         *output = TELEM_SPEC_TABLE[id].priority;
-        telem_init_mram();
+        telem_create_infra();
     }
 
     return TELEM_SUCCESS;
@@ -189,7 +182,7 @@ telem_err_t telem_get_period(telem_id_t id, uint32_t *output) {
         }
     } else {
         *output = TELEM_SPEC_TABLE[id].period;
-        telem_init_mram();
+        telem_create_infra();
     }
 
     return TELEM_SUCCESS;
@@ -216,7 +209,7 @@ telem_err_t telem_set_priority(telem_id_t id, uint8_t input) {
             return TELEM_ERR_MRAM;
         }
     } else {
-        telem_init_mram();
+        telem_create_infra();
         return TELEM_ERR_MRAM;
     }
 
@@ -244,11 +237,19 @@ telem_err_t telem_set_period(telem_id_t id, uint32_t input) {
             return TELEM_ERR_MRAM;
         }
     } else {
-        telem_init_mram();
+        telem_create_infra();
         return TELEM_ERR_MRAM;
     }
 
     return TELEM_SUCCESS;
+}
+
+/**
+ * @brief Starts the telemetry collection task.
+*/
+void telem_collect_start_task(void) {
+    telem_exec_task_handle = xTaskGetHandle("TELEM_EXEC");
+    obc_rtos_create_task(OBC_TASK_ID_TELEM_COLLECT, &telem_collect_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**

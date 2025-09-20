@@ -8,6 +8,6 @@
 #ifndef ORCASAT_TASKS_BLINKY_H_
 #define ORCASAT_TASKS_BLINKY_H_
 
-void blinky_pre_init(void);
+void blinky_start_task(void);
 
 #endif /* ORCASAT_TASKS_BLINKY_H_ */

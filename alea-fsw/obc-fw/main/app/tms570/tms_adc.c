@@ -36,21 +36,15 @@ static SemaphoreHandle_t adc_Mutex;
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
-/**
- * @brief Initializes the mutex.
- *
- */
-void tms_adc_pre_init(void) {
-    static StaticSemaphore_t adc_buffer;
-    adc_Mutex = xSemaphoreCreateMutexStatic(&adc_buffer);
-}
 
 /**
  * @brief Initializes the mutex. This function also initializes the adc with adcInit()
  *
  */
-void tms_adc_init_hw(void) {
+void tms_adc_init(void) {
+    static StaticSemaphore_t adc_buffer;
     adcInit();
+    adc_Mutex = xSemaphoreCreateMutexStatic(&adc_buffer);
 }
 
 /**

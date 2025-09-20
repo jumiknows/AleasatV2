@@ -7,7 +7,7 @@
 /*                              I N C L U D E S                               */
 /******************************************************************************/
 
-#include "gps_serial_rx.h"
+#include "obc_serial_rx.h"
 
 // OBC
 #include "obc_watchdog.h"
@@ -85,22 +85,13 @@ static uint8_t gps_rx_byte;
 /**
  * @brief Initialize FreeRTOS data structures for the OBC serial RX
  */
-void gps_serial_rx_pre_init(void) {
+void gps_serial_rx_create_infra(void) {
     // Stream buffer for physical serial port
     static StaticStreamBuffer_t gps_stream_buffer_buf                    = {0};
     static uint8_t gps_stream_buffer_storage[GPS_STREAM_BUFFER_SIZE + 1] = {0}; // See https://www.freertos.org/xStreamBufferCreateStatic.html for explanation of + 1
 
     gps_stream_buffer = xStreamBufferCreateStatic(GPS_STREAM_BUFFER_SIZE, GPS_STREAM_BUFFER_DEF_TRIG_LVL, gps_stream_buffer_storage,
                         &gps_stream_buffer_buf);
-
-    obc_rtos_create_task(OBC_TASK_ID_GPS_SERIAL_RX, &gps_serial_rx_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
-}
-
-/**
- * @brief Enable interrupts in post-init section
- */
-void gps_serial_rx_post_init(void) {
-    gps_serial_rx_init_irq();
 }
 
 /**
@@ -117,6 +108,13 @@ void gps_serial_rx_init_irq(void) {
     // When sciNotification fires, rx_byte will contain the new byte.
     // We will have to call sciReceive again to receive the next byte.
     sciReceive(UART_GPS, 1, &gps_rx_byte);
+}
+
+/**
+ * @brief Start the OBC serial RX servicing task
+ */
+void gps_serial_rx_start_task(void) {
+    obc_rtos_create_task(OBC_TASK_ID_GPS_SERIAL_RX, &gps_serial_rx_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**

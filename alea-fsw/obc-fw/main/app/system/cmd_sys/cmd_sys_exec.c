@@ -60,8 +60,14 @@ static StaticQueue_t cmd_queue_buf = { 0 };
 /**
  * @brief Initialize FreeRTOS data structures for the command system executor
  */
-void cmd_sys_exec_pre_init(void) {
+void cmd_sys_exec_create_infra(void) {
     cmd_queue = xQueueCreateStatic(CMD_QUEUE_LENGTH, CMD_QUEUE_ITEM_SIZE, cmd_queue_storage, &cmd_queue_buf);
+}
+
+/**
+ * @brief Start the command system task for executing commands
+ */
+void cmd_sys_exec_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_CMD_SYS_EXEC, &cmd_sys_exec_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 

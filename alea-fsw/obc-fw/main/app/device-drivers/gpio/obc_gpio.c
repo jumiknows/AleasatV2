@@ -119,20 +119,11 @@ void gpio_init_irq(void) {
  * vGPIOServiceTask() that will process them. Queue pushes are done by the GIO interrupt callback in
  * @ref obc_notification.c. This function creates the queue and the interrupt servicing task.
  */
-void gpio_pre_init(void) {
+void gpio_create_infra(void) {
     static StaticQueue_t xIRQStaticQueue;
     static uint8_t gio_irq_q_storage[GIO_IRQ_Q_NUM_ITEMS * GIO_IRQ_Q_ITEM_SIZE];
 
     gioInterruptQueue = xQueueCreateStatic(GIO_IRQ_Q_NUM_ITEMS, GIO_IRQ_Q_ITEM_SIZE, gio_irq_q_storage, &xIRQStaticQueue);
-
-    obc_rtos_create_task(OBC_TASK_ID_GPIO_IRQ, &vGPIOServiceTask, NULL, OBC_WATCHDOG_ACTION_ALLOW);
-}
-
-/**
- * @brief Enable interrupts in post-init section
- */
-void gpio_post_init(void) {
-    gpio_init_irq();
 }
 
 /**
@@ -174,6 +165,13 @@ void gpio_expander_reset(void) {
 #if FEATURE_GPIO_EXPANDER
     pcal6416a_reset();
 #endif
+}
+
+/**
+ * @brief Starts the GPIO interrupt processing task.
+ */
+void gpio_start_task(void) {
+    obc_rtos_create_task(OBC_TASK_ID_GPIO_IRQ, &vGPIOServiceTask, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
 /**

@@ -23,9 +23,7 @@ void increment_reset_counter(void) {
 
     // Read the current counter
     if (mram_read(MRAM_RESET_COUNTER_ADDR, sizeof(counter), (uint8_t *)&counter) != MRAM_OK) {
-#if FEATURE_HW_MRAM
         LOG_RESET_COUNTER__READ_ERROR();
-#endif
         return;
     }
 

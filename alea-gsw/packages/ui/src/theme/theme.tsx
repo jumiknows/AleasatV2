@@ -60,6 +60,7 @@ let theme = createTheme({
       fontFamily: audiowide.style.fontFamily,
       fontSize: "3.812rem",
       fontWeight: "bold",
+      color: "black",
     },
     h2: { fontFamily: audiowide.style.fontFamily, fontSize: "3.062rem" },
     h3: { fontFamily: audiowide.style.fontFamily, fontSize: "2.438rem" },
@@ -83,15 +84,6 @@ let theme = createTheme({
         LinkComponent: LinkBehavior,
       },
     },
-    MuiButton: {
-      styleOverrides: {
-        iconSizeMedium: {
-          "& > *:first-child": {
-            fontSize: 35,
-          },
-        },
-      },
-    },
     MuiPaper: {
       styleOverrides: {
         root: {
@@ -100,7 +92,7 @@ let theme = createTheme({
               props: { variant: "glass" },
               style: {
                 backgroundColor: "rgba(30, 30, 30, 0.8)",
-                border: "1.2px solid #56616A",
+                border: "2px solid #56616A",
                 backdropFilter: "blur(20)",
               },
             },

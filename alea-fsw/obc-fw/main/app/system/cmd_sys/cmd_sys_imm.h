@@ -14,6 +14,6 @@
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void cmd_sys_imm_pre_init(void);
+void cmd_sys_imm_start_task(void);
 
 #endif // CMD_SYS_IMM_H_

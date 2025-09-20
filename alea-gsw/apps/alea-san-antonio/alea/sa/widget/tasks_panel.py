@@ -58,11 +58,11 @@ class TasksPanel(QtWidgets.QWidget, tasks_panel_ui.Ui_TasksPanel):
         self.tasks_table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tasks_table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tasks_table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tasks_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tasks_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tasks_table.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tasks_table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
-        self.tasks_table.setStyleSheet("QTableWidget::item { padding: 6px }")
+        self.tasks_table.setStyleSheet("QTableWidget::item { padding: 8px }")
 
         default_status = TaskStatus.UNKNOWN
 

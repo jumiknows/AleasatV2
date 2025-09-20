@@ -54,14 +54,6 @@ class AOCSConfig:
     # this is cheating, only use this for testing
     # overrides usage of QUEST, EKF and low pass filters
     enable_ideal_estimation: bool
-
-    @dataclasses.dataclass(frozen=True)
-    class ReactionWheelCoordinates:
-        rw_x       : list
-        rw_y       : list
-        rw_z       : list
-    
-    rw_coordinates   : ReactionWheelCoordinates
     
     enable_ekf: bool = True
     enable_sensor_lpf: bool = False
@@ -74,7 +66,6 @@ class AOCSConfig:
             self.k_d = np.diag(self.k_d)
         self.k_detumble = np.array(self.k_detumble)
         self.quest_weights = np.array(self.quest_weights)
-        self.rw_coordinates = self.ReactionWheelCoordinates(**self.rw_coordinates)
 
 class AOCSModel(Configurable[AOCSConfig], SharedMemoryModelInterface, AbstractModel):
     """
@@ -156,7 +147,6 @@ class AOCSModel(Configurable[AOCSConfig], SharedMemoryModelInterface, AbstractMo
         self._mtqs: list[MagnetorquerModel] = []
         
         temp = ['x', 'y', 'z']
-        rw_coords = [self.cfg.rw_coordinates.rw_x,self.cfg.rw_coordinates.rw_y,self.cfg.rw_coordinates.rw_z]
         for i in range(3):
             normal = np.zeros(3, dtype=np.float64)
             normal[i] = 1.0
@@ -165,7 +155,7 @@ class AOCSModel(Configurable[AOCSConfig], SharedMemoryModelInterface, AbstractMo
             self._mtqs.append(mtq)
             self.kernel.add_model(mtq, parent=self)
 
-            rw = ReactionWheelModel(name=f"rw_{temp[i]}", sim_kernel=self.kernel, spin_axis_body=normal,coordinates=rw_coords[i])
+            rw = ReactionWheelModel(name=f"rw_{temp[i]}", sim_kernel=self.kernel, spin_axis_body=normal)
             self._rws.append(rw)
             self.kernel.add_model(rw, parent=self)
 

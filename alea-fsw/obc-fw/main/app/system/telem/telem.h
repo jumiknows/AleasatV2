@@ -30,8 +30,8 @@
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void telem_init_mram(void);
-void telem_collect_post_init(void);
+void telem_create_infra(void);
+void telem_collect_start_task(void);
 void telem_collect_enable(void);
 void telem_collect_disable(void);
 

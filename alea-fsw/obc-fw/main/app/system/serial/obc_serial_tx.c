@@ -54,7 +54,7 @@ static SemaphoreHandle_t sci_mutex = NULL;
 /**
  * @brief Initialize FreeRTOS data structures for the OBC serial TX
  */
-void obc_serial_tx_pre_init(void) {
+void obc_serial_tx_create_infra(void) {
     // Mutex for SCI peripheral
     static StaticSemaphore_t sci_mutex_buf = { 0 };
 

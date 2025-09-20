@@ -66,7 +66,7 @@ static bool wd_task_started = false;
 /**
  * @brief Initialize FreeRTOS objects used by this module
  */
-void obc_watchdog_pre_init(void) {
+void obc_watchdog_create_infra(void) {
     static StaticEventGroup_t event_group_buffer;
     wd_event_group_handle = xEventGroupCreateStatic(&event_group_buffer);
 }
@@ -74,7 +74,7 @@ void obc_watchdog_pre_init(void) {
 /**
  * @brief Start the software watchdog task
  */
-void obc_watchdog_post_init(void) {
+void obc_watchdog_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_WATCHDOG, &obc_watchdog_task, NULL, OBC_WATCHDOG_ACTION_IGNORE);
     wd_task_started = true;
 }

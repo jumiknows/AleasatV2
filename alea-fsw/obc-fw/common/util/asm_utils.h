@@ -29,7 +29,7 @@
 void asm_jump_to_addr(uint32_t addr);
 
 /**
- * @brief Busy wait in the simplest while loop (tested at 96MHz CPU clock to be 5 clock cycles per iteration of the loop)
+ * @brief Busy wait in the simplest while loop (tested at 96MHz CPU clock to be 5 cycles / loop)
  * This function is executed from RAM instead of Flash to meet timing requirements
  *
  * @param loops The number of loops to wait

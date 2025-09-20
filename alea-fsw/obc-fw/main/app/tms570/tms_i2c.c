@@ -110,7 +110,7 @@ static void i2cSendInterrupt(uint32_t reg_length, const uint8_t *reg_data, uint3
 /**
  * @brief Instantiates the mutex used to protect I2C access
  */
-void tms_i2c_pre_init(void) {
+void tms_i2c_create_infra(void) {
     static StaticSemaphore_t xI2CStaticMutex;
     static StaticSemaphore_t xI2CStaticSemaphoreISR;
     xI2CMutex = xSemaphoreCreateMutexStatic(&xI2CStaticMutex);
@@ -122,7 +122,7 @@ void tms_i2c_pre_init(void) {
  *
  * Function has to be called before using any I2C devices
  */
-void tms_i2c_init_hw(void) {
+void tms_i2c_init(void) {
     /*
      * FIX: voltage levels are low when initializing I2C pins without initializing as GIO pins first
      */
@@ -251,8 +251,8 @@ static void i2c_init_voltage_levels(void) {
     // Bring I2C out of reset
     i2cREG1->MDR |= (uint32_t)I2C_RESET_OUT;
 
-    // This is necessary, otherwise pin voltage doesn't settle
-    asm_busy_wait(1920000); // Roughly 10ms
+    // Wait for a single tick. This is necessary, otherwise pin voltage doesn't settle
+    vTaskDelay(pdMS_TO_TICKS(10));
 }
 
 /**

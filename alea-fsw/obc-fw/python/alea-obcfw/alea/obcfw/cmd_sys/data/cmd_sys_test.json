@@ -392,13 +392,6 @@
             {"sum": "u32"}
         ]
     },
-    "TEST_LOG_2_FLASH": {
-        "id": 215,
-        "args": [
-            {"num_logs": "u32"}
-        ],
-        "resp": []
-    },
     "TEST_MRAM_RW": {
         "id": 100,
         "args": [

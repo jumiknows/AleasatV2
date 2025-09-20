@@ -82,14 +82,16 @@ static gps_state_t gps_state;
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
-void gps_pre_init(void) {
-    static StaticSemaphore_t sci_mutex_buf = {0};
-    gps_state.xGpsMutex                    = xSemaphoreCreateMutexStatic(&sci_mutex_buf);
-
+void gps_init(void) {
     gps_state.xGpsTaskToNotify      = NULL;
     gps_state.expect_extended_reply = false;
     gps_state.success               = false;
     gps_state.rx_buf_len            = 0;
+}
+
+void gps_create_infra(void) {
+    static StaticSemaphore_t sci_mutex_buf = {0};
+    gps_state.xGpsMutex                    = xSemaphoreCreateMutexStatic(&sci_mutex_buf);
 }
 
 /**

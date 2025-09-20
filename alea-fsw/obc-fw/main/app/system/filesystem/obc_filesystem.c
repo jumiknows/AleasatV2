@@ -176,7 +176,7 @@ static TaskHandle_t fs_task_handle = NULL;
 /**
  * @brief Initialise filesystem mutex and queue
 */
-void filesystem_pre_init(void) {
+void filesystem_create_infra(void) {
 #if FEATURE_FLASH_FS
     static StaticSemaphore_t xFileSystemMutexBuffer;
     static StaticSemaphore_t xWriteQueueMutexBuffer;
@@ -188,7 +188,7 @@ void filesystem_pre_init(void) {
 /**
  * @brief Starts the filesystem task.
 */
-void filesystem_post_init(void) {
+void filesystem_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_FILESYSTEM, &filesystem_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 #if FEATURE_FLASH_FS
     fs_task_handle = xTaskGetHandle("FILESYSTEM");

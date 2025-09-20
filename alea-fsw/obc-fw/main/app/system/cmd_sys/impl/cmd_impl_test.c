@@ -129,23 +129,6 @@ cmd_sys_resp_code_t cmd_impl_TEST_HANG(const cmd_sys_cmd_t *cmd, cmd_TEST_HANG_a
 }
 
 /**
- * @brief Generate a specific number of logs (to be saved to flash)
- */
-cmd_sys_resp_code_t cmd_impl_TEST_LOG_2_FLASH(const cmd_sys_cmd_t *cmd, cmd_TEST_LOG_2_FLASH_args_t *args) {
-    static uint32_t log_num = 0;
-
-    uint32_t num_logs = args->num_logs;
-
-    for (uint32_t x = 0; x < num_logs; x++) {
-        LOG_LOG_SYS__DUMMY(log_num++);
-        vTaskDelay(pdMS_TO_TICKS(200));
-        obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_EXEC);
-    }
-
-    return CMD_SYS_RESP_CODE_SUCCESS;
-}
-
-/**
  * @brief Write a value to a CAN pin as a GPIO
  */
 cmd_sys_resp_code_t cmd_impl_TEST_CAN_GPIO(const cmd_sys_cmd_t *cmd, cmd_TEST_CAN_GPIO_args_t *args, cmd_TEST_CAN_GPIO_resp_t *resp) {

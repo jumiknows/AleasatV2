@@ -43,7 +43,7 @@ class AOCSTest(unittest.TestCase):
         self.adyn._state = np.array([1.0, 0.0, 0.0, 0.0, 4.0, 0.5, 1.0])
         
         np.testing.assert_almost_equal(self.adyn._state, np.array([1.0, 0.0, 0.0, 0.0, 4.0, 0.5, 1.0]))
-        init_v = self.adyn.angular_velocity.copy()
+        init_v = self.adyn.angular_velocity
         init_t = self.kernel.time
 
         self.aocs.set_mode(AOCSModel.AOCSMode.DETUMBLE_MAG)
@@ -56,7 +56,7 @@ class AOCSTest(unittest.TestCase):
         final_t = self.kernel.time
         
         print(f"AOCS detumbled from {init_v} [rad/s] to {final_v} [rad/s] in {final_t-init_t:.3f} seconds.")
-        self.assertLess(np.linalg.norm(self.adyn.angular_velocity), np.deg2rad(5), "Final angular velocity is not less than 5 deg/s!")
+        self.assertTrue(np.linalg.norm(self.adyn.angular_velocity) < np.deg2rad(5))
 
     @parameterized.expand([
         [Quaternion([0.44079742, 0.58408327, 0.54548583, 0.40864358])],

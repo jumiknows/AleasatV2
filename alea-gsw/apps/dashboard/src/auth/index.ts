@@ -1,6 +1,5 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
-import type { Provider } from "next-auth/providers";
 import Keycloak from "next-auth/providers/keycloak";
 import { getSTS } from "./sts";
 
@@ -46,19 +45,17 @@ declare module "next-auth" {
   }
 }
 
-const providers: Provider[] = [
-  Keycloak({
-    issuer: "https://keycloak.aleasat.space/realms/aleasat",
-    clientId: "alea-dashboard",
-    client: {
-      token_endpoint_auth_method: "none",
-    },
-  }),
-];
-
 export const { auth, handlers, signIn, signOut } = NextAuth({
   // Configure one or more authentication providers
-  providers,
+  providers: [
+    Keycloak({
+      issuer: "https://keycloak.aleasat.space/realms/aleasat",
+      clientId: "alea-dashboard",
+      client: {
+        token_endpoint_auth_method: "none",
+      },
+    }),
+  ],
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account) {
@@ -135,18 +132,4 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return true;
     },
   },
-  pages: {
-    signIn: "/auth/signin",
-  },
 });
-
-export const providerMap = providers
-  .map((provider) => {
-    if (typeof provider === "function") {
-      const providerData = provider();
-      return { id: providerData.id, name: providerData.name };
-    } else {
-      return { id: provider.id, name: provider.name };
-    }
-  })
-  .filter((provider) => provider.id !== "credentials");

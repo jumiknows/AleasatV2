@@ -1,9 +1,7 @@
 "use client";
 
 import Image from "@aleasat/ui/components/Image";
-import ThemeRegistry from "@aleasat/ui/theme/ThemeRegistry";
 import theme from "@aleasat/ui/theme/theme";
-import { ThemeProvider } from "@emotion/react";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -11,8 +9,7 @@ import type { Navigation } from "@toolpad/core";
 import { NextAppProvider } from "@toolpad/core/nextjs";
 import { Provider, createStore } from "jotai";
 import type { Session } from "next-auth";
-import { SessionProvider, signOut } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { SessionProvider, signIn, signOut } from "next-auth/react";
 import { useReportWebVitals } from "next/web-vitals";
 import type { ReactNode } from "react";
 import ForceReAuth from "./ForceReAuth";
@@ -22,6 +19,7 @@ const store = createStore();
 export default function RootProvider({
   children,
   session,
+  navigation,
 }: {
   children: ReactNode;
   session: Session | null | undefined;
@@ -52,21 +50,23 @@ export default function RootProvider({
                     src="https://artifact.aleasat.space/logos/ALEASAT_Logo.png"
                     alt="AleaSat Logo"
                     sx={{
+                      objectFit: "contain",
                       height: { xs: 50, sm: 70 },
                       width: { xs: 100, sm: 150 },
                     }}
                   />
                 ),
-                title: "",
+                title: "Dashboard",
               }}
               theme={theme}
               session={session}
               authentication={{
-                signIn: async () => redirect("/api/auth/signin"),
+                signIn: async () => await signIn("keycloak"),
                 signOut,
               }}
+              navigation={navigation}
             >
-              <ThemeRegistry>{children}</ThemeRegistry>
+              {children}
             </NextAppProvider>
           </AppRouterCacheProvider>
         </LocalizationProvider>

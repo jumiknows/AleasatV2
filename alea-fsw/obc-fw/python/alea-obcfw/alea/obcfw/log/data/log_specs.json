@@ -1643,35 +1643,5 @@
         "description": "Unable to write the reset counter"
       }
     }
-  },
-  "LOG_LOG_SYS": {
-    "id": 74,
-    "description": "Logging System",
-    "signals": {
-      "WRITE_ENQUEUE_FAIL": {
-        "level": "ERROR",
-        "id": 0,
-        "description": "Failed to queue log for write to flash",
-        "data": [
-          {"err": "s8"}
-        ]
-      },
-      "FS_FAIL": {
-        "level": "ERROR",
-        "id": 1,
-        "description": "Failed a FS operation",
-        "data": [
-          {"err": "s8"}
-        ]
-      },
-      "DUMMY": {
-        "level": "DEBUG",
-        "id": 2,
-        "description": "Dummy log for testing log2fs",
-        "data": [
-          {"log_num": "u32"}
-        ]
-      }
-    }
   }
 }

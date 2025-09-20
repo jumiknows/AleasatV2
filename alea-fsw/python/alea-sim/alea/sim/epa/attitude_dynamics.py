@@ -98,12 +98,12 @@ class AttitudeDynamicsModel(Configurable[AttitudeDynamicsConfig], SharedMemoryMo
 
     @property
     def saved_state_size(self) -> int:
-        #state vector (7) + ang accel (3) + rxn wheel imbalance torques (3) + disturbance torque (3)
-        return (self._state.size + 3 + 3 + 3)
+        #state vector (7) + ang accel (3) + disturbance torque (3)
+        return (self._state.size + 3 + 3)
 
     @property
     def saved_state_element_names(self) -> list[str]:
-        return ['q0','q1','q2','q3','w1','w2','w3','ang_accel1','ang_accel2','ang_accel3','Ldx', 'Ldy', 'Ldz', 'Tdx', 'Tdy', 'Tdz']
+        return ['q0','q1','q2','q3','w1','w2','w3','ang_accel1','ang_accel2','ang_accel3', 'Tdx', 'Tdy', 'Tdz']
 
     @property
     def quaternion(self) -> Quaternion:
@@ -159,22 +159,11 @@ class AttitudeDynamicsModel(Configurable[AttitudeDynamicsConfig], SharedMemoryMo
             actuator_torque += t_mtq_body
 
         #disturbance torques
-        #torques from gravity gradient, magnetic, aerodynamic disturbances, reaction wheel imbalances
-        dynamic_imbalance = np.zeros(3)
-        static_imbalance = np.zeros(3)
-        rw_imbalances = np.zeros(3)
+        #torques from gravity gradient, magnetic, aerodynamic disturbances
         disturbance_torque = np.zeros(3)
         if self._disturbances is not None and self.cfg.enable_disturbances:
-            if self._aocs is not None:
-                for wheel in self._aocs._rws:
-                    dynamic_imbalance += wheel.dynamic_torque
-                    static_imbalance += wheel.static_torque
-                rw_imbalances = static_imbalance + dynamic_imbalance
-                disturbance_torque += rw_imbalances
-            saved_state[10:13] = rw_imbalances
-
-            disturbance_torque += self._disturbances.get_T_disturbance()
-            saved_state[13:] = disturbance_torque
+            disturbance_torque = self._disturbances.get_T_disturbance()
+            saved_state[10:] = disturbance_torque
 
         u = actuator_torque + disturbance_torque
 

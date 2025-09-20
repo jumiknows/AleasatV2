@@ -42,7 +42,7 @@ static void blinky_task(void *pvParameters);
  * @brief Starts the built-in GPIO blinky task. This task blinks an LED
  * attached to a GPIO pin at 5 Hz.
  */
-void blinky_pre_init(void) {
+void blinky_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_BLINKY, &blinky_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 

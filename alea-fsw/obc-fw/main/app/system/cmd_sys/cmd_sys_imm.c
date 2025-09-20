@@ -48,7 +48,7 @@ static void exec_wait_callback(void);
 /**
  * @brief Start the command system task for immediate commands
  */
-void cmd_sys_imm_pre_init(void) {
+void cmd_sys_imm_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_CMD_SYS_IMM, &cmd_sys_imm_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 

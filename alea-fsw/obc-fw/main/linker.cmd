@@ -53,7 +53,7 @@ MEMORY
      * This effectively means that the firmware image at the beginning of the flash space (immediately following the
      * EXCFLASH region) cannot use an RTOS.
      */
-    FW_HEADER  : origin=FW_MEMMAP_FLASH_START_ADDR  length=FW_MEMMAP_HEADER_SIZE                                            fill=0xFFFFFFFF
+    FW_HEADER  : origin=FW_MEMMAP_FLASH_START_ADDR  length=FW_MEMMAP_HEADER_SIZE
     ENTRYPOINT : origin=END(FW_HEADER)              length=FW_MEMMAP_ENTRYPOINT_SIZE
     FW_INFO    : origin=END(ENTRYPOINT)             length=FW_MEMMAP_INFO_SIZE
 
@@ -62,7 +62,7 @@ MEMORY
      * The FreeRTOS MPU configuration assumes the total size of the FW_HEADER up to KERNEL regions is 32 KB (0x8000).
      * If this changes, the MPU configuration in prvSetupDefaultMPU must be updated accordingly.
      */
-    KERNEL     : origin=END(FW_INFO)                length=(0x00008000 - (END(FW_INFO) - START(FW_HEADER)))                 fill=0xFFFFFFFF
+    KERNEL     : origin=END(FW_INFO)                length=(0x00008000 - (END(FW_INFO) - START(FW_HEADER)))
 
     #define USER_CODE_START END(KERNEL)
 #else

@@ -3,7 +3,6 @@ import { Configuration, ImageRequestApi } from "@aleasat/api-lib";
 import Grid from "@mui/material/Grid"; // Grid version 1
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import Gallery from "../components/Gallery";
 import ImageCard from "../components/ImageCard";
 import SearchBar from "../components/SearchBar";
 
@@ -69,7 +68,6 @@ export default async function MyImage() {
             </Grid>
           ))}
       </Grid>
-      <Gallery />
     </Stack>
   );
 }

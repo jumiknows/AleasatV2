@@ -64,12 +64,6 @@ class HILTest(unittest.TestCase):
         if cls.find_port:
             if cls.PORT is None:
                 raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
-            
-            if cls.ttc is None:
-                cls.ttc = HILTest.create_and_start_ttc(cls.PORT)
-                # Since we started the TTC we should stop it. If a TTC is provided to the class before the tests are
-                # run, we won't start or stop it (the caller becomes responsible for those steps)
-                cls._stop_ttc_after_test = True
  
             cls._logs_print = cls.ttc.add_log_listener(queue_size=100)
             cls._logs_print_stop = threading.Event()
@@ -283,86 +277,6 @@ def runner_for_SA(obc, test):
     HILTest.find_port = False
 
     test_case = loader.loadTestsFromName(str(test_classes)[2:Test_index + 4])
-
-    runner = unittest.TextTestRunner(verbosity=2)
-
-    result = runner.run(test_case)
-
-    # Retrieve timing data
-    PassTimeTaken = 0.0
-    for test_name, time_taken in HILTest.timing_data.items():
-        PassTimeTaken += time_taken
-
-    redResults = []
-    greenResults = []
-
-    # Failed tests
-    for test, err in result.failures:
-        # str(test) will be of form 
-        # test_name (testFile.TestClass)
-        # example: test_eps_read_float_battery_voltage (epsTest.EpsTest)
-        
-        # So let's cut off after first '('
-        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
-        testCut = str(test)[:CutoffCharacter]
-
-        # testCut: 'test_eps_read_float_battery_voltage'
-        redResults.append((testCut, 'failure', err))
-
-    # Error tests
-    for test, err in result.errors:
-
-        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
-        testCut = str(test)[:CutoffCharacter]
-
-        redResults.append((testCut, 'error', err))
-
-    for test in test_classes:
-        failedTest = False
-        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
-        testCut = str(test)[:CutoffCharacter]
-
-        for redtest in redResults:
-            if(testCut == redtest[0]):
-                failedTest = True
-        
-        if not failedTest:
-            greenResults.append((testCut, 'success')) 
-
-    return redResults, greenResults, PassTimeTaken
-
-def runner_for_SA_indiv(obc, test, test_individual):
-    loader = unittest.TestLoader()
-    suites_dir = pathlib.Path(alea.test.hil.suites.__file__).parent
-
-    test_suite = loader.discover(suites_dir, pattern="*_test.py")
-
-    test_classes = [] # Need to store all of them and find right one
-
-    # This triple for loop is essentially just iterating through 
-    # markdown language of test suites
-    for i in range(len(test_suite._tests)):
-        tests = test_suite._tests[i]
-        for j in range(len(tests._tests)):
-            tests2 = tests._tests[j]
-            for k in range(len(tests2._tests)):
-                tests3 = tests2._tests[k]
-                if test in str(tests3) and test_individual in str(tests3):
-                    test_classes.append(tests3)
-                    tests3.__class__.ttc = obc
-
-    # EXAMPLE FOR PING TEST: 
-    # str(test_classes) is [<cdh.ping_test.PingTest testMethod=test_echo>, <cdh.ping_test.PingTest testMethod=test_ping>]
-    
-    Test_index = str(test_classes).find('Test')
-
-    #create an index with a conditional test and indiv test as both inputs
-
-    # str(test_classes)[2:Test_index + 4] is cdh.ping_test.PingTest
-
-    HILTest.find_port = False
-
-    test_case = loader.loadTestsFromName(str(test_classes)[2:Test_index + 4] + '.' + test_individual)
 
     runner = unittest.TextTestRunner(verbosity=2)
 

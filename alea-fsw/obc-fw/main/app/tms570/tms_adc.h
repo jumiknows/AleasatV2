@@ -36,7 +36,7 @@ typedef enum {
 
 adc_err_t tms_adc_channel_read(adcBASE_t *adc_module, uint32_t channel, uint16_t *channel_val_raw);
 adc_err_t tms_adc_read_millivolts(adcBASE_t *adc_module, uint32_t channel, uint16_t *channel_val_raw, uint16_t *converted_voltage);
-void tms_adc_init_hw(void);
-void tms_adc_pre_init(void);
+void tms_adc_init(void);
+
 
 #endif /*TMS_ADC_H*/
