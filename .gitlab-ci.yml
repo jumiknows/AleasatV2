@@ -1,0 +1,47 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+include:
+  # ==============================================================================
+  # OBC Firmware
+  # ==============================================================================
+  - local: "alea-fsw/obc-fw/obc-fw.gitlab-ci.yml"
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        changes:
+          - alea-fsw/obc-fw/**/*
+          - alea-fsw/python/alea-common/**/*
+          - alea-fsw/python/alea-ttc/**/*
+          - alea-fsw/python/alea-test/**/*
+          - tools/**/*
+  # ==============================================================================
+  # ALEA Tests
+  # ==============================================================================
+  - local: "alea-fsw/python/alea-test/alea-test.gitlab-ci.yml"
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        changes:
+          - alea-fsw/obc-fw/**/*
+          - alea-fsw/python/alea-common/**/*
+          - alea-fsw/python/alea-ttc/**/*
+          - alea-fsw/python/alea-test/**/*
+          - tools/**/*
+  # ==============================================================================
+  # ALEASIM
+  # ==============================================================================
+  - local: "alea-fsw/python/alea-sim/alea-sim.gitlab-ci.yml"
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        changes:
+          - alea-fsw/python/alea-sim/**/*
+
+dummy:
+  stage: build
+  rules:
+    - when: never
+  script:
+    - echo "This should never run"

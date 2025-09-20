@@ -1,0 +1,26 @@
+variables:
+  OBC_FW_DIR: "alea-fsw/obc-fw"
+  ALEA_TEST_DIR: "alea-fsw/python/alea-test"
+
+alea-test:hil:
+  stage: test
+  tags:
+    - obc-alea-v1-runner
+  needs:
+    - obc-fw:alea-v1
+  before_script:
+    - cd $CI_PROJECT_DIR/$OBC_FW_DIR
+    - tools/debug/jlink/jlink-flash-alea-v1.sh -f build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
+    - cd $CI_PROJECT_DIR/$ALEA_TEST_DIR
+    - poetry install
+  script:
+    - echo "OBC connected to ${ALEA_OBC_PORT}"
+    - ./scripts/alea_test_hil.sh
+  artifacts:
+    when: always
+    paths:
+      - "$ALEA_TEST_DIR/results/*.xml"
+    reports:
+      junit:
+        - "$ALEA_TEST_DIR/results/*.xml"
+    expire_in: 1 month

@@ -1,0 +1,10 @@
+.venv/
+.cache/
+__pycache__/
+
+*.bsp
+
+# Animations
+*.gif
+*.mp4
+*.html

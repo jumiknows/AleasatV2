@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "alea-obcfw"
+version = "0.1.0"
+description = ""
+authors = ["ALEASAT <administrator@aleasat.space>"]
+readme = "README.md"
+packages = [{include = "alea"}]
+include = ["alea/obcfw/cmd_sys/data/*.json", "alea/obcfw/log/data/*.json", "alea/obcfw/task/data/*.json"]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+bincopy = "^20.0.0"
+jinja2 = "^3.1.4"
+alea-common = {path = "../../../python/alea-common", develop = true, extras = ["data-field-ndarray"]}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

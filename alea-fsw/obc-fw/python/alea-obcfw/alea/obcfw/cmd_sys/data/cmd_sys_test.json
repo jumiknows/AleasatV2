@@ -1,0 +1,386 @@
+{
+    "TEST_ECHO": {
+        "id": 255,
+        "args": [
+            {"number": "u32"},
+            {"array": "u32[2][3]"},
+            {"arrayf": "f32[2][3]"},
+            {"message": "string"}
+        ],
+        "resp": [
+            {"number": "u32"},
+            {"array": "u32[2][3]"},
+            {"arrayf": "f32[2][3]"},
+            {"message": "string"}
+        ]
+    },
+    "TEST_HANG": {
+        "id": 254,
+        "args": [
+            {"duration_us": "u32"}
+        ],
+        "resp": []
+    },
+    "TEST_COMMS_TX_RX" : {
+        "id": 252,
+        "args": [],
+        "resp": [
+            {"comms_err": "s8"},
+            {"command": "u8"}
+        ]
+    },
+    "TEST_COMMS_STRESS1" : {
+        "id": 251,
+        "args": [],
+        "resp": [
+            {"pass": "u32"},
+            {"fail": "u32"}
+        ]
+    },
+    "TEST_COMMS_FLASH_APP" : {
+        "id": 250,
+        "args": [],
+        "resp": [
+            {"comms_err": "s8"}
+        ]
+    },
+    "TEST_COMMS_REBOOT" : {
+        "id": 249,
+        "args": [],
+        "resp": []
+    },
+    "TEST_COMMS_GET_TELEM" : {
+        "id": 248,
+        "args": [],
+        "resp": [
+            {"uptime": "u32"},
+            {"uart0_rx_count": "u32"},
+            {"uart1_rx_count": "u32"},
+            {"rx_mode": "u8"},
+            {"tx_mode": "u8"},
+            {"adc": "s16[10]"},
+            {"rssi": "s8"},
+            {"last_lqi": "u8"},
+            {"last_frequest": "s8"},
+            {"packets_sent": "u32"},
+            {"cs_count": "u32"},
+            {"packets_good": "u32"},
+            {"packets_rejected_checksum": "u32"},
+            {"packets_rejected_other": "u32"},
+            {"custom0": "u32"},
+            {"custom1": "u32"}
+        ]
+    },
+    "TEST_EPS_READ_FLOAT" : {
+        "id": 247,
+        "args": [
+            {"read_cmd": "u8"}
+        ],
+        "resp": [
+            {"eps_err": "s8"},
+            {"data": "f32"}
+        ]
+    },
+    "TEST_EPS_READ_FLOAT_RAW" : {
+        "id": 246,
+        "args": [
+            {"read_cmd": "u8"}
+        ],
+        "resp": [
+            {"eps_err": "s8"},
+            {"data": "u16"}
+        ]
+    },
+    "TEST_EPS_READ_INT" : {
+        "id": 245,
+        "args": [
+            {"read_cmd": "u8"}
+        ],
+        "resp": [
+            {"eps_err": "s8"},
+            {"data": "u16"}
+        ]
+    },
+    "TEST_EPS_WRITE" : {
+        "id": 244,
+        "args": [
+            {"write_cmd": "u8"},
+            {"state": "u8"}
+        ],
+        "resp": [
+            {"eps_err": "s8"}
+        ]
+    },
+    "TEST_EPS_READ_SANITY" : {
+        "id": 243,
+        "args": [],
+        "resp": [
+            {"success_counter": "u8"}
+        ]
+    },
+    "TEST_EPS_WRITEREAD_SANITY" : {
+        "id": 242,
+        "args": [],
+        "resp": [
+            {"success_counter": "u8"}
+        ]
+    },
+    "TEST_EPS_MEASURE_BUSES": {
+        "id": 219,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"batt_V": "f32"},
+            {"batt_A": "f32"},
+            {"bcr_V": "f32"},
+            {"bcr_A": "f32"},
+            {"bus_3v3_V": "f32"},
+            {"bus_3v3_A": "f32"},
+            {"bus_5v_V": "f32"},
+            {"bus_5v_A": "f32"},
+            {"lup_3v3_V": "f32"},
+            {"lup_5v_V": "f32"}
+        ]
+    },
+    "TEST_EPS_MEASURE_TEMPS": {
+        "id": 218,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"cell_temps": "f32[4]"},
+            {"mcu_temp": "f32"}
+        ]
+    },
+    "TEST_EPS_READ_COUNTERS": {
+        "id": 217,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"uptime": "u32"},
+            {"power_on_cycles": "u16"},
+            {"under_voltage": "u16"},
+            {"short_circuit": "u16"},
+            {"over_temp": "u16"}
+        ]
+    },
+    "TEST_EPS_READ_STATUS": {
+        "id": 216,
+        "args": [],
+        "resp": [
+            {"eps_err": "s8"},
+            {"out_cond_1": "u16"},
+            {"out_cond_2": "u16"}
+        ]
+    },
+    "TEST_MAG" : {
+        "id": 241,
+        "args": [
+            {"magnetorquer": "u8"}
+        ],
+        "resp": []
+    },
+    "TEST_MAG_ALL" : {
+        "id": 240,
+        "args": [],
+        "resp": []
+    },
+    "TEST_MAG_INIT" : {
+        "id": 239,
+        "args": [],
+        "resp": []
+    },
+    "TEST_IMU" : {
+        "id": 238,
+        "args": [],
+        "resp": []
+    },
+    "TEST_PANEL_GYRO" : {
+        "id": 237,
+        "args": [
+            {"gyro": "u8"}
+        ],
+        "resp": []
+    },
+    "TEST_CAN_GPIO" : {
+        "id": 236,
+        "args": [
+            {"port": "u8"},
+            {"pin": "u8"},
+            {"value": "bool"}
+        ],
+        "resp": [
+            {"gpio_err": "s8"}
+        ]
+    },
+    "TEST_FLASH_RW": {
+        "id": 235,
+        "args": [
+            {"addr": "u32"},
+            {"len": "u16"}
+        ],
+        "resp": [
+            {"erase_err": "s8"},
+            {"write_err": "s8"},
+            {"read_err": "s8"},
+            {"data_match": "bool"}
+        ]
+    },
+    "TEST_FILESYSTEM": {
+        "id": 234,
+        "args": [],
+        "resp": [
+            {"fs_err": "s8"}
+        ]
+    },
+    "TEST_CAM_INIT": {
+        "id": 233,
+        "args": [],
+        "resp": [
+            {"arducam_err": "s8"}
+        ]
+    },
+    "TEST_CAM_CAPTURE": {
+        "id": 232,
+        "args": [],
+        "resp": [
+            {"arducam_err": "s8"},
+            {"image_size": "u32"},
+            {"image_data": "bytes"}
+        ]
+    },
+    "TEST_CAM_WR_SREG": {
+        "id": 231,
+        "args": [
+            {"addr": "u16"},
+            {"data": "u8"}
+        ],
+        "resp": [
+            {"ov5642_err": "s8"}
+        ]
+    },
+    "TEST_CAM_RD_SREG": {
+        "id": 230,
+        "args": [
+            {"addr": "u16"}
+        ],
+        "resp": [
+            {"ov5642_err": "s8"},
+            {"data": "u8"}
+        ]
+    },
+    "TEST_CAM_WR_SREGS": {
+        "id": 229,
+        "args": [
+            {"reg_data": "bytes"}
+        ],
+        "resp": [
+            {"ov5642_err": "s8"}
+        ]
+    },
+    "TEST_DSPLIB": {
+        "id": 200,
+        "args": [
+            {"x": "f32"},
+            {"y": "f32"}
+        ],
+        "resp": [
+            {"x_abs": "f32"},
+            {"y_abs": "f32"}
+        ]
+    },
+    "TEST_QUEST": {
+        "id": 201,
+        "args": [
+            {"sun_obs": "f32[3]"},
+            {"sun_ref": "f32[3]"},
+            {"mag_obs": "f32[3]"},
+            {"mag_ref": "f32[3]"},
+            {"weights": "f32[2]"}
+        ],
+        "resp": [
+            {"quat": "f32[4]"},
+            {"adcs_err": "s8"},
+            {"avg_duration": "f32"}
+        ]
+    }, 
+    "TEST_RTC_GET_TIME": {
+        "id": 226,
+        "args": [
+            {"duration_s": "u8"}
+        ],
+        "resp": [
+            {"second": "u8"},
+            {"minute": "u8"},
+            {"hour": "u8"},
+            {"day": "u8"},
+            {"month": "u8"},
+            {"year": "u8"}
+        ]
+    },
+    "TEST_RTC_CAP_AND_GET_TIMESTAMP": {
+        "id": 225,
+        "args": [
+            {"duration_s": "u8"}
+        ],
+        "resp": [
+            {"init_second": "u8"},
+            {"init_minute": "u8"},
+            {"init_hour": "u8"},
+            {"init_day": "u8"},
+            {"init_month": "u8"},
+            {"init_year": "u8"},
+            {"ts_second": "u8"},
+            {"ts_minute": "u8"},
+            {"ts_hour": "u8"},
+            {"ts_day": "u8"},
+            {"ts_month": "u8"},
+            {"ts_year": "u8"}
+        ]
+    },
+    "DEBUG_READ_RTC_REG": {
+        "id": 224,
+        "args": [
+            {"reg": "u8"}
+        ],
+        "resp": [
+            {"val": "u8"}
+        ]
+    },
+    "DEBUG_WRITE_RTC_REG": {
+        "id": 223, 
+        "args": [
+            {"reg": "u8"},
+            {"val": "u8"}
+        ],
+        "resp": [
+            {"val_after_write": "u8"}
+        ]
+    },
+    "TEST_RTC_ALARM_N_SEC": {
+        "id": 222,
+        "args": [
+            {"duration_s": "u8"}
+        ],
+        "resp": []
+    },
+    "TEST_ADCS_SUN_MODEL": {
+        "id": 199,
+        "args": [
+            {"time":    "s16[6]"}
+        ],
+        "resp": [
+            {"jul":     "f32"},
+            {"pos":     "f32[3]"}
+        ]
+    },
+    "TEST_ADC_VOLTAGE": {
+        "id": 221,
+        "args":[
+            {"channel" : "u32"}
+        ],
+        "resp": [
+            {"channel_voltage": "u16"},
+            {"adc_err_status": "u8"}
+        ]
+    }
+}

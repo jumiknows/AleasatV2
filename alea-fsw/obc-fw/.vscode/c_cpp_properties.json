@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "name": "TMS570",
+            "includePath": [
+                "${workspaceFolder}/common/**",
+                "${workspaceFolder}/platform/common/**",
+                "${workspaceFolder}/main",
+                // ----------------------------------------------------------
+                // Un-comment one of the three lines below:
+                "${workspaceFolder}/main/app/**",
+                // "${workspaceFolder}/main/boot/**",
+                // "${workspaceFolder}/main/startup/**",
+                // ----------------------------------------------------------
+                // Un-comment one of the two lines below:
+                "${workspaceFolder}/platform/launchpad/**",
+                // "${workspaceFolder}/platform/alea-v1/**",
+                // ----------------------------------------------------------
+                "${workspaceFolder}/lib/**",
+                "${workspaceFolder}/build/**",
+                "/opt/ti/ti-cgt-arm_20.2.6.LTS/include",
+                "/var/lib/gems/2.7.0/gems/ceedling-0.31.1/vendor/unity/src/*"
+            ],
+            "defines": [
+                "__ARM_ARCH=7",
+                "__intaddr__=", // __intaddr__ is an ARM compiler built-in, this prevents VS code from thinking it's a function call
+                // ----------------------------------------------------------
+                // Un-comment one of the two lines below:
+                "PLATFORM_LAUNCHPAD_1224",
+                // "PLATFORM_ALEA_V1",
+                // ----------------------------------------------------------
+                "SYSTEM_TESTS",
+                "CFG_FLASH_SLOT=2",
+                "COMMS_OVER_SERIAL=1",
+                "_DEBUG"
+            ],
+            "compilerPath": "",
+            "cStandard": "c99",
+            "cppStandard": "c++98",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

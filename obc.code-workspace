@@ -1,0 +1,98 @@
+{
+    "folders": [
+        {
+            "name": "[Firmware] OBC",
+            "path": "alea-fsw/obc-fw"
+        },
+        {
+            "name": "[Python] alea.obcfw",
+            "path": "alea-fsw/obc-fw/python/alea-obcfw"
+        },
+        {
+            "name": "[Python] alea.ttc",
+            "path": "alea-fsw/python/alea-ttc"
+        },
+        {
+            "name": "[Python] alea.common",
+            "path": "alea-fsw/python/alea-common"
+        },
+        {
+            "name": "[Python] alea.test",
+            "path": "alea-fsw/python/alea-test"
+        },
+        {
+            "name": "[Python] San Antonio",
+            "path": "alea-gsw/alea-san-antonio"
+        },
+        {
+            "name": "[Tools]",
+            "path": "tools"
+        },
+    ],
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Clean Poetry",
+                "type": "shell",
+                "command": "if [ \"${input:confirm}\" = \"Yes\" ]; then rm -rf .venv .cache; fi",
+                "presentation": {
+                    "reveal": "silent",
+                    "close": true,
+                },
+                "options": {
+                    "cwd": "${workspaceFolder}"
+                },
+                "problemMatcher": [],
+            },
+            {
+                "label": "WSL Attach USB",
+                "type": "shell",
+                "command": "usbipd.exe attach --wsl --busid ${input:busid} && usbipd.exe list | sed '1p;$p;/${input:busid}/!d'",
+                "problemMatcher": []
+            },
+            {
+                "label": "WSL Detach USB",
+                "type": "shell",
+                "command": "usbipd.exe detach --busid ${input:busid} && usbipd.exe list | sed '1p;$p;/${input:busid}/!d'",
+                "problemMatcher": []
+            },
+        ],
+        "inputs": [
+            {
+                "id": "confirm",
+                "type": "pickString",
+                "description": "Are you sure?",
+                "options": [
+                    "Yes",
+                    "No"
+                ],
+                "default": "no",
+            },
+            {
+                "id": "busid",
+                "type": "command",
+                // Need to have the Task Shell Input extension installed:
+                // https://marketplace.visualstudio.com/items?itemName=augustocdias.tasks-shell-input
+                "command": "shellCommand.execute",
+                "args": {
+                    // This ridiculous command (I can't believe I'm actually using perl) restructures the output of `usbipd.exe wsl list`
+                    // by pumping it through a perl regex-based substitution so that the Task Shell Input extension can parse it into
+                    // a collection of fields for the dropdown list
+                    "command": "usbipd.exe list | perl -ne 'print if s/^(\\d+-\\d+)\\s+([a-f0-9]{4}:[a-f0-9]{4})\\s+([^\\s].+?)\\s+(Attached.*|Not attached.*|Shared.*|Not shared.*)$/\\1%%%\\3%%%\\2%%%\\4/'",
+                    "fieldSeparator": "%%%",
+                    "description": "Select the OBC USB serial device"
+                }
+            },
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "eamodio.gitlens",
+            "mhutchie.git-graph",
+            "gitlab.gitlab-workflow",
+            "augustocdias.tasks-shell-input",
+        ]
+    },
+    "settings": {}
+}

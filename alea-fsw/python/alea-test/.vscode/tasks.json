@@ -1,0 +1,24 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run HIL Tests",
+            "type": "shell",
+            "command": "./scripts/alea_test_hil.sh --port ${input:serial_port}",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+    ],
+    "inputs": [
+        {
+            "id": "serial_port",
+            "description": "Serial Port (e.g. COM4, /dev/ttyS1)",
+            "type": "promptString"
+        },
+    ]
+}

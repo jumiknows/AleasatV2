@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "alea-ttc"
+version = "0.1.0"
+description = ""
+authors = ["ALEASAT <administrator@aleasat.space>"]
+readme = "README.md"
+packages = [{include = "alea"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+alea-common = {path = "../alea-common", extras = ["data-field-ndarray"], develop = true}
+alea-obcfw = {path = "../../obc-fw/python/alea-obcfw", develop = true}
+pyserial = "^3.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

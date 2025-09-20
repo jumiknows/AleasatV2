@@ -1,0 +1,66 @@
+{
+    "folders": [
+        {
+            "name": "[Firmware] COMMS",
+            "path": "alea-fsw/comms-fw"
+        },
+        {
+            "name": "[Python] alea.ttc",
+            "path": "alea-fsw/python/alea-ttc"
+        },
+        {
+            "name": "[Python] alea.common",
+            "path": "alea-fsw/python/alea-common"
+        },
+        {
+            "name": "[Python] alea.test",
+            "path": "alea-fsw/python/alea-test"
+        },
+        {
+            "name": "[Python] San Antonio",
+            "path": "alea-gsw/alea-san-antonio"
+        },
+        {
+            "name": "[Tools]",
+            "path": "tools"
+        },
+    ],
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Clean Poetry",
+                "type": "shell",
+                "command": "if [ \"${input:confirm}\" = \"Yes\" ]; then rm -rf .venv .cache; fi",
+                "presentation": {
+                    "reveal": "silent",
+                    "close": true,
+                },
+                "options": {
+                    "cwd": "${workspaceFolder}"
+                },
+                "problemMatcher": [],
+            },
+        ],
+        "inputs": [
+            {
+                "id": "confirm",
+                "type": "pickString",
+                "description": "Are you sure?",
+                "options": [
+                    "Yes",
+                    "No"
+                ],
+                "default": "no",
+            },
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "eamodio.gitlens",
+            "mhutchie.git-graph",
+            "gitlab.gitlab-workflow",
+        ]
+    },
+    "settings": {}
+}

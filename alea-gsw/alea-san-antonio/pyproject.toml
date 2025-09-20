@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "alea-san-antonio"
+version = "0.1.0"
+description = ""
+authors = ["ALEASAT <administrator@aleasat.space>"]
+readme = "README.md"
+packages = [{include = "alea"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+alea-ttc = {path = "../../alea-fsw/python/alea-ttc", develop = true}
+pyqt5-qt5 = [
+    {platform = "win32", version = "5.15.2"},
+    {platform = "darwin", version = "^5.15.2"},
+    {platform = "linux", version = "^5.15.2"},
+]
+pyqt5 = "^5.15.11"
+pyqtgraph = "^0.13.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

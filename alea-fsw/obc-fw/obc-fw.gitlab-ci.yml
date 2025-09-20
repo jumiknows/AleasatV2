@@ -1,0 +1,84 @@
+variables:
+  OBC_FW_DIR: "alea-fsw/obc-fw"
+
+# ==============================================================================
+# Job Templates
+# ==============================================================================
+
+.obc-fw:docker:
+  image:
+    name: $CI_REGISTRY_IMAGE/alea-obc-fw-build:2.0
+    entrypoint: [""]
+  before_script:
+    - cd $CI_PROJECT_DIR/$OBC_FW_DIR
+
+.obc-fw:build:
+  stage: build
+  extends: .obc-fw:docker
+  artifacts:
+      when: always
+      paths:
+          - $OBC_FW_DIR/build/_bin/*.mot
+          - $OBC_FW_DIR/build/**/*.elf
+      expire_in: 1 month
+
+# ==============================================================================
+# Build Jobs
+# ==============================================================================
+
+obc-fw:launchpad:ext:
+  extends: .obc-fw:build
+  script:
+    - ./scripts/fw_build.sh launchpad ext A --standalone --comms-over-serial
+
+obc-fw:alea-v1:startup:
+  extends: .obc-fw:build
+  script:
+    - ./scripts/fw_build.sh alea-v1 startup A --standalone
+
+obc-fw:alea-v1:ext:comms:
+  extends: .obc-fw:build
+  script:
+    - ./scripts/fw_build.sh alea-v1 ext A
+
+obc-fw:alea-v1:ext:
+  extends: .obc-fw:build
+  script:
+    - ./scripts/fw_build.sh alea-v1 ext A --comms-over-serial
+
+obc-fw:alea-v1:
+  extends: .obc-fw:build
+  needs:
+    - obc-fw:alea-v1:startup
+    - obc-fw:alea-v1:ext
+  script:
+    - source ./scripts/activate_python.sh
+    - ./python/alea-obcfw/scripts/obcfw_merge.py -i ./build/_bin/*.mot -o ./build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
+
+# ==============================================================================
+# Test Jobs
+# ==============================================================================
+
+obc-fw:unit-test:
+  stage: test
+  extends: .obc-fw:docker
+  artifacts:
+    when: always
+    paths:
+      - $OBC_FW_DIR/test/build/artifacts/test/*.xml
+      - $OBC_FW_DIR/test/build/artifacts/gcov/*.xml
+    reports:
+      junit:
+        - $OBC_FW_DIR/test/build/artifacts/test/*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: $OBC_FW_DIR/test/build/artifacts/gcov/GcovCoverageCobertura.xml
+    expire_in: 1 month
+  script:
+    - ./scripts/fw_test.sh
+
+obc-fw:format-test:
+  stage: test
+  extends: .obc-fw:docker
+  script:
+    - $CI_PROJECT_DIR/tools/formatter/formatter_c.sh ./main --dry-run
