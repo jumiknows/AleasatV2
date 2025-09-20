@@ -1,0 +1,123 @@
+diff --git a/dist/declarations/src/three-types.d.ts b/dist/declarations/src/three-types.d.ts
+index 8bf99c8276c7ad38364748da73ce05047f2c6c55..d6fdfd820d6b99f63d805aa9126f2f8793a87b83 100644
+--- a/dist/declarations/src/three-types.d.ts
++++ b/dist/declarations/src/three-types.d.ts
+@@ -77,67 +77,67 @@ export declare type BufferGeometryProps = BufferGeometryNode<THREE.BufferGeometr
+ /** @ts-ignore */
+ export declare type BoxBufferGeometryProps = BufferGeometryNode<THREE.BoxBufferGeometry, typeof THREE.BoxBufferGeometry>;
+ export declare type CircleBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.CircleBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.CircleBufferGeometry>;
++    /** @ts-ignore */
++    THREE.CircleBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.CircleBufferGeometry>;
+ /** @ts-ignore */
+ export declare type ConeBufferGeometryProps = BufferGeometryNode<THREE.ConeBufferGeometry, typeof THREE.ConeBufferGeometry>;
+ export declare type CylinderBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.CylinderBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.CylinderBufferGeometry>;
++    /** @ts-ignore */
++    THREE.CylinderBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.CylinderBufferGeometry>;
+ export declare type DodecahedronBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.DodecahedronBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.DodecahedronBufferGeometry>;
++    /** @ts-ignore */
++    THREE.DodecahedronBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.DodecahedronBufferGeometry>;
+ export declare type ExtrudeBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.ExtrudeBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.ExtrudeBufferGeometry>;
++    /** @ts-ignore */
++    THREE.ExtrudeBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.ExtrudeBufferGeometry>;
+ export declare type IcosahedronBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.IcosahedronBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.IcosahedronBufferGeometry>;
++    /** @ts-ignore */
++    THREE.IcosahedronBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.IcosahedronBufferGeometry>;
+ /** @ts-ignore */
+ export declare type LatheBufferGeometryProps = BufferGeometryNode<THREE.LatheBufferGeometry, typeof THREE.LatheBufferGeometry>;
+ export declare type OctahedronBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.OctahedronBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.OctahedronBufferGeometry>;
++    /** @ts-ignore */
++    THREE.OctahedronBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.OctahedronBufferGeometry>;
+ /** @ts-ignore */
+ export declare type PlaneBufferGeometryProps = BufferGeometryNode<THREE.PlaneBufferGeometry, typeof THREE.PlaneBufferGeometry>;
+ export declare type PolyhedronBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.PolyhedronBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.PolyhedronBufferGeometry>;
++    /** @ts-ignore */
++    THREE.PolyhedronBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.PolyhedronBufferGeometry>;
+ /** @ts-ignore */
+ export declare type RingBufferGeometryProps = BufferGeometryNode<THREE.RingBufferGeometry, typeof THREE.RingBufferGeometry>;
+ /** @ts-ignore */
+ export declare type ShapeBufferGeometryProps = BufferGeometryNode<THREE.ShapeBufferGeometry, typeof THREE.ShapeBufferGeometry>;
+ export declare type SphereBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.SphereBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.SphereBufferGeometry>;
++    /** @ts-ignore */
++    THREE.SphereBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.SphereBufferGeometry>;
+ export declare type TetrahedronBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.TetrahedronBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.TetrahedronBufferGeometry>;
++    /** @ts-ignore */
++    THREE.TetrahedronBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.TetrahedronBufferGeometry>;
+ /** @ts-ignore */
+ export declare type TorusBufferGeometryProps = BufferGeometryNode<THREE.TorusBufferGeometry, typeof THREE.TorusBufferGeometry>;
+ export declare type TorusKnotBufferGeometryProps = BufferGeometryNode<
+-/** @ts-ignore */
+-THREE.TorusKnotBufferGeometry, 
+-/** @ts-ignore */
+-typeof THREE.TorusKnotBufferGeometry>;
++    /** @ts-ignore */
++    THREE.TorusKnotBufferGeometry,
++    /** @ts-ignore */
++    typeof THREE.TorusKnotBufferGeometry>;
+ /** @ts-ignore */
+ export declare type TubeBufferGeometryProps = BufferGeometryNode<THREE.TubeBufferGeometry, typeof THREE.TubeBufferGeometry>;
+ export declare type WireframeGeometryProps = BufferGeometryNode<THREE.WireframeGeometry, typeof THREE.WireframeGeometry>;
+@@ -386,8 +386,8 @@ export interface ThreeElements {
+ }
+ declare global {
+     namespace JSX {
+-        interface IntrinsicElements extends ThreeElements {
++        interface IntrinsicElements extends Pick<ThreeElements, 'ambientLight'> {
+         }
+     }
+ }
+-export {};
++export { };

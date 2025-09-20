@@ -1,0 +1,53 @@
+{
+  "name": "barbours-cut",
+  "version": "1.0.0",
+  "description": "Terminal of all container at ALEASAT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build --filter=!@aleasat/dashboard --filter=!@aleasat/aleasat-site --filter=!@aleasat/aleasat-docs",
+    "build:types": "turbo run build:types --filter=!@aleasat/dashboard --filter=!@aleasat/aleasat-site --filter=!@aleasat/aleasat-docs",
+    "test:types": "turbo run test:types",
+    "test:unit": "turbo run test:unit",
+    "test:integration": "turbo run test:integration",
+    "test:ci-unit": "turbo run test:ci-unit",
+    "test:ci-integration": "turbo run test:ci-integration",
+    "gen": "turbo run gen --filter=!@aleasat/mops-client-grpc-node",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:ci": "turbo run lint:ci",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "cd ../ && node alea-gsw/.husky/install.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/alea-2020/mission-operations/barbours-cut.git"
+  },
+  "authors": [
+    "H01001000"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/alea-2020/mission-operations/barbours-cut/issues"
+  },
+  "homepage": "https://gitlab.com/alea-2020/mission-operations/barbours-cut#readme",
+  "dependencies": {
+    "turbo": "^1.10.16"
+  },
+  "devDependencies": {
+    "@aleasat/tsconfig": "*",
+    "danger": "^12.3.3",
+    "husky": "^9.1.6",
+    "prettier": "^3.0.3",
+    "turbo": "^2.4.4"
+  },
+  "packageManager": "yarn@4.0.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

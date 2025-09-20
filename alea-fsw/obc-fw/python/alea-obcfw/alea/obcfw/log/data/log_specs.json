@@ -304,6 +304,11 @@
         "level": "WARNING",
         "id": 2,
         "description": "Attempted to identify flash chip on unsupported platform"
+      },
+      "FLASH_FS_NOT_ENABLED": {
+        "level": "WARNING",
+        "id": 3,
+        "description": "External flash chip and file system functionality not enabled"
       }
     }
   },
@@ -537,26 +542,26 @@
     "id": 41,
     "description": "Telemetry logging infrastructure",
     "signals": {
-      "QUEUE_FULL": {
+      "COLLECTION_FAILURE": {
         "level": "WARNING",
         "id": 0,
-        "description": "Queue full"
+        "description": "Failed to collect telem data",
+        "data": [
+          {"err": "u8"}
+        ]
       },
-      "INVALID_REQUEST_BIN": {
+      "EXECUTION_FAILURE": {
         "level": "ERROR",
         "id": 1,
-        "description": "Invalid telem request bin",
+        "description": "telemetry execution function failed",
         "data": [
-          {"data_bin": "u8"}
+          {"telem_error_type": "u8"}
         ]
       },
-      "EPS_BIN_OUT_OF_RANGE": {
-        "level": "ERROR",
+      "MRAM_FAILURE": {
+        "level": "WARNING",
         "id": 2,
-        "description": "EPS bin temperature out of range",
-        "data": [
-          {"sense_temp_bat_1": "u16"}
-        ]
+        "description": "Telem system cannot use mram"
       }
     }
   },
@@ -1596,6 +1601,76 @@
         "level": "ERROR",
         "id": 0,
         "description": "CRC calculated and received is different"
+      }
+    }
+  },
+  "LOG_TEST_MRAM_RW_CMD": {
+    "id": 72,
+    "description": "Test MRAM read/write command",
+    "signals": {
+      "BAD_LEN": {
+        "level": "ERROR",
+        "id": 0,
+        "description": "Bad len arg: %d > %d",
+        "data": [
+          {"arg_len": "u16"},
+          {"size_of_write_data": "u16"}
+        ]
+      },
+      "PERFORMING_TEST": {
+        "level": "DEBUG",
+        "id": 1,
+        "description": "Performing read and write MRAM test",
+        "data": [
+          {"starting_addr": "u32"},
+          {"data_len": "u16"}
+        ]
+      }
+    }
+  },
+  "LOG_RESET_COUNTER": {
+    "id": 73,
+    "description": "Reset counter",
+    "signals": {
+      "READ_ERROR": {
+        "level": "ERROR",
+        "id": 0,
+        "description": "Unable to read the reset counter"
+      },
+      "WRITE_ERROR": {
+        "level": "ERROR",
+        "id": 1,
+        "description": "Unable to write the reset counter"
+      }
+    }
+  },
+  "LOG_LOG_SYS": {
+    "id": 74,
+    "description": "Logging System",
+    "signals": {
+      "WRITE_ENQUEUE_FAIL": {
+        "level": "ERROR",
+        "id": 0,
+        "description": "Failed to queue log for write to flash",
+        "data": [
+          {"err": "s8"}
+        ]
+      },
+      "FS_FAIL": {
+        "level": "ERROR",
+        "id": 1,
+        "description": "Failed a FS operation",
+        "data": [
+          {"err": "s8"}
+        ]
+      },
+      "DUMMY": {
+        "level": "DEBUG",
+        "id": 2,
+        "description": "Dummy log for testing log2fs",
+        "data": [
+          {"log_num": "u32"}
+        ]
       }
     }
   }

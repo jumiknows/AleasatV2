@@ -1,0 +1,10 @@
+.openapi-generator-ignore
+apis/MissionExecutionApi.ts
+apis/index.ts
+index.ts
+models/ModelError.ts
+models/Problem.ts
+models/ScheduledCommand.ts
+models/ScheduledMission.ts
+models/index.ts
+runtime.ts

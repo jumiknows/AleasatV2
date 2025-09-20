@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "aleasim-worker"
+version = "0.1.0"
+description = ""
+authors = ["Isitha Tennakoon <82481046+IsithaT@users.noreply.github.com>"]
+packages = [{include = "alea"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+alea-sim = {path = "../../../alea-fsw/python/alea-sim", develop = true}
+sgp4 = "^2.22"
+bullmq = "^2.13.1"
+dotenv = "^0.9.9"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

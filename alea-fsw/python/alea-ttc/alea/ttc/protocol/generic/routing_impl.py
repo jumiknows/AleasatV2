@@ -1,9 +1,12 @@
 from typing import Generic, TypeVar, Callable
 from queue import Queue, Full, Empty
+import logging
 
 from . import packet
 from . import layer
 from . import routing
+
+logger = logging.getLogger(__name__)
 
 AnyPacket = TypeVar("AnyPacket", bound=packet.Packet)
 SourcePacket = TypeVar("SourcePacket", bound=packet.Packet)
@@ -195,7 +198,7 @@ class QueuePacketBridge(Generic[AnyPacket], routing.PacketSource[AnyPacket], rou
 
         Args:
             maxsize: Maximum size of the internal queue or 0 for an infinite queue. Defaults to 0.
-            log_tag: If this is provided all packets written to this object will be logged (via print)
+            log_tag: If this is provided all packets written to this object will be logged (via debug level logging)
                      and prefixed with this tag.
                      Defaults to None.
         """
@@ -213,7 +216,7 @@ class QueuePacketBridge(Generic[AnyPacket], routing.PacketSource[AnyPacket], rou
 
     def write(self, packet_in: AnyPacket, timeout: float = None):
         if self._log_tag is not None:
-            print(f"[{self._log_tag}] {packet_in}")
+            logger.debug(f"[{self._log_tag}] {packet_in}")
 
         try:
             # TODO ALEA-841 handle errors

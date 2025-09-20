@@ -1,6 +1,19 @@
 workflow:
   rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+
+stages:
+  - prepare
+  - build
+  - test
+  - build docker image
+  - test docker image
+  - deploy
+  - deploy to staging
+  - deploy to production
 
 include:
   # ==============================================================================
@@ -9,13 +22,16 @@ include:
   - local: "alea-fsw/obc-fw/obc-fw.gitlab-ci.yml"
     rules:
       - if: $CI_PIPELINE_SOURCE == "web"
-      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "dev"
         changes:
           - alea-fsw/obc-fw/**/*
           - alea-fsw/python/alea-common/**/*
           - alea-fsw/python/alea-ttc/**/*
           - alea-fsw/python/alea-test/**/*
           - tools/**/*
+          - alea-gsw/apps/obc-grpc/**/*
+          - alea-gsw/.gitlab/workflows/obc-grpc.yml
+      - if: '$CI_PIPELINE_SOURCE == "trigger"'
   # ==============================================================================
   # ALEA Tests
   # ==============================================================================
@@ -38,10 +54,46 @@ include:
       - if: $CI_PIPELINE_SOURCE == "merge_request_event"
         changes:
           - alea-fsw/python/alea-sim/**/*
+  # ==============================================================================
+  # Barbours Cut
+  # ==============================================================================
+  - local: "alea-gsw/.gitlab/workflows/.gitlab-ci.yml"
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "trigger"'
+        when: never
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "dev"
+        changes:
+          - alea-gsw/**/*
+  # ==============================================================================
+  # Barbours Cut's OBC-GRPC
+  # ==============================================================================
+  - local: "alea-gsw/.gitlab/workflows/obc-grpc.yml"
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "trigger"'
+        when: never
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "dev"
+        changes:
+          - alea-fsw/obc-fw/**/*
+          - alea-fsw/python/alea-common/**/*
+          - alea-fsw/python/alea-ttc/**/*
+          - alea-fsw/python/alea-test/**/*
+          - tools/**/*
+          - alea-gsw/apps/obc-grpc/**/*
+          - alea-gsw/.gitlab/workflows/obc-grpc.yml
 
-dummy:
-  stage: build
+# This add the DangerJS CI job to the pipeline for merge requests format checking
+# This job seems to be required otherwise merge requests will get stuck on "Checking pipeline status."
+# when no other jobs need to run
+Run DangerJS CI:
+  stage: .pre
+  image: node:20
   rules:
-    - when: never
+    # - if: '$CI_PIPELINE_SOURCE == "trigger"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - echo "This should never run"
+    - cd tools/dangerjs
+    - yarn install
+    # - '[ "$CI_PIPELINE_TRIGGERED" == "true" ] && CI_MERGE_REQUEST_IID="$(node readTriggerPayload.js)" yarn danger ci --failOnErrors || yarn danger ci --failOnErrors'
+    - yarn danger ci --failOnErrors

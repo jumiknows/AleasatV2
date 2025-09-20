@@ -1,0 +1,105 @@
+{% from 'macros.c' import telem_impl_sig, field_to_str -%}
+// =============================================================================
+//                      AUTO-GENERATED FILE - DO NOT EDIT
+//
+// This file was auto-generated on {{ timestamp.strftime("%Y-%m-%d at %H:%M:%S") }}
+// =============================================================================
+
+
+/**
+ * @file telem_gen.h
+ * @brief Generated code from telemetry specifications
+ */
+
+#ifndef TELEM_GEN_H_
+#define TELEM_GEN_H_
+
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+#include "telem_error.h"
+#include "data_fmt.h"
+
+// Standard Library
+#include <stdint.h>
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
+
+// Public defines that may be used by other files
+
+#define TELEM_LONGEST_COLLECTION_PERIOD     {{ telem_specs.longest_collection_period }}U
+#define TELEM_OUTER_HEADER_SIZE             6U
+#define TELEM_INNER_HEADER_SIZE             4U
+#define TELEM_STOP_WORD_SIZE                4U
+
+/******************************************************************************/
+/*                              T Y P E D E F S                               */
+/******************************************************************************/
+
+typedef enum {
+{% for telem_spec in telem_specs %}
+    TELEM_ID_{{ "%-25s"|format(telem_spec.name) }} = {{ telem_spec.id }},
+{%- endfor %}
+
+    TELEM_COUNT = {{ telem_specs.max_id + 1 }},
+
+} telem_id_t;
+
+{% for telem_spec in telem_specs %}
+{%- if telem_spec.has_resp -%}
+// {{ (telem_spec.name + " ").ljust(76, "-") }}
+
+typedef struct {
+    {%- for resp_field in telem_spec.resp %}
+    {% if resp_field.size > 0 -%}
+    {{ resp_field.c_type.type_name }} {{ resp_field.name }}{% if resp_field.is_array %}{% for dim in resp_field.array_shape %}[{{ dim }}]{% endfor %}{% endif %};
+    {%- else -%}
+    // {{ field_to_str(resp_field) }}
+    {%- endif %}
+    {%- endfor %}
+} telem_{{ telem_spec.name }}_resp_t;
+{%- endif %}
+{% endfor %}
+/**
+ * @brief Function implemented by each telem unit
+ */
+typedef telem_err_t (*telem_invoke_t)(const telem_id_t telem_id, const uint8_t priority, const data_fmt_desc_t *resp_desc);
+
+/**
+ * @brief Specification for a telem unit to invoke and serialize / deserialize response data
+ */
+typedef struct {
+    telem_invoke_t invoke;
+    uint8_t priority;
+    uint32_t period;
+    const data_fmt_desc_t *resp;
+} telem_spec_t;
+
+/******************************************************************************/
+/*                       G L O B A L  V A R I A B L E S                       */
+/******************************************************************************/
+
+extern const telem_spec_t TELEM_SPEC_TABLE[TELEM_COUNT];
+
+extern const uint16_t TELEM_UNITS_DICT_PERIODS[{{ telem_specs.periods_dict.keys() | length }}];
+extern const telem_id_t *TELEM_UNITS_DICT_SPECS[{{ telem_specs.periods_dict.keys() | length }}];
+extern const uint16_t TELEM_UNITS_DICT_SIZES[{{ telem_specs.periods_dict.keys() | length }}];
+{% for period, specs in telem_specs.periods_dict.items() %}
+extern const telem_id_t TELEM_UNITS_WITH_PERIOD_{{ period }}[{{ specs | length }}];
+{%- endfor %}
+
+/******************************************************************************/
+/*                             F U N C T I O N S                              */
+/******************************************************************************/
+
+telem_err_t telem_invoke_unit(const telem_id_t telem_id);
+
+// Telem implementations
+{% for telem_spec in telem_specs %}
+{{ telem_impl_sig(telem_spec) }};
+{%- endfor %}
+
+#endif // telem_SYS_GEN_H_

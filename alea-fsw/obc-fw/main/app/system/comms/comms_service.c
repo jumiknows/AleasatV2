@@ -150,7 +150,7 @@ static uint8_t command_table[] = {
 /**
  * @brief Initialize the comms service
  */
-void comms_service_create_infra(void) {
+void comms_service_pre_init(void) {
     static StaticTimer_t timer_buffer;
     static StaticSemaphore_t cmd_sema_buf;
 

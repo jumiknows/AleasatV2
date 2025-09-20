@@ -1,0 +1,55 @@
+id: pduencode_variable_len_syncword_with_pn9
+label: Variable length syncword with PN9
+category: '[pduencode]'
+
+templates:
+  imports: import pduencode
+  make: pduencode.variable_len_syncword_with_pn9(${syncword}, ${max_len}, ${extra_footer_bytes}, ${threshold}, ${debug_log})
+
+#  Make one 'parameters' list entry for every parameter you want settable from the GUI.
+#     Keys include:
+#     * id (makes the value accessible as \$keyname, e.g. in the make entry)
+#     * label (label shown in the GUI)
+#     * dtype (e.g. int, float, complex, byte, short, xxx_vector, ...)
+parameters:
+- id: syncword
+  label: syncword
+  dtype: int
+  default: 0b11010011100100011101001110010001
+- id: max_len
+  label: max_len
+  dtype: int
+  default: 255
+- id: extra_footer_bytes
+  label: extra_footer_bytes
+  dtype: int
+  default: 0
+- id: threshold
+  label: threshold
+  dtype: int
+  default: 30
+- id: debug_log
+  label: debug_log
+  dtype: bool
+  default: false
+
+#  Make one 'inputs' list entry per input and one 'outputs' list entry per output.
+#  Keys include:
+#      * label (an identifier for the GUI)
+#      * domain (optional - stream or message. Default is stream)
+#      * dtype (e.g. int, float, complex, byte, short, xxx_vector, ...)
+#      * vlen (optional - data stream vector length. Default is 1)
+#      * optional (optional - set to 1 for optional inputs. Default is 0)
+inputs:
+-   dtype: byte
+outputs:
+-   domain: message
+    id: out
+
+# summary of this blocks purpose that will appear in the documentation tab of its properties
+documentation: |-
+    This block combines syncword detection, PN9 descrambling, and efficient CC1110 format framing.
+
+#  'file_format' specifies the version of the GRC yml format used in the file
+#  and should usually not be changed.
+file_format: 1

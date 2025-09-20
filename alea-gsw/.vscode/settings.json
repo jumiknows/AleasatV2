@@ -1,0 +1,35 @@
+{
+    "files.eol": "\n",
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "quickfix.biome": "explicit",
+        "source.organizeImports.biome": "explicit"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "biomejs.biome",
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "biomejs.biome",
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "biomejs.biome",
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "biomejs.biome",
+    },
+    "[json]": {
+        "editor.defaultFormatter": "biomejs.biome",
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+    },
+    "eslint.enable": false,
+    "prettier.enable": false,
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "javascript.preferences.importModuleSpecifierEnding": "auto",
+    "typescript.preferences.importModuleSpecifierEnding": "auto",
+    "[prisma]": {
+        "editor.defaultFormatter": "Prisma.prisma"
+    },
+}

@@ -7,7 +7,6 @@ from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
 from alea.sim.spacecraft.spacecraft import Spacecraft
 import logging
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
-from alea.sim.kernel.config_loader import load_config
 
 from alea.sim.utils.test_scenarios import create_aleasim_test_kernel
 

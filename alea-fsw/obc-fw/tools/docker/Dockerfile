@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# The TI compiler is only available for AMD64 (x86_64) architecture
-FROM --platform=linux/amd64 ubuntu:22.04
+FROM ubuntu:22.04
 
 # Update and install packages
 RUN apt-get update \
@@ -30,7 +29,7 @@ RUN wget ${COMPILER_DL_URL} \
 ENV TI_CGT_ARM_DIR="/opt/ti/ti-cgt-arm_${COMPILER_VERSION}"
 
 # Install ceedling and gcovr for running unit tests
-RUN gem install ceedling \
+RUN gem install ceedling -v 0.31.1 \
     && python3.10 -m pip install gcovr
 
 # Python Environment Configuration

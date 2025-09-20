@@ -477,7 +477,7 @@ void time_to_ymd_string(const real_time_t *curr_time, char *buf) {
  * @param[in] from another real_time_t value
  * @return to - from
  */
-int32_t delta(real_time_t *to, real_time_t *from) {
+int32_t time_delta(real_time_t *to, real_time_t *from) {
     epoch_t to_epoch   = real_time_to_epoch(to);
     epoch_t from_epoch = real_time_to_epoch(from);
     return to_epoch - from_epoch;

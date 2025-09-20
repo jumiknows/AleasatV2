@@ -8,10 +8,14 @@
 /******************************************************************************/
 
 #include "obc_utils.h"
+#include "mram_utils.h"
 
 // Standard library
 #include <stdint.h>
 #include <stdlib.h>
+
+// FreeRTOS
+#include "rtos.h"
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -38,21 +42,6 @@ int32_t cseq_to_num(char *seq) {
 
 // ---------------------------------- TIMING -----------------------------------
 
-/**
- * @brief simply loops for as long as you want doing nothing
- *
- * @param[in] ticks_to_wait: number of ticks to loop for
- *
- * @warning TODO this will not work under optimization (dead code elimination)
- *          Replace all usages with either asm_busy_wait or obc_delay_us
- */
-void busy_wait(uint32_t ticks_to_wait) {
-    uint32_t i = 0;
-
-    while (i <= ticks_to_wait) {
-        i++;
-    }
-}
 
 /**
  * @brief Generic delay function with 1us/tick resolution
@@ -70,4 +59,13 @@ void obc_delay_us(uint32_t us) {
             break;
         }
     }
+}
+
+void CPU_SOFT_RESET(void) {
+    increment_reset_counter();
+
+    vTaskDelay(pdMS_TO_TICKS(
+                   100)); // This delay is needed to allow for the datalink layer to ACK an incoming reset command from obcpy, otherwise we'd enter a reset loop
+
+    vPrivilegedCPUReset();
 }

@@ -1,0 +1,178 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Command Control",
+    "description": "Command Control SVC",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.aleasat.space/command-control",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-staging.aleasat.space/command-control",
+      "description": "Staging"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "description": "Staging"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Mission Execution"
+    }
+  ],
+  "paths": {
+    "/mission-execution/schedule": {
+      "post": {
+        "tags": [
+          "Mission Execution"
+        ],
+        "summary": "Schedule a mission execute",
+        "operationId": "scheduleMissionExecution",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduledMission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ScheduledMission": {
+        "type": "object",
+        "required": [
+          "id",
+          "initialOverheadStart",
+          "commands"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "initialOverheadStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduledCommand"
+            }
+          }
+        }
+      },
+      "ScheduledCommand": {
+        "type": "object",
+        "required": [
+          "id",
+          "sequenceNumber",
+          "scheduledAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequenceNumber": {
+            "type": "integer"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

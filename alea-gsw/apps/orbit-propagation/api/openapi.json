@@ -1,0 +1,612 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Orbit Propagation",
+    "description": "abcd",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.aleasat.space/orbit-propagation/",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-staging.aleasat.space/orbit-propagation/",
+      "description": "Staging"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Orbit Propagation",
+      "description": "Passes of Sat"
+    }
+  ],
+  "paths": {
+    "/orbit-propagation/passes": {
+      "get": {
+        "tags": [
+          "Orbit Propagation"
+        ],
+        "summary": "Find passes of the target location",
+        "description": "Find passes of the target location by time and location",
+        "operationId": "findPasses",
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "description": "Latitude of target location",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "description": "Longitude of target location",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "Start time of the search",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "description": "End time of the search",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "minElevation",
+            "in": "query",
+            "description": "The minimum elevation to call it a pass",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Passes"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/orbit-propagation/full-passes": {
+      "get": {
+        "tags": [
+          "Orbit Propagation"
+        ],
+        "summary": "Find passes of the target location",
+        "description": "Find passes of the target location by time and location",
+        "operationId": "findFullPasses",
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "description": "Latitude of target location",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "description": "Longitude of target location",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "Start time of the search",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "minElevation",
+            "in": "query",
+            "description": "The minimum elevation to call it a pass",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Passes"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orbit-propagation/ground-track": {
+      "get": {
+        "tags": [
+          "Orbit Propagation"
+        ],
+        "summary": "Find information of the pass",
+        "description": "Find information of the pass by time",
+        "operationId": "getGroundTrack",
+        "parameters": [
+          {
+            "name": "t",
+            "in": "query",
+            "description": "The time of the pass",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pass"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/webhooks/new-gmat-orbit-propagation": {
+      "post": {
+        "tags": [
+          "Orbit Propagation"
+        ],
+        "summary": "Find information of the pass",
+        "description": "Find information of the pass by time",
+        "operationId": "webhooksNewGmatOrbitPropagation",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Passes": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "stateId": {
+            "type": "string"
+          },
+          "stateElement": {
+            "$ref": "#/components/schemas/StateElement"
+          },
+          "passes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 10
+                },
+                "rise": {
+                  "type": "object",
+                  "properties": {
+                    "t": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "z": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "t",
+                    "x",
+                    "y",
+                    "z"
+                  ]
+                },
+                "set": {
+                  "type": "object",
+                  "properties": {
+                    "t": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "z": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "t",
+                    "x",
+                    "y",
+                    "z"
+                  ]
+                },
+                "culmination": {
+                  "type": "object",
+                  "properties": {
+                    "t": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "alt": {
+                      "type": "number",
+                      "example": 40.5
+                    },
+                    "az": {
+                      "type": "number",
+                      "example": 263.15
+                    },
+                    "lat": {
+                      "type": "number",
+                      "example": 45
+                    },
+                    "lng": {
+                      "type": "number",
+                      "example": -125
+                    },
+                    "height": {
+                      "type": "number",
+                      "example": 432
+                    },
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "z": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "t",
+                    "alt",
+                    "az",
+                    "lat",
+                    "lng",
+                    "height",
+                    "x",
+                    "y",
+                    "z"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "rise",
+                "set",
+                "culmination"
+              ]
+            }
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude",
+          "stateId",
+          "stateElement",
+          "passes"
+        ]
+      },
+      "Pass": {
+        "type": "object",
+        "properties": {
+          "stateId": {
+            "type": "string"
+          },
+          "stateElement": {
+            "$ref": "#/components/schemas/StateElement"
+          },
+          "ground_track": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "example": [
+                42.5,
+                -122.5
+              ],
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "maxItems": 90,
+            "minItems": 90
+          }
+        },
+        "required": [
+          "ground_track",
+          "stateId",
+          "stateElement"
+        ]
+      },
+      "StateElement": {
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CartesianState"
+          },
+          {
+            "$ref": "#/components/schemas/KeplerianState"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "cartesian": "#/components/schemas/CartesianState",
+            "keplerian": "#/components/schemas/KeplerianState"
+          }
+        }
+      },
+      "CartesianState": {
+        "type": "object",
+        "required": [
+          "type",
+          "x",
+          "y",
+          "z",
+          "vx",
+          "vy",
+          "vz"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "cartesian"
+            ]
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "vx": {
+            "type": "number"
+          },
+          "vy": {
+            "type": "number"
+          },
+          "vz": {
+            "type": "number"
+          }
+        }
+      },
+      "KeplerianState": {
+        "type": "object",
+        "required": [
+          "type",
+          "sma",
+          "ecc",
+          "inc",
+          "raan",
+          "aop",
+          "ta"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "keplerian"
+            ]
+          },
+          "sma": {
+            "type": "number"
+          },
+          "ecc": {
+            "type": "number"
+          },
+          "inc": {
+            "type": "number"
+          },
+          "raan": {
+            "type": "number"
+          },
+          "aop": {
+            "type": "number"
+          },
+          "ta": {
+            "type": "number"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

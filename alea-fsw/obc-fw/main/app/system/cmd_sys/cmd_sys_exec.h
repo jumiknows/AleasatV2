@@ -30,8 +30,7 @@ typedef void (*cmd_sys_exec_callback_t)(cmd_sys_err_t status, void *arg);
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void cmd_sys_exec_create_infra(void);
-void cmd_sys_exec_start_task(void);
+void cmd_sys_exec_pre_init(void);
 
 cmd_sys_err_t cmd_sys_exec_enqueue(cmd_sys_cmd_t *cmd, cmd_sys_exec_callback_t callback, void *arg, uint32_t timeout_ticks);
 

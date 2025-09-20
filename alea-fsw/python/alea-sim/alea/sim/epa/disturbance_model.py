@@ -1,135 +1,198 @@
 import numpy as np
+from dataclasses import dataclass
+from pathlib import Path
 
-from alea.sim.kernel.kernel import AleasimKernel
+from alea.sim.configuration import Configurable
+from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
 from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
-import math 
+from alea.sim.math_lib import cross, Quaternion
+from alea.sim.epa.atmospheric_density import calculate_atmospheric_density
+from alea.sim.epa.frame_conversions import OMEGA_ECEF_ECI, OMEGA_EARTH
 
-class DisturbanceModel(AbstractModel):
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
+@dataclass
+class DisturbanceModelConfig:
+    """
+    Configuration for the DisturbanceModel.
+    
+    References & Rationale:
+      - Markley & Crassidis, "Fundamentals of Spacecraft Attitude Determination and Control"
+      - Typical 1U CubeSat geometry: 10 cm x 10 cm x 10 cm => 0.01 m^2 face area
+      - Often pick ~ 0.02 - 0.03 m^2 for drag & SRP "effective" area to account for edges, 
+        deployables, or off-nominal attitudes.
+      - CP (Centre of Pressure) - COM (Centre of Mass) offsets of ~1 - 2 cm are common for small satellites with slight mass/geometry 
+        asymmetries.
+    """
 
-    default_name = 'disturbance_model'
-    def __init__(self, sim_kernel: AleasimKernel) -> None:
-        super().__init__(self.default_name, sim_kernel)
-        self.configure()
-        self.logger.info("initialized")
+    # Magnetic dipole (A·m^2)
+    residual_mag_dipole: np.ndarray
+    
+    # Atmosphere parameters
+    exp_atmoshere_h0: float
+    exp_atmosphere_rho0: float
+    exp_atmosphere_H: float
 
-    def configure(self):
-        cfg_disturbance = self.get_config()
-        
-        cfg_attitude = self.get_config('attitude_dynamics')
+    # Drag parameters
+    drag_coefficient: float
+    drag_effective_area: float
+    drag_lever_arm: np.ndarray
 
-        self.params['J'] = cfg_attitude['J']
-        self.params['Cm'] = cfg_attitude['Cm']
+    # SRP parameters
+    srp_coefficient: float
+    srp_effective_area: float
+    srp_lever_arm: np.ndarray
+    
+    solar_radiation_pressure: float = 4.5e-6 # [N/m^2]
+    earth_gravitational_parameter: float = 3.986004418e14 # [m^3/s^2]
 
-        
-        self._integrator_type = cfg_disturbance['default_integrator']
-        self.logger.info(f'loaded intertia matrix cfg {cfg_attitude["J"]}')
+    def __post_init__(self):
+        if not isinstance(self.residual_mag_dipole, np.ndarray):
+            self.residual_mag_dipole = np.array(self.residual_mag_dipole)
+        if not isinstance(self.drag_lever_arm, np.ndarray):
+            self.drag_lever_arm = np.array(self.drag_lever_arm)
+        if not isinstance(self.srp_lever_arm, np.ndarray):
+            self.srp_lever_arm = np.array(self.srp_lever_arm)
 
-        ## Gravity gradient 
+class DisturbanceModel(Configurable[DisturbanceModelConfig], SharedMemoryModelInterface, AbstractModel):
+    """
+    Disturbance model for computing external torques on a CubeSat.
+    
+    This includes:
+      - Gravity gradient torque
+      - Residual magnetic dipole torque
+      - Aerodynamic drag torque
+      - Solar radiation pressure torque
+    
+    References:
+      - F. Landis Markley & J.L. Crassidis, "Fundamentals of Spacecraft Attitude Determination 
+        and Control", 2014.
+    """
 
-        gravitygradient_cfg:dict = cfg_disturbance['gravity_gradient_elements']
-        G = gravitygradient_cfg['G']
-        M = gravitygradient_cfg['M']
-        Rs = gravitygradient_cfg['Rs']
-        Re = gravitygradient_cfg['Re']
-        self.Radius = Re + Rs
-
-        self.w_o = np.sqrt(G*M/math.pow(self.Radius,3))
-
-        ## Solar pressure
-        solar_pressure_cfg:dict = cfg_disturbance['solar_pressure_elements']
-        self.reflectance_factor = solar_pressure_cfg['reflectance_factor']
-        self.Fs = solar_pressure_cfg['Fs']
-        self.c = solar_pressure_cfg['c']
-
-
-        ## Megnetic residual
-
-        magnetic_residual_cfg:dict = cfg_disturbance['magnetic_residual_elements']
-        self.mean_rm_base = magnetic_residual_cfg['mean_rm_base']
-        self.maximum_area = magnetic_residual_cfg['maximum_area']
+    def __init__(self, sim_kernel: AleasimKernel, cfg: str | Path | dict | DisturbanceModelConfig = "disturbance_model") -> None:
+        super().__init__(name='disturbance_model', sim_kernel=sim_kernel, cfg=cfg, cfg_cls=DisturbanceModelConfig)
 
     def connect(self):
+        self.adyn: AttitudeDynamicsModel = self.kernel.get_model('attitude_dynamics') #find by string due to circular import issue
         self.odyn: OrbitDynamicsModel = self.kernel.get_model(OrbitDynamicsModel)
         self.mag_model: EarthMagneticFieldModel = self.kernel.get_model(EarthMagneticFieldModel)
 
-    @property
-    def config_name(self) -> str:
-        return 'disturbance_model'
-    
-    
-    def get_T_disturbance(self,q) -> np.ndarray:
-        sun_vector = (self.odyn.sun_vector_norm).T
-        #body to orbit rot mat
-        R_BO = self.kernel.orbit_frame.get_transformation_to(self.kernel.body_frame).rotation
-        return self.gravitational_torque(R_BO) + self.solar_pressure(R_BO,sun_vector) + self.magnetic_residual_torque()
-    
-    def gravitational_torque(self,R_BO) -> np.ndarray:
-        J = self.params.get('J') #inertia matrix
-        nadir = R_BO[:,0]
-        tau_g = 3*math.pow(self.w_o,2)*np.cross(nadir,J@nadir)
-        return tau_g
-
-    def solar_pressure(self,R_BO, sun_vector) -> np.ndarray:
-        Cm = self.params.get('Cm') #inertia matrix
-        Cm = np.array(Cm).T
-        R_OB = R_BO.T
-        y_0 = -R_OB @ sun_vector #% Sun vector in body frame
-        y_0 = y_0 / np.linalg.norm(y_0)
-
-
-        proj_Xb_Zo = np.dot([1, 0, 0], y_0) * y_0
-        proj_Yb_Zo = np.dot([0, 1, 0], y_0) * y_0
-        proj_Zb_Zo = np.dot([0, 0, 1], y_0) * y_0
-
-        proj_Xb_XYo = np.array([1, 0, 0]) - proj_Xb_Zo  # Projection of each body frame axis unit vector to orbit frame x,y plane
-        proj_Yb_XYo = np.array([0, 1, 0]) - proj_Yb_Zo
-        proj_Zb_XYo = np.array([0, 0, 1]) - proj_Zb_Zo
-
-        Ax = 0.034 * np.linalg.norm(np.cross(proj_Yb_XYo, proj_Zb_XYo))  # Surface projections to orbit frame x,y plane
-        Ay = 0.034 * np.linalg.norm(np.cross(proj_Xb_XYo, proj_Zb_XYo))
-        Az = 0.01 * np.linalg.norm(np.cross(proj_Xb_XYo, proj_Yb_XYo))
-        self.Area = np.array([Ax, Ay, Az])
-
-        cos_Xb_Xo = np.dot([1, 0, 0], y_0)
-        cos_Yb_Yo = np.dot([0, 1, 0], y_0)
-        cos_Zb_Zo = np.dot([0, 0, 1], y_0)
-        self.cosines = np.array([cos_Xb_Xo, cos_Yb_Yo, cos_Zb_Zo])
-
-        solar_pressure_center = np.diag([0.05, 0.05, 0.17])
-
-        solar_pressure_center[0, :] *= np.sign(-cos_Xb_Xo)
-        solar_pressure_center[1, :] *= np.sign(-cos_Yb_Yo)
-        solar_pressure_center[2, :] *= np.sign(-cos_Zb_Zo)
-
-        T1 = (self.Fs / self.c) * Ax * (1 + self.reflectance_factor) * np.cross(y_0, solar_pressure_center[0, :] - Cm)
-        T2 = (self.Fs / self.c) * Ay * (1 + self.reflectance_factor) * np.cross(y_0, solar_pressure_center[1, :] - Cm)
-        T3 = (self.Fs / self.c) * Az * (1 + self.reflectance_factor) * np.cross(y_0, solar_pressure_center[2, :] - Cm)
-
-
-        tau_sp = T1 + T2 + T3
-        return tau_sp
-    
-    def magnetic_residual_torque(self) -> np.ndarray:
-
+    def get_T_disturbance(self) -> np.ndarray:
         """
-        Calculate the residual magnetic torque acting on the spacecraft.
-
-        Parameters:
-        Area (numpy array): Satellite's area projected to the sun
-        cosines (numpy array): Cosine of angle between Body frame axes and orbit frame z-axis
-        B_body (numpy array): Magnetic field in the body frame
-
-        Returns:
-        tau_rm (numpy array): Residual magnetic torque
-        rm (numpy array): Residual magnetic moment
+        Return the total disturbance torque [tx, ty, tz] in the BODY frame, combining:
+          - gravity gradient
+          - magnetic dipole
+          - aerodynamic drag
+          - solar radiation pressure (SRP)
         """
-            
-        B_body = self.mag_model.mag_field_vector_body*1E-9
+        t_gg = self.gravitational_torque()
+        t_mag = self.magnetic_residual_torque()
+        t_aero = self.aerodynamic_drag_torque()
+        t_srp = self.solar_radiation_pressure_torque()
+        t_total = t_gg + t_mag + t_aero + t_srp
+        self.save_chunk_to_memory(np.hstack([t_gg, t_mag, t_aero, t_srp]))
+        return t_total
 
-        sign_vector = np.sign(-self.cosines)
-        self.rm = self.mean_rm_base + (0.005 * (self.Area / self.maximum_area) * sign_vector) + 0.0005 * np.random.rand(3)
-        tau_rm = np.cross(self.rm, B_body)
+    def gravitational_torque(self, r_eci: np.ndarray = None, nadir_body: np.ndarray = None) -> np.ndarray:
+        """
+        Compute the gravity gradient torque in the BODY frame.
         
-        return tau_rm
+        Gravity gradient torque T_gg = 3μ / r^3 * [ r_hat × (I * r_hat ) ]
+        Reference:
+          Markley & Crassidis, eqn 3.155 (approx.)
+        """
+        if r_eci is None:
+          r_eci = self.odyn.position_eci
+        r_mag = np.linalg.norm(r_eci)
+
+        if nadir_body is None:
+          # Convert from ECI to body frame to get the 'nadir' direction
+          # Note: If you define 'nadir' as from spacecraft -> Earth, it's -r_eci
+          nadir_body = self.kernel.body_frame.transform_vector_from_frame(-r_eci / r_mag, self.kernel.eci_frame)
+
+        tau_gg = (
+            3.0 * self.cfg.earth_gravitational_parameter / (r_mag**3) *
+            cross(nadir_body, self.adyn.cfg.J @ nadir_body)
+        )
+        return tau_gg
+    
+    def magnetic_residual_torque(self, B_body_nT: np.ndarray = None) -> np.ndarray:
+        """
+        Calculate torque from the spacecraft's residual magnetic dipole crossing the local B-field.
+        
+        T_mag = m x B
+        """
+        if B_body_nT is None:
+          B_body_nT = self.mag_model.mag_field_vector_body
+        # B is given in nT by EarthMagneticFieldModel, so we convert to Tesla.
+        B_body_T = B_body_nT * 1e-9
+        return cross(self.cfg.residual_mag_dipole, B_body_T)
+
+    def aerodynamic_drag_torque(self, altitude_m: float = None, rel_vel_body: np.ndarray = None) -> np.ndarray:
+        """
+        Compute the aerodynamic drag torque.
+        
+        Drag force: F_d = 0.5 * ρ * v² * Cd * A_eff
+        Torque: T_drag = lever_arm × F_d
+
+        Reference: Markley & Crassidis
+        """
+        if altitude_m is None:
+          altitude_m = self.odyn.position_lla[2]
+
+        #atmopsheric density at spacecraft altitude
+        density = calculate_atmospheric_density(altitude_m, self.cfg.exp_atmoshere_h0, self.cfg.exp_atmosphere_rho0, self.cfg.exp_atmosphere_H)
+
+        if rel_vel_body is None:
+          # here we obtain the velocity of the spacecraft relative to the atmosphsere in the body frame
+          # this is roughly achieved by subtracting the tangential velocity of the astmosphere at that altitude due to Earth's rotation rate (OMEGA_EARTH)
+          # and finally accounting for expressing this velocity in the body coordinate frame
+          # eqn 3.161
+          rel_vel_body_no_rot = self.odyn.velocity_eci
+          rel_vel_body_no_rot[0] += OMEGA_EARTH * self.odyn.position_eci[1]
+          rel_vel_body_no_rot[1] -= OMEGA_EARTH * self.odyn.position_eci[0]
+          rel_vel_body = self.kernel.body_frame.transform_vector_from_frame(rel_vel_body_no_rot, self.kernel.eci_frame)
+
+        v_mag = np.linalg.norm(rel_vel_body)
+        F_drag = 0.5 * density * (v_mag**2) * self.cfg.drag_coefficient * self.cfg.drag_effective_area
+        drag_force_body = -F_drag * (rel_vel_body / v_mag)
+        return cross(self.cfg.drag_lever_arm, drag_force_body) #aerodynamic torque
+
+    def solar_radiation_pressure_torque(self, sun_dir: np.ndarray = None) -> np.ndarray:
+        """
+        Compute the solar radiation pressure (SRP) torque.
+        
+        SRP force: F_srp = P_s * A_eff * CR
+        Torque: T_srp = lever_arm × F_srp
+
+        Reference: Markley & Crassidis
+        """
+
+        if sun_dir is None:
+          # SRP is 0 if spacecraft is not in sunlight
+          if not self.odyn.is_sunlit:
+              return np.zeros(3)
+
+          sun_eci_norm = self.odyn.sun_vector_norm
+
+          sun_body = self.kernel.body_frame.transform_vector_from_frame(sun_eci_norm, self.kernel.eci_frame)
+          sun_dir = sun_body / np.linalg.norm(sun_body)
+
+        F_srp = self.cfg.solar_radiation_pressure * self.cfg.srp_effective_area * self.cfg.srp_coefficient
+        srp_force = F_srp * sun_dir
+        return cross(self.cfg.srp_lever_arm, srp_force) #srp torque
+
+    @property
+    def saved_state_element_names(self):
+        if not hasattr(self, '_saved_state_element_names'):
+            self._saved_state_element_names = []
+            for prefix in ['t_gg', 't_mag', 't_aero', 't_srp']:
+                self._saved_state_element_names.extend([f'{prefix}_{ax}' for ax in ('x', 'y', 'z')])
+        return self._saved_state_element_names
+
+    @property
+    def saved_state_size(self):
+        return len(self.saved_state_element_names)

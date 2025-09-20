@@ -1,0 +1,27 @@
+{
+  "name": "@aleasat/types",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "swc src  --strip-leading-paths --out-dir dist",
+    "build:types": "tsc",
+    "test:unit": "echo 'test'",
+    "test:ci-unit": "echo 'test'",
+    "test:types": "tsc --noEmit",
+    "lint": "biome check",
+    "lint:ci": "biome ci",
+    "lint:fix": "biome check --fix"
+  },
+  "devDependencies": {
+    "@aleasat/tsconfig": "*",
+    "@biomejs/biome": "1.9.4",
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.11.12",
+    "@types/node": "^20.8.10",
+    "typescript": "5.8.2"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

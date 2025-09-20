@@ -1,0 +1,1163 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Mission Service",
+    "description": "Service to manage the missions",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.aleasat.space/mission/",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-staging.aleasat.space/mission/",
+      "description": "Staging"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Mission",
+      "description": "A sequence of command"
+    },
+    {
+      "name": "Command",
+      "description": "A command to execute, belongs to a mission"
+    },
+    {
+      "name": "ImageRequest",
+      "description": "A request to capture and retrieve an image from a specified source."
+    }
+  ],
+  "paths": {
+    "/missions": {
+      "get": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Get all missions",
+        "description": "Get all missions",
+        "operationId": "getMissions",
+        "parameters": [
+          {
+            "name": "sent",
+            "in": "query",
+            "description": "Filter the missions by their sent status",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadMission"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Create a new mission",
+        "description": "Create a new mission",
+        "operationId": "createMission",
+        "requestBody": {
+          "description": "New mission object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteMission"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mission created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadMission"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/missions/{missionId}": {
+      "get": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Get a mission",
+        "description": "Get a mission by its ID",
+        "operationId": "getMission",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "description": "ID of the mission to retrieve",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadMission"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Update mission by ID",
+        "operationId": "patchMission",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Mission object that needs to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMission"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mission updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadMission"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/missions/{missionId}/commands": {},
+    "/missions/{missionId}/commands/{commandId}": {
+      "patch": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Patch a command",
+        "description": "Patch a command within a mission",
+        "operationId": "patchCommand",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "description": "ID of the mission",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "commandId",
+            "in": "path",
+            "description": "ID of the command to patch",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Patched command object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadCommand"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission or command not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/imageRequests": {
+      "post": {
+        "tags": [
+          "ImageRequest"
+        ],
+        "summary": "Create an image request",
+        "description": "Create an image request",
+        "operationId": "createImageRequest",
+        "requestBody": {
+          "description": "New ImageRequest object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteImageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Image request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadImageRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid coordinate values"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - Resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Unexpected issue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "ImageRequest"
+        ],
+        "summary": "Get all image requests",
+        "operationId": "getImageRequests",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter requests by status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Filter requests by user ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requestedAt",
+            "in": "query",
+            "description": "Filter requests by the date that the image request was made.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadImageRequest"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/imageRequests/{id}": {
+      "get": {
+        "tags": [
+          "ImageRequest"
+        ],
+        "summary": "Get a specific image request",
+        "operationId": "getImageRequestById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadImageRequest"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Image request not found"
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "ImageRequest"
+        ],
+        "summary": "Update an image request",
+        "operationId": "updateImageRequest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateImageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image request updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadImageRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Image request not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ImageRequest"
+        ],
+        "summary": "Delete an image request",
+        "operationId": "deleteImageRequest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteImageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Image request deleted successfully"
+          },
+          "400": {
+            "description": "Invalid input, perhaps missing or malformed request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Image request not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReadMission": {
+        "type": "object",
+        "required": [
+          "id",
+          "fwVersion",
+          "createdAt",
+          "userId",
+          "scheduledAt",
+          "status",
+          "error",
+          "commands"
+        ],
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "fwVersion": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "userId": {
+                "type": "string"
+              },
+              "scheduledAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "created",
+                  "scheduled",
+                  "sent",
+                  "error"
+                ],
+                "description": "The status of the mission"
+              },
+              "error": {
+                "type": "string",
+                "description": "The error message if the mission has failed",
+                "nullable": true
+              },
+              "commands": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ReadCommand"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "WriteMission": {
+        "type": "object",
+        "required": [
+          "fwVersion",
+          "commands"
+        ],
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "fwVersion": {
+                "type": "string"
+              },
+              "scheduledAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "commands": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WriteCommand"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "UpdateMission": {
+        "type": "object",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "created",
+                  "scheduled",
+                  "sent",
+                  "error"
+                ],
+                "description": "The status of the mission"
+              },
+              "error": {
+                "type": "string",
+                "description": "The error message if the mission has failed",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "ReadCommand": {
+        "type": "object",
+        "required": [
+          "id",
+          "sequenceNumber",
+          "commandId",
+          "commandName",
+          "timeOffset",
+          "arguments",
+          "sentAt",
+          "ranAt",
+          "error",
+          "responses"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequenceNumber": {
+            "type": "integer"
+          },
+          "commandId": {
+            "type": "integer"
+          },
+          "commandName": {
+            "type": "string"
+          },
+          "timeOffset": {
+            "type": "integer"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ranAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "error": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "responses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "WriteCommand": {
+        "type": "object",
+        "required": [
+          "sequenceNumber",
+          "commandId",
+          "commandName",
+          "arguments"
+        ],
+        "properties": {
+          "sequenceNumber": {
+            "type": "integer"
+          },
+          "commandId": {
+            "type": "integer"
+          },
+          "commandName": {
+            "type": "string"
+          },
+          "timeOffset": {
+            "type": "integer"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateCommand": {
+        "type": "object",
+        "properties": {
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ranAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "error": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "responses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ReadImageRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "coordX",
+          "coordY",
+          "coordZ",
+          "QuaternionW",
+          "QuaternionX",
+          "QuaternionY",
+          "QuaternionZ",
+          "requestedAt",
+          "completedAt",
+          "fStop",
+          "focus",
+          "ISO",
+          "status",
+          "retryCount",
+          "userId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coordX": {
+            "type": "number",
+            "format": "float"
+          },
+          "coordY": {
+            "type": "number",
+            "format": "float"
+          },
+          "coordZ": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionW": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionX": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionY": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionZ": {
+            "type": "number",
+            "format": "float"
+          },
+          "fStop": {
+            "type": "number",
+            "format": "float"
+          },
+          "focus": {
+            "type": "number",
+            "format": "float"
+          },
+          "ISO": {
+            "type": "number",
+            "format": "float"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/ImageRequestStatusEnum"
+          },
+          "retryCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "WriteImageRequest": {
+        "type": "object",
+        "required": [
+          "coordX",
+          "coordY",
+          "coordZ",
+          "QuaternionW",
+          "QuaternionX",
+          "QuaternionY",
+          "QuaternionZ",
+          "requestedAt",
+          "fStop",
+          "focus",
+          "ISO",
+          "userId"
+        ],
+        "properties": {
+          "coordX": {
+            "type": "number",
+            "format": "float"
+          },
+          "coordY": {
+            "type": "number",
+            "format": "float"
+          },
+          "coordZ": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionW": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionX": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionY": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionZ": {
+            "type": "number",
+            "format": "float"
+          },
+          "fStop": {
+            "type": "number",
+            "format": "float"
+          },
+          "focus": {
+            "type": "number",
+            "format": "float"
+          },
+          "ISO": {
+            "type": "number",
+            "format": "float"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateImageRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coordX": {
+            "type": "number",
+            "format": "float"
+          },
+          "coordY": {
+            "type": "number",
+            "format": "float"
+          },
+          "coordZ": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionW": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionX": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionY": {
+            "type": "number",
+            "format": "float"
+          },
+          "QuaternionZ": {
+            "type": "number",
+            "format": "float"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fStop": {
+            "type": "number",
+            "format": "float"
+          },
+          "focus": {
+            "type": "number",
+            "format": "float"
+          },
+          "ISO": {
+            "type": "number",
+            "format": "float"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ImageRequestStatusEnum"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "retryCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "userId"
+        ]
+      },
+      "DeleteImageRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "userId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the image to be deleted."
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the user requesting the deletion."
+          }
+        }
+      },
+      "ImageRequestStatusEnum": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "PROCESSING",
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

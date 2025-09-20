@@ -2,11 +2,13 @@ from abc import ABC, abstractmethod
 import threading
 import sys
 import glob
-
+import logging
 import serial
 
 from alea.ttc.protocol.generic import packet
 from alea.ttc.protocol.generic import routing
+
+logger = logging.getLogger(__name__)
 
 class SerialWorker(ABC):
     """Abstract base class for serial worker implementations.
@@ -53,7 +55,7 @@ class SerialWorker(ABC):
                     if not self.loop():
                         break
                 except serial.SerialException as e:
-                    print(f"[Serial Exception] {str(e)}")
+                    logger.error(f"[Serial Exception] {str(e)}", exc_info=True)
 
     @abstractmethod
     def loop(self) -> bool:
@@ -179,12 +181,12 @@ class SerialDevice:
             return False
 
         if self._rx_dest is not None:
-            print(f"Starting serial RX worker on port: {serial_port}")
+            logger.info(f"Starting serial RX worker on port: {serial_port}")
             self._rx_worker = SerialRXWorker(self._device, self._rx_dest)
             self._rx_worker.start()
 
         if self._tx_src is not None:
-            print(f"Starting serial TX worker on port: {serial_port}")
+            logger.info(f"Starting serial TX worker on port: {serial_port}")
             self._tx_worker = SerialTXWorker(self._device, self._tx_src)
             self._tx_worker.start()
 
@@ -202,12 +204,12 @@ class SerialDevice:
             serial_port = self._device.port
 
         if self._rx_worker is not None:
-            print(f"Stopping serial RX worker on port: {serial_port}")
+            logger.info(f"Stopping serial RX worker on port: {serial_port}")
             self._rx_worker.stop()
             self._rx_worker = None
 
         if self._tx_worker is not None:
-            print(f"Stopping serial TX worker on port: {serial_port}")
+            logger.info(f"Stopping serial TX worker on port: {serial_port}")
             self._tx_worker.stop()
             self._tx_worker = None
 
@@ -215,7 +217,7 @@ class SerialDevice:
 
     def _connect(self, serial_port: str, baud_rate: int = 115200, parity: str = serial.PARITY_NONE, stop_bits: int = serial.STOPBITS_ONE, byte_size: int = serial.EIGHTBITS) -> bool:
         try:
-            print(f"Connecting to serial device on port: {serial_port}")
+            logger.info(f"Connecting to serial device on port: {serial_port}")
             device = serial.Serial(
                 port     = serial_port,
                 baudrate = baud_rate,
@@ -233,17 +235,17 @@ class SerialDevice:
             self._device = device
             return True
         except serial.SerialException as e:
-            print(f"[Serial Connect Exception] {str(e)}")
+            logger.error(f"[Serial Connect Exception] {str(e)}", exc_info=True)
             return False
 
     def _disconnect(self):
         if self.connected:
-            print(f"Disconnecting from serial device")
+            logger.info(f"Disconnecting from serial device")
             try:
                 self._device.close()
                 self._device = None
             except serial.SerialException as e:
-                print(f"[Serial Disconnect Exception] {str(e)}")
+                logger.error(f"[Serial Disconnect Exception] {str(e)}", exc_info=True)
 
 def get_serial_ports() -> list[str]:
     """Collects a list of available serial ports.

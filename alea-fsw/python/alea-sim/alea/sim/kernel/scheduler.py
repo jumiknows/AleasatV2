@@ -72,6 +72,9 @@ class EventPriority(IntEnum):
     POWER_EVENT_SOLAR = 41
     POWER_EVENT_EPS = 42
 
+    FLIGHT_SOFTWARE_EVENT = 50
+    CONTROL_EVENT = 51
+
 @dataclass(frozen=True)
 class Event:
     """

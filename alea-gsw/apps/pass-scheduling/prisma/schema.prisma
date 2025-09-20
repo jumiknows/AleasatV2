@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+  output          = "../../../node_modules/@prisma/client/pass-scheduling"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model Transfer {
+  id        String       @id @unique @default(uuid()) @db.Uuid
+  commandId String       @db.Uuid
+  type      TransferType
+  // https://docs.google.com/document/d/1JqbIW31o3UWf5bxTOApw8EVDx4-D5zalfff7830qKcQ/edit#heading=h.jpisefuel53b
+  priority  Int
+  pass      Pass         @relation(fields: [passId], references: [id])
+  passId    String       @db.Uuid
+}
+
+enum TransferType {
+  upload
+  download
+}
+
+model PredictedRiseSet {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  rise  DateTime
+  riseX Float
+  riseY Float
+  riseZ Float
+  set   DateTime
+  setX  Float
+  setY  Float
+  setZ  Float
+
+  stateElementId String  @db.Uuid
+  currentPass    Pass?   @relation(name: "predictedRiseSet")
+  previousPass   Pass?   @relation(name: "previousPredictedRiseSet", fields: [previousPassId], references: [id])
+  previousPassId String? @db.Uuid
+}
+
+model ActualRiseSet {
+  id     String   @id @unique @default(uuid()) @db.Uuid
+  rise   DateTime
+  riseX  Float
+  riseY  Float
+  riseZ  Float
+  set    DateTime
+  setX   Float
+  setY   Float
+  setZ   Float
+  Pass   Pass     @relation(fields: [passId], references: [id])
+  passId String   @unique @db.Uuid
+}
+
+model Pass {
+  id                       String             @id @unique @default(uuid()) @db.Uuid
+  actualRiseSet            ActualRiseSet?
+  predictedRiseSet         PredictedRiseSet   @relation(name: "predictedRiseSet", fields: [predictedRiseSetId], references: [id])
+  predictedRiseSetId       String             @unique @db.Uuid
+  previousPredictedRiseSet PredictedRiseSet[] @relation(name: "previousPredictedRiseSet")
+  groundStation            GroundStation      @relation(fields: [groundStationId], references: [id])
+  groundStationId          Int
+  transfer                 Transfer[]
+  memoryBudget             Int                @default(0)
+  memoryAllocated          Int                @default(0)
+  previousPass             Pass?              @relation(name: "previousPass", fields: [previousPassId], references: [id])
+  previousPassId           String?            @unique @db.Uuid
+  nextPass                 Pass?              @relation(name: "previousPass")
+}
+
+model GroundStation {
+  id           Int     @id @unique @default(autoincrement())
+  passSchedule Pass[]
+  lat          Float
+  lng          Float
+  description  String
+  name         String
+  minElevation Float
+  ownerId      String?
+  aleasat      Boolean @default(false)
+}
+
+model MissionQueue {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  queueAt DateTime @default(now())
+
+  mission   Mission @relation(fields: [missionId], references: [id])
+  missionId String  @unique @db.Uuid
+}
+
+model MissionSchedule {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  initialOverheadStart DateTime
+  // initialOverhead
+  missionStart         DateTime
+  // mission
+  missionEnd           DateTime
+  // direct overhead
+  directOverheadEnd    DateTime
+  // indirect overhead
+  indirectOverheadEnd  DateTime
+
+  mission   Mission @relation(fields: [missionId], references: [id])
+  missionId String  @unique @db.Uuid
+}
+
+model MissionScheduleSpace {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  start    DateTime
+  end      DateTime?
+  duration Int
+}
+
+model CommandSchedule {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  start       DateTime
+  end         DateTime
+  overheadEnd DateTime
+
+  command   Command @relation(fields: [commandId], references: [id])
+  commandId String  @unique @db.Uuid
+}
+
+enum MissionStatus {
+  queued
+  expired
+  scheduled
+  sent
+}
+
+model Mission {
+  id String @id @unique @db.Uuid
+
+  status MissionStatus @default(queued)
+
+  scheduledAt DateTime?
+  commands    Command[]
+
+  missionQueue    MissionQueue?
+  missionSchedule MissionSchedule?
+}
+
+model Command {
+  id String @id @unique @db.Uuid
+
+  Mission   Mission @relation(fields: [missionId], references: [id])
+  missionId String  @db.Uuid
+
+  /// Start from 0
+  sequenceNumber Int
+
+  commandId   Int
+  commandName String
+  /// In seconds with respect to the previous command
+  timeOffset  Int
+
+  scheduledAt     DateTime?
+  commandSchedule CommandSchedule?
+}

@@ -27,8 +27,8 @@ typedef enum {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void obc_watchdog_create_infra(void);
-void obc_watchdog_start_task(void);
+void obc_watchdog_pre_init(void);
+void obc_watchdog_post_init(void);
 
 void obc_watchdog_watch_task(obc_task_id_t task_id, obc_watchdog_action_t action);
 void obc_watchdog_pet(obc_task_id_t task_id);

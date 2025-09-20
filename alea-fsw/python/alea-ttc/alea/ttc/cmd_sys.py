@@ -3,12 +3,15 @@ from dataclasses import dataclass
 from enum import IntEnum
 import struct
 import queue
+import logging
 
 from alea.common import alea_time
 
 from alea.obcfw.cmd_sys import cmd_sys_spec
 
 from alea.ttc.util import data_utils
+
+logger = logging.getLogger(__name__)
 
 class OBCCmd:
     """Represents a command that will be sent to the OBC.
@@ -215,7 +218,7 @@ class OBCResponse:
             try:
                 fields = spec.decode_resp(data_data)
             except cmd_sys_spec.OBCCmdSysSpecDecodeError as e:
-                print(f"[OBCCmdSysSpecDecodeError] {str(e)}")
+                logger.error(f"[OBCCmdSysSpecDecodeError] {str(e)}", exc_info=True)
                 fields = None
                 error = e
 

@@ -1,0 +1,44 @@
+import { write } from "fs";
+import csv from "csvtojson";
+import { writeFile } from "fs/promises";
+import { members } from "./members.js";
+
+const list = await csv()
+  .fromFile("src/list.csv")
+  .then((l) =>
+    l.map((o) => ({
+      firstname: o["First Name"],
+      lastname: o["Last Name"],
+      role: o.Role,
+      university: o.University,
+      year: o.Year,
+      major: o.Major,
+      socialMedia: {
+        linkedin: null,
+        github: null,
+        gitlab: "https://gitlab.com/" + o["Gitlab Username"],
+      },
+      image: null,
+    })),
+  )
+  .then((l) => l.filter((o) => o.firstname));
+
+const missingList = list.filter(
+  (o) =>
+    !Object.values(members)
+      .flat()
+      .find((m) => m.firstname === o.firstname && m.lastname === o.lastname),
+);
+
+const oldList = Object.values(members)
+  .flat()
+  .filter(
+    (o) =>
+      !list.find(
+        (m) => m.firstname === o.firstname && m.lastname === o.lastname,
+      ),
+  );
+
+await writeFile("src/missingList.json", JSON.stringify(missingList, null, 2));
+
+await writeFile("src/oldList.json", JSON.stringify(oldList, null, 2));

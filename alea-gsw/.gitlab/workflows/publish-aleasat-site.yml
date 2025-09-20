@@ -1,0 +1,106 @@
+"Publish aleasat-site Container":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - Get Commit Count
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/aleasat-site/Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasat-site:${CI_COMMIT_SHA}-$(cat commit-count)-$(date +%s)"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasat-site:${CI_COMMIT_SHA}"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasat-site:latest"
+      --push
+      "${CI_PROJECT_DIR}/alea-gsw"
+
+"Publish aleasat-site review Container":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs: []
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/aleasat-site/Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasat-site-review:${CI_COMMIT_REF_SLUG}"
+      --push
+      "${CI_PROJECT_DIR}/alea-gsw"
+
+Deploy aleasat-site:
+  stage: deploy
+  image:
+    name: portainer/kubectl-shell:latest
+  needs:
+    - Publish aleasat-site review Container
+  before_script:
+    - cd alea-gsw
+  script:
+    - kubectl config use-context alea-2020/mission-operations/gitmopsops:aleasat-mops
+    - ./scripts/getDeployment.sh $CI_COMMIT_REF_SLUG
+    - kubectl apply -f deployment.yaml -n barbours-cut-review
+    - kubectl rollout restart deployment -n barbours-cut-review $CI_COMMIT_REF_SLUG || true
+    - ACCOUNT_ID=$CF_ACCOUNT_ID TUNNEL_ID=$CF_TUNNEL_ID ZONE_ID=$CF_ZONE_ID TOKEN=$CF_API_TOKEN sh -c "./scripts/addIngress.sh $CI_COMMIT_REF_SLUG"
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    url: https://$CI_COMMIT_REF_SLUG-review.aleasat.space
+    on_stop: Stop review aleasat-site
+
+Stop review aleasat-site:
+  stage: deploy
+  image:
+    name: h01001000/aleasat:kubectl
+    entrypoint: [""]
+  when: manual
+  needs: []
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/alea-2020/software/aleasat-software
+    - cd aleasat-software/alea-gsw
+  script:
+    - kubectl config use-context alea-2020/mission-operations/gitmopsops:aleasat-mops
+    - ./scripts/getDeployment.sh $CI_COMMIT_REF_SLUG
+    - kubectl delete -f deployment.yaml -n barbours-cut-review
+    - ACCOUNT_ID=$CF_ACCOUNT_ID TUNNEL_ID=$CF_TUNNEL_ID ZONE_ID=$CF_ZONE_ID TOKEN=$CF_API_TOKEN sh -c "./scripts/deleteIngress.sh $CI_COMMIT_REF_SLUG"
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    action: stop
+
+"Deploy aleasat-site to production":
+  image: alpine:latest
+  stage: deploy to production
+  before_script:
+    - apk add --no-cache yq openssh-client git curl
+    - mkdir -p ~/.ssh
+    - echo "$GITMOPSOPS_SSH_KEY" | base64 -d > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - git config --global user.email "mops@ubcorbit.com"
+    - git config --global user.name "MOps CI Bot"
+    - git clone git@gitlab.com:alea-2020/mission-operations/gitmopsops.git
+    - cd gitmopsops
+    - git checkout droplet
+  script:
+    - yq e ".services.aleasat-site.image = \"registry.gitlab.com/alea-2020/software/aleasat-software/aleasat-site:${CI_COMMIT_SHA}\"" -i docker-compose.yml
+    - git add .
+    - git commit -m "Update aleasat-site image version to ${CI_COMMIT_SHA}" || exit 0
+    - git push
+    - export CI_MERGE_REQUEST_IID="${CI_MERGE_REQUEST_IID:-$(echo $CI_COMMIT_TITLE | sed -E 's/.*\(!([0-9]+)\)$/\1/')}"
+    - json_data='{"body":"Deployed `aleasat-site` to production. Please give a few minutes for the deployment to complete."}'
+    - |
+      echo $json_data |
+      curl --request POST \
+        --header "PRIVATE-TOKEN: ${DANGER_GITLAB_API_TOKEN}" \
+        --header "Content-Type: application/json" \
+        --data @- \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}/notes"
+  environment: production/aleasat-site

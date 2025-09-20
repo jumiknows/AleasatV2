@@ -97,7 +97,7 @@ void comms_mngr_create_infra(void) {
  *
  * @param[in] cdev handle for the low-level comms device driver
  */
-void comms_mngr_start_task(comms_dev_handle_t cdev_hdl) {
+void comms_mngr_pre_init(comms_dev_handle_t cdev_hdl) {
     cdev = cdev_hdl;
 
     obc_rtos_create_task(OBC_TASK_ID_COMMS_MNGR, &vCommsMngrTask, NULL, OBC_WATCHDOG_ACTION_ALLOW);

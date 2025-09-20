@@ -66,7 +66,7 @@ static SemaphoreHandle_t schedule_mutex = NULL;
 /**
  * @brief Create FreeRTOS infrastructure needed by this module
  */
-void rtc_scheduler_create_infra(void) {
+void rtc_scheduler_pre_init(void) {
     static StaticSemaphore_t schedule_mutex_buf = { 0 };
 
     uint32_t i = 0;

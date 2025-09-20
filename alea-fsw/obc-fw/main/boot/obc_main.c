@@ -10,17 +10,176 @@
 // OBC
 #include "obc_main.h"
 
+// Common
+#include "fw_structs.h"
+#include "fw_memmap.h"
+#include "asm_utils.h"
+#include "obc_crc.h"
+
+// Platform
+#include "dabort.h"
+
+// HALCoGen
+#include "gio.h"
+#include "reg_gio.h"
+#include "system.h"
+#include "sys_core.h"
+
+// Boot
+#include "boot_error.h"
+#include "boot_updater.h"
+#include "boot_fapi.h"
+
 // Standard Library
 #include <stdint.h>
+
+/******************************************************************************/
+/*                               D E F I N E S                                */
+/******************************************************************************/
+
+#ifdef PLATFORM_ALEA_V1
+
+#define LED_PORT gioPORTA
+#define LED_PIN  7
+
+#elif PLATFORM_LAUNCHPAD_1224
+
+#define LED_PORT gioPORTB
+#define LED_PIN  1
+
+#endif
+
+#define LED_BLINK_MS    100U
+#define LED_BLINK_LOOPS (LED_BLINK_MS * 1000U * ((uint32_t)GCLK_FREQ) / 5U) // 5 is the number of cycles / loop
+
+/* The following symbols are defined at link time (see main/linker.cmd)
+ * Locations and size of asm_utils and the F021 flash API
+ */
+extern unsigned int asm_utils_load;
+extern unsigned int asm_utils_run;
+extern unsigned int asm_utils_size;
+extern unsigned int f021_load;
+extern unsigned int f021_run;
+extern unsigned int f021_size;
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
 void obc_main(void) {
-    volatile int32_t i = 0;
+    // The asm_utils.asm functions are moved to RAM to ensure consistent timing behaviour
+    memcpy(&asm_utils_run, &asm_utils_load, (uint32_t)&asm_utils_size);
 
+    // This function may result in data aborts due to ECC errors
+    // Disable interrupts so we can easily catch and identify these data aborts
+    _disable_interrupts(); // compiler intrinsic
+
+    // Hardware initialization
+    gioInit();
+
+    do {
+        /*  TODO: ALEA-1226 We need to check if an update has been requested by an application image
+         * (communicated via known NOINIT RAM location).
+         */
+        if (0) {
+            /* The boot_fapi functions & the F021 flash API cannot be executed on the same bank as the active bank selected
+             * for the API commands to run on and must be copied to RAM
+             */
+            memcpy(&f021_run, &f021_load, (uint32_t)&f021_size);
+
+            // Perform pre update checks & initialization
+            if (boot_preupdate_checks(FLASH_SLOT_APP_EXT_A) != BOOT_SUCCESS) {
+                boot_fapi_deinit();
+                break; // TODO: ALEA-1226 Communicate that update failed
+            }
+
+            if (boot_update(FLASH_SLOT_APP_EXT_A) != BOOT_SUCCESS) {
+                boot_fapi_deinit();
+                break; // TODO: ALEA-1226 Communicate that update failed
+            }
+
+            // Perform post update validation and deinitialization
+            if (boot_postupdate_checks(FLASH_SLOT_APP_EXT_A) != BOOT_SUCCESS) {
+                // There is no need to call boot_fapi_deinit() again since it is already called
+                break; // TODO: ALEA-1226 Communicate that update failed
+            }
+        }
+    } while (0);
+
+    // TODO: ALEA-3092 Branch to firmware using burn number instead of by sequence of slot
+
+    // Branch to appropriate firmware image
     while (1) {
-        i++;
+        // Start at 3 because 0, 1, 2 are the startup and boot slots
+        for (uint32_t i = 3; i < FLASH_SLOT_COUNT; i++) {
+            // Flash the LED
+            gioSetBit(LED_PORT, LED_PIN, 1);
+            asm_busy_wait(LED_BLINK_LOOPS / 2);
+            gioSetBit(LED_PORT, LED_PIN, 0);
+            asm_busy_wait(LED_BLINK_LOOPS * 2);
+
+            // Since we're reading from flash outside of our own flash slot we might encounter uncorrectable flash (ECC) errors.
+            // We don't want these errors to be fatal (if it happens we move on to the next flash slot),
+            // so we set a flag that allows flash ECC data aborts to occur (while recording that it happened).
+            dabort_FUNC_ERR_set_nonfatal();
+
+            do {
+                const volatile fw_structs_t *structs = FW_STRUCTS[i];
+
+                // Read header magic
+                uint32_t headerMagic = structs->header.magic;
+
+                // Check for a flash ECC error early (a fully erased flash slot might trigger this)
+                if (dabort_FUNC_ERR_get()) {
+                    dabort_FUNC_ERR_clear(); // TODO check address is as expected
+                    break;
+                }
+
+                // Check header magic
+                if (headerMagic != FW_HEADER_MAGIC) {
+                    break;
+                }
+
+                // Check # of previous unsuccessful boots
+                // TODO: ALEA-3093
+
+                // Check CRC32
+                uint32_t calc_crc32 = crc_32_buf(CRC32_SEED, (uint8_t *)&structs->entrypoint, structs->header.size);
+
+                if (calc_crc32 != structs->header.crc32) {
+                    break;
+                }
+
+                // Check entrypoint magic
+                if (structs->entrypoint.magic != FW_ENTRYPOINT_MAGIC) {
+                    break;
+                }
+
+                // Check entrypoint flash addr
+                if (structs->entrypoint.flash_addr != (uint32_t)structs) {
+                    break;
+                }
+
+                // Check for flash ECC errors one more time
+                if (dabort_FUNC_ERR_get()) {
+                    dabort_FUNC_ERR_clear();
+                    break;
+                }
+
+                // At this point we've validated the firmware image so any flash ECC errors are real and should be fatal
+                dabort_FUNC_ERR_set_fatal();
+
+                // TODO deinitialize hardware
+
+                // Try to boot
+                uint32_t jump_instr_addr = (uint32_t) & (structs->entrypoint.jump_instr);
+                asm_jump_to_addr(jump_instr_addr);
+
+                // Nothing after the above call should ever execute
+
+            } while (0);
+
+            dabort_FUNC_ERR_set_fatal();
+        }
     }
 }

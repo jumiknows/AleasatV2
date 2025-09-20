@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+  output          = "../../../node_modules/@prisma/client/mission"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+enum MissionStatus {
+  created
+  scheduled
+  sent
+  error
+}
+
+model Mission {
+  id        String   @id @unique @default(uuid()) @db.Uuid
+  fwVersion String
+  createdAt DateTime @default(now())
+  userId    String
+
+  status MissionStatus @default(created)
+
+  scheduledAt DateTime?
+  commands    Command[]
+
+  error String?
+}
+
+model Command {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  Mission   Mission @relation(fields: [missionId], references: [id])
+  missionId String  @db.Uuid
+
+  /// Start from 0
+  sequenceNumber Int
+
+  commandId   Int
+  commandName String
+  /// In seconds
+  timeOffset  Int
+  arguments   String[]
+
+  sentAt    DateTime?
+  cmdInstId Int?      @unique
+
+  ranAt     DateTime?
+  responses String[]
+  error     Boolean?
+}
+
+enum ImageRequestStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model ImageRequest {
+  id String @id @unique @default(uuid()) @db.Uuid
+
+  // Coordinates ECI frame J200
+  coordX Float
+  coordY Float
+  coordZ Float
+
+  // Quaternion
+  QuaternionW Float
+  QuaternionX Float
+  QuaternionY Float
+  QuaternionZ Float
+
+  // Camera settings from blender fly
+  fStop Float
+  focus Float
+  ISO   Float
+
+  userId String @db.Uuid // ID of user that made the request
+
+  requestedAt DateTime
+  completedAt DateTime?
+
+  status     ImageRequestStatus @default(PENDING)
+  retryCount Int                @default(0) // Ensure non-negative values at the app level
+}

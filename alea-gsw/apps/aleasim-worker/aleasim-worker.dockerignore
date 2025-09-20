@@ -1,0 +1,10 @@
+*
+
+!alea-gsw/apps/aleasim-worker
+*alea-gsw/apps/aleasim-worker/*.Dockerfile
+!alea-fsw/python
+
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db

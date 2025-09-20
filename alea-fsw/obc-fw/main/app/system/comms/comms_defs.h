@@ -123,7 +123,7 @@ void comms_service_packet_input(
     comms_command_t *cmd_in
 );
 
-void comms_mngr_start_task(
+void comms_mngr_pre_init(
     comms_dev_handle_t cdev_hdl
 );
 

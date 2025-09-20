@@ -132,12 +132,9 @@ const io_ostream_t gndstn_downlink_socket = {
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
-void gndstn_link_create_infra(void) {
+void gndstn_link_pre_init(void) {
     gndstn_uplink_create_infra();
     gndstn_downlink_create_infra();
-}
-
-void gndstn_link_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_GNDSTN_LINK, &gndstn_link_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 

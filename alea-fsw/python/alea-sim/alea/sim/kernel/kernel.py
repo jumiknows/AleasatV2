@@ -3,6 +3,7 @@ import abc
 import datetime
 import logging
 import math
+import json
 
 from multiprocessing.managers import SharedMemoryManager
 from multiprocessing.shared_memory import SharedMemory
@@ -16,7 +17,6 @@ from skyfield.api import load
 from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.kernel.scheduler import Scheduler, EventPriority
 from alea.sim.kernel.frames import ReferenceFrame, Universe
-from alea.sim.kernel.time_utils import skyfield_time_to_gmst_radians
 from alea.sim.kernel.time_utils import skyfield_time_to_gmst_radians
 from alea.sim.kernel.frame_manager import FrameManager
 
@@ -233,7 +233,9 @@ class AleasimKernel():
 
     #compatibility methods
     def get_model(self, name_or_type: str | type) -> "AbstractModel" :
-        """get child from root"""
+        """
+        Get any model from the model tree including root model or children.
+        """
         if isinstance(name_or_type, str) and self.root.name == name_or_type:
             return self.root
         elif isinstance(name_or_type, type) and isinstance(self.root, name_or_type):
@@ -248,6 +250,13 @@ class AleasimKernel():
     def remove_model(self, child: "AbstractModel") -> None:
         """remove child from root"""
         self._root.remove_child(child)
+        
+    def print_model_tree(self) -> None:
+        """
+        print model tree as a nested dictionary (pretty)
+        """
+        nested = self.root.get_children_model_names_nested(include_types=True)
+        print(json.dumps(nested, sort_keys=True, indent=4))
         
     def schedule_event(self, delay:float, priority:int, action:callable, period=-1, argument=(), kwargs = _sentinel):
         """
@@ -311,11 +320,19 @@ class AleasimKernel():
         self._update()
             
     def kill(self):
-        self.logger.warn("Killing all shared memory.")
+        self.logger.warning("Killing all shared memory.")
         self._smm.shutdown()
         self._scheduler.purge()
+        
+        # stop background processes in all models.
+        self._root.stop_all()
+    
         self._root._children.clear()
         del self._root
+        
+        # delete session data folder if its empty
+        if not any(SESSION_DATA_PATH.iterdir()):
+            SESSION_DATA_PATH.rmdir()
 
     def create_shared_memory(self, model):
         """Create shared memory for any models implementing SharedMemoryModelInterface"""

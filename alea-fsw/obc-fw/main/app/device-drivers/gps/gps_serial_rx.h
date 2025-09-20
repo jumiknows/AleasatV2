@@ -32,9 +32,9 @@
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
+void gps_serial_rx_pre_init(void);
+void gps_serial_rx_post_init(void);
 void gps_serial_rx_init_irq(void);
-void gps_serial_rx_start_task(void);
-void gps_serial_rx_create_infra(void);
 
 void gps_serial_rx_isr(BaseType_t *pxHigherPriorityTaskWoken);
 

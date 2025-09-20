@@ -51,7 +51,7 @@ typedef struct {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void rtc_scheduler_create_infra(void);
+void rtc_scheduler_pre_init(void);
 
 rtc_scheduler_err_t rtc_scheduler_add_item(const rtc_scheduler_item_t *item, uint32_t timeout_ticks);
 

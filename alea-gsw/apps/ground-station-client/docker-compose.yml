@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+
+  rigctld:
+    image: 'librespace/hamlib:4.0'
+    user: '999'
+    read_only: true
+    environment:
+      MODEL: '1'
+    restart: 'unless-stopped'
+    command: 'rigctld'
+
+  groundstationclient:
+    container_name: 'ground-station-client'
+    build:
+      context: .
+    image: 'ground-station-client'
+    device_cgroup_rules:
+      - 'c 189:* rwm'
+    environment:
+      GROUND_STATION_CLIENT_SOAPY_RX_DEVICE: 'driver=rtlsdr'
+      GROUND_STATION_CLIENT_ANTENNA: 'RX'
+      GROUND_STATION_CLIENT_RX_SAMP_RATE: '2.048e6'
+      GROUND_STATION_CLIENT_STATION_ELEV: '100'
+      GROUND_STATION_CLIENT_STATION_ID: '9999'
+      GROUND_STATION_CLIENT_STATION_LAT: '37.971'
+      GROUND_STATION_CLIENT_STATION_LON: '23.725'
+      GROUND_STATION_CLIENT_RIG_IP: 'rigctld'
+    ports:
+      - 0.0.0.0:3000:3000
+    volumes:
+      - '~/ground-station-client/database.sqlite:/app/database.sqlite'
+      - '~/ground-station-client/out:/app/out'
+      - '/dev/bus/usb:/dev/bus/usb'
+    restart: on-failure:5

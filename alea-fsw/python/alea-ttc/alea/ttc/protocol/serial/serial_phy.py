@@ -1,9 +1,12 @@
 from enum import IntEnum
 import struct
+import logging
 
 from alea.ttc.protocol.generic import packet
 from alea.ttc.protocol.generic import layer
 from alea.ttc.protocol.generic import layer_impl
+
+logger = logging.getLogger(__name__)
 
 class OBCSerialFrame(packet.Packet):
     SYNC_0_VALUE = 0xAB
@@ -145,7 +148,7 @@ class OBCSerialPhyRX(layer_impl.StreamToPacketProtocolLayer[OBCSerialFrame]):
             if self._packet.validate():
                 packet_complete = True
             else:
-                print("Error: CRC calculated on response data was wrong")
+                logger.error("Error: CRC calculated on response data was wrong")
 
         return (next_state, bytes_used, packet_complete)
 

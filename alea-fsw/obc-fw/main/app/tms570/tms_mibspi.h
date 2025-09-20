@@ -117,7 +117,7 @@ typedef struct {
 /******************************************************************************/
 
 /* Startup steps */
-void tms_mibspi_create_infra(void);
+void tms_mibspi_pre_init(void);
 void tms_mibspi_init_hw(void);
 
 /* User API */

@@ -167,8 +167,8 @@ typedef struct i2c_config_reg
 #define I2C_OAR_CONFIGVALUE         0x00000000U   
 #define I2C_IMR_CONFIGVALUE       (((uint32)0U << 6U) \
                                  | ((uint32)0U << 5U) \
-                                 | ((uint32)0U << 4U) \
-                                 | ((uint32)0U << 3U) \
+                                 | ((uint32)1U << 4U) \
+                                 | ((uint32)1U << 3U) \
                                  | ((uint32)0U << 2U) \
                                  | ((uint32)0U << 1U) \
                                  | ((uint32)0U))

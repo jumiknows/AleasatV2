@@ -70,7 +70,7 @@ static _nvct_entry_t create_nvct_entry(bool mutable, nvct_value_t value);
  */
 static nvct_err_enum_t write_to_store(uint32_t table_idx, uint8_t index, _nvct_entry_t entry) {
     uint32_t addr    = mram_offset(table_idx, TABLE_ENTRY_SIZE * index);
-    mram_err_t error = write_mram(addr, TABLE_ENTRY_SIZE, (const uint8_t *)&entry);
+    mram_err_t error = mram_write(addr, TABLE_ENTRY_SIZE, (const uint8_t *)&entry);
 
     if (error != MRAM_OK) {
         return NVCT_FAILED_TO_WRITE_TO_MRAM_ERROR;
@@ -156,7 +156,7 @@ nvct_err_enum_t init_nvct(firmware_version_t firmware_v) {
         // Read setting, check CRC and check against FW version.
         _nvct_entry_t entry = { 0 };
 
-        if (read_mram(mram_offset(test_table_offset, FIRMWARE_VERSION_NVCT_INDEX), TABLE_ENTRY_SIZE, (uint8_t *)&entry) == MRAM_OK) {
+        if (mram_write(mram_offset(test_table_offset, FIRMWARE_VERSION_NVCT_INDEX), TABLE_ENTRY_SIZE, (uint8_t *)&entry) == MRAM_OK) {
             if (calculate_crc(entry.config, entry.value) == entry.crc) {
                 if (entry.value == firmware_v) {
                     table_offset       = test_table_offset;
@@ -219,7 +219,7 @@ nvct_err_enum_t get_nvct_value(uint8_t index, nvct_value_t *value) {
     // Read the entry from storage.
     _nvct_entry_t entry = { 0 };
 
-    if (read_mram(mram_offset(table_offset, entry_offset(index)), TABLE_ENTRY_SIZE, (uint8_t *)&entry) != MRAM_OK) {
+    if (mram_read(mram_offset(table_offset, entry_offset(index)), TABLE_ENTRY_SIZE, (uint8_t *)&entry) != MRAM_OK) {
         return NVCT_FAILED_TO_READ_FROM_MRAM_ERROR;
     }
 
@@ -300,7 +300,7 @@ nvct_err_enum_t erase_nvct_table(uint32_t table_index) {
     for (idx = 0; idx < NVCT_MAX_NUM_ENTRIES; idx++) {
         uint32_t addr = mram_offset(table_index, TABLE_ENTRY_SIZE * idx);
 
-        if (write_mram(addr, TABLE_ENTRY_SIZE, (const uint8_t *)&erased_entry) != MRAM_OK) {
+        if (mram_write(addr, TABLE_ENTRY_SIZE, (const uint8_t *)&erased_entry) != MRAM_OK) {
             had_mram_errors = true;
         }
     }

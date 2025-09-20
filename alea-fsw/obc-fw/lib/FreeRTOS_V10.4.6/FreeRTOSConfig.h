@@ -107,6 +107,7 @@
 #define INCLUDE_xTaskAbortDelay                 1
 #define INCLUDE_eTaskGetState                   1
 #define INCLUDE_xTaskGetIdleTaskHandle          1
+#define INCLUDE_xTaskGetHandle                  1
 
 /* Debug */
 #define configASSERT( x ) if( ( x ) == pdFALSE ) { taskDISABLE_INTERRUPTS(); for( ;; ); }
@@ -119,6 +120,11 @@
  * @brief Convert milliseconds to ticks using 64-bit intermediate types to allow for larger values.
  */
 #define pdMS_TO_TICKS(xTimeInMs) ((TickType_t)((uint64_t)((uint64_t)(xTimeInMs) * (uint64_t)configTICK_RATE_HZ) / (TickType_t)1000))
+
+/**
+ * @brief Convert ticks to milliseconds using 64-bit intermediate types to allow for larger values.
+ */
+#define pdTICKS_TO_MS(xTicks) ((uint32_t)((uint64_t)(xTicks) * (uint64_t)1000 / (uint64_t)configTICK_RATE_HZ))
 
 /* Trace Macros */
 #define traceTASK_SWITCHED_IN()  xTaskCallApplicationTaskHook(pxCurrentTCB, (void *)0)

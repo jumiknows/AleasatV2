@@ -1,6 +1,6 @@
 import numpy as np
 
-def polar_to_cartesian(r: float | np.ndarray, phi: float | np.ndarray, r_y: float | np.ndarray = None) -> tuple[float, float] | tuple[np.ndarray, np.ndarray]:
+def polar_to_cartesian(r: float | np.ndarray, phi: float | np.ndarray) -> tuple[float, float] | tuple[np.ndarray, np.ndarray]:
     """Convert polar coordinates to cartesian coordinates.
 
     This function works with both single coordinates or n-dimensional arrays of coordinates.
@@ -8,23 +8,36 @@ def polar_to_cartesian(r: float | np.ndarray, phi: float | np.ndarray, r_y: floa
 
     Args:
         r:
-            Radius. If r_y is supplied this radius is used only for the x coordinate.
+            Radius
         phi:
             Azimuthal angle (in radians)
-        r_y:
-            Radius for calculating the y coordinate. Useful for ellipse calculations.
 
     Returns:
         A tuple of (x, y) coordinates
     """
-    r_x = r
-    if r_y is None:
-        r_y = r
-
-    x = r_x * np.cos(phi)
-    y = r_y * np.sin(phi)
-
+    x = r * np.cos(phi)
+    y = r * np.sin(phi)
     return (x, y)
+
+def cartesian_to_polar(x: float | np.ndarray, y: float | np.ndarray) -> tuple[float, float] | tuple[np.ndarray, np.ndarray]:
+    """Convert cartesian coordinates to polar coordinates.
+
+    This function works with both single coordinates or n-dimensional arrays of coordinates.
+    All calculations are done element-wise on arrays of coordinates.
+
+    Args:
+        x:
+            The x cartesian coordinate
+        y:
+            The y cartesian coordinate
+
+    Returns:
+        A tuple of (r, phi) coordinates where r is the radius at the azimuthal angle of phi (in radians).
+        The azimuthal angle (phi) is returned in the range [-pi, pi].
+    """
+    r = np.sqrt((x**2) + (y**2))
+    phi = np.arctan2(y, x)
+    return (r, phi)
 
 def spherical_mesh(phi_step_deg: float = 10, theta_step_deg: float = 10) -> tuple[np.ndarray, np.ndarray]:
     """Generate a 2D mesh grid of spherical coordinates (phi, theta) where phi
@@ -49,8 +62,7 @@ def spherical_mesh(phi_step_deg: float = 10, theta_step_deg: float = 10) -> tupl
     phi, theta = np.mgrid[phi_spec, theta_spec]
     return (phi, theta)
 
-def spherical_to_cartesian(r: float | np.ndarray, phi: float | np.ndarray, theta: float | np.ndarray,
-                           r_y: float | np.ndarray = None, r_z: float | np.ndarray = None) -> tuple[float, float, float] | tuple[np.ndarray, np.ndarray, np.ndarray]:
+def spherical_to_cartesian(r: float | np.ndarray, phi: float | np.ndarray, theta: float | np.ndarray) -> tuple[float, float, float] | tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Convert spherical coordinates to cartesian coordinates.
 
     This function works with both single coordinates or n-dimensional arrays of coordinates.
@@ -58,29 +70,46 @@ def spherical_to_cartesian(r: float | np.ndarray, phi: float | np.ndarray, theta
 
     Args:
         r:
-            Radius. If r_y or r_z is supplied this radius is used for calculating the coordinate
-            that wasn't supplied.
+            Radius
         phi:
             Azimuthal angle (in radians)
         theta:
             Polar angle (in radians)
-        r_y:
-            Radius for calculating the y coordinate. Useful for spheroid calculations.
-        r_z:
-            Radius for calculating the z coordinate. Useful for spheroid calculations.
 
     Returns:
         A tuple of (x, y, z) coordinates
     """
-    r_x = r
-    if r_y is None:
-        r_y = r
-    if r_z is None:
-        r_z = r
-
-    sin_theta = np.sin(theta)
-
-    x, y = polar_to_cartesian(r_x * sin_theta, phi, r_y=(r_y * sin_theta))
-    z = r_z * np.cos(theta)
-
+    x, y = polar_to_cartesian(r * np.sin(theta), phi)
+    z = r * np.cos(theta)
     return (x, y, z)
+
+def cartesian_to_spherical(x: float | np.ndarray, y: float | np.ndarray, z: float | np.ndarray) ->  tuple[float, float] | tuple[np.ndarray, np.ndarray]:
+    """Convert cartesian coordinates to spherical coordinates.
+
+    This function works with both single coordinates or n-dimensional arrays of coordinates.
+    All calculations are done element-wise on arrays of coordinates.
+
+    Args:
+        x:
+            The x cartesian coordinate
+        y:
+            The y cartesian coordinate
+        z:
+            The z cartesian coordinate
+
+    Returns:
+        A tuple of (r, phi, theta) coordinates where r is the radius at the azimuthal angle
+        of phi (in radians) and polar angle of theta (in radians).
+          - The azimuthal angle (phi) is returned in the range [-pi, pi]. If the polar angle
+            is 0 or pi, the azimuthal angle is set to 0.
+          - The polar angle (theta) is returned in the range [0, pi].
+    """
+    r, phi = cartesian_to_polar(x, y)
+    theta = np.arctan2(r, z)
+    r = np.sqrt((r**2) + (z**2))
+
+    # Enforce zero azimuthal angle when theta is polar
+    phi = np.where(theta == 0, 0, phi)
+    phi = np.where(theta == np.pi, 0, phi)
+
+    return (r, phi, theta)

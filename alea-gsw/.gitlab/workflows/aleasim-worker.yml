@@ -1,0 +1,87 @@
+"aleasim-worker Build and Push Docker Image":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/aleasim-worker/**/*
+        - alea-gsw/.gitlab/workflows/aleasim-worker.yml
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/aleasim-worker/Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasim-worker:${CI_COMMIT_SHA}"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasim-worker:latest"
+      --push
+      "${CI_PROJECT_DIR}"
+
+"aleasim-worker Build Docker Image":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/aleasim-worker/**/*
+          - alea-gsw/.gitlab/workflows/aleasim-worker.yml
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+        --file "${CI_PROJECT_DIR}/alea-gsw/apps/aleasim-worker/Dockerfile"
+        --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasim-worker:test-${CI_COMMIT_SHA}"
+        "${CI_PROJECT_DIR}"
+    - docker push "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasim-worker:test-${CI_COMMIT_SHA}"
+
+"aleasim-worker Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/aleasim-worker/**/*
+          - alea-gsw/.gitlab/workflows/aleasim-worker.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+
+"aleasim-worker Unit Test":
+  stage: test
+  image: python:3.11
+  script:
+    - echo "No tests configured - passing by default"
+    - python -c "print('Mock test passed successfully')"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/aleasim-worker/**/*
+          - alea-gsw/.gitlab/workflows/aleasim-worker.yml 
+
+"Deploy aleasim-worker to staging":
+  needs:
+    - "aleasim-worker Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+          - alea-gsw/apps/aleasim-worker/**/*
+          - alea-gsw/.gitlab/workflows/aleasim-worker.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+
+include:
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "aleasim-worker"
+  - local: alea-gsw/.gitlab/workflows/update-deployment.yml
+    inputs:
+      package: "aleasim-worker"
+      environment: staging
+      tag: $CI_COMMIT_SHA

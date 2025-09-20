@@ -1,43 +1,17 @@
 import unittest
-from typing import Type, List, Union
-import os
-import time
-import argparse
-import sys
-import threading
 import logging
-import pathlib
-from unittest.util import safe_repr
 
-import skyfield.api
-import skyfield.framelib
-import skyfield.jpllib
-import skyfield.positionlib
-import skyfield.timelib
-import skyfield.units
-
-from alea.sim.epa.frame_conversions import *
-from alea.sim.kernel.time_utils import *
-from alea.sim.math_lib import Quaternion
-from alea.sim.math_lib.math import rot_x, rot_y, rot_z
-from alea.sim.kernel.kernel import AleasimKernel
-from alea.sim.kernel.time_utils import skyfield_time_to_gmst_radians
 import numpy as np
 
-import skyfield
-from skyfield.api import load
-
+from alea.sim.math_lib import Quaternion, normalize
 from alea.sim.kernel.kernel import AleasimKernel
-from alea.sim.spacecraft.sensors.simple_mag_sensor import SimpleMagSensor
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
-from alea.sim.kernel.frames import *
-from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
-from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
 from alea.sim.spacecraft.spacecraft import Spacecraft
 
 from alea.sim.utils.test_scenarios import create_aleasim_test_kernel
 
-from alea.sim.algorithms.attitude_determination.wahba_solutions import *
+from alea.sim.algorithms.attitude_determination.wahba_solutions import wahba_quest, WAHBA_ESTIMATORS
+from alea.sim.epa.frame_conversions import eci_to_ecef_rot_mat, ned_to_ecef_rot_mat
 
 from parameterized import parameterized
 
@@ -94,21 +68,22 @@ class WahbaTest(unittest.TestCase):
         kernel.step()
         
         sc: Spacecraft = kernel.get_model(Spacecraft)
+        aocs = sc.aocs
         magm: EarthMagneticFieldModel = kernel.get_model(EarthMagneticFieldModel)
         
         omega = np.random.random(3)
-        newstate = sc._adyn._state
+        newstate = aocs._adyn._state
         newstate[4:7] = omega
-        sc._adyn.set_state(newstate)
+        aocs._adyn.set_state(newstate)
 
         kernel.advance(0.1)
         
-        np.testing.assert_array_almost_equal(sc._adyn.angular_velocity, sc._gyro_sens.measure_ideal())
+        np.testing.assert_array_almost_equal(aocs._adyn.angular_velocity, aocs._gyro_sens.measure_ideal())
         
         #ground truth rotation matrices based on the spacecraft state and underlying transform matrix functions
-        q_ecibody: Quaternion = sc._adyn.quaternion
+        q_ecibody: Quaternion = aocs._adyn.quaternion
         rotmat_ecibody = q_ecibody.to_DCM()
-        rotmat_nedecef = ned_to_ecef_rot_mat(sc._orbit_dynamics.position_lla[0], sc._orbit_dynamics.position_lla[1])
+        rotmat_nedecef = ned_to_ecef_rot_mat(aocs._orbit_dynamics.position_lla[0], aocs._orbit_dynamics.position_lla[1])
         rotmat_eciecef = eci_to_ecef_rot_mat(kernel.gmst_rad)
         rotmat_nedeci = rotmat_eciecef.T @ rotmat_nedecef
         rotmat_nedbody = rotmat_ecibody @ rotmat_nedeci
@@ -121,15 +96,15 @@ class WahbaTest(unittest.TestCase):
         magtest = kernel.body_frame.transform_vector_from_frame(magm.mag_field_vector_ned, kernel.ned_frame)
         
         #check that magnetic model and sensor agree
-        np.testing.assert_array_almost_equal(magtest, sc._mag_sens.measure_ideal())
-        np.testing.assert_array_almost_equal(rotmat_ecibody @ rotmat_nedeci @ magm.mag_field_vector_ned, sc._mag_sens.measure_ideal())
+        np.testing.assert_array_almost_equal(magtest, aocs._mag_sens.measure_ideal())
+        np.testing.assert_array_almost_equal(rotmat_ecibody @ rotmat_nedeci @ magm.mag_field_vector_ned, aocs._mag_sens.measure_ideal())
         np.testing.assert_array_almost_equal(rotmat_nedbody.T @ magm.mag_field_vector_body, magm.mag_field_vector_ned)
         
         #check that the sun model and sensor agree
-        suntest = kernel.body_frame.transform_vector_from_frame(sc._orbit_dynamics.sun_vector_norm, kernel.eci_frame)
-        np.testing.assert_array_almost_equal(suntest, sc._sun_sens.measure_ideal())
-        np.testing.assert_array_almost_equal(q_ecibody.to_DCM() @ sc._orbit_dynamics.sun_vector_norm, suntest)
-        np.testing.assert_array_almost_equal(rotmat_ecibody @ sc._orbit_dynamics.sun_vector_norm, sc._sun_sens.measure_ideal())
+        suntest = kernel.body_frame.transform_vector_from_frame(aocs._orbit_dynamics.sun_vector_norm, kernel.eci_frame)
+        np.testing.assert_array_almost_equal(suntest, aocs._sun_sens.measure_ideal())
+        np.testing.assert_array_almost_equal(q_ecibody.to_DCM() @ aocs._orbit_dynamics.sun_vector_norm, suntest)
+        np.testing.assert_array_almost_equal(rotmat_ecibody @ aocs._orbit_dynamics.sun_vector_norm, aocs._sun_sens.measure_ideal())
     
         #another sanity check for mag field conversion
         magned = magm.mag_field_vector_ned
@@ -137,10 +112,10 @@ class WahbaTest(unittest.TestCase):
         magobs = kernel.body_frame.transform_vector_from_frame(magned, kernel.ned_frame)
         np.testing.assert_array_almost_equal( rotmat_ecibody @ rotmat_nedeci @ magned, magobs)
         np.testing.assert_array_almost_equal( rotmat_nedeci @ magned, magref)
-        sunref = sc._orbit_dynamics.sun_vector_norm
+        sunref = aocs._orbit_dynamics.sun_vector_norm
         
-        magobs = sc._mag_sens.measure_ideal()
-        sunobs = sc._sun_sens.measure_ideal()
+        magobs = aocs._mag_sens.measure_ideal()
+        sunobs = aocs._sun_sens.measure_ideal()
         
         np.testing.assert_array_almost_equal(rotmat_ecibody @ magref, magobs)
         np.testing.assert_array_almost_equal(rotmat_ecibody @ sunref, sunobs)
@@ -148,11 +123,11 @@ class WahbaTest(unittest.TestCase):
         
         #start quest scenario
         #first update angular velocity and orientation
-        newstate = sc._adyn._state
+        newstate = aocs._adyn._state
         omega = np.random.random(3) * np.random.randint(0, int(np.pi/2))
         newstate[4:7] = omega
         newstate[0:4] = Quaternion.random().to_array()
-        sc._adyn.set_state(newstate)
+        aocs._adyn.set_state(newstate)
 
         #run several loops for validation
         for _ in range(10):
@@ -161,13 +136,13 @@ class WahbaTest(unittest.TestCase):
             kernel.advance(1)
             
             #true atttiude
-            q_true = sc._adyn.quaternion
+            q_true = aocs._adyn.quaternion
 
             #generate measurements and references
             magref = kernel.eci_frame.transform_vector_from_frame(magm.mag_field_vector_ned, kernel.ned_frame)
-            sunref = sc._orbit_dynamics.sun_vector_norm
+            sunref = aocs._orbit_dynamics.sun_vector_norm
             ref = np.array([magref, sunref])
-            obs = np.array([sc._mag_sens.measure_ideal(), sc._sun_sens.measure_ideal()])
+            obs = np.array([aocs._mag_sens.measure_ideal(), aocs._sun_sens.measure_ideal()])
             
             #estimate attitude with quest
             #inverse because we are testing ref->body but quest returns body->ref

@@ -1,0 +1,920 @@
+"command-control Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/command-control/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/mops-client-grpc-node/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"command-control Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/command-control/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-control-api/**/*
+        - alea-gsw/packages/command-spec/**/*
+        - alea-gsw/packages/mission-api/**/*
+        - alea-gsw/packages/mops-client-grpc-node/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"command-control Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/command-control/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/mops-client-grpc-node/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"command-control Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/command-control/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/mops-client-grpc-node/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy command-control to staging":
+  needs:
+    - "command-control Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/command-control/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-control-api/**/*
+        - alea-gsw/packages/command-spec/**/*
+        - alea-gsw/packages/mission-api/**/*
+        - alea-gsw/packages/mops-client-grpc-node/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"gmat Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/gmat/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/schema-registry/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"gmat Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/gmat/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/schema-registry/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"gmat Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/gmat/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/schema-registry/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"gmat Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/gmat/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/schema-registry/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy gmat to staging":
+  needs:
+    - "gmat Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/gmat/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/schema-registry/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"image-gen-worker Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/image-gen-worker/**/*
+          - alea-gsw/packages/gmat-api/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"image-gen-worker Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/image-gen-worker/**/*
+        - alea-gsw/packages/gmat-api/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"image-gen-worker Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/image-gen-worker/**/*
+          - alea-gsw/packages/gmat-api/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"image-gen-worker Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/image-gen-worker/**/*
+          - alea-gsw/packages/gmat-api/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy image-gen-worker to staging":
+  needs:
+    - "image-gen-worker Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/image-gen-worker/**/*
+        - alea-gsw/packages/gmat-api/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"job-queue Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/job-queue/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/schema-registry/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"job-queue Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/job-queue/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/schema-registry/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"job-queue Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/job-queue/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/schema-registry/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"job-queue Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/job-queue/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/schema-registry/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy job-queue to staging":
+  needs:
+    - "job-queue Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/job-queue/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/schema-registry/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"launchpad Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/launchpad/**/*
+          - alea-gsw/packages/launchpad-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"launchpad Integration Test":
+  variables:
+    POSTGRES_USER: launchpad
+    POSTGRES_PASSWORD: password123
+    POSTGRES_DB: launchpad
+    POSTGRES_URL: postgresql://launchpad:password123@postgres:5432/launchpad
+  services:
+    - name: postgres
+      alias: postgres
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/launchpad/**/*
+          - alea-gsw/packages/launchpad-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/integration-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"launchpad Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/launchpad/**/*
+        - alea-gsw/packages/launchpad-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"launchpad Build Docker Image":
+  needs:
+    - launchpad Unit Test
+    - launchpad Integration Test
+    - Build Types and Test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/launchpad/**/*
+          - alea-gsw/packages/launchpad-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"launchpad Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/launchpad/**/*
+          - alea-gsw/packages/launchpad-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy launchpad to staging":
+  needs:
+    - "launchpad Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/launchpad/**/*
+        - alea-gsw/packages/launchpad-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"mission Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/mission/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"mission Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/mission/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-control-api/**/*
+        - alea-gsw/packages/mission-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"mission Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/mission/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"mission Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/mission/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy mission to staging":
+  needs:
+    - "mission Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/mission/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-control-api/**/*
+        - alea-gsw/packages/mission-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"orbit-propagation Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/orbit-propagation/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/gmat-api/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"orbit-propagation Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/orbit-propagation/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/gmat-api/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/orbit-propagation-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"orbit-propagation Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/orbit-propagation/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/gmat-api/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"orbit-propagation Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/orbit-propagation/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/gmat-api/**/*
+          - alea-gsw/packages/job-queue-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy orbit-propagation to staging":
+  needs:
+    - "orbit-propagation Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/orbit-propagation/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/gmat-api/**/*
+        - alea-gsw/packages/job-queue-api/**/*
+        - alea-gsw/packages/orbit-propagation-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"pass-scheduling Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/pass-scheduling/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"pass-scheduling Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/pass-scheduling/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-control-api/**/*
+        - alea-gsw/packages/orbit-propagation-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"pass-scheduling Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/pass-scheduling/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"pass-scheduling Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/pass-scheduling/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-control-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy pass-scheduling to staging":
+  needs:
+    - "pass-scheduling Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/pass-scheduling/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-control-api/**/*
+        - alea-gsw/packages/orbit-propagation-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"repo Unit Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/repo/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/repo-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/unit-test.yml
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"repo Build and Push Docker Image":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/repo/**/*
+        - alea-gsw/packages/command-spec/**/*
+        - alea-gsw/packages/repo-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"repo Build Docker Image":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/repo/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/repo-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"repo Docker Image Smoke Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/repo/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/repo-api/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/packages/tsconfig/**/*
+          - alea-gsw/packages/types/**/*
+          - alea-gsw/.gitlab/workflows/publish.yml
+          - alea-gsw/.dockerignore
+"Deploy repo to staging":
+  needs:
+    - "repo Build and Push Docker Image"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/repo/**/*
+        - alea-gsw/packages/command-spec/**/*
+        - alea-gsw/packages/repo-api/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/packages/tsconfig/**/*
+        - alea-gsw/packages/types/**/*
+        - alea-gsw/.gitlab/workflows/publish.yml
+        - alea-gsw/.dockerignore
+"aleasat-site E2E Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/aleasat-site/**/*
+          - alea-gsw/packages/ui/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/.gitlab/workflows/e2e-test.yml
+          - alea-gsw/.gitlab/workflows/publish-aleasat-site.yml
+          - alea-gsw/.dockerignore
+"Publish aleasat-site Container":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/aleasat-site/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/.gitlab/workflows/publish-aleasat-site.yml
+        - alea-gsw/.dockerignore
+"Deploy aleasat-site to staging":
+  needs:
+    - "Publish aleasat-site Container"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/aleasat-site/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/.gitlab/workflows/publish-aleasat-site.yml
+        - alea-gsw/.dockerignore
+"Deploy aleasat-site to production":
+  needs:
+    - "Deploy aleasat-site to staging"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/aleasat-site/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/.gitlab/workflows/publish-aleasat-site.yml
+        - alea-gsw/.dockerignore
+"Publish aleasat-site review Container":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/aleasat-site/**/*
+          - alea-gsw/packages/ui/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/.gitlab/workflows/publish-aleasat-site.yml
+          - alea-gsw/.dockerignore
+Deploy aleasat-site:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/aleasat-site/**/*
+          - alea-gsw/packages/ui/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/.gitlab/workflows/publish-aleasat-site.yml
+          - alea-gsw/.dockerignore
+"dashboard E2E Test":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/dashboard/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/launchpad-api/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/repo-api/**/*
+          - alea-gsw/packages/ui/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/.gitlab/workflows/e2e-test.yml
+          - alea-gsw/.gitlab/workflows/publish-website.yml
+          - alea-gsw/.dockerignore
+"Publish dashboard Container":
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/dashboard/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-spec/**/*
+        - alea-gsw/packages/launchpad-api/**/*
+        - alea-gsw/packages/mission-api/**/*
+        - alea-gsw/packages/orbit-propagation-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/repo-api/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/.gitlab/workflows/publish-website.yml
+        - alea-gsw/.dockerignore
+"Deploy dashboard to staging":
+  needs:
+    - "Publish dashboard Container"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/dashboard/**/*
+        - alea-gsw/packages/api-lib/**/*
+        - alea-gsw/packages/command-spec/**/*
+        - alea-gsw/packages/launchpad-api/**/*
+        - alea-gsw/packages/mission-api/**/*
+        - alea-gsw/packages/orbit-propagation-api/**/*
+        - alea-gsw/packages/pass-scheduling-api/**/*
+        - alea-gsw/packages/repo-api/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/packages/utils/**/*
+        - alea-gsw/.gitlab/workflows/publish-website.yml
+        - alea-gsw/.dockerignore
+"Build dashboard Container":
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/dashboard/**/*
+          - alea-gsw/packages/api-lib/**/*
+          - alea-gsw/packages/command-spec/**/*
+          - alea-gsw/packages/launchpad-api/**/*
+          - alea-gsw/packages/mission-api/**/*
+          - alea-gsw/packages/orbit-propagation-api/**/*
+          - alea-gsw/packages/pass-scheduling-api/**/*
+          - alea-gsw/packages/repo-api/**/*
+          - alea-gsw/packages/ui/**/*
+          - alea-gsw/packages/utils/**/*
+          - alea-gsw/.gitlab/workflows/publish-website.yml
+          - alea-gsw/.dockerignore
+include:
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "command-control"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "command-control"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "command-control"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "gmat"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "gmat"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "gmat"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "image-gen-worker"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "image-gen-worker"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "image-gen-worker"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "job-queue"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "job-queue"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "job-queue"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "launchpad"
+  - local: "alea-gsw/.gitlab/workflows/integration-test.yml"
+    inputs:
+      package: "launchpad"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "launchpad"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "launchpad"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "mission"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "mission"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "mission"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "orbit-propagation"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "orbit-propagation"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "orbit-propagation"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "pass-scheduling"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "pass-scheduling"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "pass-scheduling"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/unit-test.yml"
+    inputs:
+      package: "repo"
+  - local: "alea-gsw/.gitlab/workflows/publish.yml"
+    inputs:
+      package: "repo"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "repo"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+
+  - local: "alea-gsw/.gitlab/workflows/e2e-test.yml"
+    inputs:
+      package: "aleasat-site"
+  - local: "alea-gsw/.gitlab/workflows/publish-aleasat-site.yml"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "aleasat-site"
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/publish-aleasat-docs.yml"
+  - local: "alea-gsw/.gitlab/workflows/e2e-test.yml"
+    inputs:
+      package: "dashboard"
+  - local: "alea-gsw/.gitlab/workflows/publish-website.yml"
+    inputs:
+      package: "dashboard"
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: "dashboard"
+      environment: staging
+      tag: $CI_COMMIT_SHA

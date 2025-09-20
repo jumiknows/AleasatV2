@@ -1,0 +1,323 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GMAT",
+    "description": "abcd",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3006/",
+      "description": "Local-"
+    },
+    {
+      "url": "https://api.aleasat/orbit-propagation/v1/",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Gmat",
+      "description": "Passes of Sat"
+    }
+  ],
+  "paths": {
+    "/gmat/orbit-propagation": {
+      "get": {
+        "tags": [
+          "Gmat"
+        ],
+        "summary": "Find passes of the target location",
+        "description": "Find passes of the target location by time and location",
+        "operationId": "getGmatOrbitPropagation",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GmatOrbitPropagation"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Gmat"
+        ],
+        "summary": "Find passes of the target location",
+        "description": "Find passes of the target location by time and location",
+        "operationId": "updateGmatOrbitPropagation",
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatelliteState"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SatelliteState": {
+        "type": "object",
+        "required": [
+          "epochFormat",
+          "epoch",
+          "coordinateSystem",
+          "stateElement",
+          "stateId"
+        ],
+        "properties": {
+          "epochFormat": {
+            "type": "string",
+            "enum": [
+              "UTCGregorian"
+            ]
+          },
+          "epoch": {
+            "type": "string"
+          },
+          "coordinateSystem": {
+            "type": "string",
+            "enum": [
+              "EarthMJ2000Eq",
+              "EarthMJ2000Ec"
+            ]
+          },
+          "stateElement": {
+            "$ref": "#/components/schemas/StateElement"
+          },
+          "stateId": {
+            "type": "string"
+          }
+        }
+      },
+      "StateElement": {
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CartesianState"
+          },
+          {
+            "$ref": "#/components/schemas/KeplerianState"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "cartesian": "#/components/schemas/CartesianState",
+            "keplerian": "#/components/schemas/KeplerianState"
+          }
+        }
+      },
+      "CartesianState": {
+        "type": "object",
+        "required": [
+          "type",
+          "x",
+          "y",
+          "z",
+          "vx",
+          "vy",
+          "vz"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "cartesian"
+            ]
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "vx": {
+            "type": "number"
+          },
+          "vy": {
+            "type": "number"
+          },
+          "vz": {
+            "type": "number"
+          }
+        }
+      },
+      "KeplerianState": {
+        "type": "object",
+        "required": [
+          "type",
+          "sma",
+          "ecc",
+          "inc",
+          "raan",
+          "aop",
+          "ta"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "keplerian"
+            ]
+          },
+          "sma": {
+            "type": "number"
+          },
+          "ecc": {
+            "type": "number"
+          },
+          "inc": {
+            "type": "number"
+          },
+          "raan": {
+            "type": "number"
+          },
+          "aop": {
+            "type": "number"
+          },
+          "ta": {
+            "type": "number"
+          }
+        }
+      },
+      "GmatOrbitPropagation": {
+        "type": "object",
+        "required": [
+          "result",
+          "stateElement",
+          "stateId"
+        ],
+        "properties": {
+          "stateElement": {
+            "$ref": "#/components/schemas/StateElement"
+          },
+          "stateId": {
+            "type": "string"
+          },
+          "result": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "utcGregorian": {
+                  "type": "number"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "utcGregorian",
+                "x",
+                "y",
+                "z"
+              ]
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    }
+  }
+}

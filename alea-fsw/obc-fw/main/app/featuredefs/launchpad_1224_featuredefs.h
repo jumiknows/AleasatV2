@@ -90,5 +90,18 @@
  */
 #define FEATURE_HW_WATCHDOG 0
 
+/**
+ * @brief Enable the file system if external flash board is attached
+ *
+ * @note This should be disabled by default, since users will likely not have
+ * flash breakout attached most of the time
+ */
+#define FEATURE_FLASH_FS 0
+
+/**
+ * @brief Enable the hardware mram if external mram board is attached
+ */
+#define FEATURE_HW_MRAM 0
+
 #endif /* PLATFORM_LAUNCHPAD_1224 */
 #endif /* LAUNCHPAD_1224_FEATUREDEFS_H_ */

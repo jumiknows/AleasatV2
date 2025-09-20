@@ -62,7 +62,7 @@ static rtc_alarm_isr_info_t rtc_alarm_isr_info = {.isr = NULL, .args = NULL};
 /**
  * @brief Creates the RTC mutex.
  */
-void rtc_create_infra(void) {
+void rtc_pre_init(void) {
     rtc_mutex = xSemaphoreCreateRecursiveMutexStatic(&rtc_mutex_buf);
 }
 

@@ -64,9 +64,6 @@
 // Timing
 #define SYSTEM_TIME_US() portCPU_CLOCK_US() /* Use FreeRTOS CPU clock */
 
-// CPU
-#define CPU_SOFT_RESET()      vPrivilegedCPUReset()
-
 // Data
 
 /**
@@ -92,7 +89,9 @@
 int32_t cseq_to_num(char *seq);
 
 // Timing
-void busy_wait(uint32_t ticks_to_wait);
 void obc_delay_us(uint32_t us);
+
+// CPU
+void CPU_SOFT_RESET(void);
 
 #endif // OBC_UTILS_H

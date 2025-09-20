@@ -225,5 +225,57 @@
         "resp": [
             {"seconds": "u32"}
         ]
+    },
+    "FLASH_SLEEP": {
+        "id": 31,
+        "args": [{"enable": "bool"}],
+        "resp": [{"fs_err": "s8"}]
+    },
+    "GET_TELEMETRY": {
+        "id": 32,
+        "args": [
+            {"priority": "u8"},
+            {"size": "u16"}
+        ],
+        "resp": [
+            {"data": "bytes"}
+        ]
+    },
+    "ALL_CPU_USAGE": {
+        "id": 33,
+        "args": [],
+        "resp": [
+            {"number_of_tasks": "u8"},
+            {"bytes": "bytes"}
+        ]
+    },
+    "GET_RESET_COUNTER": {
+        "id": 34,
+        "args": [],
+        "resp": [
+            {"reset_counter": "u32"}
+        ]
+    },
+    "RESET_RESET_COUNTER": {
+        "id": 35,
+        "args": [],
+        "resp": []
+    },
+    "GET_LOGS": {
+        "id": 36,
+        "args": [
+            {"size": "u32"}
+        ],
+        "resp": [
+            {"data": "bytes"}
+        ]
+    },
+    "GET_LOGFILE_INFO": {
+        "id": 37,
+        "args": [],
+        "resp": [
+            {"current_logfile": "u8"},
+            {"logfile_sizes": "u32[4]"}
+        ]
     }
 }

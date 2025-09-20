@@ -1,0 +1,3 @@
+describe("<Footer />", () => {
+  it("renders", () => {});
+});

@@ -2,12 +2,12 @@
 #define ORCASAT_HARDWARE_MOCK_MRAM_MOCK_H
 
 #include "rtos.h"
-#include "obc_error.h"
+#include "obc_mram.h"
 
-#define MOCK_MRAM_SIZE_BYTES 400U // number of addressable bytes
+#define MOCK_MRAM_SIZE_BYTES ((uint16_t) 4096U) // number of addressable bytes
 
-mram_err_t init_mock_mram(void);
-mram_err_t write_mock_mram(uint32_t addr, uint32_t size, const uint8_t *data);
-mram_err_t read_mock_mram(uint32_t addr, uint32_t size, void *data);
+mram_err_t mram_mock_init(void);
+mram_err_t mram_mock_write(uint16_t addr, uint16_t size_bytes, const uint8_t *data);
+mram_err_t mram_mock_read(uint16_t addr, uint16_t size_bytes, uint8_t *data);
 
 #endif // ORCASAT_HARDWARE_MOCK_MRAM_MOCK_H

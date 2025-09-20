@@ -2,6 +2,8 @@ from typing import Callable
 from enum import Enum
 import pathlib
 import threading
+import logging
+from opentelemetry import trace
 
 from alea.common import alea_time
 
@@ -23,6 +25,9 @@ from alea.ttc.interface import ttc_interface
 from alea.ttc.interface import obc_serial_interface
 from alea.ttc.interface import comms_serial_interface
 from alea.ttc.util import data_utils
+
+logger = logging.getLogger(__name__)
+tracer = trace.get_tracer(__name__)
 
 DEFAULT_CMD_TIMEOUT = 10
 
@@ -285,6 +290,7 @@ class TTCBase:
 
         return self.send_obc_cmd(cmd_name, *cmd_fields, date_time=date_time, timeout=timeout)
 
+    @tracer.start_as_current_span("send_obc_cmd")
     def send_obc_cmd(self, cmd_name: str, *args, date_time: alea_time.ALEADateTime = alea_time.IMMEDIATE, timeout: int = DEFAULT_CMD_TIMEOUT, progress_callback: Callable[[data_utils.DataProgress], None] = None) -> cmd_sys.OBCResponse | cmd_sys.OBCPendingResponse:
         """Sends a command and waits for a response (if the command is configured to have a response).
 
@@ -390,7 +396,7 @@ class TTCBase:
                     continue
 
                 if recvd_log.payload_len < app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE:
-                    print(f"CMD_SYS_SCHED_RESP log payload length too short: {recvd_log.payload_len} bytes (must be >= {app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE} bytes)")
+                    logger.warning(f"CMD_SYS_SCHED_RESP log payload length too short: {recvd_log.payload_len} bytes (must be >= {app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE} bytes)")
                     continue
 
                 payload = recvd_log.data['data']
@@ -404,7 +410,7 @@ class TTCBase:
                         spec = self.cmd_sys_specs.get(id=resp_header.cmd_id)
                     except cmd_sys_spec.OBCCmdSysSpecNotFoundError as e:
                         # Should never happen
-                        print(f"[OBCCmdSysSpecNotFoundError] {str(e)}")
+                        logger.error(f"[OBCCmdSysSpecNotFoundError] {str(e)}", exc_info=True)
                         continue
 
                     resp_data = payload[app_cmd_sys.OBCCmdSysMsgHeader.HEADER_SIZE:]
@@ -425,5 +431,6 @@ class TTCBase:
                     #  ever receiving the response)
                     del self._pending_responses[cmd_inst_id]
 
+    @tracer.start_as_current_span("send_comms_cmd")
     def send_comms_cmd(self, cmd: comms_datalink.CommsCommand, data: bytes = b'', timeout: float = None) -> comms_datalink.CommsDatagram:
         return self._comms_app_protocol.send_cmd_recv_resp(cmd, data=data, timeout=timeout)

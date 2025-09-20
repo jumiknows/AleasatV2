@@ -62,5 +62,7 @@ void flash_identify(void);
 flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size);
 flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data);
 flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t *data);
+flash_err_t flash_sleep(void);
+flash_err_t flash_wake(void);
 
 #endif // OBC_FLASH_H_

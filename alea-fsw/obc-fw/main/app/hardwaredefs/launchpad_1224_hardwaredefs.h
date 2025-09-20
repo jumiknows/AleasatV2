@@ -41,6 +41,19 @@
 #include "reg_spi.h"
 #include "het.h"
 
+#include "launchpad_1224_flashdefs.h"
+
+/******************************************************************************/
+/*                              F L A S H D E F S                             */
+/******************************************************************************/
+/*                                                                            */
+/*   NOTE:                                                                    */
+/*   The external flash definitions were moved to common/flashdefs            */
+/*   since they are needed in the bootloader and must only contain the        */
+/*   bare minimum number of includes                                          */
+/*                                                                            */
+/******************************************************************************/
+
 /******************************************************************************/
 /*                               D E F I N E S                                */
 /******************************************************************************/
@@ -97,55 +110,16 @@
 #define RTC_RESET_N_PIN  0
 
 /**
- * @brief Flash MIBSPI configuration.
- */
-#define FLASH_MIBSPI_REG    mibspiREG1
-#define FLASH_DATA_FORMAT   2
-#define FLASH_1_BYTE_GROUP  0 // transfer group with 1 byte length
-#define FLASH_2_BYTE_GROUP  1 // transfer group with 2 byte length
-#define FLASH_5_BYTE_GROUP  2 // transfer group with 5 byte length
-#define FLASH_20_BYTE_GROUP 3 // transfer group with 20 byte length
-#define FLASH_69_BYTE_GROUP 4 // transfer group with 69 byte length
-
-#define FLASH_CS0_PORT gioPORTA
-#define FLASH_CS0_PIN  2
-
-/**
  * @brief MRAM MIBSPI configuration.
  */
-#define MRAM_RST_PORT hetPORT1
-#define MRAM_RST_PIN  7 // weak pulldown active high reset control of MRAM
-
-#define MRAM_MIBSPI_REG   mibspiREG1
+#define MRAM_MIBSPI_REG   mibspiREG5
 #define MRAM_DATA_FORMAT  0 // choice of mibspi config in halcogen
-#define MRAM_1_BYTE_GROUP 1 // transfer group with 1 byte length
-#define MRAM_2_BYTE_GROUP 2 // transfer group with 2 byte length
-#define MRAM_4_BYTE_GROUP 4 // transfer group with 4 byte length
-#define MRAM_CS1_PORT     mibspiPORT1
-#define MRAM_CS1_PIN      1
-
-/**
- * @brief ECC Flash MIBSPI and reset pin configuration.
- */
-#define ECC_FLASH_MIBSPI_REG    mibspiREG1
-#define ECC_FLASH_DATA_FORMAT   2
-#define ECC_FLASH_1_BYTE_GROUP  1 // transfer group with 1 byte length
-#define ECC_FLASH_2_BYTE_GROUP  2 // transfer group with 2 byte length
-#define ECC_FLASH_5_BYTE_GROUP  0 // transfer group with 5 byte length (erase command + 4 byte address)
-#define ECC_FLASH_22_BYTE_GROUP 5 // transfer group with 22 byte length
-
-#define ECC_FLASH_CS0_PORT mibspiPORT1
-#define ECC_FLASH_CS0_PIN  0
-
-#define ECC_FLASH_RST_PORT hetPORT1
-#define ECC_FLASH_RST_PIN  4
-
-/*
- * @brief Flash size configuration
- * @brief Flash size configuration - 64KB
- */
-#define EXT_FLASH_BLOCK_SIZE  1024
-#define EXT_FLASH_BLOCK_COUNT 64
+#define MRAM_1_BYTE_GROUP 0 // transfer group with 1 byte length
+#define MRAM_2_BYTE_GROUP 1 // transfer group with 2 byte length
+#define MRAM_4_BYTE_GROUP 5 // transfer group with 4 byte length
+#define MRAM_11_BYTE_GROUP 6 // transfer group with 11 byte length
+#define MRAM_CS_PORT          gioPORTA
+#define MRAM_CS_PIN           7
 
 /**
  * @brief Watchdog pins and configuration.

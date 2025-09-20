@@ -60,14 +60,8 @@ static StaticQueue_t cmd_queue_buf = { 0 };
 /**
  * @brief Initialize FreeRTOS data structures for the command system executor
  */
-void cmd_sys_exec_create_infra(void) {
+void cmd_sys_exec_pre_init(void) {
     cmd_queue = xQueueCreateStatic(CMD_QUEUE_LENGTH, CMD_QUEUE_ITEM_SIZE, cmd_queue_storage, &cmd_queue_buf);
-}
-
-/**
- * @brief Start the command system task for executing commands
- */
-void cmd_sys_exec_start_task(void) {
     obc_rtos_create_task(OBC_TASK_ID_CMD_SYS_EXEC, &cmd_sys_exec_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 
@@ -108,7 +102,10 @@ cmd_sys_err_t cmd_sys_exec_enqueue(cmd_sys_cmd_t *cmd, cmd_sys_exec_callback_t c
 static void cmd_sys_exec_task(void *pvParameters) {
     cmd_sys_exec_queue_item_t queue_item;
 
+    vPortTaskUsesFPU();
+
     while (1) {
+
         obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_EXEC);
 
         if (xQueueReceive(cmd_queue, &queue_item, pdMS_TO_TICKS(CMD_SYS_EXEC_POLL_PERIOD_MS)) == pdTRUE) {

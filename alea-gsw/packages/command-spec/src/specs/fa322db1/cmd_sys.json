@@ -1,0 +1,339 @@
+{
+  "RESET": {
+    "id": 0,
+    "args": [],
+    "resp": null
+  },
+  "PING": {
+    "id": 1,
+    "args": [],
+    "resp": []
+  },
+  "GET_TIME": {
+    "id": 2,
+    "args": [],
+    "resp": [
+      {
+        "timestamp": "datetime"
+      }
+    ]
+  },
+  "SET_TIME": {
+    "id": 3,
+    "args": [
+      {
+        "timestamp": "datetime"
+      }
+    ],
+    "resp": []
+  },
+  "GET_MIN_STACK_SPACE": {
+    "id": 4,
+    "args": [],
+    "resp": [
+      {
+        "min_stack_space": "bytes"
+      }
+    ]
+  },
+  "CAPTURE_RTOS_TRACE": {
+    "id": 5,
+    "args": [
+      {
+        "length": "u32"
+      }
+    ],
+    "resp": [
+      {
+        "trace": "bytes"
+      }
+    ]
+  },
+  "RTOS_STATE": {
+    "id": 6,
+    "args": [],
+    "resp": []
+  },
+  "LOW_POWER": {
+    "id": 7,
+    "args": [
+      {
+        "enable": "bool"
+      }
+    ],
+    "resp": []
+  },
+  "SYS_TIME": {
+    "id": 8,
+    "args": [],
+    "resp": [
+      {
+        "sys_time_us": "u32"
+      }
+    ]
+  },
+  "CPU_USAGE": {
+    "id": 9,
+    "args": [],
+    "resp": [
+      {
+        "sys_time_us": "u32"
+      },
+      {
+        "idle_time_us": "u32"
+      }
+    ]
+  },
+  "GPIO_EXP_RESET": {
+    "id": 11,
+    "args": [],
+    "resp": []
+  },
+  "I2C_RESET": {
+    "id": 12,
+    "args": [],
+    "resp": []
+  },
+  "HEARTBEAT": {
+    "id": 13,
+    "args": [
+      {
+        "enable": "bool"
+      }
+    ],
+    "resp": []
+  },
+  "GPS_RESTART": {
+    "id": 14,
+    "args": [
+      {
+        "start_mode": "u8"
+      }
+    ],
+    "resp": []
+  },
+  "FW_INFO": {
+    "id": 15,
+    "args": [],
+    "resp": [
+      {
+        "fw_version": "u8[4]"
+      },
+      {
+        "fw_hash": "u32"
+      },
+      {
+        "flash_address": "u32"
+      },
+      {
+        "platform": "u8"
+      },
+      {
+        "target": "u8"
+      },
+      {
+        "flags": "u16"
+      },
+      {
+        "size": "u32"
+      },
+      {
+        "crc32": "u32"
+      }
+    ]
+  },
+  "WMM_INIT": {
+    "id": 16,
+    "args": [],
+    "resp": []
+  },
+  "WMM_IS_INIT": {
+    "id": 17,
+    "args": [],
+    "resp": [
+      {
+        "is_init": "bool"
+      }
+    ]
+  },
+  "WMM_GET_MAG_REF": {
+    "id": 18,
+    "args": [
+      {
+        "lon": "f32"
+      },
+      {
+        "lat": "f32"
+      },
+      {
+        "alt": "f32"
+      },
+      {
+        "year": "u8"
+      },
+      {
+        "month": "u8"
+      },
+      {
+        "day": "u8"
+      }
+    ],
+    "resp": [
+      {
+        "mag_ref": "f32[3]"
+      }
+    ]
+  },
+  "GPS_QUERY_SW_VER": {
+    "id": 19,
+    "args": [],
+    "resp": [
+      {
+        "gps_software_version": "u8[9]"
+      }
+    ]
+  },
+  "GPS_SET_FACTORY_SETTINGS": {
+    "id": 20,
+    "args": [],
+    "resp": []
+  },
+  "GPS_CONFIGURE_POWER_MODE": {
+    "id": 21,
+    "args": [
+      {
+        "write_settings": "u8"
+      },
+      {
+        "enable_power_save": "bool"
+      }
+    ],
+    "resp": []
+  },
+  "GPS_QUERY_POWER_MODE": {
+    "id": 22,
+    "args": [],
+    "resp": [
+      {
+        "gps_in_power_save_mode": "bool"
+      }
+    ]
+  },
+  "GPS_QUERY_SW_CRC": {
+    "id": 23,
+    "args": [],
+    "resp": [
+      {
+        "software_crc": "u16"
+      }
+    ]
+  },
+  "GPS_CONFIGURE_POSITION_UPATE_RATE": {
+    "id": 24,
+    "args": [
+      {
+        "write_settings": "u8"
+      },
+      {
+        "position_update_rate": "u8"
+      }
+    ],
+    "resp": []
+  },
+  "GPS_QUERY_POSITION_UPDATE_RATE": {
+    "id": 25,
+    "args": [],
+    "resp": [
+      {
+        "update_rate": "u8"
+      }
+    ]
+  },
+  "GPS_CONFIGURE_NMEA_MESSGES": {
+    "id": 26,
+    "args": [
+      {
+        "write_settings": "u8"
+      },
+      {
+        "gga_interval": "u8"
+      },
+      {
+        "gsa_interval": "u8"
+      },
+      {
+        "gsv_interval": "u8"
+      },
+      {
+        "gll_interval": "u8"
+      },
+      {
+        "rmc_interval": "u8"
+      },
+      {
+        "vtg_interval": "u8"
+      },
+      {
+        "zda_interval": "u8"
+      }
+    ],
+    "resp": []
+  },
+  "GPS_QUERY_NMEA_MESSGES": {
+    "id": 27,
+    "args": [],
+    "resp": [
+      {
+        "gga_interval": "u8"
+      },
+      {
+        "gsa_interval": "u8"
+      },
+      {
+        "gsv_interval": "u8"
+      },
+      {
+        "gll_interval": "u8"
+      },
+      {
+        "rmc_interval": "u8"
+      },
+      {
+        "vtg_interval": "u8"
+      },
+      {
+        "zda_interval": "u8"
+      }
+    ]
+  },
+  "GPS_CONFIGURE_SERIAL_PORT": {
+    "id": 28,
+    "args": [
+      {
+        "baud_rate": "u8"
+      }
+    ],
+    "resp": []
+  },
+  "GPS_CONFIGURE_NAV_MSG_INTERVAL": {
+    "id": 29,
+    "args": [
+      {
+        "write_settings": "u8"
+      },
+      {
+        "navigation_msg_int": "u8"
+      }
+    ],
+    "resp": []
+  },
+  "GET_UPTIME": {
+    "id": 30,
+    "args": [],
+    "resp": [
+      {
+        "seconds": "u32"
+      }
+    ]
+  }
+}

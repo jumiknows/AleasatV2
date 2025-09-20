@@ -126,6 +126,22 @@ class GyroSensorsTest(unittest.TestCase):
         rrw_drift = rand_gyro._rate_random_walk
         self.assertTrue(np.all(rrw_drift == 0.0000),
                         msg=f"Gyro has RRW drift value of {rrw_drift}")
+        
+    def test_bias_drift(self):
+        # test that each contribution to bias drift is zero-mean and of desired variance
+        kernel = create_sens_test_scenario(date=2024.2, seed=5)
+        bias_gyro : GyroSensor = kernel.get_model(GyroSensor)
+        bias_gyro.connect()
+        bias_gyro.power_on()
+
+        tdiff = 3600.0 # one hour, in seconds
+        biases = [bias_gyro.generate_bias(tdiff) for _ in range(100000)]
+
+        mean, var = np.mean([b[0] for b in biases]), np.var([b[0] for b in biases])
+        mean_exp, var_exp = 0, bias_gyro.constant_bias ** 2 * tdiff
+
+        assert np.isclose(mean, mean_exp, atol=10e-3)
+        assert np.isclose(var, var_exp, rtol=10e-3)
 
 if __name__ == '__main__':
     unittest.main()

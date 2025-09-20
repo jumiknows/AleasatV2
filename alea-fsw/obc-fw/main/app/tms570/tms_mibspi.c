@@ -70,7 +70,7 @@ static SemaphoreHandle_t get_mutex_handle(mibspiBASE_t *reg);
  * @brief Initializes the mibSPI peripheral and enables the appropriate transfer group
  * interrupts.
  */
-void tms_mibspi_create_infra(void) {
+void tms_mibspi_pre_init(void) {
     static StaticEventGroup_t xMibspi1StaticEventGroup;
     static StaticEventGroup_t xMibspi3StaticEventGroup;
     static StaticEventGroup_t xMibspi5StaticEventGroup;

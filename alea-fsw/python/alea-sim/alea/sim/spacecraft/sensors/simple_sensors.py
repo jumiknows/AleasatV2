@@ -1,8 +1,10 @@
 import abc
 import numpy as np
-
+from pathlib import Path
 from dataclasses import dataclass
+import dataclasses
 
+from alea.sim.configuration import Configurable
 from alea.sim.kernel import frames
 from alea.sim.kernel.generic.abstract_model import AbstractModel
 from alea.sim.kernel.kernel import AleasimKernel, SharedMemoryModelInterface
@@ -46,8 +48,22 @@ class MeasurementNoise:
     def sample(self) -> np.ndarray:
         return self.generator.normal(scale=self.std_dev, size=self.axes)
 
+@dataclass
+class SimpleSensorConfig:
+    """
+    Generic Sensor Config sensor config dataclass
+    Either one of rms or asd has to be given a value
+    """
+    axis_misalignment : list
+    constant_bias     : list 
+    scaling           : list
+    voltage_nominal   : float
+    current_nominal   : float
+    noise_rms         : float = None
+    noise_asd         : float = None
+
 #generic simple sensor
-class SimpleSensor(SharedMemoryModelInterface, PoweredUnitModel, AbstractModel):
+class SimpleSensor(Configurable[SimpleSensorConfig], SharedMemoryModelInterface, PoweredUnitModel, AbstractModel):
     """
     Generic simple sensor that returns a 3-axis intertial measurement vector in a certain frame of reference
     
@@ -56,22 +72,20 @@ class SimpleSensor(SharedMemoryModelInterface, PoweredUnitModel, AbstractModel):
     constant_bias: a 3 element vector adding constant bias to the ground truth (after misalignment), defaults to [0,0,0] if None
     measurement_range: maximum sensor reading, defaults to infinity
     resolution: resolution of sensor reading as a float, defaults to 0 (no rounding occurs)
+    scaling: scaling error of sensor reading as a float, defaults to 1 (no error)
     """
-    def __init__(self, 
-                 name: str, 
-                 sim_kernel: AleasimKernel, 
+    def __init__(self,
+                 name: str,
+                 sim_kernel: AleasimKernel,
                  frame: frames.ReferenceFrame,
                  sample_rate,
-                 noise_asd: float = None,
-                 noise_rms: float = None,
-                 axis_misalignment: np.ndarray = None,
-                 constant_bias: np.ndarray = None,
                  measurement_range: float = inf,
                  resolution: float = 0,
-                 scaling: float = 1,
-                 seed : int | None = None
+                 seed : int | None = None,
+                 cfg: str | Path | dict | type[SimpleSensorConfig] = None,
+                 cfg_cls: SimpleSensorConfig = None
                  ):
-        super().__init__(name=name, sim_kernel=sim_kernel)
+        super().__init__(name=name, sim_kernel=sim_kernel, cfg=cfg, cfg_cls=cfg_cls)
         self.frame       = frame
         self.axes        = 3 #3 axis sensor
         self.sample_rate = sample_rate
@@ -84,28 +98,33 @@ class SimpleSensor(SharedMemoryModelInterface, PoweredUnitModel, AbstractModel):
         
         self.measurement_range = measurement_range
         self.resolution = resolution
-        self.scaling = scaling
+        if self.cfg.scaling is None:
+            self.scaling = 1
+        else:
+            self.scaling = self.cfg.scaling
         self.seed = seed
 
-        if noise_asd is not None:
-            pass
-        elif noise_rms is not None:
-            noise_asd = noise_rms / np.sqrt(sample_rate)
+        if self.cfg.noise_asd is None:
+            if self.cfg.noise_rms is None:
+                raise ValueError('noise_asd and noise_rms are both not specified.')
+            else:
+                noise_asd = self.cfg.noise_rms / np.sqrt(self.sample_rate)
         else:
-            raise ValueError('noise_asd and noise_rms are both not specified.')
+            noise_asd = self.cfg.noise_asd
+
         self.noise = MeasurementNoise(noise_asd, self.sample_rate, axes=self.axes, seed=self.seed)
         
-        if axis_misalignment is None:
-            axis_misalignment = np.zeros(3)
-        ax = axis_misalignment
+        if self.cfg.axis_misalignment is None:
+            ax = np.zeros(3)
+        ax = self.cfg.axis_misalignment
         self.misalignment_matrix = np.array([[1.0, ax[1]/100.0, ax[2]/100.0],
                                               [ax[0]/100.0, 1.0, ax[2]/100.0],
                                               [ax[0]/100.0, ax[1]/100.0, 1.0]])
 
-        if constant_bias is None:
+        if self.cfg.constant_bias is None:
             self.constant_bias = np.zeros(3, dtype=np.float64)
         else:
-            self.constant_bias = constant_bias
+            self.constant_bias = self.cfg.constant_bias
             
         self.power_off()
 

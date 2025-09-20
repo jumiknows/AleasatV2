@@ -11,9 +11,6 @@
 
 #include "data_fmt.h"
 
-// Utils
-#include "obc_utils.h"
-
 // Standard Library
 #include <stdint.h>
 #include <stdbool.h>

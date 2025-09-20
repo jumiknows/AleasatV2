@@ -4,6 +4,7 @@ from enum import IntEnum
 import struct
 import queue
 import threading
+import time
 
 from alea.ttc.protocol.generic import packet
 from alea.ttc.protocol.generic import layer
@@ -95,6 +96,98 @@ class CommsDataLinkTX(layer.ProtocolLayer[CommsDatagram]):
         self._seq_num = 0
         super().reset()
 
+class PacketRegistryEntry:
+    """ An single entry in the PacketRegistry corresponding to a comms datagram in flight
+
+    Attributes:
+        packet (readonly): A CommsDatagram object
+        ttl: The current TTL of the entry
+        ttl_max (readonly): The max TTL of the entry
+        retries: The number of times obcpy has tried to resent the CommsDatagram in the entry
+        resend: a flag indicating whether the datagram should be resent
+
+    """
+
+    def __init__(self, packet, ttl=3):
+        self.packet = packet
+        self.ttl = ttl
+        self.ttl_max = ttl
+        self.retries = 0
+        self.resend = False
+
+class PacketRegistry:
+    """ A registry for all datalink later packets in flight. Determines if and when
+        a packet should be retransmitted
+
+    Attributes:
+        window_size (readonly): The maximum number of packets allowed to be in flight
+        max_retries (readonly): The maximum number of times a packet can be resent
+        _lock: Registry-wide lock for thread safety
+        _registry: A map to map seq_num -> PacketRegistryEntry
+        name (readonly): Name of the registry
+
+    """
+
+    def __init__(self, name, window_size=1, max_retries=3):
+        self.window_size = window_size # max packets the registry will track at a given time
+        self.max_retries = max_retries
+        self._lock = threading.Lock()
+        self._registry = {} # maps seq_num to a PacketRegistryEntry
+        self.name = name
+
+        self._worker_thread = threading.Thread(target=self._registry_worker, daemon=True) # registry worker thread that updates entry TTLs and removes expired entries internally
+        self._worker_thread.start()
+
+    def _registry_worker(self):
+        while True:
+            self._decrement_ttl_and_remove_expired()
+            time.sleep(1)
+
+    def _decrement_ttl_and_remove_expired(self):
+        with self._lock:
+            for seq_num, entry in list(self._registry.items()):
+                if entry.ttl <= 0 and entry.resend == False: # TTL is depleted and entry isnt already marked for resend
+                    if entry.retries == self.max_retries:
+                        print(f"Packet {seq_num} failed to deliver after {self.max_retries} retries ({self.name} registry)") # TODO: ALEA-3037
+                        del self._registry[seq_num]
+                    else:
+                        entry.resend = True
+                        entry.retries += 1
+                else:
+                    entry.ttl -= 1
+
+    def registry_full(self):
+        with self._lock:
+            return len(self._registry) >= self.window_size
+        
+    def add_packet(self, seq_num, packet, ttl=3):
+        with self._lock:
+            if len(self._registry) >= self.window_size:
+                return False
+            self._registry[seq_num] = PacketRegistryEntry(packet, ttl)
+            return True
+        
+    def remove_packet(self, seq_num):
+        with self._lock:
+            if not seq_num in self._registry:
+                return False
+            del self._registry[seq_num]
+            return True
+        
+    def get_due_packets(self):
+        due = []
+        with self._lock:
+            for seq_num, entry in list(self._registry.items()):
+                if entry.resend:
+                    due.append(entry.packet)
+                    entry.resend = False
+                    entry.ttl = entry.ttl_max
+        return due
+
+    def reset(self):
+        for seq_num, entry in list(self._registry.items()):
+            del self._registry[seq_num]
+
 class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[CommsDatagram]):
     RESP_QUEUE_SIZE = 100 # Allow 100 in flight packets (should be plenty)
 
@@ -106,6 +199,9 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
         self._tx_protocol_layer_comms = CommsDataLinkTX(src_hwid, HWID.COMMS, None)
         self._tx_src_obc = tx_src_obc
         self._tx_src_comms = tx_src_comms
+
+        self._obc_packet_registry   = PacketRegistry("OBC")
+        self._comms_packet_registry = PacketRegistry("COMMS")
 
         self._ack_sent = threading.Event()
 
@@ -138,7 +234,6 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
 
     def read(self, timeout: float = None) -> list[CommsDatagram]:
         # TX Stack
-
         # Transmit pending response packets first
         try:
             resp = self._resp_queue.get_nowait()
@@ -148,20 +243,31 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
             pass
 
         # Read new data to transmit from the source
-        # TODO Maybe caring about ACKs would be a good idea
         all_packets_out: list[CommsDatagram] = []
 
-        if self._tx_src_obc is not None:
-            packets_in = self._tx_src_obc.read(timeout=timeout)
-            for packet_in in packets_in:
-                packets_out = self._tx_protocol_layer_obc.transform_packet(packet_in)
-                all_packets_out.extend(packets_out)
+        if self._tx_src_obc is not None and self._obc_packet_registry is not None:
+            due_packets = self._obc_packet_registry.get_due_packets()
+            if len(due_packets) > 0:
+                all_packets_out.extend(due_packets)
+            
+            if not self._obc_packet_registry.registry_full():
+                packets_in = self._tx_src_obc.read(timeout=timeout) # for now, this will only ever return 1 packet as it's popping a queue, so we wont have to worry about overfilling registry
+                for packet_in in packets_in:
+                    packets_out = self._tx_protocol_layer_obc.transform_packet(packet_in)
+                    all_packets_out.extend(packets_out)
+                    self._obc_packet_registry.add_packet(packets_out[0].seq_num, packets_out[0]) # TODO: ALEA-3037 - handle the return value here
 
-        if self._tx_src_comms is not None:
-            packets_in = self._tx_src_comms.read(timeout=timeout)
-            for packet_in in packets_in:
-                packets_out = self._tx_protocol_layer_comms.transform_packet(packet_in)
-                all_packets_out.extend(packets_out)
+        if self._tx_src_comms is not None and self._comms_packet_registry is not None:
+            due_packets = self._comms_packet_registry.get_due_packets()
+            if len(due_packets) > 0:
+                all_packets_out.extend(due_packets)
+
+            if not self._comms_packet_registry.registry_full():
+                packets_in = self._tx_src_comms.read(timeout=timeout) # for now, this will only ever return 1 packet as it's popping a queue, so we wont have to worry about overfilling registry
+                for packet_in in packets_in:
+                    packets_out = self._tx_protocol_layer_comms.transform_packet(packet_in)
+                    all_packets_out.extend(packets_out)
+                    self._comms_packet_registry.add_packet(packets_out[0].seq_num, packets_out[0]) # TODO: ALEA-3037 - handle the return value here
 
         return all_packets_out
 
@@ -169,6 +275,9 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
         self._rx_protocol_layer.reset()
         self._tx_protocol_layer_obc.reset()
         self._tx_protocol_layer_comms.reset()
+
+        self._obc_packet_registry.reset()
+        self._comms_packet_registry.reset()
 
         self._resp_queue = queue.Queue(maxsize=self.RESP_QUEUE_SIZE)
 
@@ -191,6 +300,16 @@ class CommsDataLink(routing.PacketDest[packet.Packet], routing.PacketSource[Comm
         if rx_packet.src_hwid == HWID.COMMS:
             if HWID.COMMS in self._rx_dests:
                 self._rx_dests[HWID.COMMS].write(rx_packet)
+            if self._comms_packet_registry is not None:
+                if self._comms_packet_registry.remove_packet(rx_packet.seq_num) == False:
+                    # TODO: ALEA-3037 - Proper error handling
+                    print(f"Error: Tried to remove non-existent packet {rx_packet.seq_num} from comms_packet_registry")
+
+        if rx_packet.src_hwid == HWID.OBC:
+            if self._obc_packet_registry is not None:
+                if self._obc_packet_registry.remove_packet(rx_packet.seq_num) == False:
+                    # TODO: ALEA-3037 - Proper error handling
+                    print(f"Error: Tried to remove non-existent packet {rx_packet.seq_num} from obc_packet_registry")
 
 
     def _send_ack(self, rx_packet: CommsDatagram):

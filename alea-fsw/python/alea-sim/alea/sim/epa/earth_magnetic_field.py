@@ -2,6 +2,7 @@ from typing import TypeAlias, Generator, Iterator, Iterable
 import dataclasses
 from pathlib import Path
 from math import degrees
+import datetime
 
 import numpy as np
 
@@ -43,14 +44,22 @@ class EarthMagneticFieldData:
             yield self
 
 class EarthMagneticFieldComputeFunc:
-    def __init__(self):
-        self._wmm = GeoMag()
+    def __init__(self, base_year: int | datetime.datetime, use_2025_high_resolution: bool):
+        # high resolution is only defined for 2025WMM model
+        # for some reason if using 2020 model, GeoMag searches and raises an error
+        high_resolution_flag = False
+        if use_2025_high_resolution and isinstance(base_year, int) and base_year >= 2025:
+            high_resolution_flag = True
+        elif use_2025_high_resolution and isinstance(base_year, datetime.datetime) and base_year >= datetime.datetime(year=2025, month=1, day=1, tzinfo=base_year.tzinfo):
+            high_resolution_flag = True
+
+        self._wmm = GeoMag(base_year=base_year, high_resolution=high_resolution_flag)
 
     def calc_mag_field_vec_ned(self, t: skyfield.timelib.Time, position_lla: np.ndarray) -> np.ndarray:
         year_fraction = t.J
 
-        if year_fraction < 2020.0 or year_fraction > 2025.0:
-            raise ValueError(f"year fraction {year_fraction} is out of the valid range for the WMM2020 model 2020.0 - 2025.0")
+        if year_fraction < self._wmm.life_span[0] or year_fraction > self._wmm.life_span[1]:
+            raise ValueError(f"year fraction {year_fraction} is out of the valid range for the WMM{self._wmm.model} model {self._wmm.life_span}")
 
         latitude_deg:  float = degrees(position_lla[0])
         longitude_deg: float = degrees(position_lla[1])
@@ -83,6 +92,7 @@ class EarthMagneticFieldConfig:
     use_precompute        : bool = False
     update_freq_divider   : int  = 1 # By default, magnetic field vector updates happen at the same frequency as orbit dynamics updates
                                      # If this is set to a number > 1, then magnetic field vector updates will happen at the divided frequency
+    use_2025_high_resolution: bool = False
 
 class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCachedModel, SharedMemoryModelInterface, AbstractModel):
     def __init__(self, sim_kernel: AleasimKernel, name: str = "earth_magnetic_field", cfg: str | Path | dict | EarthMagneticFieldConfig = "earth_magnetic_field") -> None:
@@ -103,7 +113,7 @@ class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCached
     # ==============================================================================
 
     def configure(self):
-        self._compute_func = EarthMagneticFieldComputeFunc()
+        self._compute_func = EarthMagneticFieldComputeFunc(self.kernel.date, self.cfg.use_2025_high_resolution)
 
         if self.cfg.use_precompute:
             self._pre_computed: PreComputedBG[skyfield.timelib.Time, EarthMagneticFieldData, EarthMagneticFieldData] = PreComputedBG(
@@ -140,6 +150,10 @@ class EarthMagneticFieldModel(Configurable[EarthMagneticFieldConfig], TimeCached
             self._pre_computed.start(self._pre_computed_arg_gen)
 
         self.kernel.schedule_event(0, EventPriority.EARTH_MAGNETIC_FIELD_EVENT, self.update, period=self.update_period)
+    
+    def stop(self):
+        if self.cfg.use_precompute and self._pre_computed.started:
+            self._pre_computed.stop()
 
     # ==============================================================================
     # Simulation Variables

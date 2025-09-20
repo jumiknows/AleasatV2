@@ -84,6 +84,16 @@ typedef enum comms_err_type {
      * @brief Comms session invalid for this operation
      */
     COMMS_ERR_INVALID_SESSION = -11,
+
+    /**
+     * @brief OpenLST source hwid is invalid
+     */
+    COMMS_ERR_INVALID_SRC_ID = -12,
+
+    /**
+     * @brief OpenLST destination hwid is invalid
+     */
+    COMMS_ERR_INVALID_DEST_ID = -13,
 } comms_err_t;
 
 /**
@@ -171,6 +181,6 @@ comms_err_t comms_wait_cmd_resp(
     uint32_t timeout_ticks
 );
 
-void comms_service_create_infra(void);
+void comms_service_pre_init(void);
 
 #endif

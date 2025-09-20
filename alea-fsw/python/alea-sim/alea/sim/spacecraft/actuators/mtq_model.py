@@ -22,7 +22,13 @@ class MagnetorquerModel(Configurable[MagnetorquerConfig], SharedMemoryModelInter
     Magnetorquer model that returns the dipole moment
     """   
     
-    def __init__(self, name: str, sim_kernel: AleasimKernel, normal_vec: np.ndarray, cfg: str | Path | dict | MagnetorquerConfig = "magnetorquer", saturation_moment: float = None, voltage: float = None) -> None:
+    def __init__(self, name: str, 
+                 sim_kernel: AleasimKernel, 
+                 normal_vec: np.ndarray, 
+                 cfg: str | Path | dict | MagnetorquerConfig = "magnetorquer", 
+                 saturation_moment: float = None, 
+                 voltage: float = None
+                 ) -> None:
         super().__init__(name=name, sim_kernel=sim_kernel, cfg=cfg, cfg_cls=MagnetorquerConfig)
 
         self._current           = 0.0                                       # MTQ current
@@ -40,6 +46,12 @@ class MagnetorquerModel(Configurable[MagnetorquerConfig], SharedMemoryModelInter
     def configure(self):
         self._voltage = self.cfg.voltage
         self._saturation_moment = self.cfg.saturation_moment
+
+        side_length = self.cfg.init_length
+        self._trace_area = 0.0
+        for _ in range(self.cfg.num_turns):
+            self._trace_area += side_length ** 2
+            side_length += self.cfg.spacing
     
     def start(self):
         self.kernel.schedule_event(0, EventPriority.HARDWARE_EVENT, self.save_state, self.kernel.timestep)
@@ -73,14 +85,9 @@ class MagnetorquerModel(Configurable[MagnetorquerConfig], SharedMemoryModelInter
             if dutycycle > 100:
                 dutycycle = 100
             self._current = (dutycycle / 100) * (self._voltage / self.cfg.resistance)
-            side_length = self.cfg.init_length
-            
-            for _ in range(self.cfg.num_turns):
-                area = side_length ** 2
-                temp_moment = self._current * area
-                self._dipole_moment += temp_moment
-                side_length += self.cfg.spacing
-            
+
+            self._dipole_moment = self._current * self._trace_area
+
             if self._dipole_moment < 0:
                 self._dipole_moment = max(self._dipole_moment, -self._saturation_moment)
             else:

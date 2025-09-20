@@ -10,6 +10,7 @@ include = ["alea/obcfw/cmd_sys/data/*.json", "alea/obcfw/log/data/*.json", "alea
 [tool.poetry.dependencies]
 python = ">=3.10"
 bincopy = "^20.0.0"
+lief = "==0.16.6"
 jinja2 = "^3.1.4"
 alea-common = {path = "../../../python/alea-common", develop = true, extras = ["data-field-ndarray"]}
 

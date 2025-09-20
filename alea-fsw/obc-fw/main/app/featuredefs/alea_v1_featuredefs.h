@@ -85,5 +85,17 @@
  */
 #define FEATURE_HW_WATCHDOG 1
 
+/**
+ * @brief Enable the file system if external flash board is attached
+ * @note This should always be set high for ALEA-V1, since the external flash
+ * is always connected to the board
+ */
+#define FEATURE_FLASH_FS 1
+
+/**
+ * @brief Enable the hardware mram if external mram board is attached
+ */
+#define FEATURE_HW_MRAM 0
+
 #endif /* PLATFORM_ALEA_V1 */
 #endif /* ALEA_V1_FEATUREDEFS_H_ */

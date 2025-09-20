@@ -60,6 +60,12 @@ typedef enum flash_err {
      */
     FLASH_INVALID_SIZE_ERR = -6,
 
+    /**
+     * @brief Indicates that the external flash chip is not attached, thus
+     * no file system nor flash read/write functionalities are enabled
+     */
+    FLASH_FS_DISABLED_ERR = -8,
+
 #ifdef PLATFORM_LAUNCHPAD_1224
     FLASH_MOCK_ERR = -7
 #endif
@@ -68,39 +74,24 @@ typedef enum flash_err {
 #endif
 } flash_err_t;
 
-/**
- * @brief Return value for mram functions, indicating any errors.
- */
-typedef enum mram_err {
-    /**
-     * @brief Indicates that there were no IO errors.
-     */
-    MRAM_OK = 0,
-
-    /**
-     * @brief Indicates there was a request to access MRAM that does not exist.
-     */
-    MRAM_INDEX_OUT_OF_BOUND = -1,
-
-    /**
-     * @brief Indicates there was a low-level error in the MIBSPI driver.
-     */
-    MRAM_MIBSPI_ERR = -2,
-
-    /**
-     * @brief Indicates there was an error attempting to grab the MIBSPI mutex.
-     */
-    MRAM_MIBSPI_MUTEX_GRAB_ERR = -3
-} mram_err_t;
+#include "obc_mram.h"
 
 /**
  * @brief Filesystem error codes, propagated up from LittleFS.
  */
 typedef enum {
     /* OBC filesystem errors */
-    FS_TEST_READ_FAILURE    = 3,                   // 3     : Test function failed to read from file (for FS test)
-    FS_TEST_WRITE_FAILURE   = 2,                   // 2     : Test function failed to write to file (for FS test)
-    FS_TEST_STRINGS_UNEQUAL = 1,                   // 1     : Test strings do not match (for FS test)
+    FS_FLUSH_FAILED             =    8,
+    FS_ENQUEUE_ERR              =    7,
+    FS_WRITE_TOO_BIG_ERR        =    6,            // Write operation exceeds WRITE_CACHE_SIZE
+    FS_READ_FAILURE_ERR         =    5,
+    FS_WRITE_FAILURE_ERR        =    4,
+    FS_TEST_SEEK_ERR            =    3,
+    FS_TEST_SIZE_ERR            =    2,
+    FS_TEST_STRINGS_UNEQUAL_ERR =    1,
+    FS_FLASH_DISABLED_ERR       =  -98,
+    FS_MUTEX_TIMEOUT            =  -99,
+
     /* Errors propagated up from LFS */
     FS_OK                   = LFS_ERR_OK,          // 0     : No error
     FS_IO_ERR               = LFS_ERR_IO,          // -5    : Error during device operation
@@ -193,23 +184,6 @@ typedef enum {
      */
     NOT_PERIODIC = 13,
 } scheduler_err_t;
-
-
-/**
- * @brief Return codes from the telemetry logging system.
- */
-typedef enum {
-    /**
-     * @brief Telemetry function operated correctly.
-     */
-    TELEM_OK = 0,
-
-    /**
-     * @brief Telemetry system cannot start a telemetry logging action.
-     */
-    TELEM_START_FAILED = -1
-
-} telem_err_t;
 
 /**
  * @brief Error or return codes from OBC RTOS infrastructure.

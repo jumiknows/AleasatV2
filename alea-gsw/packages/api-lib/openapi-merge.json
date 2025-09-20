@@ -1,0 +1,8 @@
+{
+  "inputs": [
+    {
+      "inputFile": "../../apps/command-request/api/openapi.json"
+    }
+  ],
+  "output": "./api/openapi.json"
+}

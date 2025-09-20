@@ -1,0 +1,29 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "extends": ["../../biome.json"],
+  "linter": {
+    "rules": {
+      "a11y": {
+        "noAriaUnsupportedElements": "warn",
+        "noBlankTarget": "off",
+        "useAltText": "warn",
+        "useAriaPropsForRole": "warn",
+        "useValidAriaProps": "warn",
+        "useValidAriaValues": "warn"
+      },
+      "correctness": {
+        "noChildrenProp": "error",
+        "useExhaustiveDependencies": "warn",
+        "useHookAtTopLevel": "error",
+        "useJsxKeyInIterable": "error"
+      },
+      "security": {
+        "noDangerouslySetInnerHtmlWithChildren": "error"
+      },
+      "suspicious": {
+        "noCommentText": "error",
+        "noDuplicateJsxProps": "error"
+      }
+    }
+  }
+}

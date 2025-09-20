@@ -1,0 +1,87 @@
+"Publish aleasat-docs Container":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - Get Commit Count
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/aleasat-docs/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/apps/**/*.json
+        - alea-gsw/.gitlab/workflows/publish-aleasat-docs.yml
+        - alea-gsw/.dockerignore
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/aleasat-docs/Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasat-docs:${CI_COMMIT_SHA}-$(cat commit-count)-$(date +%s)"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasat-docs:${CI_COMMIT_SHA}"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/aleasat-docs:latest"
+      --push
+      "${CI_PROJECT_DIR}/alea-gsw"
+
+"Deploy aleasat-docs to staging":
+  needs:
+    - "Publish aleasat-docs Container"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/aleasat-docs/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/apps/**/*.json
+        - alea-gsw/.gitlab/workflows/publish-aleasat-docs.yml
+        - alea-gsw/.dockerignore
+
+"Deploy aleasat-docs to production":
+  needs:
+    - "Deploy aleasat-docs to staging"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/aleasat-docs/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/apps/**/*.json
+        - alea-gsw/.gitlab/workflows/publish-aleasat-docs.yml
+        - alea-gsw/.dockerignore
+
+"Build aleasat-docs Container":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - Build Types and Test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - alea-gsw/apps/aleasat-docs/**/*
+        - alea-gsw/packages/ui/**/*
+        - alea-gsw/apps/**/*.json
+        - alea-gsw/.gitlab/workflows/publish-aleasat-docs.yml
+        - alea-gsw/.dockerignore
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/aleasat-docs/Dockerfile"
+      "${CI_PROJECT_DIR}/alea-gsw"
+
+include:
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: aleasat-docs
+      environment: staging
+      tag: $CI_COMMIT_SHA
+  - local: "alea-gsw/.gitlab/workflows/update-deployment.yml"
+    inputs:
+      package: aleasat-docs
+      environment: production
+      tag: $CI_COMMIT_SHA

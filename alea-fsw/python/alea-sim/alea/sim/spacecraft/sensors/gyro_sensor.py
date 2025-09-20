@@ -1,39 +1,41 @@
 import numpy as np
+import dataclasses
+from pathlib import Path
 
+from alea.sim.spacecraft.sensors.simple_sensors import SimpleSensorConfig
 from .simple_sensors import Measurement
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.epa.attitude_dynamics import AttitudeDynamicsModel
 from alea.sim.spacecraft.sensors.simple_sensors import SimpleSensor
+
+@dataclasses.dataclass
+class GyroSensorConfig(SimpleSensorConfig):
+    """
+    Gyro sensor config dataclass
+    """
+    noise_arw         : float = None
+    power_consumption : float = None
 
 class SimpleGyroSensor(SimpleSensor):
     """
     Simple sensor that produces 3 axis magnetic field measurement in body frame
     Adds a noise distribution based on sample rate (multiple of simulation timestep) and noise_asd
     """
-    def __init__(self, name: str, 
-                 kernel: AleasimKernel, 
-                 sample_rate:int,
-                 seed : int = None 
+    def __init__(self,
+                 name: str,
+                 kernel: AleasimKernel,
+                 sample_rate: int,
+                 seed: int = None,
+                 cfg: str | Path | dict | GyroSensorConfig = "gyro_sensor"
                  ):
-        cfg = self.get_config()
-        asd_noise = cfg['noise_asd']
-        bias = np.array(cfg['constant_bias'])
-        misalignment = np.array(cfg['axis_misalignment'])
-        self._voltage = cfg['voltage_nominal']
-        self._current = cfg['current_nominal']
-
-        super().__init__(name, 
-                         kernel, 
-                         kernel.body_frame, 
-                         sample_rate,
-                         noise_asd=asd_noise, 
-                         axis_misalignment=misalignment,
-                         constant_bias=bias,
+        super().__init__(cfg=cfg,
+                         cfg_cls=GyroSensorConfig,
+                         name=name,
+                         sim_kernel=kernel,
+                         frame=kernel.body_frame,
+                         sample_rate=sample_rate,
                          seed=seed
                          )
-    @property
-    def config_name(self) -> str:
-        return 'gyro_sensor'
 
     def connect(self):
         self._adyn: AttitudeDynamicsModel = self.kernel.get_model(AttitudeDynamicsModel)
@@ -43,11 +45,11 @@ class SimpleGyroSensor(SimpleSensor):
         return self.frame.transform_vector_from_frame(v, self.kernel.body_frame)
 
     def calculate_active_power_usage(self) -> float:
-        return self._current * self._voltage
+        return self.cfg.current_nominal * self.cfg.voltage_nominal
     
     @property
     def current(self) -> float:
-        return self._current
+        return self.cfg.current_nominal
     
 class GyroSensor(SimpleGyroSensor):
     """
@@ -58,10 +60,8 @@ class GyroSensor(SimpleGyroSensor):
                  kernel: AleasimKernel, 
                  sample_rate: int,
                  seed : int = None):
-        cfg = self.get_config()
 
-        self._noise_arw = cfg["noise_arw"] # [rad/√sec]
-        super().__init__(name, kernel, sample_rate, seed=seed)
+        super().__init__(name=name, kernel=kernel, sample_rate=sample_rate, seed=seed)
 
         self._rate_random_walk = np.zeros(self.axes) # cumulative random walk
         
@@ -70,15 +70,23 @@ class GyroSensor(SimpleGyroSensor):
         self._element_names.extend(["arw_x", "arw_y", "arw_z"])
         self._saved_state_size = len(self._element_names)
 
-    @property
-    def config_name(self) -> str:
-        return 'gyro_sensor'
+        self._cumulative_bias_drift = np.zeros(self.axes) # cumulative bias drift
+
+        # save time of previous measurement
+        self._previous_measure_time = self.kernel.time
     
     def calibrate_rrw(self):
         """
         Zeros the built up RRW value
         """
         self._rate_random_walk = np.zeros(self.axes)
+
+    def generate_bias(self, tdiff):
+        """
+        Generates sensor bias drift given a time elapsed
+        """
+        bdn = self.noise.generator.normal(0,1,size=self.axes)
+        return self.cfg.constant_bias * np.sqrt(tdiff) * bdn
     
     def measure(self) -> Measurement:
         """
@@ -93,8 +101,8 @@ class GyroSensor(SimpleGyroSensor):
         else:
             value = ideal
         
-            #apply sensor misalsignment and constant bias
-            value = self.misalignment_matrix @ value + self.constant_bias
+            #apply sensor misalignment
+            value = self.misalignment_matrix @ value
             
             #add noise
             if self.noise is not None:
@@ -102,9 +110,17 @@ class GyroSensor(SimpleGyroSensor):
                 self._rate_random_walk += noise_sample
                 value += self._rate_random_walk
 
+            #add bias drift (adapted from Eq. 4.40 of Landis and Markley)
+            tdiff = t - self._previous_measure_time
+            bd_noise = self.generate_bias(tdiff)
+            self._cumulative_bias_drift += bd_noise
+            
+            value += self._cumulative_bias_drift
+            self._previous_measure_time = t
+
             #add angular random walk
             awgn = self.noise.generator.normal(0,1,size=self.axes)
-            arw_noise = self._noise_arw * np.sqrt(self.sample_rate) * awgn
+            arw_noise = self.cfg.noise_arw * np.sqrt(self.sample_rate) * awgn
             value += arw_noise
 
             #clamp to measurement range clamp and resolution

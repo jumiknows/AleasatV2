@@ -7,7 +7,6 @@ from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.spacecraft.spacecraft import Spacecraft
 import logging
 from alea.sim.epa.earth_magnetic_field import EarthMagneticFieldModel
-from alea.sim.kernel.config_loader import load_config
 
 from alea.sim.utils.test_scenarios import create_aleasim_test_kernel
 
@@ -143,21 +142,12 @@ class KernelTest(unittest.TestCase):
         
         kernel.kill()
 
-    def test_config_load(self):
-        cfg = load_config('template')
-        assert type(cfg) is dict
-        
-        expected_cfg = {"config_param_1":"string value", "config_param_float":10.0, "config_param_float2":1e-4, "config_sub_dictionary": {"value1":10.0,}}
-        
-        #compare dicts by value
-        assert cfg == expected_cfg
-
     def test_kernel_remove_mdl(self):        
         kernel = create_aleasim_test_kernel()
         kernel.step() #connect functions called
 
         sc: Spacecraft = kernel.get_model(Spacecraft)
-        mag = sc._mag_sens
+        mag = sc.aocs._mag_sens
 
         assert mag is kernel.get_model(mag.name)
         

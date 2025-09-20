@@ -1,36 +1,42 @@
 import numpy as np
+import dataclasses
+from pathlib import Path
 
+from alea.sim.spacecraft.sensors.simple_sensors import SimpleSensorConfig
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.spacecraft.sensors.simple_sensors import SimpleSensor
 from alea.sim.epa.orbit_dynamics import OrbitDynamicsModel
+
+
+@dataclasses.dataclass
+class SunSensorConfig(SimpleSensorConfig):
+    """
+    Sun sensor config dataclass
+    Does not introduce any extra configs
+    """
+
 
 class SimpleSunSensor(SimpleSensor):
     """
     Simple sensor that produces 3 axis sun vector measurement in body frame (normalized)
     Adds a noise distribution based on sample rate (multiple of simulation timestep) and noise_asd
     """
-    def __init__(self, name: str, kernel: AleasimKernel, sample_rate, seed = None):
-        cfg = self.get_config()
-        rms_noise = cfg['rms_noise']
-        bias = np.array(cfg['constant_bias'])
-        misalignment = np.array(cfg['misalignment'])
-        scaling = cfg['scaling']
-        self._voltage = cfg['voltage_nominal']
-        self._current = cfg['current_nominal']
-
-        super().__init__(name, kernel, kernel.body_frame, 
-                         sample_rate, 
-                         noise_rms=rms_noise, 
-                         axis_misalignment=misalignment,
-                         constant_bias=bias,
-                         scaling=scaling,
+    def __init__(self, 
+                 name: str, 
+                 kernel: AleasimKernel, 
+                 sample_rate: int, 
+                 seed: int = None, 
+                 cfg: str | Path | dict | SunSensorConfig = "sun_sensor"
+                 ):
+        super().__init__(cfg=cfg, 
+                         cfg_cls=SunSensorConfig,
+                         name=name, 
+                         sim_kernel=kernel, 
+                         frame=kernel.body_frame, 
+                         sample_rate=sample_rate, 
                          seed=seed
                          )
-    
-    @property
-    def config_name(self) -> str:
-        return 'sun_sensor'
-    
+
     def connect(self):
         self._odyn: OrbitDynamicsModel = self.kernel.get_model(OrbitDynamicsModel)
     
@@ -46,8 +52,8 @@ class SimpleSunSensor(SimpleSensor):
             return np.zeros(3, dtype=np.float64)
 
     def calculate_active_power_usage(self) -> float:
-        return self._current * self._voltage
+        return self.cfg.current_nominal * self.cfg.voltage_nominal
     
     @property
     def current(self) -> float:
-        return self._current
+        return self.cfg.current_nominal

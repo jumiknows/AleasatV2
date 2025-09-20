@@ -1,0 +1,16 @@
+.openapi-generator-ignore
+apis/RepoApi.ts
+apis/index.ts
+index.ts
+models/GetCommits200ResponseInner.ts
+models/GetObcConfig200Response.ts
+models/GetObcConfig200ResponseCmdSysValue.ts
+models/GetObcConfig200ResponseLogSpecsValue.ts
+models/GetObcConfig200ResponseLogSpecsValueSignalsValue.ts
+models/GetObcConfig200ResponseObcTasksValue.ts
+models/ModelError.ts
+models/Problem.ts
+models/ReadLaunchpad.ts
+models/ReadUserSession.ts
+models/index.ts
+runtime.ts

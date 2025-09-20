@@ -135,7 +135,6 @@ comms_err_t comms_cmd_struct_to_buffer(comms_command_t *cmd_struct, uint8_t *buf
 
 /**
  * @brief Checks validity of contents of buffer that contains an OpenLST packet
- * TODO: check hwids, cmd_num
  *
  * @param[in] buf
  *
@@ -153,6 +152,20 @@ static comms_err_t comms_check_buffer(const uint8_t *buf) {
     if ((buf[2] < COMMS_MIN_PKT_LEN_VAL) || (buf[2] > COMMS_MAX_PKT_LEN_VAL)) {
         return COMMS_PKT_LEN_ERR;
     }
+
+    const uint8_t *bufp = &buf[5];
+    hwid_t dest_hwid = ((uint16_t)bufp[0] | (uint16_t)bufp[1] << 8);
+    bufp += 2;
+    hwid_t src_hwid = ((uint16_t)bufp[0] | (uint16_t)bufp[1] << 8);
+
+    if (dest_hwid != OBC_HWID) {
+        return COMMS_ERR_INVALID_DEST_ID;
+    }
+
+    if (src_hwid != GROUND_HWID && src_hwid != COMMS_HWID) {
+        return COMMS_ERR_INVALID_SRC_ID;
+    }
+
 
     return COMMS_SUCCESS;
 }

@@ -1,0 +1,10 @@
+*
+!api
+!satnogs_iq_receiver.py
+!LICENSE
+!README.md
+!packages.debian
+!poetry.lock
+!poetry.toml
+!pyproject.toml
+!groundstationclient

@@ -40,7 +40,7 @@ typedef struct {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void obc_serial_tx_create_infra(void);
+void obc_serial_tx_pre_init(void);
 void obc_serial_tx_create_task(obc_task_id_t task_id, obc_serial_tx_task_params_t *params, obc_watchdog_action_t watchdog_action);
 
 #endif // OBC_SERIAL_TX_H_

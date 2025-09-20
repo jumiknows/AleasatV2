@@ -1,0 +1,913 @@
+{
+	"openapi": "3.0.3",
+	"info": {
+		"title": "Job Queue Service",
+		"description": "Service to queue jobs",
+		"license": {
+			"name": "MIT",
+			"url": "https://opensource.org/license/mit/"
+		},
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "https://api.aleasat.space/job-queue",
+			"description": "production"
+		},
+		{
+			"url": "https://api-staging.aleasat.space/job-queue",
+			"description": "staging"
+		},
+		{
+			"url": "http://localhost:3000/",
+			"description": "local"
+		}
+	],
+	"tags": [
+		{
+			"name": "Job",
+			"description": "Job"
+		}
+	],
+	"paths": {
+		"/jobs/gmat": {
+			"post": {
+				"tags": [
+					"Job"
+				],
+				"summary": "Create and queue a GMAT job",
+				"operationId": "createGMATJob",
+				"requestBody": {
+					"description": "New GMAT job object",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SatelliteState"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A job",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReadGMATJob"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"AccessToken": []
+					}
+				]
+			}
+		},
+		"/jobs/gmat/{jobId}": {
+			"get": {
+				"tags": [
+					"Job"
+				],
+				"summary": "Get details for a GMAT job",
+				"operationId": "getGMATJob",
+				"parameters": [
+					{
+						"name": "jobId",
+						"in": "path",
+						"required": true,
+						"description": "The job ID",
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A job",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReadGMATJob"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Job not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"AccessToken": []
+					}
+				]
+			}
+		},
+		"/jobs/orbit-propagation": {
+			"post": {
+				"tags": [
+					"Job"
+				],
+				"summary": "Create and queue an orbit propagation job",
+				"operationId": "createOrbitJob",
+				"requestBody": {
+					"description": "New orbit propagation job object",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PropagationParams"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A job",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReadOrbitPropagationJob"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"AccessToken": []
+					}
+				]
+			}
+		},
+		"/jobs/orbit-propagation/{jobId}": {
+			"get": {
+				"tags": [
+					"Job"
+				],
+				"summary": "Get details for an orbit propagation job",
+				"operationId": "getOrbitJob",
+				"parameters": [
+					{
+						"name": "jobId",
+						"in": "path",
+						"required": true,
+						"description": "The job ID",
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A job",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReadOrbitPropagationJob"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Job not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"AccessToken": []
+					}
+				]
+			}
+		},
+		"/jobs/image-generation": {
+			"post": {
+				"tags": [
+					"Job"
+				],
+				"summary": "Create and queue an image generation job",
+				"operationId": "createImageJob",
+				"requestBody": {
+					"description": "New image generation job object",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ImageRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A job",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReadImageGenerationJob"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"AccessToken": []
+					}
+				]
+			}
+		},
+		"/jobs/image-generation/{jobId}": {
+			"get": {
+				"tags": [
+					"Job"
+				],
+				"summary": "Get details for an image generation job",
+				"operationId": "getImageJob",
+				"parameters": [
+					{
+						"name": "jobId",
+						"in": "path",
+						"required": true,
+						"description": "The job ID",
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A job",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReadImageGenerationJob"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Job not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"AccessToken": []
+					}
+				]
+			}
+		},
+		"/jobs/{jobId}": {
+			"delete": {
+				"tags": [
+					"Job"
+				],
+				"summary": "Delete a job by ID",
+				"operationId": "deleteJob",
+				"parameters": [
+					{
+						"name": "jobId",
+						"in": "path",
+						"required": true,
+						"description": "The job ID",
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string",
+									"example": "OK"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Job not found in waiting queue",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Problem"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"AccessToken": []
+					}
+				]
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"ReadGMATJob": {
+				"type": "object",
+				"required": [
+					"id",
+					"status",
+					"requestData"
+				],
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"requestData": {
+						"$ref": "#/components/schemas/SatelliteState"
+					},
+					"resultData": {
+						"$ref": "#/components/schemas/GMATResult"
+					}
+				}
+			},
+			"SatelliteState": {
+				"type": "object",
+				"required": [
+					"epochFormat",
+					"epoch",
+					"coordinateSystem",
+					"stateElement",
+					"stateId"
+				],
+				"properties": {
+					"epochFormat": {
+						"type": "string",
+						"enum": [
+							"UTCGregorian"
+						]
+					},
+					"epoch": {
+						"type": "string"
+					},
+					"coordinateSystem": {
+						"type": "string",
+						"enum": [
+							"EarthMJ2000Eq",
+							"EarthMJ2000Ec"
+						]
+					},
+					"stateElement": {
+						"$ref": "#/components/schemas/StateElement"
+					},
+					"stateId": {
+						"type": "string"
+					}
+				}
+			},
+			"StateElement": {
+				"type": "object",
+				"oneOf": [
+					{
+						"$ref": "#/components/schemas/CartesianState"
+					},
+					{
+						"$ref": "#/components/schemas/KeplerianState"
+					}
+				],
+				"discriminator": {
+					"propertyName": "type",
+					"mapping": {
+						"cartesian": "#/components/schemas/CartesianState",
+						"keplerian": "#/components/schemas/KeplerianState"
+					}
+				}
+			},
+			"CartesianState": {
+				"type": "object",
+				"required": [
+					"type",
+					"x",
+					"y",
+					"z",
+					"vx",
+					"vy",
+					"vz"
+				],
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"cartesian"
+						]
+					},
+					"x": {
+						"type": "number"
+					},
+					"y": {
+						"type": "number"
+					},
+					"z": {
+						"type": "number"
+					},
+					"vx": {
+						"type": "number"
+					},
+					"vy": {
+						"type": "number"
+					},
+					"vz": {
+						"type": "number"
+					}
+				}
+			},
+			"KeplerianState": {
+				"type": "object",
+				"required": [
+					"type",
+					"sma",
+					"ecc",
+					"inc",
+					"raan",
+					"aop",
+					"ta"
+				],
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"keplerian"
+						]
+					},
+					"sma": {
+						"type": "number"
+					},
+					"ecc": {
+						"type": "number"
+					},
+					"inc": {
+						"type": "number"
+					},
+					"raan": {
+						"type": "number"
+					},
+					"aop": {
+						"type": "number"
+					},
+					"ta": {
+						"type": "number"
+					}
+				}
+			},
+			"ReadOrbitPropagationJob": {
+				"type": "object",
+				"required": [
+					"id",
+					"status",
+					"requestData"
+				],
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"requestData": {
+						"$ref": "#/components/schemas/PropagationParams"
+					},
+					"resultData": {
+						"$ref": "#/components/schemas/OrbitPropagationResult"
+					}
+				}
+			},
+			"PropagationParams": {
+				"type": "object",
+				"required": [
+					"tleLine1",
+					"tleLine2",
+					"simulationTime"
+				],
+				"properties": {
+					"tleLine1": {
+						"type": "string"
+					},
+					"tleLine2": {
+						"type": "string"
+					},
+					"simulationTime": {
+						"type": "number"
+					}
+				}
+			},
+			"ReadImageGenerationJob": {
+				"type": "object",
+				"required": [
+					"id",
+					"status",
+					"requestData"
+				],
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"requestData": {
+						"$ref": "#/components/schemas/ImageRequest"
+					},
+					"resultData": {
+						"$ref": "#/components/schemas/ImageGenerationResult"
+					}
+				}
+			},
+			"ImageRequest": {
+				"type": "object",
+				"required": [
+					"id",
+					"userId",
+					"name",
+					"description",
+					"locationTrackId",
+					"satelliteRotationX",
+					"satelliteRotationY",
+					"satelliteRotationZ"
+				],
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"locationTrackId": {
+						"type": "string"
+					},
+					"satelliteRotationX": {
+						"type": "number"
+					},
+					"satelliteRotationY": {
+						"type": "number"
+					},
+					"satelliteRotationZ": {
+						"type": "number"
+					},
+					"AROgroundStationId": {
+						"type": "integer"
+					},
+					"AROgroundStationPassId": {
+						"type": "string"
+					},
+					"reviewerId": {
+						"type": "string"
+					},
+					"approved": {
+						"type": "boolean"
+					},
+					"reviewComment": {
+						"type": "string"
+					},
+					"thumbnailID": {
+						"type": "string"
+					},
+					"initialPreviewImageId": {
+						"type": "string"
+					},
+					"finalPreviewImageId": {
+						"type": "string"
+					},
+					"imageId": {
+						"type": "string"
+					},
+					"command": {
+						"$ref": "#/components/schemas/Command"
+					}
+				}
+			},
+			"Command": {
+				"type": "object",
+				"required": [
+					"id",
+					"submitedAt",
+					"userId",
+					"command",
+					"size",
+					"power"
+				],
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"submitedAt": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"imageRequestId": {
+						"type": "string"
+					},
+					"command": {
+						"type": "string"
+					},
+					"size": {
+						"type": "integer"
+					},
+					"power": {
+						"type": "number"
+					},
+					"passId": {
+						"type": "string"
+					},
+					"sentAt": {
+						"type": "string"
+					},
+					"resultId": {
+						"type": "string"
+					}
+				}
+			},
+			"GMATResult": {
+				"type": "object",
+				"required": [
+					"result"
+				],
+				"properties": {
+					"result": {
+						"$ref": "#/components/schemas/S3Result"
+					}
+				}
+			},
+			"OrbitPropagationResult": {
+				"type": "object",
+				"required": [
+					"result"
+				],
+				"properties": {
+					"result": {
+						"type": "array",
+						"items": {
+							"type": "number"
+						}
+					}
+				}
+			},
+			"ImageGenerationResult": {
+				"type": "object",
+				"required": [
+					"result"
+				],
+				"properties": {
+					"result": {
+						"$ref": "#/components/schemas/S3Result"
+					}
+				}
+			},
+			"S3Result": {
+				"type": "object",
+				"required": [
+					"bucket",
+					"key"
+				],
+				"properties": {
+					"bucket": {
+						"type": "string"
+					},
+					"key": {
+						"type": "string"
+					}
+				}
+			},
+			"Error": {
+				"type": "object",
+				"required": [
+					"code",
+					"message"
+				],
+				"properties": {
+					"code": {
+						"type": "integer",
+						"format": "int32",
+						"description": "The HTTP status code"
+					},
+					"message": {
+						"type": "string",
+						"description": "The error"
+					}
+				}
+			},
+			"Problem": {
+				"type": "object",
+				"description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+				"required": [
+					"title",
+					"status"
+				],
+				"properties": {
+					"detail": {
+						"type": "string",
+						"description": "The details of the problem"
+					},
+					"status": {
+						"type": "integer",
+						"description": "The HTTP status code"
+					},
+					"title": {
+						"type": "string",
+						"description": "The type of error (text)"
+					},
+					"type": {
+						"type": "string",
+						"description": "The type of error (URL)"
+					}
+				}
+			}
+		},
+		"securitySchemes": {
+			"AccessToken": {
+				"type": "http",
+				"scheme": "bearer"
+			}
+		}
+	}
+}

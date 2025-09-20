@@ -1,0 +1,18 @@
+{
+  "extends": "@aleasat/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist"
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "./src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "tests",
+    "src/generated/grpc"
+  ]
+}

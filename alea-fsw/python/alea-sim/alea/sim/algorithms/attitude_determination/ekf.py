@@ -1,26 +1,34 @@
 import numpy as np
-
-"""
-    EKF Estimator for the attitude dynamics of an inertial pointing spacecraft
-
-    Based on section 8.1 of Yang, Yaguang - Spacecraft modeling, attitude determination, 
-    and control_ quaternion-based approach
-    
-"""
-
+from alea.sim.math_lib import skew, cross
 
 class ExtendedKalmanFilter:
-    def __init__(self, J, dt, Q, R):
+    """
+        EKF Estimator for the attitude dynamics of an inertial pointing spacecraft
+
+        Based on section 8.1 of Yang, Yaguang - Spacecraft modeling, attitude determination, 
+        and control_ quaternion-based approach
+    """
+
+    def __init__(self, J: np.ndarray, dt: float, Q: np.ndarray, R:np.ndarray):
         """
         Initialize the EKF with system-specific parameters.
-        
-        Parameters:
-        - J: The inertia matrix (numpy array).
-        - dt: The sampling time period.
-        - Q: The process noise covariance matrix (numpy array).
-        - R: The measurement noise covariance matrix (numpy array).
+
+        Args:
+            J:
+                Spacecraft intertia matrix [kg m^2].
+
+            dt:
+                EKF sampling time period [s]
+
+            Q:
+                The process noise covariance matrix
+    
+            R:
+                The measurement noise covariance matrix
         """
+    
         self.J = J
+        self.J_inv = np.linalg.inv(self.J)
         self.dt = dt
         self.Q = Q
         self.R = R
@@ -31,16 +39,13 @@ class ExtendedKalmanFilter:
         """
         omega_k = x[:3]
         q_k = x[3:6]
-        beta_k = x[6:]
+        beta_k = x[6:9]
 
         # Compute the next state components Eq. (8.6a)
-        omega_k1 = omega_k + (-np.linalg.inv(self.J) @ np.cross(omega_k, self.J @ omega_k) + np.linalg.inv(self.J) @ u) * self.dt
-        Omega_k = np.array([
-            [np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2), -q_k[2], q_k[1]],
-            [q_k[2], np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2), -q_k[0]],
-            [-q_k[1], q_k[0], np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2)]
-        ])
-        q_k1 = q_k + 0.5 * Omega_k @ omega_k * self.dt
+        omega_k1 = omega_k + (-self.J_inv @ cross(omega_k, (self.J @ omega_k)) + self.J_inv @ u) * self.dt
+        g_q = np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2)
+        Omega_k = np.eye(3)*g_q + skew(q_k)
+        q_k1 = q_k + ((0.5 * (Omega_k @ omega_k)) * self.dt)
         beta_k1 = beta_k
 
         # Concatenate the state vector Eq. (8.6b)
@@ -56,16 +61,11 @@ class ExtendedKalmanFilter:
         q_k = x[3:6]
 
         # Compute the First element in the matrix Eq. (8.11)
-        F11 = np.eye(3) - np.linalg.inv(self.J) @ (np.cross(omega_k, self.J) - np.cross(self.J @ omega_k, np.eye(3))) * self.dt
+        F11 = np.eye(3) - (self.J_inv @ (cross(omega_k, self.J) - skew(self.J @ omega_k))) * self.dt
 
         # Compute the Jacobians Eq. (8.7)'
-        Omega_k = np.array([
-            [np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2), -q_k[2], q_k[1]],
-            [q_k[2], np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2), -q_k[0]],
-            [-q_k[1], q_k[0], np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2)]
-        ])
-
         g_q = np.sqrt(1 - q_k[0]**2 - q_k[1]**2 - q_k[2]**2)
+        Omega_k = skew(q_k[0:3]) + np.eye(3)*g_q
         
         # Compute the gradient of F2 to omega Eq. (8.9)
         F2omega_jacobian = 0.5 * Omega_k * self.dt
@@ -117,11 +117,8 @@ class ExtendedKalmanFilter:
         F_km1 = self.F_jacobian(x_prev, u_prev)
 
         # Find Omega_k_prev for P (8.13b)
-        Omega_k_prev = np.array([
-            [np.sqrt(1 - q_k_prev[0]**2 - q_k_prev[1]**2 - q_k_prev[2]**2), -q_k_prev[2], q_k_prev[1]],
-            [q_k_prev[2], np.sqrt(1 - q_k_prev[0]**2 - q_k_prev[1]**2 - q_k_prev[2]**2), -q_k_prev[0]],
-            [-q_k_prev[1], q_k_prev[0], np.sqrt(1 - q_k_prev[0]**2 - q_k_prev[1]**2 - q_k_prev[2]**2)]
-        ])
+        g_q_prev = np.sqrt(1 - q_k_prev[0]**2 - q_k_prev[1]**2 - q_k_prev[2]**2)
+        Omega_k_prev = skew(q_k_prev[:3]) + g_q_prev*np.eye(3)
 
         # Find L (8.12)
         L_k = np.block([
@@ -141,7 +138,7 @@ class ExtendedKalmanFilter:
         """
         # Compute the innovation (8.13c)
         H_k = np.block([
-            [np.eye(3), np.zeros((3, 3)), np.zeros((3, 3))],
+            [np.eye(3), np.zeros((3, 3)), np.eye(3)],
             [np.zeros((3, 3)), np.eye(3), np.zeros((3, 3))]
         ])
         y_tilde = y_k - self.H_func(x_pred)
@@ -157,5 +154,4 @@ class ExtendedKalmanFilter:
         
         # Update the state covariance matrix (8.13g)
         P_upd = (np.eye(len(x_pred)) - K_k @ H_k) @ P_pred
-        
         return x_upd, P_upd

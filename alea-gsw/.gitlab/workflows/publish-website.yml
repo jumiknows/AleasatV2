@@ -1,0 +1,39 @@
+spec:
+  inputs:
+    package:
+---
+"Publish $[[ inputs.package ]] Container":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - Get Commit Count
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/$[[ inputs.package ]]/Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:${CI_COMMIT_SHA}-$(cat commit-count)-$(date +%s)"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:${CI_COMMIT_SHA}"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:latest"
+      --push
+      "${CI_PROJECT_DIR}/alea-gsw"
+
+"Build $[[ inputs.package ]] Container":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - $[[ inputs.package ]] E2E Test
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/$[[ inputs.package ]]/Dockerfile"
+      "${CI_PROJECT_DIR}/alea-gsw"

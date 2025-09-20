@@ -72,5 +72,25 @@ class FlashTest(hil_test.HILTest):
         self.assertTrue(resp.is_success)
         self.assertEqual(resp.data["data_match"], False)
 
+    # FAIL path: addr 0x0, len 64
+    #    Write commands ignored; comparison fails
+    @timeout.timeout(10)
+    def test_flash_rw_sleep(self):
+        self.ttc.send_obc_cmd("FLASH_SLEEP", True)
+        resp = self.ttc.send_obc_cmd("TEST_FLASH_RW", 0x0, 64)
+        self.ttc.send_obc_cmd("FLASH_SLEEP", False)
+        self.assertTrue(resp.is_success)
+        self.assertEqual(resp.data["data_match"], False)
+
+    # SUCCESS path: addr 0x0, len 64
+    #    Awake; commands accepted
+    @timeout.timeout(10)
+    def test_flash_rw_wake(self):
+        self.ttc.send_obc_cmd("FLASH_SLEEP", True)
+        self.ttc.send_obc_cmd("FLASH_SLEEP", False)
+        resp = self.ttc.send_obc_cmd("TEST_FLASH_RW", 0x0, 64)
+        self.assertTrue(resp.is_success)
+        self.assertEqual(resp.data["data_match"], True)
+
 if __name__ == '__main__':
     hil_test.main(FlashTest)

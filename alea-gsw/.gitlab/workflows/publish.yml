@@ -1,0 +1,75 @@
+spec:
+  inputs:
+    package:
+---
+"$[[ inputs.package ]] Build and Push Docker Image":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - Get Commit Count
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/$[[ inputs.package ]]/Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:${CI_COMMIT_SHA}-$(cat commit-count)-$(date +%s)"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:${CI_COMMIT_SHA}"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:latest"
+      --push
+      "${CI_PROJECT_DIR}/alea-gsw"
+
+"$[[ inputs.package ]] Build Docker Image":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - $[[ inputs.package ]] Unit Test
+    - Build Types and Test
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/$[[ inputs.package ]]/Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:test-${CI_COMMIT_SHA}"
+      --push
+      "${CI_PROJECT_DIR}/alea-gsw"
+
+"$[[ inputs.package ]] Docker Image Smoke Test":
+  stage: test docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  needs:
+    - "$[[ inputs.package ]] Build Docker Image"
+  before_script:
+    - apk add --no-cache curl
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:test-${CI_COMMIT_SHA}"
+    - docker run -p 3000:3000 "${CI_REGISTRY}/alea-2020/software/aleasat-software/$[[ inputs.package ]]:test-${CI_COMMIT_SHA}" &
+    - pid=$!
+    - |
+      timeout=30
+      while ! curl --silent --fail -w "\n" http://docker:3000/healthz; do
+      timeout=$((timeout - 5))
+      if [ $timeout -le 0 ]; then
+        echo >&2 'Health check timed out'
+        exit 1
+      fi
+      if ! [[ -e /proc/$pid ]]; then
+        echo >&2 'Container exited'
+        exit 1
+      fi
+      echo >&2 'Retrying in 5s...'
+      sleep 5
+      done
+      echo >&2 'Health check passed'

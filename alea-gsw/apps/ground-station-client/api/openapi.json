@@ -1,0 +1,448 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Ground Station Client",
+    "description": "",
+    "license": {
+      "name": "AGPL-3.0",
+      "url": "https://opensource.org/license/agpl-v3"
+    },
+    "version": "0.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api-staging.aleasat.space/",
+      "description": "Staging"
+    },
+    {
+      "url": "https://api.aleasat.space/",
+      "description": "Production"
+    },
+    {
+        "url": "http://127.0.0.1:3000",
+        "description": "Development"
+      }
+  ],
+  "tags": [
+    {
+      "name": "Contact",
+      "description": "Requests for contact with the Spacecraft"
+    }
+  ],
+  "paths": {
+    "/contacts": {
+      "get": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "Get all contacts",
+        "description": "Get all contacts",
+        "operationId": "getContacts",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "Create a contact",
+        "description": "Create a contact",
+        "operationId": "postContact",
+        "requestBody": {
+          "description": "Contact object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/contacts/{contact_id}": {
+      "get": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "Get a contact",
+        "description": "Get a contact",
+        "operationId": "getContact",
+        "parameters": [
+          {
+            "name": "contact_id",
+            "in": "path",
+            "description": "Id of the contact to get",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "Delete a contact",
+        "description": "Delete a contact",
+        "operationId": "deleteContact",
+        "parameters": [
+          {
+            "name": "contact_id",
+            "in": "path",
+            "description": "Id of the contact to delete",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Contact": {
+        "type": "object",
+        "description": "",
+        "required": [
+          "id",
+          "reservationStartTime",
+          "reservationEndTime",
+          "spacecraft",
+          "contactProfile",
+          "contactType",
+          "txStartTime",
+          "txEndTime",
+          "rxStartTime",
+          "rxEndTime",
+          "startAzimuthDegrees",
+          "endAzimuthDegrees"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reservationStartTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reservationEndTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "spacecraft": {
+            "$ref": "#/components/schemas/Spacecraft"
+          },
+          "contactProfile": {
+            "$ref": "#/components/schemas/ContactProfile"
+          },
+          "contactType": {
+            "type": "string",
+            "enum": [
+              "RX",
+              "RX/TX"
+            ]
+          },
+          "txStartTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "txEndTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rxStartTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rxEndTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "startAzimuthDegrees": {
+            "type": "number"
+          },
+          "endAzimuthDegrees": {
+            "type": "number"
+          }
+        }
+      },
+      "ContactProfile": {
+        "type": "object",
+        "description": "",
+        "required": [
+          "id",
+          "downlinkDestinationIPs",
+          "uplinkOriginIP",
+          "centerFrequencyMHz",
+          "bandwidthMHz",
+          "saveIQFiles"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "downlinkDestinationIPs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EndPoint"
+            }
+          },
+          "uplinkOriginIP": {
+            "$ref": "#/components/schemas/EndPoint"
+          },
+          "centerFrequencyMHz": {
+            "type": "number",
+            "example": "433"
+          },
+          "bandwidthMHz": {
+            "type": "number",
+            "example": "2"
+          },
+          "saveIQFiles": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Spacecraft": {
+        "type": "object",
+        "description": "",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/TLE"
+          }
+        ],
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EndPoint": {
+        "type": "string",
+        "format": "IP:Port",
+        "example": "127.0.0.1:3000"
+      },
+      "TLE": {
+        "type": "object",
+        "description": "",
+        "required": [
+          "tle0",
+          "tle1",
+          "tle2"
+        ],
+        "properties": {
+          "tle0": {
+            "type": "string"
+          },
+          "tle1": {
+            "type": "string"
+          },
+          "tle2": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

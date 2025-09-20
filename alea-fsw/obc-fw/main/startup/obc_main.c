@@ -14,6 +14,7 @@
 #include "fw_structs.h"
 #include "fw_memmap.h"
 #include "asm_utils.h"
+#include "obc_crc.h"
 
 // Platform
 #include "dabort.h"
@@ -42,22 +43,32 @@
 
 #endif
 
-// This is not all that accurate (because of pipelining / branch prediction / etc.)
-// but we don't care, we just want some visible delay
 #define LED_BLINK_MS     100U
-#define LED_BLINK_LOOPS (LED_BLINK_MS * 1000U * ((uint32_t)GCLK_FREQ) / 5U) // 5 is approximately the number of cycles / loop
+#define LED_BLINK_LOOPS (LED_BLINK_MS * 1000U * ((uint32_t)GCLK_FREQ) / 5U) // 5 is the number of cycles / loop
+
+/* The following symbols are defined at link time (see main/linker.cmd)
+ * Locations and size of asm_utils
+ */
+extern unsigned int asm_utils_load;
+extern unsigned int asm_utils_run;
+extern unsigned int asm_utils_size;
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
 void obc_main(void) {
+    // The asm_utils.asm functions are moved to RAM to ensure consistent timing behaviour
+    memcpy(&asm_utils_run, &asm_utils_load, (uint32_t)&asm_utils_size);
+
     // This function may result in data aborts due to ECC errors
     // Disable interrupts so we can easily catch and identify these data aborts
     _disable_interrupts(); // compiler intrinsic
 
     // Hardware initialization
     gioInit();
+
+    // TODO: ALEA-3092 Branch to firmware using burn number instead of by sequence of slot
 
     while (1) {
         // Start at 1 because 0 is the startup slot
@@ -90,11 +101,15 @@ void obc_main(void) {
                     break;
                 }
 
-                // Check burn number
-                // TODO
+                // Check # of previous boots
+                // TODO: ALEA-3093
 
                 // Check CRC32
-                // TODO
+                uint32_t calc_crc32 = crc_32_buf(CRC32_SEED, (uint8_t *)&structs->entrypoint, structs->header.size);
+
+                if (calc_crc32 != structs->header.crc32) {
+                    break;
+                }
 
                 // Check entrypoint magic
                 if (structs->entrypoint.magic != FW_ENTRYPOINT_MAGIC) {

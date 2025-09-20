@@ -81,7 +81,7 @@ class EarthMagneticFieldTest(unittest.TestCase):
         def result_to_numpy(r):
             return np.array([r.x, r.y, r.z])
 
-        geo_mag = GeoMag()
+        geo_mag = GeoMag(base_year=time)
         r = result_to_numpy(geo_mag.calculate(glat=lat, glon=lon, alt=alt, time=time))
 
         #test to the precision of the dataset

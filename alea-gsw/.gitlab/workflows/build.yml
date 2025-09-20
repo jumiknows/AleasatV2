@@ -1,0 +1,91 @@
+Build Dist:
+  stage: build
+  image: node:22
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: never
+  needs: []
+  before_script:
+    - cd alea-gsw
+  script:
+    - yarn install --mode=skip-build
+    - yarn rebuild swc turbo
+    - yarn build --cache-dir=".turbo"
+  cache:
+    - key: yarn-cache
+      paths:
+        - "alea-gsw/.yarn/cache"
+      when: always
+    - key: turbo-build
+      paths:
+        - "alea-gsw/.turbo"
+      when: always
+
+Build Types and Test:
+  stage: build
+  image: node:22
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: never
+  needs: []
+  before_script:
+    - cd alea-gsw
+  script:
+    - yarn install --mode=skip-build
+    - yarn rebuild tsc turbo
+    - yarn build:types --cache-dir=".turbo" --continue
+    - yarn test:types --cache-dir=".turbo" --continue
+  cache:
+    - key: yarn-cache
+      paths:
+        - "alea-gsw/.yarn/cache"
+      when: always
+    - key: turbo-types
+      paths:
+        - "alea-gsw/.turbo"
+      when: always
+
+Format Test:
+  stage: test
+  image: node:22
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: never
+  needs:
+    - Build Types and Test
+  before_script:
+    - cd alea-gsw
+  script:
+    - yarn install --mode=skip-build
+    - yarn rebuild @biomejs/biome turbo
+    - yarn lint:ci --cache-dir=".turbo" --continue
+  cache:
+    - key: yarn-cache
+      paths:
+        - "alea-gsw/.yarn/cache"
+      when: always
+      policy: pull
+    - key: turbo-types
+      paths:
+        - "alea-gsw/.turbo"
+      when: always
+      policy: pull
+
+Get Commit Count:
+  stage: prepare
+  image: node:22
+  variables:
+    GIT_DEPTH: 0
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+  needs: []
+  script:
+    - git rev-list --count HEAD > commit-count
+  artifacts:
+    paths:
+      - commit-count

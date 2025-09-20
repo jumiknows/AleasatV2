@@ -1,0 +1,10 @@
+{
+    "TEST_GET_EPOCH": {
+        "id": 0,
+        "priority": 2,
+        "period": 60,
+        "resp": [
+            {"epoch": "u32"}
+        ]
+    }
+}

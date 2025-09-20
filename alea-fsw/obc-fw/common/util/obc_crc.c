@@ -102,12 +102,11 @@ static const uint16_t crc_16_tab[256] = {
 /*                       P U B L I C  F U N C T I O N S                       */
 /******************************************************************************/
 
-uint32_t crc_32_buf(char* buf, size_t len) {
-    uint32_t crc = 0xFFFFFFFF;
+uint32_t crc_32_buf(uint32_t crc, const void *data_buf, size_t data_len) {
+    const uint8_t *p = data_buf;
 
-    for (size_t i = 0; i < len; i++) {
-        crc = crc_32_tab[((*buf) ^ crc) & 0xFF] ^ (crc >> 8);
-        buf++;
+    while (data_len--) {
+        crc = crc_32_tab[((*p++) ^ crc) & 0xFF] ^ (crc >> 8);
     }
 
     return ~crc;
@@ -131,7 +130,7 @@ uint16_t crc_16_buf(uint16_t crc, const void *data_buf, size_t data_len) {
     const uint8_t *p = data_buf;
 
     while (data_len--) {
-        crc = (crc_16_tab[(crc ^ *p++) & 0x00ff] ^ (crc >> 8));
+        crc = (crc_16_tab[(crc ^ *p++) & 0x00FF] ^ (crc >> 8));
     }
 
     return crc;

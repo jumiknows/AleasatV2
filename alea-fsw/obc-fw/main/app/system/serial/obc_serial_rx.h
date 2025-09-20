@@ -32,11 +32,11 @@ typedef bool (*obc_serial_rx_handler_t)(const uint8_t *data, uint8_t data_len, u
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void obc_serial_rx_create_infra(void);
+void obc_serial_rx_pre_init(void);
+void obc_serial_rx_post_init(void);
 void obc_serial_rx_register_handler(obc_serial_datagram_type_t datagram_type, obc_serial_rx_handler_t handler);
 
 void obc_serial_rx_init_irq(void);
-void obc_serial_rx_create_task(void);
 
 void obc_serial_rx_isr(BaseType_t *pxHigherPriorityTaskWoken);
 

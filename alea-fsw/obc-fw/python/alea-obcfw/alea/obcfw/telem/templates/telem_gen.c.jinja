@@ -1,0 +1,154 @@
+{% from 'macros.c' import telem_impl_sig, telem_invoke_sig, field_to_str -%}
+{% set telem_name_fmt = '%-25s' -%}
+// =============================================================================
+//                      AUTO-GENERATED FILE - DO NOT EDIT
+//
+// This file was auto-generated on {{ timestamp.strftime("%Y-%m-%d at %H:%M:%S") }}
+// =============================================================================
+
+/**
+ * @file telem_gen.c
+ * @brief Generated code from telemetry specifications
+ */
+
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
+#include "{{ telem_gen_header }}"
+#include "telem.h"
+
+// Utils
+#include "obc_utils.h"
+#include "data_fmt.h"
+
+// FreeRTOS
+#include "rtos.h"
+
+// Standard Library
+#include <stddef.h>
+
+/******************************************************************************/
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
+/******************************************************************************/
+
+// Response Field Descriptors
+{% for telem_spec in telem_specs -%}
+{% if telem_spec.has_resp %}
+static const data_fmt_field_desc_t resp_field_descs_{{ telem_spec.name }}[{{ telem_spec.resp.fixed_field_count }}] = {
+{%- for resp_field in telem_spec.resp %}
+    {% if resp_field.size > 0 -%}
+    { .type = {{ resp_field.c_type.type_enum }}, .struct_offset = offsetof(telem_{{ telem_spec.name }}_resp_t, {{ resp_field.name }}), .array_len = {{ resp_field.array_len }} },
+    {%- else -%}
+    // {{ field_to_str(resp_field) }}
+    {%- endif %}
+{%- endfor %}
+};
+{% endif %}
+{%- endfor %}
+// Response Descriptors
+{% for telem_spec in telem_specs -%}
+{% if telem_spec.has_resp %}
+static const data_fmt_desc_t resp_desc_{{ telem_name_fmt|format(telem_spec.name) }} = { .fields = resp_field_descs_{{ telem_name_fmt|format(telem_spec.name) }}, .count = {{ telem_spec.resp.fixed_field_count }} };
+{%- endif -%}
+{% endfor %}
+
+/******************************************************************************/
+/*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
+/******************************************************************************/
+
+{% for telem_spec in telem_specs -%}
+{{ telem_invoke_sig(telem_spec) }};
+{% endfor %}
+/******************************************************************************/
+/*                P U B L I C  G L O B A L  V A R I A B L E S                 */
+/******************************************************************************/
+
+const telem_spec_t TELEM_SPEC_TABLE[TELEM_COUNT] = {
+{% for telem_spec in telem_specs %}
+    [TELEM_ID_{{ telem_name_fmt|format(telem_spec.name) }}] = { .invoke = &telem_invoke_{{ telem_name_fmt|format(telem_spec.name) }}, .priority = {{ telem_spec.priority }}, .period = {{ '%-5s'|format(telem_spec.period) }}, .resp = 
+    {%- if telem_spec.has_resp %} &resp_desc_{{ telem_name_fmt|format(telem_spec.name) }} {%- else %} {{ "%-36s"|format("NULL") }} {%- endif -%}
+},
+{%- endfor %}
+
+};
+{% for period, specs in telem_specs.periods_dict.items() %}
+const telem_id_t TELEM_UNITS_WITH_PERIOD_{{ period }}[{{ specs | length }}] = {
+    {% for spec in specs %}
+    TELEM_ID_{{ spec.name }},
+    {%- endfor %}
+
+};
+{% endfor %}
+const telem_id_t *TELEM_UNITS_DICT_SPECS[{{ telem_specs.periods_dict.keys() | length }}] = {
+    {% for period, specs in telem_specs.periods_dict.items() %}
+    TELEM_UNITS_WITH_PERIOD_{{ period }},
+    {%- endfor %}
+
+};
+
+const uint16_t TELEM_UNITS_DICT_PERIODS[{{ telem_specs.periods_dict.keys() | length }}] = {
+    {% for period, specs in telem_specs.periods_dict.items() %}
+    {{ period }},
+    {%- endfor %}
+
+};
+
+const uint16_t TELEM_UNITS_DICT_SIZES[{{ telem_specs.periods_dict.keys() | length }}] = {
+    {% for period, specs in telem_specs.periods_dict.items() %}
+    {{ specs | length }},
+    {%- endfor %}
+
+};
+
+/**
+ * @brief Invoke a telem unit. The unit will run synchronously in the current task.
+ *
+ * @param[in] telem_id Int ID of the telem unit to invoke.
+ *
+ * @return Status code:
+ *            - TELEM_ERR_DNE if the telem ID does not exist
+ *            - otherwise the status from the telem invoke func is returned
+ */
+telem_err_t telem_invoke_unit(const telem_id_t telem_id) {
+    if (telem_id >= TELEM_COUNT) return TELEM_ERR_DNE;
+
+    const telem_spec_t *telem_spec = &TELEM_SPEC_TABLE[telem_id];
+
+    if ((telem_spec == NULL) || (telem_spec->invoke == NULL)) {
+        return TELEM_ERR_DNE;
+    }
+
+    return telem_spec->invoke(telem_id, telem_spec->priority, telem_spec->resp);
+}
+
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
+{% for telem_spec in telem_specs %}
+{{ telem_invoke_sig(telem_spec) }} {
+    telem_err_t err = TELEM_SUCCESS;
+{% if telem_spec.has_resp %}
+    // buffer used to hold serialized resp
+    uint8_t buf[{{ telem_spec.resp.size }} + TELEM_INNER_HEADER_SIZE] = { 0 };
+
+    // declare response
+    telem_{{ telem_spec.name }}_resp_t resp = { 0 };
+
+    // collect telemetry
+    err = telem_impl_{{ telem_spec.name }}(&resp);
+{% else %}
+    // collect telemetry
+    err = telem_impl_{{ telem_spec.name }}();
+{% endif -%}
+    
+{%- if telem_spec.has_resp %}
+    if (err != TELEM_SUCCESS) return err;
+
+    // handle response and return err
+    return telem_handle_resp(telem_id, priority, &resp, resp_desc, {{ telem_spec.resp.size }}, buf);
+{%- else %}
+    return err;
+{%- endif %}
+}
+{% endfor %}

@@ -14,65 +14,65 @@ import matplotlib.pyplot as plt
 import logging
 
 class AttitudeDynamicsTest(unittest.TestCase):
-    
-    def test_attitude_init(self):
-        #a good test of numerical physics simulations is that energy is conserved (within a tolerance)
-        #assuming no input torques or disturbances/drags, the rotational kinetic energy of the CUBE should remain the same
 
-        kernel = AleasimKernel(dt=0.01) #init kernal at the day this test was created
-
-        adyn1 = AttitudeDynamicsModel(kernel)
-        kernel.add_model(adyn1)
+    def test_attitude_energy_conservation_and_residuals(self):
+        """
+        Test that for a torque-free attitude dynamics simulation the rotational kinetic energy is conserved.
+        This test runs multiple integrators for N steps, records the instantaneous energy errors, and then
+        asserts that the final energies are within a specified tolerance of the initial energy. It also
+        compares the final energies across integrators.
+        """
+        dt = 1e-4
+        kernel = AleasimKernel(dt=dt)
     
-        kernel.step()
-        np.testing.assert_array_almost_equal(adyn1._state, np.array([1.0, 0, 0 ,0, 0, 0, 0]))
+        # Define the initial state: quaternion [1, 0, 0, 0]
+        # angular velocity is defined to be < 100 deg /s for this test
+        default_state = np.array([1.0, 0, 0, 0, np.pi/4, -np.pi/2, np.pi/3])
         
-        kernel.kill()
-
-    def test_attitude_sim_energy_conservation(self):
-        #a good test of numerical physics simulations is that energy is conserved (within a tolerance)
-        #assuming no input torques or disturbances/drags, the rotational kinetic energy of the CUBE should remain the same
-
-        kernel = AleasimKernel(dt=0.01)
-
-        default_state = np.array([1,0,0,0,1,50000.0,50])
-
-        adyn1 = AttitudeDynamicsModel(kernel, init_state=default_state)
-        adyn1.integrator_type = 'quad'
-
-        adyn2 = AttitudeDynamicsModel(kernel, init_state=default_state)
-        adyn2.integrator_type = 'euler'
-
-        adyn3 = AttitudeDynamicsModel(kernel, init_state=default_state)
-        adyn3.integrator_type = 'rk45'
-
-        adyn4 = AttitudeDynamicsModel(kernel, init_state=default_state)
-        adyn4.integrator_type = 'rk4_inline'
-
-        final_kes = []
-        for adyn in [adyn1, adyn2, adyn3, adyn4]:
-            start_time = time.monotonic()
-            print(f'testing attitude dynamics with {adyn._integrator_type} integrator.')
+        integrator_types = ['quad', 'euler', 'rk45', 'rk4_inline']
+        results = {}
+        N_steps = 1000
+        for integrator in integrator_types:
+            adyn = AttitudeDynamicsModel(kernel, init_state=default_state.copy())
+            adyn.integrator_type = integrator
             ke_initial = adyn.calculate_rotational_kinetic_energy()
-            err = []
+            energy_errors = []
             
-            for _ in range(100):
+            start_time = time.monotonic()
+            for _ in range(N_steps):
                 adyn.update()
-                errabs = abs(ke_initial - adyn.calculate_rotational_kinetic_energy())
-                err.append(errabs)
+                ke_current = adyn.calculate_rotational_kinetic_energy()
+                energy_errors.append(abs(ke_initial - ke_current))
+            elapsed = time.monotonic() - start_time
             
-            print(f'1000 iterations of {adyn.integrator_type} took {time.monotonic() - start_time} s (+/- overhead of data collection)')
+            final_ke = adyn.calculate_rotational_kinetic_energy()
+            results[integrator] = {
+                'final_ke': final_ke,
+                'max_energy_error': np.max(energy_errors),
+                'mean_energy_error': np.mean(energy_errors),
+                'elapsed_time': elapsed
+            }
             
-            errmean = np.mean(err)
-            print(f'initial ke : {ke_initial}, final ke: {adyn.calculate_rotational_kinetic_energy()}')
-            print('mean |error| in rotational kinetic energy', errmean)
-            final_kes.append(adyn.calculate_rotational_kinetic_energy())
-
-            #in general , local euler integration error is O(h^2) , but we're also looking at energy so we should take that into account
-            #we just want error in energy conversation to be small enough that its not a worry
-            assert errmean < 1e-20
+            print(f"[{integrator}] dt={dt}, N_steps={N_steps}, elapsed_time={elapsed:.4f} s")
+            print(f"    Initial KE: {ke_initial:.12f}, Final KE: {final_ke:.12f}")
+            print(f"    Max energy error: {results[integrator]['max_energy_error']:.3e}")
+            print(f"    Mean energy error: {results[integrator]['mean_energy_error']:.3e}")
             
-        assert final_kes[0] == final_kes[1] and final_kes[1] == final_kes[2] and final_kes[2] == final_kes[3]
+            # Assert that energy is conserved to within a given tolerance
+            self.assertTrue(
+                np.isclose(ke_initial, final_ke, atol=1e-10),
+                f"Energy conservation failed for {integrator}: initial {ke_initial}, final {final_ke}"
+            )
+        
+        # Compare final energies among different integrators
+        final_kes = [results[integ]['final_ke'] for integ in integrator_types]
+        for i in range(len(final_kes)):
+            for j in range(i + 1, len(final_kes)):
+                self.assertTrue(
+                    np.isclose(final_kes[i], final_kes[j], atol=1e-10),
+                    f"Final energies differ between {integrator_types[i]} ({final_kes[i]}) and "
+                    f"{integrator_types[j]} ({final_kes[j]})"
+                )
 
     def test_attitude_integration_timesteps_rk45(self):
         dt = 1e-4

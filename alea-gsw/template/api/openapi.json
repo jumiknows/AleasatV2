@@ -1,0 +1,164 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Some Template",
+    "description": "some thing",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api-staging.aleasat.space/",
+      "description": "Staging"
+    },
+    {
+      "url": "https://api.aleasat.space/",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Command Request",
+      "description": "Passes of Sat"
+    },
+    {
+      "name": "Image Request"
+    },
+    {
+      "name": "Location Track",
+      "description": "The time the satellite will pass the location"
+    }
+  ],
+  "paths": {
+    "/some/{someId}": {
+      "get": {
+        "tags": [
+          "Some"
+        ],
+        "summary": "Get a some",
+        "description": "Get a some",
+        "operationId": "getSome",
+        "parameters": [
+          {
+            "name": "someId",
+            "in": "path",
+            "description": "The Id of the some",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Some"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Some": {
+        "required": [
+          "id",
+          "imageId",
+          "placeholderId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "imageId": {
+            "type": "string",
+            "nullable": true
+          },
+          "placeholderId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

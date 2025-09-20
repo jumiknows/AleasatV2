@@ -1,0 +1,2 @@
+cd alea-gsw
+node ./scripts/generateNodeCiPipeline.js

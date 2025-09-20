@@ -26,6 +26,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// FreeRTOS
+#include "rtos.h"
+
 /******************************************************************************/
 /*                              T Y P E D E F S                               */
 /******************************************************************************/
@@ -91,8 +94,9 @@ typedef enum {
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void tms_i2c_create_infra(void);
-void tms_i2c_init(void);
+void tms_i2c_pre_init(void);
+void tms_i2c_init_hw(void);
+void tms_i2c_isr(BaseType_t *xHigherPriorityTaskWoken);
 
 i2c_err_t tms_i2c_reset(uint8_t max_retry, uint32_t mtx_timeout_ms);
 i2c_err_t tms_i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t rcv_bytes, uint8_t *rcv_data, bool ignore_nack,

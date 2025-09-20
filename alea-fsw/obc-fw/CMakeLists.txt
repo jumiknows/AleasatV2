@@ -43,13 +43,20 @@ project(${PROJECT_NAME} LANGUAGES C ASM VERSION ${VERSION})
 set(USE_RTOS 0)
 set(USE_F021API 0)
 set(USE_LITTLEFS 0)
+set(USE_LITTLEFS_RDONLY 0)
 set(USE_DSPLIB 0)
 set(USE_MINMEA 0)
+
+# The configuration of the stack pointers (for each processor mode)
+# which occurs in _coreInitStackPointer_ in sys_core.asm MUST be
+# compatible with the origin and length configured here.
+
+set(HEAP_SIZE 0x800)
+set(STACK_SIZE 0x800)
 
 if ("${PLATFORM}" STREQUAL "launchpad")
     set(FW_PLATFORM "FW_PLATFORM_LAUNCHPAD")
     set(PLATFORM_DEFINE PLATFORM_LAUNCHPAD_1224)
-    set(USE_F021API 1)
 elseif ("${PLATFORM}" STREQUAL "alea-v1")
     set(FW_PLATFORM "FW_PLATFORM_ALEAV1")
     set(PLATFORM_DEFINE PLATFORM_ALEA_V1)
@@ -74,6 +81,12 @@ elseif ("${TARGET}" STREQUAL "boot")
     set(FW_TARGET "FW_TARGET_BOOT")
 
     set(USE_F021API 1)
+    set(USE_LITTLEFS 1)
+    set(USE_LITTLEFS_RDONLY 1)
+
+    # The boot fw requries a larger stack size
+    # This is also reflected in the HALCoGen platform files
+    set(STACK_SIZE 0xD00)
 
     if ("${FLASH_SLOT_NAME}" STREQUAL "A")
         set(FLASH_SLOT 1)
@@ -167,6 +180,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     common
     common/firmware
     common/util
+    common/flashdefs
     ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
@@ -193,13 +207,16 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
-    --heap_size=0x800
-    --stack_size=0x800
+    --heap_size=${HEAP_SIZE}
+    --stack_size=${STACK_SIZE}
+
     # The SHELL quoting is required to prevent option de-duplication
     # (see https://cmake.org/cmake/help/latest/command/target_link_options.html#option-de-duplication)
+    "SHELL:--define STACK_SIZE=${STACK_SIZE}"
     "SHELL:--define CFG_USE_RTOS=${USE_RTOS}"
     "SHELL:--define CFG_FLASH_SLOT=${FLASH_SLOT}"
     "SHELL:--define CFG_STANDALONE=${STANDALONE}"
+    "SHELL:--define CFG_USE_F021API=${USE_F021API}"
 )
 
 ################################################################################
@@ -210,5 +227,5 @@ target_link_options(${PROJECT_NAME} PRIVATE
 # 2) Generate the firmware header and overwrite the .mot file to include the header
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_HEX} --motorola=3 --memwidth=32 --romwidth=32 --map=${PROJECT_NAME}.mot.map --outfile=${PROJECT_NAME}.mot $<TARGET_FILE:${PROJECT_NAME}>
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/alea-obcfw/scripts/obcfw_post_build.py -i ${PROJECT_NAME}.mot -o ${PROJECT_NAME}.mot
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/alea-obcfw/scripts/obcfw_post_build.py -i ${PROJECT_NAME}.mot -o ${PROJECT_NAME}.mot -e ${PROJECT_NAME}.elf
 )

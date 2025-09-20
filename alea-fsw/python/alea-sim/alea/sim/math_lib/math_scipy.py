@@ -56,5 +56,5 @@ class ScipyQuaternion(adcs_math.Quaternion):
     
     @classmethod
     def from_euler(cls, euler: np.ndarray) -> adcs_math.Quaternion:
-        """from xyz euler angles"""
+        """from xyz euler angles (radians)"""
         return ScipyQuaternion(cls._as_quat(rot.from_euler('xyz', euler)))

@@ -1,0 +1,82 @@
+"obc-grpc Build and Push Docker Image":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/obc-grpc/**/*
+        - alea-gsw/.gitlab/workflows/obc-grpc.yml
+  needs:
+    - obc-grpc HIL Test
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/obc-grpc/obc-grpc.Dockerfile"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/obc-grpc:${CI_COMMIT_SHA}"
+      --tag "${CI_REGISTRY}/alea-2020/software/aleasat-software/obc-grpc:latest"
+      "${CI_PROJECT_DIR}"
+
+"obc-grpc Build Docker Image":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - alea-gsw/apps/obc-grpc/**/*
+          - alea-gsw/.gitlab/workflows/obc-grpc.yml
+  needs:
+    - obc-grpc HIL Test
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/alea-gsw/apps/obc-grpc/obc-grpc.Dockerfile"
+      "${CI_PROJECT_DIR}"
+
+"obc-grpc HIL Test":
+  stage: test
+  tags:
+    - obc-alea-v1-runner
+  needs:
+    - obc-fw:alea-v1
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "dev"
+      changes:
+        - alea-gsw/apps/obc-grpc/**/*
+        - alea-gsw/.gitlab/workflows/obc-grpc.yml
+  variables:
+    OBC_FW_DIR: "alea-fsw/obc-fw"
+    ALEA_TEST_DIR: "alea-fsw/python/alea-test"
+    OBC_GRPC_DIR: "alea-gsw/apps/obc-grpc"
+  before_script:
+    - cd $CI_PROJECT_DIR/$OBC_FW_DIR
+    - tools/debug/jlink/jlink-flash-alea-v1.sh -f build/_bin/ALEA_OBC_alea-v1_combined_${CI_COMMIT_SHORT_SHA}.mot
+    - cd $CI_PROJECT_DIR/$OBC_GRPC_DIR
+    - poetry install
+  script:
+    - source $(poetry env info --path)/bin/activate
+    - PORT=$ALEA_OBC_PORT python -u alea/obc_grpc/main.py 2>&1 > obc_grpc_log &
+    - sleep 10
+    - ./scripts/alea_test_hil.sh || (pkill python; echo -e "\e[0Ksection_start:`date +%s`:obc_grpc_log\r\e[0KOBC gRPC Log"; cat obc_grpc_log; echo -e "\e[0Ksection_end:`date +%s`:obc_grpc_log\r\e[0K"; exit 1)
+    - echo -e "\e[0Ksection_start:`date +%s`:obc_grpc_log\r\e[0KOBC gRPC Log"
+    - cat obc_grpc_log
+    - echo -e "\e[0Ksection_end:`date +%s`:obc_grpc_log\r\e[0K"
+    - pkill python
+  artifacts:
+    when: always
+    paths:
+      - "$OBC_GRPC_DIR/results/*.xml"
+    reports:
+      junit:
+        - "$OBC_GRPC_DIR/results/*.xml"
+    expire_in: 1 month

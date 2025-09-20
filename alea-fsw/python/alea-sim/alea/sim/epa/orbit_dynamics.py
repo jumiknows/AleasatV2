@@ -28,6 +28,9 @@ from alea.sim.epa.frame_conversions import eci_to_ecef_velocity
 from alea.sim.compute.precomputed_bg import PreComputedBG
 from alea.sim.utils import skyfield_utils
 
+import os
+import csv
+
 @dataclasses.dataclass(frozen=True)
 class OrbitDynamicsData:
     """Data point produced by OrbitDynamicsComputeFunc. This represents the orbit dynamics data either at a single time point
@@ -324,6 +327,10 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
 
         self.kernel.schedule_event(0, EventPriority.ORBIT_DYNAMICS_EVENT, self.update, period=self.update_period)
 
+    def stop(self):
+        if self.cfg.use_precompute and self._pre_computed.started:
+            self._pre_computed.stop()
+
     # ==============================================================================
     # Pre-Computation
     # ==============================================================================
@@ -353,14 +360,15 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
         self._state = sat_state
         return sat_state_skyfield
 
-    # Geographic Position (longitude [radians], latitude [radians], altitude [km] referenced to wgs84 ellipsoid)
     @time_cached_property
     def _position_lla(self) -> np.ndarray:
+        # Geographic Position (longitude [radians], latitude [radians], altitude [m] referenced to wgs84 ellipsoid)
         _, geo_position = self._compute_func.calc_geo_positions(self._state_skyfield)
         return geo_position
 
     @property
     def position_lla(self) -> np.ndarray:
+        """Geographic Position (longitude [radians], latitude [radians], altitude [m] referenced to wgs84 ellipsoid)"""
         return self._position_lla
 
     # Sun Vector
@@ -417,13 +425,14 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
 
     @time_cached_property
     def velocity_ecef(self) -> np.ndarray:
-        """velocity [m/s] in ECEF coordinates"""
-        return eci_to_ecef_velocity(self.position_ecef, self.velocity_eci)
+        """Velocity [m/s] in ECEF coordinates"""
+        return eci_to_ecef_velocity(self.position_ecef, self.velocity_eci, self.kernel.gmst_rad)
 
     # Other derived variables
 
     @time_cached_property
     def sun_vector_norm(self) -> np.ndarray:
+        """unit vector in ECI coordinates"""
         return self.sun_vector / np.linalg.norm(self.sun_vector)
 
     @time_cached_property
@@ -476,19 +485,24 @@ class OrbitDynamicsModel(Configurable[OrbitDynamicsConfig], TimeCachedModel, Sha
 
     @property
     def saved_state_size(self) -> int:
-        return self._state.size + self._position_lla.size + self._orbital_elements.size
+        return len(self.saved_state_element_names)
 
     @property
     def saved_state_element_names(self) -> list[str]:
-        return [
-            "x", "y", "z", "vx", "vy", "vz",
-            "lon", "lat", "alt",
-            "argp", "raan", "incl", "mean_anomaly", "mean_motion", "eccentricity"
-        ]
+        if not hasattr(self, "_saved_state_element_names"):
+            self._saved_state_element_names = [
+                "x", "y", "z", "vx", "vy", "vz",
+                "lon", "lat", "alt",
+                "argp", "raan", "incl", "mean_anomaly", "mean_motion", "eccentricity","is_sunlit",
+                "ecef_x", "ecef_y", "ecef_z"
+            ]
+        return self._saved_state_element_names
 
     def _save_state(self):
         saved_state = np.zeros(self.saved_state_size, dtype=np.float64)
         saved_state[0:6]  = self._state
         saved_state[6:9]  = self._position_lla
         saved_state[9:15] = self._orbital_elements
+        saved_state[15] = self._is_sunlit
+        saved_state[16:19] = self.position_ecef
         self.save_chunk_to_memory(saved_state)

@@ -5,8 +5,6 @@
  * Datasheet: https://www.micron.com/products/nor-flash/serial-nor-flash/part-catalog/mt25ql256aba1ew9-0sit
 */
 
-#ifdef PLATFORM_ALEA_V1
-
 /******************************************************************************/
 /*                              I N C L U D E S                               */
 /******************************************************************************/
@@ -15,7 +13,7 @@
 
 // OBC
 #include "tms_mibspi.h"
-#include "alea_v1_hardwaredefs.h"
+#include "obc_hardwaredefs.h"
 
 // HAL
 #include "gio.h"
@@ -323,6 +321,34 @@ flash_err_t mt25ql_read_64(uint32_t addr, uint8_t *data) {
     return FLASH_OK;
 }
 
+/**
+ * @brief Do deep power-down.
+ */
+flash_err_t mt25ql_enter_deep_sleep(void) {
+    uint16_t tx_buffer[1] = {ENTER_DEEP_SLEEP};
+    mibspi_err_t err = tms_mibspi_tx(&flash_1byte_tg, tx_buffer, FLASH_MIBSPI_TIMEOUT_MS);
+
+    if (err != MIBSPI_NO_ERR) {
+        return FLASH_MIBSPI_ERR;
+    }
+
+    return FLASH_OK;
+}
+
+/**
+ * @brief Release from deep power-down.
+ */
+flash_err_t mt25ql_exit_deep_sleep(void) {
+    uint16_t tx_buffer[1] = {EXIT_DEEP_SLEEP};
+    mibspi_err_t err = tms_mibspi_tx(&flash_1byte_tg, tx_buffer, FLASH_MIBSPI_TIMEOUT_MS);
+
+    if (err != MIBSPI_NO_ERR) {
+        return FLASH_MIBSPI_ERR;
+    }
+
+    return FLASH_OK;
+}
+
 /******************************************************************************/
 /*                      P R I V A T E  F U N C T I O N S                      */
 /******************************************************************************/
@@ -426,4 +452,3 @@ static flash_err_t mt25ql_enable_4byte_addressing(bool enable) {
     return (err != MIBSPI_NO_ERR) ? FLASH_MIBSPI_ERR : FLASH_OK;
 }
 
-#endif // PLATFORM_ALEA_V1

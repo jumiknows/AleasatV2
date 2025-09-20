@@ -9,8 +9,6 @@
 
 #include "unity.h"
 
-// Utils
-#include "obc_utils.h"
 #include "obc_crc.h"
 
 // Standard Library
@@ -34,9 +32,9 @@ void tearDown(void) {
 void test_crc_lower_bound(void) {
     char string[] = "";
     size_t length = strlen(string);
-    uint16_t ref_crc = 0xffff;
+    uint16_t ref_crc = CRC16_SEED;
 
-    uint16_t crc16 = crc_16_buf(0xffff, string, length);
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, string, length);
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }
@@ -49,7 +47,7 @@ void test_crc_zero_buf(void) {
     size_t length = sizeof(input);
     uint16_t ref_crc = 0x40bf;
 
-    uint16_t crc16 = crc_16_buf(0xffff, &input, length);
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, &input, length);
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }
@@ -62,7 +60,7 @@ void test_crc_upper_bound(void) {
     size_t length = strlen(string);
     uint16_t ref_crc = 0x7bd2;
 
-    uint16_t crc16 = crc_16_buf(0xffff, string, length);
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, string, length);
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }
@@ -75,7 +73,7 @@ void test_crc_random1(void) {
     size_t length = strlen(string);
     uint16_t ref_crc = 0x44ef;
 
-    uint16_t crc16 = crc_16_buf(0xffff, string, length); 
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, string, length); 
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }
@@ -88,7 +86,7 @@ void test_crc_random2(void) {
     size_t length = strlen(string);
     uint16_t ref_crc = 0xd802;
 
-    uint16_t crc16 = crc_16_buf(0xffff, string, length); 
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, string, length); 
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }
@@ -101,7 +99,7 @@ void test_crc_random3(void) {
     size_t length = strlen(string);
     uint16_t ref_crc = 0x1bd8;
 
-    uint16_t crc16 = crc_16_buf(0xffff, string, length); 
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, string, length); 
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }
@@ -114,7 +112,7 @@ void test_crc_random4(void) {
     size_t length = strlen(string);
     uint16_t ref_crc = 0x414a;
 
-    uint16_t crc16 = crc_16_buf(0xffff, string, length); 
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, string, length); 
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }
@@ -127,7 +125,7 @@ void test_crc_random5(void) {
     size_t length = strlen(string);
     uint16_t ref_crc = 0x3861;
 
-    uint16_t crc16 = crc_16_buf(0xffff, string, length); 
+    uint16_t crc16 = crc_16_buf(CRC16_SEED, string, length); 
 
     TEST_ASSERT_EQUAL(ref_crc, crc16);
 }

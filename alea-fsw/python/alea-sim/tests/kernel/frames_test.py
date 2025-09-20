@@ -1,12 +1,6 @@
 import unittest
-from typing import Type, List, Union
-import os
-import time
-import argparse
-import sys
-import threading
-import pathlib
 from unittest.util import safe_repr
+from parameterized import parameterized
 
 from alea.sim.kernel.frames import Universe, FrameTransformation, ReferenceFrame
 from alea.sim.math_lib import Quaternion
@@ -14,8 +8,55 @@ import numpy as np
 
 class FramesTest(unittest.TestCase):
 
+    def test_tf_identity(self):
+        # Identity transformation should yield the identity matrix
+        tf_identity = FrameTransformation.identity()
+        np.testing.assert_array_almost_equal(tf_identity.transformation_matrix(), np.eye(4))
+
+    def test_tf_inverse(self):
+        # Multiplying a transform with its inverse should yield the identity matrix
+        q0 = Quaternion.from_axang(np.array([1, 0, 0]), np.pi/4)
+        t0 = np.array([1, 2, 3])
+        tf = FrameTransformation(q0, t0)
+        tf_product = tf.transformation_matrix() @ tf.inv_transformation_matrix()
+        np.testing.assert_array_almost_equal(tf_product, np.eye(4))
+
+    def test_rotate_vector_roundtrip(self):
+        # A vector rotated by the transform and then inverse-rotated should return to the original.
+        q0 = Quaternion.from_axang(np.array([0, 1, 0]), np.pi/3)
+        t0 = np.array([1, 2, 3])
+        tf = FrameTransformation(q0, t0)
+        vec = np.array([4, 5, 6])
+        vec_rotated = tf.rotate_vector(vec)
+        vec_back = tf.inverse_rotate_vector(vec_rotated)
+        np.testing.assert_array_almost_equal(vec, vec_back)
+
+    def test_rotate_vector_known(self):
+        # For a 90° rotation about the x-axis and no translation,
+        # the vector [0, 1, 0] should map to [0, 0, 1]
+        q0 = Quaternion.from_axang(np.array([1, 0, 0]), np.pi/2)
+        t0 = np.zeros(3)
+        tf = FrameTransformation(q0, t0)
+        vec = np.array([0, 1, 0])
+        expected = np.array([0, 0, 1])
+        np.testing.assert_array_almost_equal(tf.rotate_vector(vec), expected)
+
+    @parameterized.expand([
+        # Each test: (rotation_axis, angle in radians, translation vector, test_vector, expected_vector after transform)
+        (np.array([0, 0, 1]), np.pi/2, [0, 0, 0], [1, 0, 0], [0, 1, 0]),
+        (np.array([0, 1, 0]), np.pi, [0, 0, 0], [1, 0, 0], [-1, 0, 0]),
+        (np.array([1, 0, 0]), np.pi/2, [1, 1, 1], [0, 1, 0], [1, 1, 2])
+    ])
+    def test_parameterized_transform(self, axis, angle, translation, vector, expected):
+        # Create a transformation from axis-angle rotation and given translation,
+        # then test if the transformed vector matches the expected output.
+        q = Quaternion.from_axang(np.array(axis), angle)
+        tf = FrameTransformation(q, np.array(translation))
+        transformed = tf.transform_coordinate(np.array(vector))
+        np.testing.assert_array_almost_equal(transformed, np.array(expected), decimal=5)
+
     def test_tf_mat_1(self):
-        #check that vector forward and inverse rotation works
+        # Check that vector forward and inverse rotation works
         q0 = Quaternion.from_axang(np.array([1,0,0]), 0)
         t0 = np.zeros(3)
         tf = FrameTransformation(q0, t0)
@@ -25,12 +66,12 @@ class FramesTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(tf.transformation_matrix(), np.eye(4))
     
     def test_tf_mat_2(self):
-        #check that vector forward and inverse rotation works
+        # Check that vector forward and inverse rotation works
         q0 = Quaternion.from_axang(np.array([1,0,0]), 0)
         t0 = np.zeros(3)
         tf = FrameTransformation(q0, t0)
 
-        #this should be the identity matrix
+        # This should be the identity matrix
         tfmat = tf.transformation_matrix() @ tf.inv_transformation_matrix()
         
         np.testing.assert_array_almost_equal(tfmat, np.eye(4))

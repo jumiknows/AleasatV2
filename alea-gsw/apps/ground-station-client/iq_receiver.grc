@@ -1,0 +1,626 @@
+options:
+  parameters:
+    author: Manolis Surligas (surligas@gmail.com)
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: Generic IQ receiver with arbitrary output sampling rate
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: satnogs_iq_receiver
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: run
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: satnogs_iq_receiver
+    window_size: 2*1080,1080
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 4.0]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: antenna
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: str
+    value: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [968, 12.0]
+    rotation: 0
+    state: enabled
+- name: bb_freq
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Baseband CORDIC frequency (if the device supports it)
+    short_id: ''
+    type: eng_float
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1952, 180.0]
+    rotation: 0
+    state: enabled
+- name: blocks_file_sink_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /app/out/output.iq
+    type: complex
+    unbuffered: 'False'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [904, 324.0]
+    rotation: 0
+    state: true
+- name: bw
+  id: parameter
+  parameters:
+    alias: ''
+    comment: 'The bandwidth should configure RF filters on some devices.
+
+      Set to 0.0 for automatic calculation.'
+    hide: none
+    label: Bandwidth
+    short_id: ''
+    type: eng_float
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1376, 12.0]
+    rotation: 0
+    state: enabled
+- name: dc_removal
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Remove automatically the DC offset (if the device support it)
+    short_id: ''
+    type: str
+    value: '"False"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1800, 180.0]
+    rotation: 0
+    state: enabled
+- name: dev_args
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Device arguments
+    short_id: ''
+    type: str
+    value: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 12.0]
+    rotation: 0
+    state: enabled
+- name: doppler_correction_per_sec
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: intx
+    value: '20'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 548.0]
+    rotation: 0
+    state: enabled
+- name: downlink_destination_ips
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Device arguments
+    short_id: ''
+    type: str
+    value: This will be changed
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [896, 540.0]
+    rotation: 0
+    state: enabled
+- name: enable_doppler_correction
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: intx
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [176, 548.0]
+    rotation: 0
+    state: enabled
+- name: enable_iq_dump
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: intx
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 468.0]
+    rotation: 0
+    state: enabled
+- name: file_path
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: str
+    value: '"test.wav"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [160, 468.0]
+    rotation: 180
+    state: enabled
+- name: gain
+  id: parameter
+  parameters:
+    alias: ''
+    comment: "Generic gain value. \nEach Soapy module\nwill try to linearize this\n\
+      value by properly setting\nthe device specific gains."
+    hide: none
+    label: ''
+    short_id: ''
+    type: eng_float
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1256, 12.0]
+    rotation: 0
+    state: enabled
+- name: gain_mode
+  id: parameter
+  parameters:
+    alias: ''
+    comment: 'Set the gain mode of the Soapy.
+
+      Can be "Overall", "Specific"
+
+      or "Settings Field"'
+    hide: none
+    label: ''
+    short_id: ''
+    type: str
+    value: '"Overall"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1096, 12.0]
+    rotation: 0
+    state: enabled
+- name: import_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import math
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 164.0]
+    rotation: 0
+    state: enabled
+- name: iq_file_path
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: str
+    value: '"/tmp/iq.dat"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [384, 468.0]
+    rotation: 0
+    state: enabled
+- name: lo_offset
+  id: parameter
+  parameters:
+    alias: ''
+    comment: 'To avoid the SDR carrier at the DC
+
+      we shift the LO a little further'
+    hide: none
+    label: ''
+    short_id: ''
+    type: eng_float
+    value: 100e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [888, 12.0]
+    rotation: 0
+    state: enabled
+- name: other_settings
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Soapy Channel other settings
+    short_id: ''
+    type: str
+    value: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1648, 180.0]
+    rotation: 0
+    state: enabled
+- name: out_samp_rate
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Output sampling rate
+    short_id: ''
+    type: eng_float
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1536, 12.0]
+    rotation: 0
+    state: enabled
+- name: ppm
+  id: parameter
+  parameters:
+    alias: ''
+    comment: 'The frequency correction in PPM
+
+      to correct for a local oscillator frequency deviation'
+    hide: none
+    label: ''
+    short_id: ''
+    type: eng_float
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1688, 12.0]
+    rotation: 0
+    state: enabled
+- name: rigctl_host
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: str
+    value: '"127.0.0.1"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [384, 628.0]
+    rotation: 0
+    state: enabled
+- name: rigctl_port
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: intx
+    value: '4532'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [384, 548.0]
+    rotation: 0
+    state: enabled
+- name: rx_freq
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: eng_float
+    value: 100e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [808, 12.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate_rx
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Device Sampling rate
+    short_id: ''
+    type: eng_float
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [656, 12.0]
+    rotation: 0
+    state: enabled
+- name: satnogs_iq_sink_0
+  id: satnogs_iq_sink
+  parameters:
+    activate: enable_iq_dump
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    filename: iq_file_path
+    scale: '16768'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [896, 156.0]
+    rotation: 0
+    state: disabled
+- name: soapy_custom_source_0
+  id: soapy_custom_source
+  parameters:
+    affinity: ''
+    agc0: 'False'
+    agc1: 'False'
+    alias: ''
+    antenna0: antenna
+    antenna1: ''
+    bandwidth0: bw
+    bandwidth1: '0'
+    center_freq0: rx_freq - lo_offset
+    center_freq1: '0'
+    comment: ''
+    dc_offset0: '0'
+    dc_offset1: '0'
+    dc_removal0: dc_removal
+    dc_removal1: 'True'
+    dev_args: ''
+    driver: soapy_rx_device
+    freq_correction0: ppm
+    freq_correction1: '0'
+    gain0: gain
+    gain1: '0'
+    iq_balance0: '0'
+    iq_balance1: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nchan: '1'
+    samp_rate: samp_rate_rx
+    settings0: other_settings
+    settings1: ''
+    stream_args: stream_args
+    tune_args0: tune_args
+    tune_args1: ''
+    type: fc32
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [376, 164.0]
+    rotation: 0
+    state: disabled
+- name: soapy_rtlsdr_source_0
+  id: soapy_rtlsdr_source
+  parameters:
+    affinity: ''
+    agc: 'False'
+    alias: ''
+    center_freq: 433e6
+    comment: ''
+    dev_args: ''
+    freq_correction: '0'
+    gain: '20'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: 1e6
+    type: fc32
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [416, 292.0]
+    rotation: 0
+    state: true
+- name: soapy_rx_device
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: str
+    value: '"driver=invalid"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [400, 12.0]
+    rotation: 0
+    state: enabled
+- name: stream_args
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Soapy Stream arguments
+    short_id: ''
+    type: str
+    value: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1312, 180.0]
+    rotation: 0
+    state: enabled
+- name: tune_args
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Soapy Channel Tune arguments
+    short_id: ''
+    type: str
+    value: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1488, 180.0]
+    rotation: 0
+    state: enabled
+- name: udp_dump_port
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Device arguments
+    short_id: ''
+    type: intx
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [728, 540.0]
+    rotation: 0
+    state: enabled
+- name: uplink_origin_ip
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Device arguments
+    short_id: ''
+    type: str
+    value: This will be changed
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1088, 540.0]
+    rotation: 0
+    state: enabled
+- name: waterfall_file_path
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: str
+    value: '"/tmp/waterfall.dat"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 468.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [soapy_custom_source_0, '0', blocks_file_sink_0, '0']
+- [soapy_custom_source_0, '0', satnogs_iq_sink_0, '0']
+- [soapy_rtlsdr_source_0, '0', blocks_file_sink_0, '0']
+
+metadata:
+  file_format: 1

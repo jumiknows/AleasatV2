@@ -15,6 +15,7 @@ list(APPEND SRC_DIRS
     ${.}/device-drivers/comms
     ${.}/device-drivers/eps
     ${.}/device-drivers/flash
+    ${.}/device-drivers/mram
     ${.}/device-drivers/gpio
     ${.}/device-drivers/gps
     ${.}/device-drivers/imu
@@ -40,6 +41,8 @@ list(APPEND SRC_DIRS
     ${.}/system/logging
     ${.}/system/rtc_scheduler
     ${.}/system/serial
+    ${.}/system/telem
+    ${.}/system/telem/impl
 
     ${.}/tests
     ${.}/tms570
@@ -47,15 +50,11 @@ list(APPEND SRC_DIRS
     ${.}/utils
 
     ${.}/orcasat
-    ${.}/orcasat/hardware-drivers
-    ${.}/orcasat/hardware-drivers/gps
     ${.}/orcasat/hardware-drivers/heartbeat
-    ${.}/orcasat/hardware-drivers/mram
     ${.}/orcasat/hardware-mock
     ${.}/orcasat/system
     ${.}/orcasat/system/nvct
     ${.}/orcasat/system/settings
-    # ${.}/orcasat/system/telemetry
     ${.}/orcasat/utilities
     ${.}/orcasat/printf
 )
@@ -123,6 +122,22 @@ list(APPEND SRC_FILES
     generated/obc_tasks_ids_gen.h
     generated/obc_tasks_gen.h
     generated/obc_tasks_gen.c
+)
+
+# Generate Telem Files
+
+add_custom_command(
+    OUTPUT              generated/telem_gen.h
+                        generated/telem_gen.c
+    WORKING_DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND             ./python/alea-obcfw/scripts/obcfw_codegen.py
+                            telem
+                            -o ${CMAKE_CURRENT_BINARY_DIR}/generated
+    DEPENDS             ./python/alea-obcfw/alea/obcfw/telem/data/telem.json
+)
+list(APPEND SRC_FILES
+    generated/telem_gen.h
+    generated/telem_gen.c
 )
 
 # Main / ISRs

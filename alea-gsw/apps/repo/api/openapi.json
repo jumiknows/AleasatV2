@@ -1,0 +1,739 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Repo Service",
+    "description": "Selfhost Api for git repo",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.aleasat.space/repo",
+      "description": "production"
+    },
+    {
+      "url": "https://api-staging.aleasat.space/repo",
+      "description": "stagin"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "description": "local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Repo",
+      "description": "Repo"
+    }
+  ],
+  "paths": {
+    "/commits": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get all commits",
+        "operationId": "getCommits",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "The number of commits to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "The number of commits to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of commits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "hash",
+                      "date",
+                      "message",
+                      "refs",
+                      "body",
+                      "author_name",
+                      "author_email"
+                    ],
+                    "properties": {
+                      "hash": {
+                        "type": "string"
+                      },
+                      "date": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "refs": {
+                        "type": "string"
+                      },
+                      "body": {
+                        "type": "string"
+                      },
+                      "author_name": {
+                        "type": "string"
+                      },
+                      "author_email": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commits/{commitHash}/file": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get a file from a commit",
+        "operationId": "getFile",
+        "parameters": [
+          {
+            "name": "commitHash",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The commit hash"
+          },
+          {
+            "name": "filePath",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The file path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commits/{commitHash}/obc-config": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get the OBC config from a commit",
+        "operationId": "getObcConfig",
+        "parameters": [
+          {
+            "name": "commitHash",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The commit hash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The OBC config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "cmd_sys",
+                    "cmd_sys_test",
+                    "log_specs",
+                    "obc_tasks"
+                  ],
+                  "properties": {
+                    "cmd_sys": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "args",
+                          "resp"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "resp": {
+                            "type": "array",
+                            "nullable": true,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "cmd_sys_test": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "args",
+                          "resp"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "resp": {
+                            "type": "array",
+                            "nullable": true,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "log_specs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "description"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "signals": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "object",
+                              "required": [
+                                "level",
+                                "id",
+                                "description"
+                              ],
+                              "properties": {
+                                "level": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "description": {
+                                  "type": "string"
+                                },
+                                "data": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "obc_tasks": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "stack_size",
+                          "priority"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "stack_size": {
+                            "type": "integer"
+                          },
+                          "priority": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commits/{commitHash}/obc-proto": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get the Proto File for OBC config from a commit",
+        "operationId": "getObcProto",
+        "parameters": [
+          {
+            "name": "commitHash",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The commit hash"
+          },
+          {
+            "name": "includeTestSpec",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The OBC proto file",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commits/{commitHash}/obc-grpc-service": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get the gRPC service for OBC config from a commit",
+        "operationId": "getObcGrpcService",
+        "parameters": [
+          {
+            "name": "commitHash",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The commit hash"
+          },
+          {
+            "name": "includeTestSpec",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The OBC gRPC service",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/branches": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get all branches",
+        "operationId": "getBranches",
+        "responses": {
+          "200": {
+            "description": "A list of branches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/branches/{branchName}/commits": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get commits for a branch",
+        "operationId": "getBranchCommits",
+        "parameters": [
+          {
+            "name": "branchName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The name of the branch"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "The number of commits to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "The number of commits to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of commits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "hash",
+                      "date",
+                      "message",
+                      "refs",
+                      "body",
+                      "author_name",
+                      "author_email"
+                    ],
+                    "properties": {
+                      "hash": {
+                        "type": "string"
+                      },
+                      "date": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "refs": {
+                        "type": "string"
+                      },
+                      "body": {
+                        "type": "string"
+                      },
+                      "author_name": {
+                        "type": "string"
+                      },
+                      "author_email": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReadLaunchpad": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "node",
+          "port",
+          "serviceName",
+          "fwCommit",
+          "userSessionId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The Launchpad ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "The Launchpad name"
+          },
+          "node": {
+            "type": "string"
+          },
+          "port": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "fwCommit": {
+            "type": "string"
+          },
+          "userSessionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "ReadUserSession": {
+        "type": "object",
+        "required": [
+          "id",
+          "userId",
+          "startAt",
+          "endAt",
+          "launchpadId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "launchpadId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "AccessToken": []
+    }
+  ]
+}

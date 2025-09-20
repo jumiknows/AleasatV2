@@ -209,7 +209,7 @@ void test_within_time_negative_time(void) {
 void test_delta_to_after_from(void) {
     real_time_t to   = {.year = 20, .month = 1, .day = 1, .hour = 1, .minute = 0, .second = 0};
     real_time_t from = {.year = 20, .month = 1, .day = 1, .hour = 0, .minute = 0, .second = 0};
-    TEST_ASSERT_EQUAL_INT32_MESSAGE(3600, delta(&to, &from), "1 hour or 3600 seconds");
+    TEST_ASSERT_EQUAL_INT32_MESSAGE(3600, time_delta(&to, &from), "1 hour or 3600 seconds");
 }
 
 /**
@@ -218,7 +218,7 @@ void test_delta_to_after_from(void) {
 void test_delta_to_before_from(void) {
     real_time_t to   = {.year = 20, .month = 1, .day = 1, .hour = 1, .minute = 0, .second = 0};
     real_time_t from = {.year = 20, .month = 1, .day = 1, .hour = 1, .minute = 1, .second = 0};
-    TEST_ASSERT_EQUAL_INT32_MESSAGE(-60, delta(&to, &from), "1 min or 60 seconds");
+    TEST_ASSERT_EQUAL_INT32_MESSAGE(-60, time_delta(&to, &from), "1 min or 60 seconds");
 }
 
 /**

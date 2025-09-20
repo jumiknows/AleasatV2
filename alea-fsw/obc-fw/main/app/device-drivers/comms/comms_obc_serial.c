@@ -101,7 +101,7 @@ static const io_ostream_t obc_serial_comms_out = {
 /**
  * @brief Initialize FreeRTOS data structures for COMMS OBC serial driver
  */
-void comms_obc_serial_create_infra(void) {
+void comms_obc_serial_pre_init(void) {
     // TX
     static StaticMessageBuffer_t tx_msg_buffer_buf                  = { 0 };
     static uint8_t tx_msg_buffer_storage[COMMS_MSG_BUFFER_SIZE + 1] = { 0 }; // See https://www.freertos.org/xMessageBufferCreateStatic.html for explanation of + 1
@@ -117,12 +117,7 @@ void comms_obc_serial_create_infra(void) {
     rx_msg_buffer = xMessageBufferCreateStatic(COMMS_MSG_BUFFER_SIZE, rx_msg_buffer_storage, &rx_msg_buffer_buf);
     rx_msg_stream.msg_buf = rx_msg_buffer;
     obc_serial_rx_register_handler(OBC_SERIAL_DATAGRAM_COMMS, &comms_obc_serial_rx_handler);
-}
 
-/**
- * @brief Create task for transmitting COMMS packets
- */
-void comms_obc_serial_create_task(void) {
     obc_serial_tx_create_task(OBC_TASK_ID_OBC_SERIAL_TX_COMMS, &tx_task_params, OBC_WATCHDOG_ACTION_ALLOW);
 }
 

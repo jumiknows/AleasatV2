@@ -11,9 +11,6 @@
 
 #include "circ_buf.h"
 
-// Utils
-#include "obc_utils.h"
-
 // Standard Library
 #include <stdint.h>
 #include <stdbool.h>
@@ -24,6 +21,8 @@
 /******************************************************************************/
 
 #define CIRC_BUF_COUNT 5U
+
+#define LEN(array)       (sizeof((array)) / sizeof((array)[0]))
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */

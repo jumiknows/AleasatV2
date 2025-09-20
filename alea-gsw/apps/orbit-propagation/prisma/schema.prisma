@@ -1,0 +1,22 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+  output          = "../../../node_modules/@prisma/client/orbit-propagation"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model StateElement {
+  id           String  @id @unique @default(uuid()) @db.Uuid
+  stateElement Json
+  tle          String?
+  epoch        BigInt
+
+  @@unique([epoch, stateElement])
+}

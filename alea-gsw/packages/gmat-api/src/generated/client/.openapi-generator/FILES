@@ -1,0 +1,14 @@
+.openapi-generator-ignore
+apis/GmatApi.ts
+apis/index.ts
+index.ts
+models/CartesianState.ts
+models/GmatOrbitPropagation.ts
+models/GmatOrbitPropagationResultInner.ts
+models/KeplerianState.ts
+models/ModelError.ts
+models/Problem.ts
+models/SatelliteState.ts
+models/StateElement.ts
+models/index.ts
+runtime.ts

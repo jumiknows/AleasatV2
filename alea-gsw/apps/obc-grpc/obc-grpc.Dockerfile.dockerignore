@@ -1,0 +1,11 @@
+*
+
+!alea-gsw/apps/obc-grpc
+*alea-gsw/apps/obc-grpc/*.Dockerfile
+!alea-fsw/python
+!alea-fsw/obc-fw/python
+
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db

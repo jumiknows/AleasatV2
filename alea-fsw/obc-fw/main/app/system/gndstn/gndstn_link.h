@@ -27,7 +27,6 @@ extern const io_ostream_t gndstn_downlink_socket;
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void gndstn_link_create_infra(void);
-void gndstn_link_start_task(void);
+void gndstn_link_pre_init(void);
 
 #endif // GNDSTN_LINK_H_

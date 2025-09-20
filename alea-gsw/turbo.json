@@ -1,0 +1,80 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "**/.env.*local"
+  ],
+  "envMode": "loose",
+  "tasks": {
+    "build": {
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**"
+      ]
+    },
+    "build:types": {
+      "dependsOn": [
+        "^build:types"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**"
+      ]
+    },
+    "test:types": {
+      "dependsOn": [
+        "^build:types"
+      ]
+    },
+    "test:unit": {
+      "dependsOn": [
+        "build",
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ]
+    },
+    "test:ci-unit": {
+      "dependsOn": [
+        "build",
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**",
+        "test-results.xml"
+      ]
+    },
+    "test:ci-integration": {
+      "dependsOn": [
+        "build",
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**",
+        "test-results.xml"
+      ]
+    },
+    "gen": {},
+    "lint": {
+      "dependsOn": [
+        "^build:types"
+      ]
+    },
+    "lint:ci": {
+      "dependsOn": [
+        "^build:types"
+      ]
+    },
+    "lint:fix": {
+      "dependsOn": [
+        "^build:types"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

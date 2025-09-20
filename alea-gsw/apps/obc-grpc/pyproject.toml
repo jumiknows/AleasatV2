@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "alea-obc-grpc"
+version = "0.1.0"
+description = ""
+authors = [
+  "ALEASAT <administrator@aleasat.space>",
+  "H01001000 <heiheiho000@gmail.com>",
+]
+readme = "README.md"
+packages = [{ include = "alea" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+
+grpcio = "*"
+grpcio-tools = "*"
+opentelemetry-distro = "0.49b1"
+opentelemetry-exporter-otlp = "1.28.1"
+opentelemetry-instrumentation-asyncio = "0.49b1"
+opentelemetry-instrumentation-dbapi = "0.49b1"
+opentelemetry-instrumentation-logging = "0.49b1"
+opentelemetry-instrumentation-sqlite3 = "0.49b1"
+opentelemetry-instrumentation-urllib = "0.49b1"
+opentelemetry-instrumentation-wsgi = "0.49b1"
+opentelemetry-instrumentation-asgi = "0.49b1"
+opentelemetry-instrumentation-botocore = "0.49b1"
+opentelemetry-instrumentation-grpc = "0.49b1"
+opentelemetry-instrumentation-httpx = "0.49b1"
+opentelemetry-instrumentation-requests = "0.49b1"
+opentelemetry-instrumentation-urllib3 = "0.49b1"
+opentelemetry-instrumentation-aiohttp-client = "0.49b1"
+opentelemetry-instrumentation-threading = "0.49b1"
+python-dotenv = "*"
+async-timeout = "*"
+aiohttp = "^3.10.10"
+
+alea-ttc = { path = "../../../alea-fsw/python/alea-ttc", develop = true }
+alea-test = { path = "../../../alea-fsw/python/alea-test", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

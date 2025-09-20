@@ -6,6 +6,10 @@ variables:
 # ==============================================================================
 
 .obc-fw:docker:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: never
+    - when: on_success
   image:
     name: $CI_REGISTRY_IMAGE/alea-obc-fw-build:2.0
     entrypoint: [""]
@@ -33,8 +37,15 @@ obc-fw:launchpad:ext:
 
 obc-fw:alea-v1:startup:
   extends: .obc-fw:build
+  rules: null
   script:
     - ./scripts/fw_build.sh alea-v1 startup A --standalone
+
+obc-fw:alea-v1:boot:
+  extends: .obc-fw:build
+  rules: null
+  script:
+    - ./scripts/fw_build.sh alea-v1 boot A
 
 obc-fw:alea-v1:ext:comms:
   extends: .obc-fw:build
@@ -43,13 +54,16 @@ obc-fw:alea-v1:ext:comms:
 
 obc-fw:alea-v1:ext:
   extends: .obc-fw:build
+  rules: null
   script:
     - ./scripts/fw_build.sh alea-v1 ext A --comms-over-serial
 
 obc-fw:alea-v1:
   extends: .obc-fw:build
+  rules: null
   needs:
     - obc-fw:alea-v1:startup
+    - obc-fw:alea-v1:boot
     - obc-fw:alea-v1:ext
   script:
     - source ./scripts/activate_python.sh

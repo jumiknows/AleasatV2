@@ -1,0 +1,596 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+// Reminder: NO float only double, due to node floating point precision (IEEE 754 double precision)
+// field name cant be https://github.com/protocolbuffers/protobuf-javascript/blob/main/generator/js_generator.cc#L60-L73
+
+service obc {
+  rpc reset (reset_command_args) returns (reset_command_OBCResponse) {}
+  rpc ping (ping_command_args) returns (ping_command_OBCResponse) {}
+  rpc get_time (get_time_command_args) returns (get_time_command_OBCResponse) {}
+  rpc set_time (set_time_command_args) returns (set_time_command_OBCResponse) {}
+  rpc get_min_stack_space (get_min_stack_space_command_args) returns (get_min_stack_space_command_OBCResponse) {}
+  rpc capture_rtos_trace (capture_rtos_trace_command_args) returns (capture_rtos_trace_command_OBCResponse) {}
+  rpc rtos_state (rtos_state_command_args) returns (rtos_state_command_OBCResponse) {}
+  rpc low_power (low_power_command_args) returns (low_power_command_OBCResponse) {}
+  rpc sys_time (sys_time_command_args) returns (sys_time_command_OBCResponse) {}
+  rpc cpu_usage (cpu_usage_command_args) returns (cpu_usage_command_OBCResponse) {}
+  rpc task_runtime (task_runtime_command_args) returns (task_runtime_command_OBCResponse) {}
+  rpc gpio_exp_reset (gpio_exp_reset_command_args) returns (gpio_exp_reset_command_OBCResponse) {}
+  rpc i2c_reset (i2c_reset_command_args) returns (i2c_reset_command_OBCResponse) {}
+  rpc heartbeat (heartbeat_command_args) returns (heartbeat_command_OBCResponse) {}
+  rpc gps_restart (gps_restart_command_args) returns (gps_restart_command_OBCResponse) {}
+  rpc fw_info (fw_info_command_args) returns (fw_info_command_OBCResponse) {}
+  rpc wmm_init (wmm_init_command_args) returns (wmm_init_command_OBCResponse) {}
+  rpc wmm_is_init (wmm_is_init_command_args) returns (wmm_is_init_command_OBCResponse) {}
+  rpc wmm_get_mag_ref (wmm_get_mag_ref_command_args) returns (wmm_get_mag_ref_command_OBCResponse) {}
+  rpc gps_query_sw_ver (gps_query_sw_ver_command_args) returns (gps_query_sw_ver_command_OBCResponse) {}
+  rpc gps_set_factory_settings (gps_set_factory_settings_command_args) returns (gps_set_factory_settings_command_OBCResponse) {}
+  rpc gps_configure_power_mode (gps_configure_power_mode_command_args) returns (gps_configure_power_mode_command_OBCResponse) {}
+  rpc gps_query_power_mode (gps_query_power_mode_command_args) returns (gps_query_power_mode_command_OBCResponse) {}
+  rpc gps_query_sw_crc (gps_query_sw_crc_command_args) returns (gps_query_sw_crc_command_OBCResponse) {}
+  rpc gps_configure_position_upate_rate (gps_configure_position_upate_rate_command_args) returns (gps_configure_position_upate_rate_command_OBCResponse) {}
+  rpc gps_query_position_update_rate (gps_query_position_update_rate_command_args) returns (gps_query_position_update_rate_command_OBCResponse) {}
+  rpc gps_configure_nmea_messges (gps_configure_nmea_messges_command_args) returns (gps_configure_nmea_messges_command_OBCResponse) {}
+  rpc gps_query_nmea_messges (gps_query_nmea_messges_command_args) returns (gps_query_nmea_messges_command_OBCResponse) {}
+  rpc gps_configure_serial_port (gps_configure_serial_port_command_args) returns (gps_configure_serial_port_command_OBCResponse) {}
+  rpc gps_configure_nav_msg_interval (gps_configure_nav_msg_interval_command_args) returns (gps_configure_nav_msg_interval_command_OBCResponse) {}
+  rpc get_uptime (get_uptime_command_args) returns (get_uptime_command_OBCResponse) {}
+
+
+}
+
+message reset_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message reset_command_OBCResponse {
+}
+
+
+message ping_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message ping_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  ping_command_OBCResponseData data = 6;
+}
+message ping_command_OBCResponseData {
+}
+
+message get_time_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message get_time_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  get_time_command_OBCResponseData data = 6;
+}
+message get_time_command_OBCResponseData {
+  google.protobuf.Timestamp timestamp = 1;
+}
+
+message set_time_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+message set_time_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  set_time_command_OBCResponseData data = 6;
+}
+message set_time_command_OBCResponseData {
+}
+
+message get_min_stack_space_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message get_min_stack_space_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  get_min_stack_space_command_OBCResponseData data = 6;
+}
+message get_min_stack_space_command_OBCResponseData {
+  bytes min_stack_space = 1;
+}
+
+message capture_rtos_trace_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 length = 3;
+}
+message capture_rtos_trace_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  capture_rtos_trace_command_OBCResponseData data = 6;
+}
+message capture_rtos_trace_command_OBCResponseData {
+  bytes trace = 1;
+}
+
+message rtos_state_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message rtos_state_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  rtos_state_command_OBCResponseData data = 6;
+}
+message rtos_state_command_OBCResponseData {
+}
+
+message low_power_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  bool enable = 3;
+}
+message low_power_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  low_power_command_OBCResponseData data = 6;
+}
+message low_power_command_OBCResponseData {
+}
+
+message sys_time_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message sys_time_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  sys_time_command_OBCResponseData data = 6;
+}
+message sys_time_command_OBCResponseData {
+  uint32 sys_time_us = 1;
+}
+
+message cpu_usage_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 task = 3;
+}
+message cpu_usage_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  cpu_usage_command_OBCResponseData data = 6;
+}
+message cpu_usage_command_OBCResponseData {
+  uint32 usage_pct = 1;
+}
+
+message task_runtime_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 task = 3;
+}
+message task_runtime_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  task_runtime_command_OBCResponseData data = 6;
+}
+message task_runtime_command_OBCResponseData {
+  uint32 runtime = 1;
+}
+
+message gpio_exp_reset_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gpio_exp_reset_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gpio_exp_reset_command_OBCResponseData data = 6;
+}
+message gpio_exp_reset_command_OBCResponseData {
+}
+
+message i2c_reset_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message i2c_reset_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  i2c_reset_command_OBCResponseData data = 6;
+}
+message i2c_reset_command_OBCResponseData {
+}
+
+message heartbeat_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  bool enable = 3;
+}
+message heartbeat_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  heartbeat_command_OBCResponseData data = 6;
+}
+message heartbeat_command_OBCResponseData {
+}
+
+message gps_restart_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 start_mode = 3;
+}
+message gps_restart_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_restart_command_OBCResponseData data = 6;
+}
+message gps_restart_command_OBCResponseData {
+}
+
+message fw_info_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message fw_info_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  fw_info_command_OBCResponseData data = 6;
+}
+message fw_info_command_OBCResponseData {
+  repeated uint32 fw_version = 1 [packed=true];
+  uint32 fw_hash = 2;
+  uint32 flash_address = 3;
+  uint32 platform = 4;
+  uint32 target = 5;
+  uint32 flags = 6;
+  uint32 size = 7;
+  uint32 crc32 = 8;
+}
+
+message wmm_init_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message wmm_init_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  wmm_init_command_OBCResponseData data = 6;
+}
+message wmm_init_command_OBCResponseData {
+}
+
+message wmm_is_init_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message wmm_is_init_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  wmm_is_init_command_OBCResponseData data = 6;
+}
+message wmm_is_init_command_OBCResponseData {
+  bool is_init = 1;
+}
+
+message wmm_get_mag_ref_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  double lon = 3;
+  double lat = 4;
+  double alt = 5;
+  uint32 year = 6;
+  uint32 month = 7;
+  uint32 day = 8;
+}
+message wmm_get_mag_ref_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  wmm_get_mag_ref_command_OBCResponseData data = 6;
+}
+message wmm_get_mag_ref_command_OBCResponseData {
+  repeated double mag_ref = 1 [packed=true];
+}
+
+message gps_query_sw_ver_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_sw_ver_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_sw_ver_command_OBCResponseData data = 6;
+}
+message gps_query_sw_ver_command_OBCResponseData {
+  repeated uint32 gps_software_version = 1 [packed=true];
+}
+
+message gps_set_factory_settings_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_set_factory_settings_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_set_factory_settings_command_OBCResponseData data = 6;
+}
+message gps_set_factory_settings_command_OBCResponseData {
+}
+
+message gps_configure_power_mode_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  bool enable_power_save = 4;
+}
+message gps_configure_power_mode_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_power_mode_command_OBCResponseData data = 6;
+}
+message gps_configure_power_mode_command_OBCResponseData {
+}
+
+message gps_query_power_mode_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_power_mode_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_power_mode_command_OBCResponseData data = 6;
+}
+message gps_query_power_mode_command_OBCResponseData {
+  bool gps_in_power_save_mode = 1;
+}
+
+message gps_query_sw_crc_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_sw_crc_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_sw_crc_command_OBCResponseData data = 6;
+}
+message gps_query_sw_crc_command_OBCResponseData {
+  uint32 software_crc = 1;
+}
+
+message gps_configure_position_upate_rate_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  uint32 position_update_rate = 4;
+}
+message gps_configure_position_upate_rate_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_position_upate_rate_command_OBCResponseData data = 6;
+}
+message gps_configure_position_upate_rate_command_OBCResponseData {
+}
+
+message gps_query_position_update_rate_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_position_update_rate_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_position_update_rate_command_OBCResponseData data = 6;
+}
+message gps_query_position_update_rate_command_OBCResponseData {
+  uint32 update_rate = 1;
+}
+
+message gps_configure_nmea_messges_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  uint32 gga_interval = 4;
+  uint32 gsa_interval = 5;
+  uint32 gsv_interval = 6;
+  uint32 gll_interval = 7;
+  uint32 rmc_interval = 8;
+  uint32 vtg_interval = 9;
+  uint32 zda_interval = 10;
+}
+message gps_configure_nmea_messges_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_nmea_messges_command_OBCResponseData data = 6;
+}
+message gps_configure_nmea_messges_command_OBCResponseData {
+}
+
+message gps_query_nmea_messges_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_nmea_messges_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_nmea_messges_command_OBCResponseData data = 6;
+}
+message gps_query_nmea_messges_command_OBCResponseData {
+  uint32 gga_interval = 1;
+  uint32 gsa_interval = 2;
+  uint32 gsv_interval = 3;
+  uint32 gll_interval = 4;
+  uint32 rmc_interval = 5;
+  uint32 vtg_interval = 6;
+  uint32 zda_interval = 7;
+}
+
+message gps_configure_serial_port_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 baud_rate = 3;
+}
+message gps_configure_serial_port_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_serial_port_command_OBCResponseData data = 6;
+}
+message gps_configure_serial_port_command_OBCResponseData {
+}
+
+message gps_configure_nav_msg_interval_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  uint32 navigation_msg_int = 4;
+}
+message gps_configure_nav_msg_interval_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_nav_msg_interval_command_OBCResponseData data = 6;
+}
+message gps_configure_nav_msg_interval_command_OBCResponseData {
+}
+
+message get_uptime_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message get_uptime_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  get_uptime_command_OBCResponseData data = 6;
+}
+message get_uptime_command_OBCResponseData {
+  uint32 seconds = 1;
+}
+
+message uint32_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated uint32 data = 3 [packed=true];
+}
+message uint64_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated uint64 data = 3 [packed=true];
+}
+message sint32_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated sint32 data = 3 [packed=true];
+}
+message sint64_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated sint64 data = 3 [packed=true];
+}
+message double_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated double data = 3 [packed=true];
+}
+
+message OBCResponseDataHeader {
+  Code code = 1;
+  google.protobuf.Timestamp exec_datetime = 2;
+}
+
+enum Code {
+  NONE          = 0;
+  SUCCESS       = 1;
+  SUCCESS_SCHED = 2;
+  ERROR         = 3;
+  CMD_DNE       = 4;
+  NOT_IMPl      = 5;
+}

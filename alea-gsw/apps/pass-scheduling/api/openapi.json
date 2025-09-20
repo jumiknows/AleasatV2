@@ -1,0 +1,1062 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Pass Scheduling",
+    "description": "abcd",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.aleasat.space/pass-scheduling/",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-staging.aleasat.space/pass-scheduling/",
+      "description": "Staging"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Pass Scheduling",
+      "description": "Passes of Sat"
+    },
+    {
+      "name": "Mission Queue"
+    },
+    {
+      "name": "Ground Station"
+    }
+  ],
+  "paths": {
+    "/ground-stations": {
+      "get": {
+        "tags": [
+          "Ground Station"
+        ],
+        "summary": "Get all ground station",
+        "description": "Get all ground station",
+        "operationId": "getGroundStations",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "query",
+            "description": "Owner of ground station",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroundStation"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Ground Station"
+        ],
+        "summary": "Create a ground station",
+        "description": "Create a ground station",
+        "operationId": "addGroundStation",
+        "requestBody": {
+          "description": "The GroundStation",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundStationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroundStation"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/ground-station/{groundStationId}": {
+      "get": {
+        "tags": [
+          "Ground Station"
+        ],
+        "summary": "Get a ground station",
+        "description": "Get a ground station",
+        "operationId": "getGroundStation",
+        "parameters": [
+          {
+            "name": "groundStationId",
+            "in": "path",
+            "description": "The Id of the ground station",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroundStation"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Ground Station"
+        ],
+        "summary": "Patch a ground station",
+        "description": "Patch a ground station",
+        "operationId": "patchGroundStation",
+        "parameters": [
+          {
+            "name": "groundStationId",
+            "in": "path",
+            "description": "The Id of the ground station",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The GroundStation",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundStationOptional"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Ground Station"
+        ],
+        "summary": "Delete a ground station",
+        "description": "Delete a ground station",
+        "operationId": "deleteGroundStation",
+        "parameters": [
+          {
+            "name": "groundStationId",
+            "in": "path",
+            "description": "The Id of the ground station",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/mission-queue": {
+      "post": {
+        "tags": [
+          "Mission Queue"
+        ],
+        "summary": "Queue a mission",
+        "description": "Queue a mission",
+        "operationId": "queueMission",
+        "requestBody": {
+          "description": "The Mission to queue",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassSchedulingMissionWriteOnly"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Mission Queue"
+        ],
+        "summary": "Get missions in queue",
+        "description": "Get missions in queue",
+        "operationId": "getQueuedMissions",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadMissionQueueMission"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mission-schedule/missions": {
+      "get": {
+        "tags": [
+          "Mission Schedule"
+        ],
+        "operationId": "getScheduledMissions",
+        "summary": "Get scheduled missions",
+        "description": "Get scheduled missions",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadMissionScheduleMission"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mission-schedule/missions/{missionId}": {
+      "get": {
+        "tags": [
+          "Mission Schedule"
+        ],
+        "operationId": "getScheduledMission",
+        "summary": "Get a scheduled mission",
+        "description": "Get a scheduled mission",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "description": "The Id of the mission",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadMissionScheduleMission"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mission-schedule/spaces": {
+      "get": {
+        "tags": [
+          "Mission Schedule"
+        ],
+        "operationId": "getScheduleSpaces",
+        "summary": "Get schedule spaces",
+        "description": "Get schedule spaces",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadMissionScheduleSpace"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/new-orbit-propagation": {
+      "post": {
+        "tags": [
+          "Pass Scheduling"
+        ],
+        "summary": "Find information of the pass",
+        "description": "Find information of the pass by time",
+        "operationId": "webhooksNewOrbitPropagation",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Passes": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "passes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 10
+                },
+                "rise": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "set": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "culmination": {
+                  "type": "object",
+                  "properties": {
+                    "t": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "alt": {
+                      "type": "number",
+                      "example": 40.5
+                    },
+                    "az": {
+                      "type": "number",
+                      "example": 263.15
+                    },
+                    "lat": {
+                      "type": "number",
+                      "example": 45
+                    },
+                    "lng": {
+                      "type": "number",
+                      "example": -125
+                    },
+                    "height": {
+                      "type": "number",
+                      "example": 432
+                    }
+                  },
+                  "required": [
+                    "t",
+                    "alt",
+                    "az",
+                    "lat",
+                    "lng",
+                    "height"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "rise",
+                "set",
+                "culmination"
+              ]
+            }
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude",
+          "passes"
+        ]
+      },
+      "Pass": {
+        "type": "object",
+        "properties": {
+          "ground_track": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "example": [
+                42.5,
+                -122.5
+              ],
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "maxItems": 90,
+            "minItems": 90
+          }
+        },
+        "required": [
+          "ground_track"
+        ]
+      },
+      "GroundStationCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "lat",
+          "lng",
+          "minElevation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GroundStationOptional"
+          }
+        ]
+      },
+      "GroundStation": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "lat",
+          "lng",
+          "minElevation",
+          "ownerId",
+          "aleasat"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GroundStationOptional"
+          }
+        ]
+      },
+      "GroundStationOptional": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "minElevation": {
+            "type": "number"
+          },
+          "ownerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "aleasat": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PassSchedulingMissionReadOnly": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PassSchedulingMission"
+          },
+          {
+            "type": "object",
+            "required": [
+              "commands"
+            ],
+            "properties": {
+              "commands": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PassSchedulingCommandReadOnly"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PassSchedulingMissionWriteOnly": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PassSchedulingMission"
+          },
+          {
+            "type": "object",
+            "required": [
+              "commands"
+            ],
+            "properties": {
+              "commands": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PassSchedulingCommand"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PassSchedulingMission": {
+        "type": "object",
+        "required": [
+          "id",
+          "scheduledAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "PassSchedulingCommandReadOnly": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PassSchedulingCommand"
+          },
+          {
+            "type": "object",
+            "required": [
+              "scheduledAt"
+            ],
+            "properties": {
+              "scheduledAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "PassSchedulingCommand": {
+        "type": "object",
+        "required": [
+          "id",
+          "sequenceNumber",
+          "commandId",
+          "commandName",
+          "timeOffset"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequenceNumber": {
+            "type": "integer"
+          },
+          "commandId": {
+            "type": "integer"
+          },
+          "commandName": {
+            "type": "string"
+          },
+          "timeOffset": {
+            "type": "integer"
+          }
+        }
+      },
+      "ReadMissionQueueMission": {
+        "type": "object",
+        "required": [
+          "id",
+          "queueAt",
+          "missionId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "queueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "missionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ReadMissionScheduleMission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "expired",
+              "scheduled",
+              "sent"
+            ]
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "schedule": {
+            "type": "object",
+            "required": [
+              "id",
+              "initialOverheadStart",
+              "missionStart",
+              "missionEnd",
+              "directOverheadEnd",
+              "indirectOverheadEnd"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "initialOverheadStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "missionStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "missionEnd": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "directOverheadEnd": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "indirectOverheadEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "nullable": true
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PassSchedulingCommand"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "schedule"
+                  ],
+                  "properties": {
+                    "schedule": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "start",
+                        "end",
+                        "overheadEnd"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "start": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "end": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "overheadEnd": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "nullable": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "ReadMissionScheduleSpace": {
+        "type": "object",
+        "required": [
+          "id",
+          "start",
+          "end",
+          "duration"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "duration": {
+            "type": "integer"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

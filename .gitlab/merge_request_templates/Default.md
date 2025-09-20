@@ -1,4 +1,4 @@
-Parent issue: PP#9999
+Parent issue: PP#XXXX
 
 # Overview
 Insert overview of changes here.
@@ -8,5 +8,5 @@ Describe how your changes were tested. Did you test locally? With FlatSat?
 How much did you trust the datasheet? Did you get any anomalous findings?
 
 # Reviewers
-@noah.tajwar.orbit @Julian-Mentasti @Joshuah143
+@Joshuah143
 Tag anyone else you would like to review your MR.

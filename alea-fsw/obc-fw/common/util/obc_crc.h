@@ -19,12 +19,13 @@
 /******************************************************************************/
 
 #define CRC16_SEED  0xFFFF
+#define CRC32_SEED  0xFFFFFFFF
 
 /******************************************************************************/
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-uint32_t crc_32_buf(char *buf, size_t len);
+uint32_t crc_32_buf(uint32_t crc, const void *data_buf, size_t data_len);
 
 uint16_t crc_16_buf(uint16_t crc, const void *data_buf, size_t data_len);
 

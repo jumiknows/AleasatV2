@@ -29,6 +29,8 @@
 #include "gps_serial_rx.h"
 #include "comms_mibspi.h"
 #include "sci.h"
+#include "i2c.h"
+#include "tms_i2c.h"
 
 /**
  * @brief Callback for all TMS570 GIO interrupts.
@@ -85,6 +87,22 @@ void sciNotification(sciBASE_t *sci, uint32 flags) {
         } else if (sci == UART_GPS) {
             gps_serial_rx_isr(&xHigherPriorityTaskWoken);
         }
+    }
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+/**
+ * @brief ISR callback from the I2C peripheral
+ * @param flags: interrupt status flags (see i2c.h for more info)
+ * @param i2c: pointer to i2c peripheral that the interrupt was raised by.
+ * @warning this runs in interrupt context, so FreeRTOS interrupt-mode API functions must be used.
+ */
+void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    if ((flags & I2C_RX_INT) || (flags & I2C_TX_INT)) {
+        tms_i2c_isr(&xHigherPriorityTaskWoken);
     }
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

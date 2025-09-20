@@ -63,5 +63,7 @@ flash_err_t mt25ql_write_status_register(const uint8_t *reg_data);
 flash_err_t mt25ql_erase(uint32_t addr, flash_erase_sz_t erase_size);
 flash_err_t mt25ql_write_64(uint32_t addr, const uint8_t *data);
 flash_err_t mt25ql_read_64(uint32_t addr, uint8_t *data);
+flash_err_t mt25ql_enter_deep_sleep(void);
+flash_err_t mt25ql_exit_deep_sleep(void);
 
 #endif // FLASH_MT25QL_H_

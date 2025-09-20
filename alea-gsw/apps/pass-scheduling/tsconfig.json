@@ -1,0 +1,17 @@
+{
+  "extends": "@aleasat/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist"
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "../../packages/utils/src/logger.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "tests"
+  ]
+}

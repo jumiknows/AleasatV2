@@ -37,9 +37,19 @@ There are 5 main reference frames of interest for ALEASAT:
 """
 
 import numpy as np
-from alea.sim.math_lib.math import skew
+from alea.sim.math_lib.math import skew, cross
 
+# angular velocity of earth about Z axis
 OMEGA_EARTH =  7.2921158553E-5
+
+# angular velocity vector of earth about Z axis
+# in other words, since ECEF rotates with the earth and ECI is intertial
+# this omega vector is the angular velocity of the ECEF frame relative to (w.r.t) the ECI frame expressed in ECI coordinates
+# this is an important distinction for velocity and acceleration calculations
+# i.e. ECI rotation rate relative to ECEF expressed in ECI coordinates is -OMEGA_EARTH_VECTOR
+# or OMEGA_EARTH_VECTOR w.r.t ECEF frame is rotated as eci_to_ecef_rot_mat(theta_gmst) @ OMEGA_EARTH_VECTOR
+OMEGA_ECEF_ECI = np.array([0.0, 0.0, OMEGA_EARTH])
+
 SECONDS_TO_DEGREES = 1/240
 
 def eci_to_ecef_rot_mat(theta_gmst):
@@ -183,55 +193,91 @@ def ecef_to_ned(vec_ecef: np.ndarray, longitude: float, latitude: float) -> np.n
     R = ecef_to_ned_rot_mat(longitude, latitude)
     return R @ vec_ecef
 
-#special functions for velocity and accelerations
-#because ECEF is rotating w.r.t ECI, the velocity and acceleration vectors are NOT the same
-#i.e. coriolis, centripital and tangential acceelration terms arise for the acceleration
+# special functions for velocity and accelerations
+# because ECEF is rotating w.r.t ECI, the velocity and acceleration vectors are NOT the same
+# due to frames rotating relative to each other, additional terms arise in the derivatives that govern the kinematics
+# there terms are known as coriolis, centripital and tangential terms
 
-
-def ecef_to_eci_velocity(r_ecef:np.ndarray, v_ecef:np.ndarray):
+def ecef_to_eci_velocity(r_ecef:np.ndarray, v_ecef:np.ndarray, theta_gmst:float):
     """
     Convert a cartesian vecloity vector from the ECEF frame to ECI frame.
-    ECEF is rotating w.r.t ECI about the Z axis at an angular rate of OMEGA_EARTH
-    The resulting velocity in the inertial frame is corrected using what is known as the kinematics equation
+    ECEF is rotating w.r.t ECI about the Z axis at an angular rate of OMEGA_EARTH.
+    The resulting velocity in the inertial frame is corrected using what is known as the kinematics equation.
     
-    Ref.
-    Vallado, David. Fundamentals of Astrodynamics and Applications, 4th ed. Hawthorne, CA: Microcosm Press, 2013.
+    Ref. eq3.14
+    Vallado, David. Fundamentals of Astrodynamics and Applications, 4th ed
     """
-    omega_earth = np.array([0.0, 0.0, OMEGA_EARTH])
-    v_eci : np.ndarray = v_ecef + np.cross(omega_earth, r_ecef)
+    R_ecef_eci = eci_to_ecef_rot_mat(theta_gmst).T
+    v_eci = R_ecef_eci @ v_ecef - np.cross(-1.0 * OMEGA_ECEF_ECI, R_ecef_eci @ r_ecef)
     return v_eci
 
-def eci_to_ecef_velocity(r_ecef:np.ndarray, v_eci:np.ndarray):
-    omega_earth = np.array([0.0, 0.0, OMEGA_EARTH])
-    v_ecef : np.ndarray = v_eci - np.cross(omega_earth, r_ecef)
+def eci_to_ecef_velocity(r_eci:np.ndarray, v_eci:np.ndarray, theta_gmst:float):
+    """
+    Convert a cartesian vecloity vector from the ECI frame to ECEF frame.
+    
+    Ref. eq3.14
+    Vallado, David. Fundamentals of Astrodynamics and Applications, 4th ed/
+    """
+    R_eci_ecef = eci_to_ecef_rot_mat(theta_gmst)
+    v_ecef = R_eci_ecef @ v_eci - np.cross(R_eci_ecef @ OMEGA_ECEF_ECI, R_eci_ecef @ r_eci)
     return v_ecef
 
-def ecef_to_eci_acceleration(r_ecef:np.ndarray, v_ecef:np.ndarray, a_ecef: np.ndarray):
+def ecef_to_eci_acceleration(r_ecef: np.ndarray, v_ecef: np.ndarray, a_ecef: np.ndarray, theta_gmst: float) -> np.ndarray:
     """
-    Convert a cartesian acceleration vector from the ECEF frame to ECI frame.
-    ECEF is rotating w.r.t ECI about the Z axis at an angular rate of OMEGA_EARTH
-    The resulting acceleration is adjusted with centripital and coriolis acceleration terms.
+    Convert an acceleration vector from ECEF to ECI.
     
-    Note - the eq is approximated to tangential acceleration 0 , an assumption is made that OMEGA_EARTH is constant,
-    but the earth's angular velocity does change over time by a small rate assumed to be negligibly small.
-    https://en.wikipedia.org/wiki/Earth%27s_rotation
+    Given that:
+      r_eci = R_ecef_eci @ r_ecef
+      v_eci = R_ecef_eci @ v_ecef + ω x r_eci
+      a_eci = R_ecef_eci @ a_ecef + 2 * (ω x (R_ecef_eci @ v_ecef)) + ω x (ω x r_eci)
     
-    Ref.
-    Vallado, David. Fundamentals of Astrodynamics and Applications, 4th ed. Hawthorne, CA: Microcosm Press, 2013.
+    where ω = [0, 0, OMEGA_EARTH] and R_ecef_eci = (eci_to_ecef_rot_mat(theta_gmst))ᵀ.
+    (We neglect the tangential term coming from dω/dt.)
+    
+    Parameters:
+      r_ecef : Position in ECEF frame [m]
+      v_ecef : Velocity in ECEF frame [m/s]
+      a_ecef : Acceleration in ECEF frame [m/s²]
+      theta_gmst: Greenwich Mean Sidereal Time [radians]
+      
+    Returns:
+      a_eci : Acceleration in ECI frame [m/s²]
     """
-    omega_earth = np.array([0.0, 0.0, OMEGA_EARTH])
-    omegax = skew(omega_earth)
-    
-    #eci accel = ecefaccel +  centripital accel + coriolis accel + tangential(ignored)
-    a_eci: np.ndarray = a_ecef + omegax @ ( omegax @ r_ecef) + 2 * (omegax @ v_ecef)
+    R = eci_to_ecef_rot_mat(theta_gmst).T
+    r_eci = R @ r_ecef
+    v_eci = ecef_to_eci_velocity(r_ecef, v_ecef, theta_gmst)
+
+    OMEGA_ECI_ECI = -1.0 * OMEGA_ECEF_ECI # angular velocity of ECI frame relative to ECEF frame expressed in the ECI frame coordinates
+    a_eci = R @ a_ecef - np.cross(OMEGA_ECI_ECI, np.cross(OMEGA_ECI_ECI, r_eci)) - 2.0 * np.cross(OMEGA_ECI_ECI, v_eci)
     return a_eci
 
-def eci_to_ecef_acceleration(r_ecef:np.ndarray, v_ecef:np.ndarray, a_eci: np.ndarray):
-    omega_earth = np.array([0.0, 0.0, OMEGA_EARTH])
-    omegax = skew(omega_earth)
-    
-    #eci accel = ecefaccel +  centripital accel + coriolis accel + tangential(ignored)
-    a_ecef: np.ndarray = a_eci - omegax @ ( omegax @ r_ecef) - 2 * (omegax @ v_ecef)
+def eci_to_ecef_acceleration(r_eci: np.ndarray, 
+                             v_eci: np.ndarray, 
+                             a_eci: np.ndarray, 
+                             theta_gmst: float) -> np.ndarray:
+    """
+    Convert an acceleration vector from the ECI frame to the ECEF frame.
+
+    In a rotating frame, the relation between the inertial acceleration (a_eci) and the
+    acceleration measured in the rotating frame (a_ecef) is given by:
+
+    a_ecef = R_eci_ecef @ a_eci - 2 * (ω × v_ecef) - ω × (ω × r_ecef)
+
+    Parameters:
+      r_eci : Position vector in ECI frame [m].
+      v_eci : Velocity vector in ECI frame [m/s].
+      a_eci : Acceleration vector in ECI frame [m/s²].
+      theta_gmst : Greenwich Mean Sidereal Time (radians).
+
+    Returns:
+      a_ecef : Acceleration vector in the ECEF frame [m/s²].
+    """
+    R = eci_to_ecef_rot_mat(theta_gmst)
+    r_ecef = R @ r_eci
+    v_ecef = eci_to_ecef_velocity(r_eci, v_eci, theta_gmst)
+
+    OMEGA_ECEF_ECEF = R @ OMEGA_ECEF_ECI # angular velocity of ECEF frame relative to ECI frame expressed in the ECEF frame coordinates
+    a_ecef = R @ a_eci - np.cross(OMEGA_ECEF_ECEF, np.cross(OMEGA_ECEF_ECEF, r_ecef)) - 2.0 * np.cross(OMEGA_ECEF_ECEF, v_ecef)
     return a_ecef
 
 #ref for wgs84 values https://apps.dtic.mil/sti/pdfs/ADA280358.pdf

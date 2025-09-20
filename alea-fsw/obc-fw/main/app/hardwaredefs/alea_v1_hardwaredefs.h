@@ -38,6 +38,19 @@
 #include "reg_mibspi.h"
 #include "reg_etpwm.h"
 
+#include "alea_v1_flashdefs.h"
+
+/******************************************************************************/
+/*                              F L A S H D E F S                             */
+/******************************************************************************/
+/*                                                                            */
+/*   NOTE:                                                                    */
+/*   The external flash definitions were moved to common/flashdefs            */
+/*   since they are needed in the bootloader and must only contain the        */
+/*   bare minimum number of includes                                          */
+/*                                                                            */
+/******************************************************************************/
+
 /******************************************************************************/
 /*                               D E F I N E S                                */
 /******************************************************************************/
@@ -196,28 +209,10 @@
 #define RTC_ALARM_MIBSPI_GROUP 4
 
 /**
- * @brief Flash MIBSPI configuration.
+ * @brief Flash reset configuration.
  */
-#define FLASH_MIBSPI_REG    mibspiREG5
-#define FLASH_DATA_FORMAT   0
-#define FLASH_1_BYTE_GROUP  0 // transfer group with 1 byte length
-#define FLASH_2_BYTE_GROUP  1 // transfer group with 2 byte length
-#define FLASH_5_BYTE_GROUP  2 // transfer group with 5 byte length
-#define FLASH_20_BYTE_GROUP 3 // transfer group with 20 byte length
-#define FLASH_69_BYTE_GROUP 4 // transfer group with 69 byte length
-
-#define FLASH_CS0_PORT mibspiPORT5
-#define FLASH_CS0_PIN  MIBSPI_PIN_ENA
-
 #define FLASH_RESET_PORT GIO_PORT(gioPORTA)
 #define FLASH_RESET_PIN  1
-
-/*
- * @brief Flash size configuration
- * @brief Flash size configuration - 32MB = 256Mb
- */
-#define EXT_FLASH_BLOCK_SIZE  4096
-#define EXT_FLASH_BLOCK_COUNT 8192
 
 /**
  * @brief COMMS SPI interface

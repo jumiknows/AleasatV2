@@ -16,6 +16,7 @@
 #include "low_power.h"
 #include "obc_time.h"
 #include "obc_watchdog.h"
+#include "obc_flash.h"
 #include "obc_gpio.h"
 #include "obc_heartbeat.h"
 #include "obc_gps.h"
@@ -23,6 +24,7 @@
 #include "fw_structs.h"
 #include "fw_memmap.h"
 #include "backup_epoch.h"
+#include "obc_mram.h"
 
 // Utils
 #include "obc_utils.h"
@@ -132,6 +134,60 @@ cmd_sys_resp_code_t cmd_impl_FW_INFO(const cmd_sys_cmd_t *cmd, cmd_FW_INFO_resp_
     resp->flags         = fw_structs.info.flags;
     resp->size          = fw_structs.header.size;
     resp->crc32         = fw_structs.header.crc32;
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+cmd_sys_resp_code_t cmd_impl_FLASH_SLEEP(const cmd_sys_cmd_t *cmd, cmd_FLASH_SLEEP_args_t *args, cmd_FLASH_SLEEP_resp_t *resp) {
+    flash_err_t ferr;
+
+    if (args->enable == true) {
+        ferr = flash_sleep();
+    } else {
+        ferr = flash_wake();
+    }
+
+    resp->fs_err = ferr;
+
+    if (ferr != FLASH_OK) {
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Retrieve the current value of the reboot counter.
+ *
+ * @param resp Pointer to the response structure to populate with the counter value.
+ */
+cmd_sys_resp_code_t cmd_impl_GET_RESET_COUNTER(const cmd_sys_cmd_t *cmd, cmd_GET_RESET_COUNTER_resp_t *resp) {
+    if (resp == NULL) {
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    uint32_t counter = 0xFFFFFFFF;  // Default uninitialized value
+
+    if (mram_read(MRAM_RESET_COUNTER_ADDR, sizeof(counter), (uint8_t *)&counter) != MRAM_OK) {
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    // If uninitialized, assume zero
+    resp->reset_counter = (counter == 0xFFFFFFFF) ? 0 : counter;
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Reset the reboot counter to zero.
+ */
+cmd_sys_resp_code_t cmd_impl_RESET_RESET_COUNTER(const cmd_sys_cmd_t *cmd) {
+    uint32_t counter = 0;
+
+    if (mram_write(MRAM_RESET_COUNTER_ADDR, sizeof(counter), (const uint8_t *)&counter) != MRAM_OK) {
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
 
     return CMD_SYS_RESP_CODE_SUCCESS;
 }

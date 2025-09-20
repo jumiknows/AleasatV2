@@ -17,9 +17,14 @@ from alea.ttc.protocol.generic import routing
 from alea.ttc.protocol.app import app_log
 from alea.ttc.device.serial_device import get_serial_ports
 
+import alea.test.hil.suites.cdh
+import pathlib
+
 PORT_ENV_VAR = "ALEA_OBC_PORT"
 
 class HILTest(unittest.TestCase):
+    timing_data = {}  # Dictionary to store time taken for each test by test ID
+
     PORT = os.getenv(PORT_ENV_VAR)
 
     # The TTC can be assigned by the code that prepares and runs the test suite in which case
@@ -34,6 +39,13 @@ class HILTest(unittest.TestCase):
 
     _stop_ttc_after_test = False
 
+    time_taken = 0.0
+
+    running_from_SA = False
+    find_port = True
+
+    start_time = 0.0
+
     @staticmethod
     def create_and_start_ttc(port: str) -> TTC:
         ttc = TTC(TTC.InterfaceType.OBC_SERIAL)
@@ -43,22 +55,33 @@ class HILTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        if cls.PORT is None:
-            raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
 
-        if cls.ttc is None:
-            cls.ttc = HILTest.create_and_start_ttc(cls.PORT)
-            # Since we started the TTC we should stop it. If a TTC is provided to the class before the tests are
-            # run, we won't start or stop it (the caller becomes responsible for those steps)
-            cls._stop_ttc_after_test = True
+        # This log has an extremely large queue size since items do not get popped from the queue
+        # All log items printed in an individual HIL test has to fit inside the log
+        # This is because this log can be used to check for the presence of messages using wait_for_signal()
+        cls.logs = cls.ttc.add_log_listener(queue_size=10000)
 
-        cls.logs = cls.ttc.add_log_listener(queue_size=100)
-
-        cls._logs_print = cls.ttc.add_log_listener(queue_size=100)
-        cls._logs_print_stop = threading.Event()
-        cls._logs_print_thread = threading.Thread(target=cls.bg_logs_run, daemon=True)
-        print("Starting log printing thread")
-        cls._logs_print_thread.start()
+        if cls.find_port:
+            if cls.PORT is None:
+                raise Exception("ERROR: Must set ALEA_OBC_PORT environment variable")
+            
+            if cls.ttc is None:
+                cls.ttc = HILTest.create_and_start_ttc(cls.PORT)
+                # Since we started the TTC we should stop it. If a TTC is provided to the class before the tests are
+                # run, we won't start or stop it (the caller becomes responsible for those steps)
+                cls._stop_ttc_after_test = True
+ 
+            cls._logs_print = cls.ttc.add_log_listener(queue_size=100)
+            cls._logs_print_stop = threading.Event()
+            cls._logs_print_thread = threading.Thread(target=cls.bg_logs_run, daemon=True)
+            print("Starting log printing thread")
+            cls._logs_print_thread.start()
+        else:
+            print("Running test from SA\n") # Running test from SA
+            cls.running_from_SA = True
+            # Reset previous test
+            cls.timing_data.clear()
+            cls.start_time = 0.0
 
     def setUp(self) -> None:
         # Put the satellite in a known state
@@ -66,21 +89,30 @@ class HILTest(unittest.TestCase):
         self.ttc.reset()
         self.wait_for_signal("LOG_PRINT_GENERAL", "STARTUP_COMPLETE", timeout=3) # TODO ALEA-853 use a less ambiguous log message to indicate system is booted
         time.sleep(1) # TODO remove once ALEA-853 is implemented
+        
+        self.start_time = time.time()
 
     def tearDown(self) -> None:
-        pass
+        # Calculate time taken for this test and store it in the class variable
+        end_time = time.time()
+        self.time_taken = end_time - self.start_time
+        HILTest.timing_data[self.id()] = self.time_taken
 
     @classmethod
     def tearDownClass(cls) -> None:
-        print("Stopping log printing thread")
-        cls._logs_print_stop.set()
-        cls._logs_print_thread.join(2)
+        if not cls.running_from_SA:
+            print("Stopping log printing thread")
+            cls._logs_print_stop.set()
+            cls._logs_print_thread.join(2)
 
-        cls.ttc.remove_log_listener(cls.logs)
-        cls.ttc.remove_log_listener(cls._logs_print)
+            cls.ttc.remove_log_listener(cls.logs)
+            cls.ttc.remove_log_listener(cls._logs_print)
 
-        if cls._stop_ttc_after_test:
-            cls.ttc.stop()
+            if cls._stop_ttc_after_test:
+                cls.ttc.stop()
+        else:
+            pass
+
 
     @classmethod
     def bg_logs_run(cls):
@@ -174,7 +206,21 @@ def main(test_cases: Union[Type[HILTest],List[Type[HILTest]]] = None, test_dir: 
 
     # Instantiate and assign the TTC at the top-level to save time
     HILTest.ttc = HILTest.create_and_start_ttc(HILTest.PORT)
+    
+    # Sometimes a failed pipeline can leave the GPIO expander in an unclean state
+    # We reset it and the I2C bus before a HIL test to fix this
+    # TODO: ALEA-3512 This is a temporary fix, we need to investigate general issues with the I2C expander having constant errors
 
+    resp = HILTest.ttc.send_obc_cmd("GPIO_EXP_RESET")
+    if not resp.is_success:
+        print("Failed to reset GPIO expander before starting HIL tests")
+        sys.exit(1)
+
+    resp = HILTest.ttc.send_obc_cmd("I2C_RESET")
+    if not resp.is_success:
+        print("Failed to reset I2C bus before starting HIL tests")
+        sys.exit(1)
+        
     # Make test_cases iterable if it's not
     if test_cases is not None:
         try:
@@ -199,8 +245,168 @@ def main(test_cases: Union[Type[HILTest],List[Type[HILTest]]] = None, test_dir: 
         runner = unittest.TextTestRunner(verbosity=2)
 
     result = runner.run(test_suite)
-
     HILTest.ttc.stop()
 
     # Make sure exit code is set according to if tests failed or not
     sys.exit(not result.wasSuccessful())
+
+# Based off of code in main() 
+# Port is passed in through obc argument so port finding not necessary
+# Takes singular test as parameter so iteration not necessary
+def runner_for_SA(obc, test):
+    loader = unittest.TestLoader()
+    suites_dir = pathlib.Path(alea.test.hil.suites.__file__).parent
+
+    test_suite = loader.discover(suites_dir, pattern="*_test.py")
+
+    test_classes = [] # Need to store all of them and find right one
+
+    # This triple for loop is essentially just iterating through 
+    # markdown language of test suites
+    for i in range(len(test_suite._tests)):
+        tests = test_suite._tests[i]
+        for j in range(len(tests._tests)):
+            tests2 = tests._tests[j]
+            for k in range(len(tests2._tests)):
+                tests3 = tests2._tests[k]
+                if test in str(tests3):
+                    test_classes.append(tests3)
+                    tests3.__class__.ttc = obc
+
+    # EXAMPLE FOR PING TEST: 
+    # str(test_classes) is [<cdh.ping_test.PingTest testMethod=test_echo>, <cdh.ping_test.PingTest testMethod=test_ping>]
+
+    Test_index = str(test_classes).find('Test')
+
+    # str(test_classes)[2:Test_index + 4] is cdh.ping_test.PingTest
+
+    HILTest.find_port = False
+
+    test_case = loader.loadTestsFromName(str(test_classes)[2:Test_index + 4])
+
+    runner = unittest.TextTestRunner(verbosity=2)
+
+    result = runner.run(test_case)
+
+    # Retrieve timing data
+    PassTimeTaken = 0.0
+    for test_name, time_taken in HILTest.timing_data.items():
+        PassTimeTaken += time_taken
+
+    redResults = []
+    greenResults = []
+
+    # Failed tests
+    for test, err in result.failures:
+        # str(test) will be of form 
+        # test_name (testFile.TestClass)
+        # example: test_eps_read_float_battery_voltage (epsTest.EpsTest)
+        
+        # So let's cut off after first '('
+        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
+        testCut = str(test)[:CutoffCharacter]
+
+        # testCut: 'test_eps_read_float_battery_voltage'
+        redResults.append((testCut, 'failure', err))
+
+    # Error tests
+    for test, err in result.errors:
+
+        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
+        testCut = str(test)[:CutoffCharacter]
+
+        redResults.append((testCut, 'error', err))
+
+    for test in test_classes:
+        failedTest = False
+        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
+        testCut = str(test)[:CutoffCharacter]
+
+        for redtest in redResults:
+            if(testCut == redtest[0]):
+                failedTest = True
+        
+        if not failedTest:
+            greenResults.append((testCut, 'success')) 
+
+    return redResults, greenResults, PassTimeTaken
+
+def runner_for_SA_indiv(obc, test, test_individual):
+    loader = unittest.TestLoader()
+    suites_dir = pathlib.Path(alea.test.hil.suites.__file__).parent
+
+    test_suite = loader.discover(suites_dir, pattern="*_test.py")
+
+    test_classes = [] # Need to store all of them and find right one
+
+    # This triple for loop is essentially just iterating through 
+    # markdown language of test suites
+    for i in range(len(test_suite._tests)):
+        tests = test_suite._tests[i]
+        for j in range(len(tests._tests)):
+            tests2 = tests._tests[j]
+            for k in range(len(tests2._tests)):
+                tests3 = tests2._tests[k]
+                if test in str(tests3) and test_individual in str(tests3):
+                    test_classes.append(tests3)
+                    tests3.__class__.ttc = obc
+
+    # EXAMPLE FOR PING TEST: 
+    # str(test_classes) is [<cdh.ping_test.PingTest testMethod=test_echo>, <cdh.ping_test.PingTest testMethod=test_ping>]
+    
+    Test_index = str(test_classes).find('Test')
+
+    #create an index with a conditional test and indiv test as both inputs
+
+    # str(test_classes)[2:Test_index + 4] is cdh.ping_test.PingTest
+
+    HILTest.find_port = False
+
+    test_case = loader.loadTestsFromName(str(test_classes)[2:Test_index + 4] + '.' + test_individual)
+
+    runner = unittest.TextTestRunner(verbosity=2)
+
+    result = runner.run(test_case)
+
+    # Retrieve timing data
+    PassTimeTaken = 0.0
+    for test_name, time_taken in HILTest.timing_data.items():
+        PassTimeTaken += time_taken
+
+    redResults = []
+    greenResults = []
+
+    # Failed tests
+    for test, err in result.failures:
+        # str(test) will be of form 
+        # test_name (testFile.TestClass)
+        # example: test_eps_read_float_battery_voltage (epsTest.EpsTest)
+        
+        # So let's cut off after first '('
+        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
+        testCut = str(test)[:CutoffCharacter]
+
+        # testCut: 'test_eps_read_float_battery_voltage'
+        redResults.append((testCut, 'failure', err))
+
+    # Error tests
+    for test, err in result.errors:
+
+        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
+        testCut = str(test)[:CutoffCharacter]
+
+        redResults.append((testCut, 'error', err))
+
+    for test in test_classes:
+        failedTest = False
+        CutoffCharacter = str(test).index('(') - 1 # (-1 for whitespace)
+        testCut = str(test)[:CutoffCharacter]
+
+        for redtest in redResults:
+            if(testCut == redtest[0]):
+                failedTest = True
+        
+        if not failedTest:
+            greenResults.append((testCut, 'success')) 
+
+    return redResults, greenResults, PassTimeTaken

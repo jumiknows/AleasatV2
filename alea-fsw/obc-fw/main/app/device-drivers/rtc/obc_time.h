@@ -130,7 +130,7 @@ extern const epoch_t no_epoch;
 epoch_t real_time_to_epoch(const real_time_t *real_time);
 bool epoch_to_real_time(const epoch_t epoch, real_time_t *real_time);
 void time_to_ymd_string(const real_time_t *curr_time, char *buf);
-int32_t delta(real_time_t *to, real_time_t *from);
+int32_t time_delta(real_time_t *to, real_time_t *from);
 
 // General Validation
 bool is_leap_year(uint16_t year);

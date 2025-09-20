@@ -1,0 +1,3 @@
+{
+  "extends": "@aleasat/tsconfig/base.json"
+}

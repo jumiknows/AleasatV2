@@ -1,5 +1,8 @@
 import numpy as np
+from dataclasses import dataclass
+from pathlib import Path
 
+from alea.sim.configuration import Configurable
 from alea.sim.kernel.kernel import AleasimKernel
 from alea.sim.math_lib.math import skew, normalize
 from alea.sim.kernel.kernel import SharedMemoryModelInterface
@@ -13,9 +16,29 @@ from alea.sim.kernel.generic.abstract_model import ModelNotFoundError
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
+    from alea.sim.spacecraft.aocs import AOCSModel
     from alea.sim.spacecraft.spacecraft import Spacecraft
+    
+@dataclass
+class AttitudeDynamicsConfig:
+    """
+    Attitude Dyanmics config dataclass
+    """
+    default_state       : np.ndarray
+    J                   : np.ndarray
+    J_inv               : np.ndarray = None
+    enable_disturbances : bool = True
 
-class AttitudeDynamicsModel(SharedMemoryModelInterface, DynamicModel, AbstractModel):
+    def __post_init__(self):
+        #convert list to np.ndarry
+        if isinstance(self.J, list):
+            self.J = np.array(self.J)
+        if isinstance(self.default_state, list):
+            self.default_state = np.array(self.default_state)
+        
+        self.J_inv = np.linalg.inv(self.J)
+
+class AttitudeDynamicsModel(Configurable[AttitudeDynamicsConfig], SharedMemoryModelInterface, DynamicModel, AbstractModel):
     """
     Model for the attitude dynamics of an inertial pointing spacecraft
 
@@ -27,68 +50,60 @@ class AttitudeDynamicsModel(SharedMemoryModelInterface, DynamicModel, AbstractMo
     - body angular rates (3) (angular velocity of body frame w.r.t inertial frame)
     """
     default_name = 'attitude_dynamics'
-    def __init__(self, sim_kernel: AleasimKernel, init_state:np.ndarray = None, name = "attitude_dynamics", **kwargs) -> None:
-        super().__init__(name=name, sim_kernel=sim_kernel, **kwargs)
-        if init_state is not None and init_state.size == 7:
-            self._state = init_state
+    def __init__(self, 
+                 sim_kernel: AleasimKernel, 
+                 init_state:np.ndarray = None, 
+                 name = "attitude_dynamics", 
+                 cfg: str | Path | dict | AttitudeDynamicsConfig = "attitude_dynamics", 
+                 **kwargs
+                 ) -> None:
+        super().__init__(name=name, sim_kernel=sim_kernel, cfg=cfg, cfg_cls=AttitudeDynamicsConfig, **kwargs)
 
-        self._spacecraft = None
+        if init_state is not None:
+            if init_state.size == 7:
+                self._state = init_state
+            else:
+                raise ValueError("init_state is invalid size (should be 7)")
+        else:
+            self._state = self.cfg.default_state
+        self._state_derivative = np.zeros(7)
+
+        self._aocs = None
         self._magm = None
         self._disturbances: DisturbanceModel = None
 
         self.logger.info(f'initialized with state {self._state}')
-        self.configure()
-    
-    def configure(self):
-        # self._sys_dynamics = NonlinearIOSystem(self.state_update_fcn, None, name='spacecraft_attitude_dynamics')
-        cfg = self.get_config()
-        self.params['J'] = cfg['J']#np.eye(3) * 1e-3
-        self._integrator_type = cfg['default_integrator']
-        
-        if self._state is None:
-            self._state = np.array(cfg['default_state'])
-            self.logger.info(f'loaded default state cfg {cfg["default_state"]}')
-        
-        #for faster accesss
-        self._J = self.params.get('J') #inertia matrix
-        self._Jinv = np.linalg.inv(self._J) # inverse inertia for eom state updates
-        self.logger.info(f'loaded intertia matrix cfg {self._J} and its inverse is computed to be {self._Jinv}')
-
-        self._state_derivative = np.zeros(7)
+        self.logger.info(f'loaded intertia matrix cfg {self.cfg.J} and its inverse is computed to be {self.cfg.J_inv}')
 
     def connect(self):
         try:
-            self._spacecraft = self.kernel.get_model('spacecraft')
+            self._aocs = self.kernel.get_model('aocs')
         except ModelNotFoundError as err:
-            self.logger.warn(err)
-            self._spacecraft: Spacecraft = None
+            self.logger.warning(err)
+            self._aocs: AOCSModel = None
 
         try:
             self._magm: EarthMagneticFieldModel = self.kernel.get_model(EarthMagneticFieldModel)
         except ModelNotFoundError as err:
-            self.logger.warn(err)
+            self.logger.warning(err)
             self._magm = None
             
         try:
             self._disturbances: DisturbanceModel = self.kernel.get_model(DisturbanceModel)
         except ModelNotFoundError as err:
-            self.logger.warn(err)
+            self.logger.warning(err)
             self._disturbances: DisturbanceModel = None
         
         self.kernel.schedule_event(self.kernel.timestep, EventPriority.ATTITUDE_DYNAMICS_EVENT, self.update, period=self.kernel.timestep)
 
     @property
-    def config_name(self) -> str:
-        return 'attitude_dynamics'
-    
-    @property
     def saved_state_size(self) -> int:
-        #state vector (7) + ang accel (3) + disturbance torque (3)
-        return (self._state.size + 3 + 3)
+        #state vector (7) + ang accel (3) + rxn wheel imbalance torques (3) + disturbance torque (3)
+        return (self._state.size + 3 + 3 + 3)
 
     @property
     def saved_state_element_names(self) -> list[str]:
-        return ['q0','q1','q2','q3','w1','w2','w3','ang_accel1','ang_accel2','ang_accel3', 'Tdx', 'Tdy', 'Tdz']
+        return ['q0','q1','q2','q3','w1','w2','w3','ang_accel1','ang_accel2','ang_accel3','Ldx', 'Ldy', 'Ldz', 'Tdx', 'Tdy', 'Tdz']
 
     @property
     def quaternion(self) -> Quaternion:
@@ -119,8 +134,7 @@ class AttitudeDynamicsModel(SharedMemoryModelInterface, DynamicModel, AbstractMo
     def calculate_rotational_kinetic_energy(self) -> float:
         """K= 0.5 * Iω2  [Joules]"""
         omega = self._state[4:7]
-        J = self.params.get('J')
-        ke:float = (0.5 * ((J @ omega) @ omega))
+        ke:float = (0.5 * ((self.cfg.J @ omega) @ omega))
         return ke
     
     def update(self):
@@ -130,27 +144,37 @@ class AttitudeDynamicsModel(SharedMemoryModelInterface, DynamicModel, AbstractMo
         update_params['h_wheels'] = np.zeros(3)
         
         actuator_torque = np.zeros(3)
-        if self._spacecraft is not None and self._magm is not None:
+        if self._aocs is not None and self._magm is not None:
             #actuator torques
             #torque output from rws and mtqs at this time instance
-            sc = self._spacecraft
+            aocs = self._aocs
             mtq_moments = np.zeros(3)
             for i in range(3):
-                actuator_torque += sc._rws[i].torque_vector
-                update_params['h_wheels'] += sc._rws[i].angular_momentum_vector
-                mtq_moments += sc._mtqs[i].get_moment()
+                actuator_torque += aocs._rws[i].torque_vector
+                update_params['h_wheels'] += aocs._rws[i].angular_momentum_vector
+                mtq_moments += aocs._mtqs[i].get_moment()
 
             b_body = self._magm.mag_field_vector_body * 1E-9
             t_mtq_body = np.cross(mtq_moments, b_body)
             actuator_torque += t_mtq_body
 
         #disturbance torques
-        #torques from gravity gradient, magnetic, aerodynamic disturbances
+        #torques from gravity gradient, magnetic, aerodynamic disturbances, reaction wheel imbalances
+        dynamic_imbalance = np.zeros(3)
+        static_imbalance = np.zeros(3)
+        rw_imbalances = np.zeros(3)
         disturbance_torque = np.zeros(3)
-        if self._disturbances is not None:
-            disturbance_torque = self._disturbances.get_T_disturbance(self.quaternion)
-            disturbance_torque = disturbance_torque.reshape((3,))
-            saved_state[10:] = disturbance_torque
+        if self._disturbances is not None and self.cfg.enable_disturbances:
+            if self._aocs is not None:
+                for wheel in self._aocs._rws:
+                    dynamic_imbalance += wheel.dynamic_torque
+                    static_imbalance += wheel.static_torque
+                rw_imbalances = static_imbalance + dynamic_imbalance
+                disturbance_torque += rw_imbalances
+            saved_state[10:13] = rw_imbalances
+
+            disturbance_torque += self._disturbances.get_T_disturbance()
+            saved_state[13:] = disturbance_torque
 
         u = actuator_torque + disturbance_torque
 
@@ -184,7 +208,7 @@ class AttitudeDynamicsModel(SharedMemoryModelInterface, DynamicModel, AbstractMo
         omega = x[4:7] #angular rates at time t
         
         #dynamics
-        accel = self._Jinv @ (-1.0 * skew(omega)@(self._J@omega + h_wheels) + u)
+        accel = self.cfg.J_inv @ (-1.0 * skew(omega)@(self.cfg.J @ omega + h_wheels) + u)
         
         #kinematics
         Q = 0.5*np.array([[q[0], -q[1], -q[2], -q[3]],

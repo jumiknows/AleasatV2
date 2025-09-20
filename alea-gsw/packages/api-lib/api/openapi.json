@@ -1,0 +1,1039 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Command Request",
+    "description": "abcd",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3005/",
+      "description": "Local"
+    },
+    {
+      "url": "https://api.aleasat/command-request/v1/",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Command Request",
+      "description": "Passes of Sat"
+    },
+    {
+      "name": "Image Request"
+    },
+    {
+      "name": "Location Track",
+      "description": "The time the satellite will pass the location"
+    }
+  ],
+  "paths": {
+    "/image-requests": {
+      "get": {
+        "tags": [
+          "Image Request"
+        ],
+        "summary": "Get all image request",
+        "description": "Get all image request",
+        "operationId": "getImageRequests",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "query",
+            "description": "Owner of image request",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ImageRequest"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Image Request"
+        ],
+        "summary": "Create a image request",
+        "description": "Create a image request",
+        "operationId": "addImageRequest",
+        "requestBody": {
+          "description": "The ImageRequest",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateImageRequestParameter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageRequestVaildationError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/image-request/{imageRequestId}": {
+      "get": {
+        "tags": [
+          "Image Request"
+        ],
+        "summary": "Get a image request",
+        "description": "Get a image request",
+        "operationId": "getImageRequest",
+        "parameters": [
+          {
+            "name": "imageRequestId",
+            "in": "path",
+            "description": "The Id of the image request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Image Request"
+        ],
+        "summary": "Patch a image request",
+        "description": "Patch a image request",
+        "operationId": "patchImageRequest",
+        "parameters": [
+          {
+            "name": "imageRequestId",
+            "in": "path",
+            "description": "The Id of the image request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The ImageRequest",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptionalImageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageRequestVaildationError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Image Request"
+        ],
+        "summary": "Delete a image request",
+        "description": "Delete a image request",
+        "operationId": "deleteImageRequest",
+        "parameters": [
+          {
+            "name": "imageRequestId",
+            "in": "path",
+            "description": "The Id of the image request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/image-request/{imageRequestId}/initialPreviewImage": {
+      "get": {
+        "tags": [
+          "Image Request"
+        ],
+        "summary": "Get the initialPreviewImage image of the image request",
+        "description": "Get the initialPreviewImage image of the image request",
+        "operationId": "getImageRequestInitialPreviewImage",
+        "parameters": [
+          {
+            "name": "imageRequestId",
+            "in": "path",
+            "description": "The Id of the image request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "plain/text": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/image-request/preview": {
+      "get": {
+        "tags": [
+          "Image Request"
+        ],
+        "summary": "Get the preview image of the image request",
+        "description": "Get the preview image of the image request",
+        "operationId": "getImageRequestPreview",
+        "parameters": [
+          {
+            "name": "SatLat",
+            "in": "query",
+            "description": "The latitude of the satellite",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "SatLng",
+            "in": "query",
+            "description": "The longitude of the satellite",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "SatAlt",
+            "in": "query",
+            "description": "The altitude of the satellite from ground",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "SatRotX",
+            "in": "query",
+            "description": "The X component of the satellite rotation/orientation",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "SatRotY",
+            "in": "query",
+            "description": "The Y component of the satellite rotation/orientation",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "SatRotZ",
+            "in": "query",
+            "description": "The Z component of the satellite rotation/orientation",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "base64",
+            "in": "query",
+            "description": "Generate base64 encoded image. Default false return jpg image",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "base64"
+                  ],
+                  "properties": {
+                    "base64": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "image/jpg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/locationTracks": {
+      "post": {
+        "tags": [
+          "Location Track"
+        ],
+        "summary": "Create a location track",
+        "description": "Create a location track",
+        "operationId": "addLocationTrack",
+        "requestBody": {
+          "description": "The location to track",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "lat",
+                  "lng",
+                  "t"
+                ],
+                "properties": {
+                  "lat": {
+                    "type": "number"
+                  },
+                  "lng": {
+                    "type": "number"
+                  },
+                  "t": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationTrack"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/locationTrack/{locationTrackId}": {
+      "get": {
+        "tags": [
+          "Location Track"
+        ],
+        "summary": "Get a location track",
+        "description": "Get a location track",
+        "operationId": "getLocationTrack",
+        "parameters": [
+          {
+            "name": "locationTrackId",
+            "in": "path",
+            "description": "The Id of the location track",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationTrack"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/webhooks/update-location-track": {
+      "post": {
+        "tags": [
+          "Location Track",
+          "Webhook"
+        ],
+        "summary": "Update the location track from new data",
+        "description": "Update the location track from new data",
+        "operationId": "webhookUpdateLocationTrack",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The request has failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ImageRequestImage": {
+        "required": [
+          "id",
+          "imageId",
+          "placeholderId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "imageId": {
+            "type": "string",
+            "nullable": true
+          },
+          "placeholderId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ImageRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "userId",
+          "name",
+          "description",
+          "locationTrackId",
+          "satelliteRotationX",
+          "satelliteRotationY",
+          "satelliteRotationZ",
+          "AROgroundStationId",
+          "AROgroundStationPassId",
+          "reviewerId",
+          "approved",
+          "reviewComment",
+          "initialPreviewImageId",
+          "finalPreviewImageId",
+          "locationTrack",
+          "thumbnail",
+          "initialPreviewImage",
+          "finalPreviewImage",
+          "image"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OptionalImageRequest"
+          }
+        ],
+        "properties": {
+          "locationTrack": {
+            "$ref": "#/components/schemas/LocationTrack"
+          },
+          "thumbnail": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImageRequestImage"
+              }
+            ],
+            "nullable": true
+          },
+          "initialPreviewImage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImageRequestImage"
+              }
+            ],
+            "nullable": true
+          },
+          "finalPreviewImage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImageRequestImage"
+              }
+            ],
+            "nullable": true
+          },
+          "image": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImageRequestImage"
+              }
+            ],
+            "nullable": true
+          }
+        }
+      },
+      "OptionalImageRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "locationTrackId": {
+            "type": "string"
+          },
+          "satelliteRotationX": {
+            "type": "number"
+          },
+          "satelliteRotationY": {
+            "type": "number"
+          },
+          "satelliteRotationZ": {
+            "type": "number"
+          },
+          "AROgroundStationId": {
+            "type": "number",
+            "nullable": true
+          },
+          "AROgroundStationPassId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "approved": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "reviewComment": {
+            "type": "string",
+            "nullable": true
+          },
+          "initialPreviewImageId": {
+            "type": "string",
+            "nullable": true
+          },
+          "finalPreviewImageId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateImageRequestParameter": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "satelliteLocationLat",
+          "satelliteLocationLng",
+          "satelliteLocationT",
+          "satelliteRotationX",
+          "satelliteRotationY",
+          "satelliteRotationZ",
+          "AROgroundStationId",
+          "AROgroundStationPassRise",
+          "AROgroundStationPassSet"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "satelliteLocationLat": {
+            "type": "number"
+          },
+          "satelliteLocationLng": {
+            "type": "number"
+          },
+          "satelliteLocationT": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "satelliteRotationX": {
+            "type": "number"
+          },
+          "satelliteRotationY": {
+            "type": "number"
+          },
+          "satelliteRotationZ": {
+            "type": "number"
+          },
+          "AROgroundStationId": {
+            "type": "number",
+            "nullable": true
+          },
+          "AROgroundStationPassRise": {
+            "type": "string",
+            "nullable": true
+          },
+          "AROgroundStationPassSet": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ImageRequestVaildationError": {
+        "type": "object",
+        "required": [
+          "pass",
+          "image",
+          "ARO"
+        ],
+        "properties": {
+          "pass": {
+            "required": [
+              "commandTimeCollide",
+              "insufficientMemory"
+            ],
+            "properties": {
+              "commandTimeCollide": {
+                "type": "boolean"
+              },
+              "insufficientMemory": {
+                "type": "boolean"
+              }
+            }
+          },
+          "image": {
+            "required": [
+              "invalidFraming",
+              "commandTimeCollide"
+            ],
+            "properties": {
+              "invalidFraming": {
+                "type": "boolean"
+              },
+              "commandTimeCollide": {
+                "type": "boolean"
+              }
+            }
+          },
+          "ARO": {
+            "required": [
+              "passTimeCollide",
+              "unauthorizedGroundStation"
+            ],
+            "properties": {
+              "passTimeCollide": {
+                "type": "boolean"
+              },
+              "unauthorizedGroundStation": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "required": [
+          "lat",
+          "lng",
+          "alt",
+          "t",
+          "stateElementId"
+        ],
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "alt": {
+            "type": "number"
+          },
+          "t": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stateElementId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LocationTrack": {
+        "type": "object",
+        "required": [
+          "id",
+          "initialLocation",
+          "currentLocation",
+          "finalLocation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "initialLocation": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "currentLocation": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "finalLocation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              }
+            ],
+            "nullable": true
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

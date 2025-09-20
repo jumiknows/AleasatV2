@@ -1,0 +1,16 @@
+.openapi-generator-ignore
+apis/OrbitPropagationApi.ts
+apis/index.ts
+index.ts
+models/CartesianState.ts
+models/KeplerianState.ts
+models/ModelError.ts
+models/Pass.ts
+models/Passes.ts
+models/PassesPassesInner.ts
+models/PassesPassesInnerCulmination.ts
+models/PassesPassesInnerRise.ts
+models/Problem.ts
+models/StateElement.ts
+models/index.ts
+runtime.ts

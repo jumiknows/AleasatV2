@@ -11,10 +11,8 @@
 
 #include "obc_crc.h"
 
-// Utils
-#include "obc_utils.h"
-
 // Standard Library
+#include <stdint.h>
 #include <string.h>
 
 /******************************************************************************/
@@ -33,7 +31,7 @@ void test_crc_buf1(void) {
     size_t length = strlen(string);
     uint32_t py_zlib_crc = 3213431362;
 
-    uint32_t crc32 = crc_32_buf(string, length); 
+    uint32_t crc32 = crc_32_buf(CRC32_SEED, string, length);
 
     TEST_ASSERT_EQUAL(py_zlib_crc, crc32);
 }
@@ -43,7 +41,7 @@ void test_crc_buf2(void) {
     size_t length = strlen(string);
     uint32_t py_zlib_crc = 866972984;
 
-    uint32_t crc32 = crc_32_buf(string, length); 
+    uint32_t crc32 = crc_32_buf(CRC32_SEED, string, length);
 
     TEST_ASSERT_EQUAL(py_zlib_crc, crc32);
 }
@@ -53,7 +51,7 @@ void test_crc_buf3(void) {
     size_t length = strlen(string);
     uint32_t py_zlib_crc = 1583740130;
 
-    uint32_t crc32 = crc_32_buf(string, length); 
+    uint32_t crc32 = crc_32_buf(CRC32_SEED, string, length);
 
     TEST_ASSERT_EQUAL(py_zlib_crc, crc32);
 }
@@ -63,7 +61,7 @@ void test_crc_buf4(void) {
     size_t length = strlen(string);
     uint32_t py_zlib_crc = 721719557;
 
-    uint32_t crc32 = crc_32_buf(string, length); 
+    uint32_t crc32 = crc_32_buf(CRC32_SEED, string, length);
 
     TEST_ASSERT_EQUAL(py_zlib_crc, crc32);
 }
@@ -73,7 +71,7 @@ void test_crc_buf5(void) {
     size_t length = strlen(string);
     uint32_t py_zlib_crc = 3443221350;
 
-    uint32_t crc32 = crc_32_buf(string, length); 
+    uint32_t crc32 = crc_32_buf(CRC32_SEED, string, length);
 
     TEST_ASSERT_EQUAL(py_zlib_crc, crc32);
 }

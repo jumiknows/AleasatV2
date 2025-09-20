@@ -1,0 +1,4908 @@
+[
+  {
+    "id": "51177508-a831-45aa-b573-70c0a62c6956",
+    "predictedRiseSet": {
+      "id": "8236b9ab-2f7d-43c6-87e8-d5fd57a77eb1",
+      "rise": "2024-03-22T01:43:52.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-22T01:46:38.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "013e63cd-b3e8-482f-9cbf-51560b5c5030",
+    "predictedRiseSet": {
+      "id": "7c43f590-7b86-4e58-b4ba-558b7709d359",
+      "rise": "2024-03-22T03:20:35.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-22T03:23:29.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "f60065a3-9dc5-4b04-ac50-1feb3da256a9",
+    "action": "update",
+    "oldPredictedRiseSetId": "02b4c9e3-b3dd-4764-a7f3-426d64e0f4cf",
+    "predictedRiseSet": {
+      "rise": "2024-03-22T04:39:03.548Z",
+      "riseX": 4889.127858,
+      "riseY": 4254.449069,
+      "riseZ": 2033.419007,
+      "set": "2024-03-22T04:41:17.548Z",
+      "setX": 4221.372978,
+      "setY": 4555.449402,
+      "setZ": 2751.838919,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "cebf8cc5-50cc-469e-aeef-0dd5cd2f0df8",
+    "action": "update",
+    "oldPredictedRiseSetId": "1eea4308-016d-4db6-8368-ff6ab8a5ed26",
+    "predictedRiseSet": {
+      "rise": "2024-03-22T06:10:51.548Z",
+      "riseX": 5186.344962,
+      "riseY": 4051.05246,
+      "riseZ": 1680.603407,
+      "set": "2024-03-22T06:21:32.548Z",
+      "setX": 1444.369019,
+      "setY": 4782.514511,
+      "setZ": 4604.851092,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-22T07:48:13.548Z",
+      "riseX": 3857.128054,
+      "riseY": 4636.009576,
+      "riseZ": 3126.546678,
+      "set": "2024-03-22T07:57:58.548Z",
+      "setX": -65.1912985,
+      "setY": 4474.64933,
+      "setZ": 5113.686785,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-22T09:28:21.548Z",
+      "riseX": 1018.678212,
+      "riseY": 4704.28562,
+      "riseZ": 4795.770085,
+      "set": "2024-03-22T09:33:49.548Z",
+      "setX": -1329.519033,
+      "setY": 4028.57911,
+      "setZ": 5309.545106,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-22T11:07:49.548Z",
+      "riseX": -1792.537348,
+      "riseY": 3821.512199,
+      "riseZ": 5326.898797,
+      "set": "2024-03-22T11:11:46.548Z",
+      "setX": -3351.09695,
+      "setY": 2922.962727,
+      "setZ": 5141.659182,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-22T12:43:49.548Z",
+      "riseX": -3036.424418,
+      "riseY": 3139.1435,
+      "riseZ": 5208.900446,
+      "set": "2024-03-22T12:52:26.548Z",
+      "setX": -5645.253135,
+      "setY": 640.2100241,
+      "setZ": 3736.571212,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-22T14:19:55.548Z",
+      "riseX": -4184.491232,
+      "riseY": 2299.727378,
+      "riseZ": 4839.57594,
+      "set": "2024-03-22T14:30:53.548Z",
+      "setX": -6381.626877,
+      "setY": -1121.305861,
+      "setZ": 2066.008362,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-22T15:57:41.548Z",
+      "riseX": -5544.18525,
+      "riseY": 840.5924912,
+      "riseZ": 3846.38836,
+      "set": "2024-03-22T16:05:41.548Z",
+      "setX": -6437.969035,
+      "setY": -1686.85508,
+      "setZ": 1399.58797,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "8172416b-aaff-4dfb-837e-1258018b85a4",
+    "predictedRiseSet": {
+      "id": "83c3ef88-8cf0-4584-8b11-770cbee3d537",
+      "rise": "2024-03-23T00:56:01.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-23T00:57:54.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "05121e2f-146b-49ec-955d-a406e99b60af",
+    "predictedRiseSet": {
+      "id": "c29cdde5-844e-43e6-82c8-dce7a4d03006",
+      "rise": "2024-03-23T02:32:07.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-23T02:35:07.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "2fe3f896-9597-42be-97a3-cbd675f7214e",
+    "predictedRiseSet": {
+      "id": "13807bc6-0b2b-48f9-bc68-1edf6918e84b",
+      "rise": "2024-03-23T04:09:10.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-23T04:12:03.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "f9706f01-e89f-4aa5-854c-0e1d01809693",
+    "action": "update",
+    "oldPredictedRiseSetId": "1342f3dd-d188-4bcb-9885-f2fff435f8e9",
+    "predictedRiseSet": {
+      "rise": "2024-03-23T05:22:55.548Z",
+      "riseX": 5635.011461,
+      "riseY": 3487.788345,
+      "riseZ": 1484.723917,
+      "set": "2024-03-23T05:32:57.548Z",
+      "setX": 2344.946065,
+      "setY": 4644.363431,
+      "setZ": 4368.265012,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-23T06:59:23.548Z",
+      "riseX": 4699.734063,
+      "riseY": 4103.878881,
+      "riseZ": 2683.573099,
+      "set": "2024-03-23T07:09:46.548Z",
+      "setX": 673.0589862,
+      "setY": 4527.982297,
+      "setZ": 5020.885439,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-23T08:38:55.548Z",
+      "riseX": 2279.048139,
+      "riseY": 4622.531226,
+      "riseZ": 4426.001972,
+      "set": "2024-03-23T08:45:39.548Z",
+      "setX": -641.3046539,
+      "setY": 4232.270231,
+      "setZ": 5277.789246,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-23T10:19:15.548Z",
+      "riseX": -950.2765328,
+      "riseY": 4136.392963,
+      "riseZ": 5307.44653,
+      "set": "2024-03-23T10:22:32.548Z",
+      "setX": -2350.138653,
+      "setY": 3585.17111,
+      "setZ": 5274.55811,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-23T11:55:41.548Z",
+      "riseX": -2457.42409,
+      "riseY": 3537.431825,
+      "riseZ": 5258.002212,
+      "set": "2024-03-23T12:03:10.548Z",
+      "setX": -5089.282179,
+      "setY": 1669.474122,
+      "setZ": 4188.853676,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-23T13:31:37.548Z",
+      "riseX": -3646.726894,
+      "riseY": 2870.160305,
+      "riseZ": 4967.612833,
+      "set": "2024-03-23T13:42:21.548Z",
+      "setX": -6343.406692,
+      "setY": -227.5613589,
+      "setZ": 2441.864544,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-23T15:08:41.548Z",
+      "riseX": -5023.973553,
+      "riseY": 1772.737755,
+      "riseZ": 4224.962878,
+      "set": "2024-03-23T15:18:18.548Z",
+      "setX": -6556.819329,
+      "setY": -1142.214001,
+      "setZ": 1399.916194,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "87e017fb-fd84-4c15-95b0-9d0f67cf458a",
+    "predictedRiseSet": {
+      "id": "9d909e74-1e1e-46ec-8625-a33dd99849fb",
+      "rise": "2024-03-24T01:43:38.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-24T01:46:43.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "e4044371-c236-45a1-afa5-5f15c13d25ae",
+    "predictedRiseSet": {
+      "id": "947ec885-9a59-4b0a-a65a-51b2478978c9",
+      "rise": "2024-03-24T03:20:43.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-24T03:23:32.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "b9406d05-538f-4e76-843c-2aedc4d7e110",
+    "action": "update",
+    "oldPredictedRiseSetId": "b3d9ab0a-fadb-4b3e-b897-5ee038eb575a",
+    "predictedRiseSet": {
+      "rise": "2024-03-24T04:35:17.548Z",
+      "riseX": 5952.854108,
+      "riseY": 2951.017863,
+      "riseZ": 1402.749661,
+      "set": "2024-03-24T04:44:07.548Z",
+      "setX": 3295.522357,
+      "setY": 4342.887783,
+      "setZ": 4051.673514,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-24T06:10:43.548Z",
+      "riseX": 5376.33662,
+      "riseY": 3466.665711,
+      "riseZ": 2279.21248,
+      "set": "2024-03-24T06:21:28.548Z",
+      "setX": 1443.678456,
+      "setY": 4475.684317,
+      "setZ": 4902.721614,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-24T07:49:33.548Z",
+      "riseX": 3437.568797,
+      "riseY": 4285.711695,
+      "riseZ": 3993.887269,
+      "set": "2024-03-24T07:57:29.548Z",
+      "setX": 55.60320254,
+      "setY": 4333.750001,
+      "setZ": 5232.932949,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-24T09:30:13.548Z",
+      "riseX": 127.4170129,
+      "riseY": 4340.857687,
+      "riseZ": 5225.69769,
+      "set": "2024-03-24T09:33:41.548Z",
+      "setX": -1417.793054,
+      "setY": 3983.868155,
+      "setZ": 5320.1158,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-24T11:07:30.548Z",
+      "riseX": -1821.856339,
+      "riseY": 3852.870598,
+      "riseZ": 5293.965481,
+      "set": "2024-03-24T11:13:44.548Z",
+      "setX": -4277.881101,
+      "setY": 2605.507023,
+      "setZ": 4597.269425,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-24T12:43:21.548Z",
+      "riseX": -3058.226972,
+      "riseY": 3340.186397,
+      "riseZ": 5069.158431,
+      "set": "2024-03-24T12:53:34.548Z",
+      "setX": -6124.870288,
+      "setY": 712.3781288,
+      "setZ": 2869.037414,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-24T14:19:58.548Z",
+      "riseX": -4438.693605,
+      "riseY": 2517.507472,
+      "riseZ": 4492.88686,
+      "set": "2024-03-24T14:30:28.548Z",
+      "setX": -6607.371977,
+      "setY": -465.1934301,
+      "setZ": 1544.805118,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "b275764d-8bb7-45b8-adf7-8bd36656f660",
+    "predictedRiseSet": {
+      "id": "30cee3fd-7f41-4bbc-a1c9-9eddc3ed8950",
+      "rise": "2024-03-25T00:55:14.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-25T00:58:15.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "c3141d1a-1a2f-4377-9333-c715ec1a3398",
+    "predictedRiseSet": {
+      "id": "6f78d334-815c-4b25-82ed-02ce2a642ce4",
+      "rise": "2024-03-25T02:32:12.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-25T02:35:02.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "abf6cd11-4e0c-4174-84cb-1f2a2e08aa29",
+    "action": "update",
+    "oldPredictedRiseSetId": "ea329903-64b1-4b31-bbb8-74413a33822a",
+    "predictedRiseSet": {
+      "rise": "2024-03-25T03:48:10.548Z",
+      "riseX": 6121.843316,
+      "riseY": 2518.923977,
+      "riseZ": 1510.888348,
+      "set": "2024-03-25T03:54:47.548Z",
+      "setX": 4338.250715,
+      "setY": 3812.097691,
+      "setZ": 3573.47646,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-25T05:22:14.548Z",
+      "riseX": 5889.620714,
+      "riseY": 2773.380078,
+      "riseZ": 1930.364419,
+      "set": "2024-03-25T05:33:04.548Z",
+      "setX": 2230.471536,
+      "setY": 4307.179858,
+      "setZ": 4755.311271,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-25T07:00:18.548Z",
+      "riseX": 4433.768842,
+      "riseY": 3740.441934,
+      "riseZ": 3531.363306,
+      "set": "2024-03-25T07:09:16.548Z",
+      "setX": 770.1220616,
+      "setY": 4336.846391,
+      "setZ": 5172.553376,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-25T08:40:48.548Z",
+      "riseX": 1378.776835,
+      "riseY": 4339.635063,
+      "riseZ": 5041.450466,
+      "set": "2024-03-25T08:45:12.548Z",
+      "setX": -609.4340332,
+      "setY": 4181.724912,
+      "setZ": 5321.156269,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-25T10:19:14.548Z",
+      "riseX": -1125.472688,
+      "riseY": 4080.274823,
+      "riseZ": 5316.395257,
+      "set": "2024-03-25T10:24:11.548Z",
+      "setX": -3240.675366,
+      "setY": 3374.834809,
+      "setZ": 4931.29486,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-25T11:55:06.548Z",
+      "riseX": -2429.99645,
+      "riseY": 3711.649889,
+      "riseZ": 5149.376922,
+      "set": "2024-03-25T12:04:33.548Z",
+      "setX": -5694.621283,
+      "setY": 1655.768248,
+      "setZ": 3328.440177,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-25T13:31:23.548Z",
+      "riseX": -3796.491633,
+      "riseY": 3119.33367,
+      "riseZ": 4698.270916,
+      "set": "2024-03-25T13:42:19.548Z",
+      "setX": -6556.532539,
+      "setY": 294.579524,
+      "setZ": 1785.455017,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-25T15:10:14.548Z",
+      "riseX": -5678.907668,
+      "riseY": 1715.796782,
+      "riseZ": 3324.911899,
+      "set": "2024-03-25T15:15:41.548Z",
+      "setX": -6607.597891,
+      "setY": 176.4917352,
+      "setZ": 1604.000177,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "4161adb3-a26c-4b8c-a62d-8c55432b7379",
+    "predictedRiseSet": {
+      "id": "5ecf2a4d-b354-437b-917f-9bed3767e1e5",
+      "rise": "2024-03-26T00:06:59.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-26T00:09:39.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "6492abb0-3aed-464a-b9fc-d10a4ec1160a",
+    "predictedRiseSet": {
+      "id": "4cef6722-607d-45b1-aa0c-208550731ea9",
+      "rise": "2024-03-26T01:43:38.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-26T01:46:32.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "7938b14f-0699-4d92-a0d0-4ebacb9e2366",
+    "predictedRiseSet": {
+      "id": "6d79e55e-7385-47e7-ac37-02c4fead5827",
+      "rise": "2024-03-26T03:20:34.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-26T03:23:34.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "5e5bb2fe-006d-4eaf-9b7b-9f3f26ea0dda",
+    "action": "update",
+    "oldPredictedRiseSetId": "54d57a08-a0da-4935-8629-43c09a8b42fd",
+    "predictedRiseSet": {
+      "rise": "2024-03-26T04:33:57.548Z",
+      "riseX": 6252.516095,
+      "riseY": 2067.221581,
+      "riseZ": 1651.403045,
+      "set": "2024-03-26T04:44:32.548Z",
+      "setX": 3026.96841,
+      "setY": 4011.074048,
+      "setZ": 4568.889058,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-26T06:11:12.548Z",
+      "riseX": 5234.962019,
+      "riseY": 3046.23751,
+      "riseZ": 3069.235512,
+      "set": "2024-03-26T06:21:00.548Z",
+      "setX": 1488.230041,
+      "setY": 4238.068547,
+      "setZ": 5095.843505,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-26T07:51:14.548Z",
+      "riseX": 2643.652566,
+      "riseY": 4074.196442,
+      "riseZ": 4747.916031,
+      "set": "2024-03-26T07:56:51.548Z",
+      "setX": 144.5530899,
+      "setY": 4246.935838,
+      "setZ": 5301.233421,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-26T09:30:49.548Z",
+      "riseX": -349.922618,
+      "riseY": 4209.803159,
+      "riseZ": 5321.852354,
+      "set": "2024-03-26T09:34:39.548Z",
+      "setX": -2071.89135,
+      "setY": 3906.99972,
+      "setZ": 5160.836309,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-26T11:06:51.548Z",
+      "riseX": -1771.316877,
+      "riseY": 3985.751614,
+      "riseZ": 5211.865591,
+      "set": "2024-03-26T11:15:19.548Z",
+      "setX": -5033.178008,
+      "setY": 2547.949846,
+      "setZ": 3796.76198,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-26T12:42:55.548Z",
+      "riseX": -3127.560479,
+      "riseY": 3586.786445,
+      "riseZ": 4853.979289,
+      "set": "2024-03-26T12:53:52.548Z",
+      "setX": -6369.329263,
+      "setY": 1113.659285,
+      "setZ": 2110.634946,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-26T14:20:33.548Z",
+      "riseX": -4868.09274,
+      "riseY": 2700.898994,
+      "riseZ": 3904.402798,
+      "set": "2024-03-26T14:28:50.548Z",
+      "setX": -6636.579114,
+      "setY": 550.129726,
+      "setZ": 1386.135777,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "ba53eaf3-7dfa-4f6b-bac8-a2302267bca8",
+    "predictedRiseSet": {
+      "id": "17b3ce3e-ff9c-4650-9d74-755f97d14bd5",
+      "rise": "2024-03-26T23:19:06.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-26T23:20:42.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "5c81d270-5e04-464f-9289-d6eb3aacb59b",
+    "predictedRiseSet": {
+      "id": "b2e152a6-601a-4a8b-ad94-029b50d52181",
+      "rise": "2024-03-27T00:55:01.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-27T00:58:02.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "585adad8-f691-44e3-bdc8-623675122107",
+    "predictedRiseSet": {
+      "id": "6ba321f2-75f5-4ade-93ff-77e2f06ed366",
+      "rise": "2024-03-27T02:32:04.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-27T02:34:56.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "abe66cc7-28c9-467f-aeaa-bf63739f8b17",
+    "action": "update",
+    "oldPredictedRiseSetId": "16746bac-029c-469a-8240-fb2e64ac697f",
+    "predictedRiseSet": {
+      "rise": "2024-03-27T03:45:55.548Z",
+      "riseX": 6480.412852,
+      "riseY": 1392.954162,
+      "riseZ": 1465.748357,
+      "set": "2024-03-27T03:55:47.548Z",
+      "setX": 3838.980965,
+      "setY": 3564.93955,
+      "setZ": 4320.28838,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-27T05:22:15.548Z",
+      "riseX": 5838.509475,
+      "riseY": 2258.618568,
+      "riseZ": 2626.980707,
+      "set": "2024-03-27T05:32:40.548Z",
+      "setX": 2202.254154,
+      "setY": 4034.764201,
+      "setZ": 5000.046374,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-27T07:01:40.548Z",
+      "riseX": 3795.419198,
+      "riseY": 3556.365366,
+      "riseZ": 4365.661053,
+      "set": "2024-03-27T07:08:33.548Z",
+      "setX": 862.945859,
+      "setY": 4202.762203,
+      "setZ": 5266.855585,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-27T08:42:04.548Z",
+      "riseX": 574.0861093,
+      "riseY": 4215.687566,
+      "riseZ": 5296.230056,
+      "set": "2024-03-27T08:45:19.548Z",
+      "setX": -915.3545513,
+      "setY": 4177.419738,
+      "setZ": 5280.585453,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-27T10:18:35.548Z",
+      "riseX": -1089.569658,
+      "riseY": 4163.059435,
+      "riseZ": 5259.067237,
+      "set": "2024-03-27T10:25:53.548Z",
+      "setX": -4137.626336,
+      "setY": 3326.270934,
+      "setZ": 4247.712692,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-27T11:54:29.548Z",
+      "riseX": -2425.642756,
+      "riseY": 3939.260194,
+      "riseZ": 4979.50949,
+      "set": "2024-03-27T12:05:09.548Z",
+      "setX": -6015.647463,
+      "setY": 1954.019496,
+      "setZ": 2501.010353,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-27T13:31:28.548Z",
+      "riseX": -4071.057205,
+      "riseY": 3385.721727,
+      "riseZ": 4264.869187,
+      "set": "2024-03-27T13:41:15.548Z",
+      "setX": -6559.030546,
+      "setY": 1122.984084,
+      "setZ": 1410.322176,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "5bc190d0-85a8-40d6-bf1f-0a0d0d321d7f",
+    "predictedRiseSet": {
+      "id": "340827b1-7ce0-455e-83c8-4ce10edc6d6b",
+      "rise": "2024-03-28T00:06:26.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-28T00:09:30.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "42b36c72-c956-458e-ae9e-d17316e877fd",
+    "predictedRiseSet": {
+      "id": "36db1909-3edd-4920-987d-f34e60077c33",
+      "rise": "2024-03-28T01:43:29.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-28T01:46:17.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "015618c3-bcbb-450f-b9c0-4a2d0d48c7be",
+    "action": "update",
+    "oldPredictedRiseSetId": "a1ad16c7-6535-4c3d-bb11-60026df51125",
+    "predictedRiseSet": {
+      "rise": "2024-03-28T02:58:14.548Z",
+      "riseX": 6590.877314,
+      "riseY": 802.5145273,
+      "riseZ": 1411.499186,
+      "set": "2024-03-28T03:06:45.548Z",
+      "setX": 4649.45952,
+      "setY": 2937.608633,
+      "setZ": 3981.167845,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-28T04:33:29.548Z",
+      "riseX": 6248.803229,
+      "riseY": 1434.611202,
+      "riseZ": 2229.989833,
+      "set": "2024-03-28T04:44:14.548Z",
+      "setX": 2910.596152,
+      "setY": 3720.670502,
+      "setZ": 4878.577184,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-28T06:12:11.548Z",
+      "riseX": 4756.547112,
+      "riseY": 2837.916991,
+      "riseZ": 3926.344855,
+      "set": "2024-03-28T06:20:15.548Z",
+      "setX": 1554.797148,
+      "setY": 4058.999817,
+      "setZ": 5219.376875,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-28T07:52:50.548Z",
+      "riseX": 1687.657517,
+      "riseY": 4028.683649,
+      "riseZ": 5201.372821,
+      "set": "2024-03-28T07:56:24.548Z",
+      "setX": 69.19676625,
+      "setY": 4228.293958,
+      "setZ": 5317.274723,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-28T09:30:15.548Z",
+      "riseX": -374.8591446,
+      "riseY": 4242.706574,
+      "riseZ": 5293.621373,
+      "set": "2024-03-28T09:36:18.548Z",
+      "setX": -3038.336681,
+      "setY": 3921.592435,
+      "setZ": 4647.468315,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-28T11:06:06.548Z",
+      "riseX": -1717.386734,
+      "riseY": 4178.690261,
+      "riseZ": 5076.88949,
+      "set": "2024-03-28T11:16:12.548Z",
+      "setX": -5474.693234,
+      "setY": 2768.907634,
+      "setZ": 2935.366611,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-28T12:42:38.548Z",
+      "riseX": -3268.577051,
+      "riseY": 3880.366242,
+      "riseZ": 4524.649137,
+      "set": "2024-03-28T12:53:14.548Z",
+      "setX": -6370.780933,
+      "setY": 1791.853606,
+      "setZ": 1573.0805,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "2431a33a-3c17-4245-a43c-24bf31859d8e",
+    "predictedRiseSet": {
+      "id": "cc908ce2-8cf3-4a2f-b79a-2d892e1251df",
+      "rise": "2024-03-28T23:17:55.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-28T23:20:53.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "2e9dfc2a-0c26-44aa-862f-dd63056fe06d",
+    "predictedRiseSet": {
+      "id": "9d300d0a-de63-4451-986f-9f10664bd201",
+      "rise": "2024-03-29T00:54:50.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-29T00:57:39.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "11aca0e1-948e-41ed-bdaf-38f6c2c20ae9",
+    "action": "update",
+    "oldPredictedRiseSetId": "a30900df-af4e-4837-98b6-892952942864",
+    "predictedRiseSet": {
+      "rise": "2024-03-29T02:11:07.548Z",
+      "riseX": 6593.973986,
+      "riseY": 376.331073,
+      "riseZ": 1564.205755,
+      "set": "2024-03-29T02:17:10.548Z",
+      "setX": 5470.369257,
+      "setY": 2044.165888,
+      "setZ": 3460.871252,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-29T03:44:54.548Z",
+      "riseX": 6489.910397,
+      "riseY": 614.9892816,
+      "riseZ": 1889.709192,
+      "set": "2024-03-29T03:55:41.548Z",
+      "setX": 3600.665038,
+      "setY": 3288.219546,
+      "setZ": 4724.803781,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-29T05:22:50.548Z",
+      "riseX": 5489.752455,
+      "riseY": 1986.050473,
+      "riseZ": 3463.712448,
+      "set": "2024-03-29T05:31:54.548Z",
+      "setX": 2229.62436,
+      "setY": 3816.181113,
+      "setZ": 5156.216748,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-29T07:03:15.548Z",
+      "riseX": 2874.731965,
+      "riseY": 3584.260035,
+      "riseZ": 5000.05923,
+      "set": "2024-03-29T07:07:48.548Z",
+      "setX": 891.0326702,
+      "setY": 4136.113042,
+      "setZ": 5314.133828,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-29T08:41:51.548Z",
+      "riseX": 359.5703515,
+      "riseY": 4217.528503,
+      "riseZ": 5313.480656,
+      "set": "2024-03-29T08:46:37.548Z",
+      "setX": -1792.154216,
+      "setY": 4277.869461,
+      "setZ": 4967.475779,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-29T10:17:43.548Z",
+      "riseX": -998.0066434,
+      "riseY": 4313.049643,
+      "riseZ": 5155.098614,
+      "set": "2024-03-29T10:27:02.548Z",
+      "setX": -4734.752091,
+      "setY": 3507.644409,
+      "setZ": 3394.688338,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-29T11:53:58.548Z",
+      "riseX": -2476.985796,
+      "riseY": 4220.134702,
+      "riseZ": 4717.569072,
+      "set": "2024-03-29T12:04:54.548Z",
+      "setX": -6054.493819,
+      "setY": 2502.376512,
+      "setZ": 1830.960778,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-29T13:32:33.548Z",
+      "riseX": -4650.422078,
+      "riseY": 3582.781828,
+      "riseZ": 3432.417512,
+      "set": "2024-03-29T13:38:34.548Z",
+      "setX": -6200.440475,
+      "setY": 2333.309075,
+      "setZ": 1544.344498,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "8eb2c713-2f3f-4a43-b2a6-66c07beb760e",
+    "predictedRiseSet": {
+      "id": "cc8cee05-1711-4988-8cf9-1f757e78c36c",
+      "rise": "2024-03-29T22:29:35.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-29T22:32:06.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "3c324b7a-44bf-4be2-bb24-248bafb71f12",
+    "predictedRiseSet": {
+      "id": "db5fb691-30f9-4641-bd7d-9a9488ca67a8",
+      "rise": "2024-03-30T00:06:07.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-30T00:09:02.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "cc55b894-6be8-48fa-a56a-08af2cb43f83",
+    "predictedRiseSet": {
+      "id": "f8e0d7fe-cfed-45b9-a101-aad7cd1ff62c",
+      "rise": "2024-03-30T01:43:04.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-30T01:46:02.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "e9592c83-cb94-4e2b-bd6e-37278626395d",
+    "action": "update",
+    "oldPredictedRiseSetId": "f2b233a3-0e5d-41cf-a1ae-b742976df6d3",
+    "predictedRiseSet": {
+      "rise": "2024-03-30T02:56:31.548Z",
+      "riseX": 6588.395302,
+      "riseY": -164.8185596,
+      "riseZ": 1620.121604,
+      "set": "2024-03-30T03:06:59.548Z",
+      "setX": 4260.354999,
+      "setY": 2726.691605,
+      "setZ": 4527.739257,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-30T04:33:37.548Z",
+      "riseX": 5995.393402,
+      "riseY": 1059.448912,
+      "riseZ": 2999.621972,
+      "set": "2024-03-30T04:43:30.548Z",
+      "setX": 2872.845905,
+      "setY": 3475.822878,
+      "setZ": 5076.568895,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-30T06:13:33.548Z",
+      "riseX": 3965.673925,
+      "riseY": 2890.292676,
+      "riseZ": 4691.47944,
+      "set": "2024-03-30T06:19:21.548Z",
+      "setX": 1609.194426,
+      "setY": 3941.192322,
+      "setZ": 5291.876556,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-30T07:53:16.548Z",
+      "riseX": 1149.820341,
+      "riseY": 4068.983211,
+      "riseZ": 5315.595417,
+      "set": "2024-03-30T07:56:57.548Z",
+      "setX": -506.6419873,
+      "setY": 4364.780571,
+      "setZ": 5182.290491,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-30T09:29:20.548Z",
+      "riseX": -283.1304647,
+      "riseY": 4344.87697,
+      "riseZ": 5215.55798,
+      "set": "2024-03-30T09:37:38.548Z",
+      "setX": -3787.227318,
+      "setY": 4117.35106,
+      "setZ": 3864.5178,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-30T11:05:22.548Z",
+      "riseX": -1686.15824,
+      "riseY": 4429.575446,
+      "riseZ": 4870.571124,
+      "set": "2024-03-30T11:16:17.548Z",
+      "setX": -5588.602392,
+      "setY": 3215.667592,
+      "setZ": 2166.684359,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-30T12:42:53.548Z",
+      "riseX": -3590.805674,
+      "riseY": 4199.620206,
+      "riseZ": 3961.764663,
+      "set": "2024-03-30T12:51:27.548Z",
+      "setX": -6078.019948,
+      "setY": 2729.265992,
+      "setZ": 1373.50391,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "84ce991c-7027-4cab-a576-a6c1b5d1301f",
+    "predictedRiseSet": {
+      "id": "d1c8ef78-6fef-4149-87a5-1627baa30ced",
+      "rise": "2024-03-30T21:41:43.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-30T21:42:53.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "063f0c46-76e5-4a66-9926-2fcc152d5d95",
+    "predictedRiseSet": {
+      "id": "d8d19093-eb5b-45c7-94d8-accdaa25a89f",
+      "rise": "2024-03-30T23:17:23.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-30T23:20:24.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "fe8fe7d6-72a6-46ca-9bba-fcb14efaa860",
+    "predictedRiseSet": {
+      "id": "92ffbe6f-7d6a-42eb-b5bd-60bbffc29513",
+      "rise": "2024-03-31T00:54:25.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-31T00:57:16.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "00d92226-706d-4d0f-92f1-f3de47907a38",
+    "action": "update",
+    "oldPredictedRiseSetId": "eecc9753-6430-45b1-bd29-cc8570470e50",
+    "predictedRiseSet": {
+      "rise": "2024-03-31T02:08:25.548Z",
+      "riseX": 6572.236434,
+      "riseY": -858.6319876,
+      "riseZ": 1455.773444,
+      "set": "2024-03-31T02:18:04.548Z",
+      "setX": 4879.320777,
+      "setY": 2015.830764,
+      "setZ": 4266.082717,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-31T03:44:34.548Z",
+      "riseX": 6282.747993,
+      "riseY": 119.2759599,
+      "riseZ": 2562.350473,
+      "set": "2024-03-31T03:55:01.548Z",
+      "setX": 3482.622467,
+      "setY": 3034.252046,
+      "setZ": 4975.472818,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-31T05:23:52.548Z",
+      "riseX": 4855.808086,
+      "riseY": 2003.772018,
+      "riseZ": 4298.480261,
+      "set": "2024-03-31T05:30:55.548Z",
+      "setX": 2271.576089,
+      "setY": 3652.196511,
+      "setZ": 5254.80789,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-31T07:04:20.548Z",
+      "riseX": 2043.046162,
+      "riseY": 3746.212246,
+      "riseZ": 5282.753411,
+      "set": "2024-03-31T07:07:32.548Z",
+      "setX": 652.3768569,
+      "setY": 4215.356045,
+      "setZ": 5286.450691,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-31T08:40:56.548Z",
+      "riseX": 420.5440599,
+      "riseY": 4277.176405,
+      "riseZ": 5260.684473,
+      "set": "2024-03-31T08:48:02.548Z",
+      "setX": -2656.846919,
+      "setY": 4533.306302,
+      "setZ": 4312.792813,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-31T10:16:49.548Z",
+      "riseX": -910.8586813,
+      "riseY": 4519.766329,
+      "riseZ": 4991.434493,
+      "set": "2024-03-31T10:27:24.548Z",
+      "setX": -4954.975476,
+      "setY": 3888.808154,
+      "setZ": 2566.251551,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-03-31T11:53:43.548Z",
+      "riseX": -2621.372861,
+      "riseY": 4561.311921,
+      "riseZ": 4304.870636,
+      "set": "2024-03-31T12:03:39.548Z",
+      "setX": -5795.658262,
+      "setY": 3263.342235,
+      "setZ": 1427.976898,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "cce0a920-aea1-4d53-b660-45a216fcb80f",
+    "predictedRiseSet": {
+      "id": "2d1e7e7c-5f88-4feb-8574-36029b736d2d",
+      "rise": "2024-03-31T22:28:40.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-03-31T22:31:43.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "c87c9609-07ac-4904-8667-f5718d405f88",
+    "predictedRiseSet": {
+      "id": "12f8b0e8-ef05-46d9-8cd7-e87f18a095e8",
+      "rise": "2024-04-01T00:05:42.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-01T00:08:30.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "de714df8-3af1-4dc5-a43a-b10c0ebbc157",
+    "action": "update",
+    "oldPredictedRiseSetId": "f59defa5-247f-4679-ae71-2b45de8034ef",
+    "predictedRiseSet": {
+      "rise": "2024-04-01T01:20:40.548Z",
+      "riseX": 6477.904248,
+      "riseY": -1433.925075,
+      "riseZ": 1422.862525,
+      "set": "2024-04-01T01:28:50.548Z",
+      "setX": 5437.240633,
+      "setY": 1122.766132,
+      "setZ": 3902.828008,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-01T02:55:42.548Z",
+      "riseX": 6380.020087,
+      "riseY": -787.9045044,
+      "riseZ": 2172.023871,
+      "set": "2024-04-01T03:06:26.548Z",
+      "setX": 4047.66973,
+      "setY": 2488.493892,
+      "setZ": 4847.595776,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-01T04:34:16.548Z",
+      "riseX": 5498.171211,
+      "riseY": 997.0470491,
+      "riseZ": 3851.011621,
+      "set": "2024-04-01T04:42:29.548Z",
+      "setX": 2874.902052,
+      "setY": 3277.876812,
+      "setZ": 5204.563797,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-01T06:14:54.548Z",
+      "riseX": 3050.506061,
+      "riseY": 3166.698294,
+      "riseZ": 5173.011471,
+      "set": "2024-04-01T06:18:33.548Z",
+      "setX": 1566.974541,
+      "setY": 3928.151558,
+      "setZ": 5313.767182,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-01T07:52:29.548Z",
+      "riseX": 1114.823477,
+      "riseY": 4108.351316,
+      "riseZ": 5292.397996,
+      "set": "2024-04-01T07:58:18.548Z",
+      "setX": -1405.214695,
+      "setY": 4700.929721,
+      "setZ": 4702.337878,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-01T09:28:18.548Z",
+      "riseX": -160.8470794,
+      "riseY": 4500.809544,
+      "riseZ": 5086.703505,
+      "set": "2024-04-01T09:38:17.548Z",
+      "setX": -4150.477457,
+      "setY": 4469.344709,
+      "setZ": 3007.84364,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-01T11:04:47.548Z",
+      "riseX": -1707.978589,
+      "riseY": 4747.332853,
+      "riseZ": 4553.868619,
+      "set": "2024-04-01T11:15:27.548Z",
+      "setX": -5379.484286,
+      "setY": 3840.256972,
+      "setZ": 1609.237565,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "737ba282-7433-4064-8b72-53de89a45633",
+    "predictedRiseSet": {
+      "id": "70f5ecbb-fd45-4ab5-88b9-9af912f0ccd1",
+      "rise": "2024-04-01T21:40:04.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-01T21:42:57.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "bc8b8986-dbc6-4586-bdd3-73ff2bc49aac",
+    "predictedRiseSet": {
+      "id": "8341aaf3-9b4b-427e-893e-1cafd589c2cb",
+      "rise": "2024-04-01T23:16:55.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-01T23:19:44.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "4003dc7a-adae-4b39-aa74-0178fba50835",
+    "action": "update",
+    "oldPredictedRiseSetId": "a2616ed2-882c-4015-85e1-776c31f76517",
+    "predictedRiseSet": {
+      "rise": "2024-04-02T00:33:36.548Z",
+      "riseX": 6339.01115,
+      "riseY": -1782.264672,
+      "riseZ": 1636.409839,
+      "set": "2024-04-02T00:38:57.548Z",
+      "setX": 5915.248038,
+      "setY": -58.64859656,
+      "setZ": 3323.919012,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "f9628c19-bc29-4b4c-a3b3-4decca739259",
+    "action": "update",
+    "oldPredictedRiseSetId": "eee2616a-cc6b-4204-bce2-a8fd84264e53",
+    "predictedRiseSet": {
+      "rise": "2024-04-02T02:07:01.548Z",
+      "riseX": 6323.382221,
+      "riseY": -1632.845598,
+      "riseZ": 1839.56777,
+      "set": "2024-04-02T02:17:44.548Z",
+      "setX": 4552.861014,
+      "setY": 1836.119797,
+      "setZ": 4686.193619,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-02T03:44:48.548Z",
+      "riseX": 5881.661486,
+      "riseY": -54.34111897,
+      "riseZ": 3382.806952,
+      "set": "2024-04-02T03:54:00.548Z",
+      "setX": 3428.00195,
+      "setY": 2815.595278,
+      "setZ": 5138.391431,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-02T05:25:09.548Z",
+      "riseX": 4018.294237,
+      "riseY": 2322.301505,
+      "riseZ": 4952.8484,
+      "set": "2024-04-02T05:29:52.548Z",
+      "setX": 2288.343903,
+      "setY": 3565.375933,
+      "setZ": 5306.238829,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-02T07:03:56.548Z",
+      "riseX": 1805.937837,
+      "riseY": 3828.190223,
+      "riseZ": 5310.202617,
+      "set": "2024-04-02T07:08:28.548Z",
+      "setX": -100.7461558,
+      "setY": 4589.244056,
+      "setZ": 5008.621165,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-02T08:39:48.548Z",
+      "riseX": 556.4698689,
+      "riseY": 4381.083585,
+      "riseZ": 5161.305755,
+      "set": "2024-04-02T08:48:56.548Z",
+      "setX": -3176.491787,
+      "setY": 4904.992848,
+      "setZ": 3476.046006,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-02T10:16:00.548Z",
+      "riseX": -851.9603702,
+      "riseY": 4793.20207,
+      "riseZ": 4740.740873,
+      "set": "2024-04-02T10:26:57.548Z",
+      "setX": -4829.255532,
+      "setY": 4406.557924,
+      "setZ": 1879.25838,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-02T11:54:20.548Z",
+      "riseX": -3034.107736,
+      "riseY": 4949.003537,
+      "riseZ": 3539.88715,
+      "set": "2024-04-02T12:00:55.548Z",
+      "setX": -5103.447166,
+      "setY": 4244.963443,
+      "setZ": 1487.708249,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "f3fdfe72-9003-4999-98dd-cd02d945a893",
+    "predictedRiseSet": {
+      "id": "35f71e61-42f6-406e-ba63-2bae51694528",
+      "rise": "2024-04-02T20:51:39.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-02T20:54:01.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "9f3b8962-f015-4c90-a703-f0e0d63de630",
+    "predictedRiseSet": {
+      "id": "12f351ca-b62b-4550-b5e2-c1cccf46e688",
+      "rise": "2024-04-02T22:28:04.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-02T22:30:59.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "9a50ac23-2469-4928-886d-21c5154e0fc9",
+    "predictedRiseSet": {
+      "id": "89fb8cfa-506e-4258-921c-8ff2802a04df",
+      "rise": "2024-04-03T00:05:02.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-03T00:07:57.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "f747597d-f885-4ff1-9cff-58452087b876",
+    "action": "update",
+    "oldPredictedRiseSetId": "7ebc26c7-ff06-43fb-b64c-a442f9c11775",
+    "predictedRiseSet": {
+      "rise": "2024-04-03T01:18:34.548Z",
+      "riseX": 6150.408229,
+      "riseY": -2381.749543,
+      "riseZ": 1590.099417,
+      "set": "2024-04-03T01:28:52.548Z",
+      "setX": 4986.559882,
+      "setY": 1066.205918,
+      "setZ": 4476.897647,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-03T02:55:30.548Z",
+      "riseX": 6024.465621,
+      "riseY": -1084.56845,
+      "riseZ": 2925.432132,
+      "set": "2024-04-03T03:05:27.548Z",
+      "setX": 3922.79012,
+      "setY": 2266.777384,
+      "setZ": 5053.639726,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-03T04:35:19.548Z",
+      "riseX": 4793.574359,
+      "riseY": 1286.212304,
+      "riseZ": 4627.764648,
+      "set": "2024-04-03T04:41:17.548Z",
+      "setX": 2897.592716,
+      "setY": 3131.976737,
+      "setZ": 5280.39801,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-03T06:15:11.548Z",
+      "riseX": 2512.413283,
+      "riseY": 3406.423175,
+      "riseZ": 5308.545253,
+      "set": "2024-04-03T06:18:42.548Z",
+      "setX": 1122.983778,
+      "setY": 4217.988007,
+      "setZ": 5203.535094,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-03T07:51:18.548Z",
+      "riseX": 1234.703443,
+      "riseY": 4167.475155,
+      "riseZ": 5218.666262,
+      "set": "2024-04-03T07:59:23.548Z",
+      "setX": -2063.051377,
+      "setY": 5139.764642,
+      "setZ": 3941.676358,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-03T09:27:17.548Z",
+      "riseX": -41.70700703,
+      "riseY": 4717.947399,
+      "riseZ": 4888.483713,
+      "set": "2024-04-03T09:38:09.548Z",
+      "setX": -4129.411677,
+      "setY": 4922.490798,
+      "setZ": 2231.486268,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-03T11:04:40.548Z",
+      "riseX": -1868.936439,
+      "riseY": 5149.203152,
+      "riseZ": 4024.717699,
+      "set": "2024-04-03T11:13:31.548Z",
+      "setX": -4816.698878,
+      "setY": 4604.388252,
+      "setZ": 1370.558644,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "5827a4f6-92e5-4c94-8ab0-ede9d89b847f",
+    "predictedRiseSet": {
+      "id": "d1fe0da8-2c4a-4329-9d5f-52269dd93efa",
+      "rise": "2024-04-03T21:39:13.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-03T21:42:13.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "c84413f8-db57-4d69-be2a-4a9c9d49b159",
+    "predictedRiseSet": {
+      "id": "94b92363-0f63-4318-8f6d-20f88c5f0648",
+      "rise": "2024-04-03T23:16:15.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-03T23:19:04.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "cc864a1f-ba4b-4f5e-88c6-17eab40474ec",
+    "action": "update",
+    "oldPredictedRiseSetId": "c3a18774-d1db-4e44-8e7b-b47a17bc0f17",
+    "predictedRiseSet": {
+      "rise": "2024-04-04T00:30:23.548Z",
+      "riseX": 5902.963649,
+      "riseY": -3016.977613,
+      "riseZ": 1440.754578,
+      "set": "2024-04-04T00:39:47.548Z",
+      "setX": 5325.34664,
+      "setY": 168.8740347,
+      "setZ": 4200.370223,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-04T02:06:21.548Z",
+      "riseX": 5964.392252,
+      "riseY": -2057.271235,
+      "riseZ": 2492.651207,
+      "set": "2024-04-04T02:16:50.548Z",
+      "setX": 4344.775188,
+      "setY": 1638.495583,
+      "setZ": 4948.559099,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-04T03:45:31.548Z",
+      "riseX": 5308.22561,
+      "riseY": 146.8498363,
+      "riseZ": 4222.78234,
+      "set": "2024-04-04T03:52:44.548Z",
+      "setX": 3416.030298,
+      "setY": 2633.991483,
+      "setZ": 5240.691259,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-04T05:26:02.548Z",
+      "riseX": 3269.695412,
+      "riseY": 2766.473435,
+      "riseZ": 5266.039328,
+      "set": "2024-04-04T05:29:13.548Z",
+      "setX": 2132.282286,
+      "setY": 3682.501837,
+      "setZ": 5291.148485,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-04T07:02:46.548Z",
+      "riseX": 1875.23046,
+      "riseY": 3860.770742,
+      "riseZ": 5261.962968,
+      "set": "2024-04-04T07:09:37.548Z",
+      "setX": -839.4435042,
+      "setY": 5123.119624,
+      "setZ": 4385.451482,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-04T08:38:37.548Z",
+      "riseX": 713.1062662,
+      "riseY": 4536.949323,
+      "riseZ": 5004.82879,
+      "set": "2024-04-04T08:49:06.548Z",
+      "setX": -3287.63333,
+      "setY": 5335.731795,
+      "setZ": 2640.292878,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-04T10:15:25.548Z",
+      "riseX": -849.9459279,
+      "riseY": 5151.173631,
+      "riseZ": 4350.477923,
+      "set": "2024-04-04T10:25:31.548Z",
+      "setX": -4352.036025,
+      "setY": 5023.339213,
+      "setZ": 1450.12486,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "b16e7937-972e-4777-b7b5-a3649d14dbb9",
+    "predictedRiseSet": {
+      "id": "9e7c4dab-64a0-4b55-a1d7-a6d5ab8d61b1",
+      "rise": "2024-04-04T20:50:23.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-04T20:53:24.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "297f974c-c766-41bc-ae5d-0a7829bf2875",
+    "predictedRiseSet": {
+      "id": "cdde5a93-ceb5-49c5-b046-57ff8d5257f0",
+      "rise": "2024-04-04T22:27:23.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-04T22:30:10.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "0749dba6-c5e6-4672-8076-2aa3a937e5f0",
+    "action": "update",
+    "oldPredictedRiseSetId": "fc21fe3e-1377-45d9-89d8-196a22aefddc",
+    "predictedRiseSet": {
+      "rise": "2024-04-04T23:42:36.548Z",
+      "riseX": 5629.23011,
+      "riseY": -3500.715466,
+      "riseZ": 1440.291122,
+      "set": "2024-04-04T23:50:21.548Z",
+      "setX": 5541.177598,
+      "setY": -890.3356283,
+      "setZ": 3810.624993,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-05T01:17:23.548Z",
+      "riseX": 5741.020406,
+      "riseY": -2933.932512,
+      "riseZ": 2108.578253,
+      "set": "2024-04-05T01:28:06.548Z",
+      "setX": 4691.957303,
+      "setY": 921.2778949,
+      "setZ": 4813.680864,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-05T02:55:49.548Z",
+      "riseX": 5547.936399,
+      "riseY": -1010.873327,
+      "riseZ": 3770.283985,
+      "set": "2024-04-05T03:04:10.548Z",
+      "setX": 3855.149244,
+      "setY": 2070.97229,
+      "setZ": 5187.052343,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-05T04:36:24.548Z",
+      "riseX": 4030.739315,
+      "riseY": 1844.402758,
+      "riseZ": 5138.397638,
+      "set": "2024-04-05T04:40:10.548Z",
+      "setX": 2867.360268,
+      "setY": 3109.767107,
+      "setZ": 5309.448017,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-05T06:14:11.548Z",
+      "riseX": 2471.958569,
+      "riseY": 3461.517007,
+      "riseZ": 5291.567085,
+      "set": "2024-04-05T06:19:43.548Z",
+      "setX": 408.8202373,
+      "setY": 4824.753212,
+      "setZ": 4765.203414,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-05T07:49:59.548Z",
+      "riseX": 1406.934285,
+      "riseY": 4262.959459,
+      "riseZ": 5096.206546,
+      "set": "2024-04-05T07:59:49.548Z",
+      "setX": -2315.558056,
+      "setY": 5597.342442,
+      "setZ": 3088.689854,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-05T09:26:24.548Z",
+      "riseX": 54.68040368,
+      "riseY": 5013.377537,
+      "riseZ": 4585.417949,
+      "set": "2024-04-05T09:37:08.548Z",
+      "setX": -3748.71067,
+      "setY": 5430.938473,
+      "setZ": 1650.225951,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-05T11:06:42.548Z",
+      "riseX": -2689.815311,
+      "riseY": 5627.279958,
+      "riseZ": 2709.740604,
+      "set": "2024-04-05T11:08:49.548Z",
+      "setX": -3378.577867,
+      "setY": 5543.127483,
+      "setZ": 2030.227244,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "53e46eca-0994-4e39-8c5e-5a75dd3ef84e",
+    "predictedRiseSet": {
+      "id": "ee808857-1383-4ea9-867e-866773c6416f",
+      "rise": "2024-04-05T20:01:41.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-05T20:04:29.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "15e35250-406e-4520-b5eb-1e72fc93a0e1",
+    "predictedRiseSet": {
+      "id": "010e7806-f26f-400d-a16a-346e9f55c1dc",
+      "rise": "2024-04-05T21:38:28.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-05T21:41:17.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "8b2082f7-436e-4675-b8cd-75d886d3d557",
+    "action": "update",
+    "oldPredictedRiseSetId": "40a95225-d51d-4edf-8647-83eef1e1b651",
+    "predictedRiseSet": {
+      "rise": "2024-04-05T22:55:41.548Z",
+      "riseX": 5408.932581,
+      "riseY": -3701.166931,
+      "riseZ": 1748.083899,
+      "set": "2024-04-05T23:00:04.548Z",
+      "setX": 5571.477474,
+      "setY": -2259.375774,
+      "setZ": 3140.287744,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "7f8f3b32-be45-4b8e-bc4e-acd49a591f8b",
+    "action": "update",
+    "oldPredictedRiseSetId": "c6a491d1-7f88-411a-82da-2e8ce6b6351e",
+    "predictedRiseSet": {
+      "rise": "2024-04-06T00:28:37.548Z",
+      "riseX": 5399.349659,
+      "riseY": -3695.114075,
+      "riseZ": 1789.415541,
+      "set": "2024-04-06T00:39:15.548Z",
+      "setX": 4943.40834,
+      "setY": 123.967125,
+      "setZ": 4644.079206,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-06T02:06:15.548Z",
+      "riseX": 5533.434735,
+      "riseY": -2119.158268,
+      "riseZ": 3300.897237,
+      "set": "2024-04-06T02:15:33.548Z",
+      "setX": 4215.973416,
+      "setY": 1442.363888,
+      "setZ": 5117.230278,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-06T03:46:30.548Z",
+      "riseX": 4640.615078,
+      "riseY": 703.6409967,
+      "riseZ": 4898.803539,
+      "set": "2024-04-06T03:51:24.548Z",
+      "setX": 3403.843166,
+      "setY": 2532.45432,
+      "setZ": 5297.631442,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-06T05:25:29.548Z",
+      "riseX": 3032.13255,
+      "riseY": 2952.668361,
+      "riseZ": 5306.916715,
+      "set": "2024-04-06T05:29:45.548Z",
+      "setX": 1592.132521,
+      "setY": 4249.53805,
+      "setZ": 5052.37802,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-06T07:01:22.548Z",
+      "riseX": 2035.651866,
+      "riseY": 3906.46778,
+      "riseZ": 5167.400872,
+      "set": "2024-04-06T07:10:18.548Z",
+      "setX": -1234.218637,
+      "setY": 5657.846408,
+      "setZ": 3560.13162,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-06T08:37:30.548Z",
+      "riseX": 869.6780197,
+      "riseY": 4761.383512,
+      "riseZ": 4766.105062,
+      "set": "2024-04-06T08:48:26.548Z",
+      "setX": -3015.385333,
+      "setY": 5778.549456,
+      "setZ": 1943.547201,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-06T10:15:36.548Z",
+      "riseX": -1054.935976,
+      "riseY": 5640.000372,
+      "riseZ": 3644.45654,
+      "set": "2024-04-06T10:22:42.548Z",
+      "setX": -3421.491268,
+      "setY": 5698.354042,
+      "setZ": 1447.689254,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "df81a4b4-0bd4-472d-830c-55d618835d0e",
+    "predictedRiseSet": {
+      "id": "d2f9cc27-f1ea-478b-94db-d81c53119cbf",
+      "rise": "2024-04-06T19:13:13.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-06T19:15:21.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "0631f336-b5d4-4812-af69-fb1d16b0e612",
+    "predictedRiseSet": {
+      "id": "9267f69e-2446-4e1d-ae14-81e5d302cd82",
+      "rise": "2024-04-06T20:49:29.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-06T20:52:24.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "585a05b5-806e-47de-b5d7-5a89f4278b93",
+    "predictedRiseSet": {
+      "id": "53b884fd-cd51-41c1-88d9-6893c6b33dc1",
+      "rise": "2024-04-06T22:26:27.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-06T22:29:20.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "c329479f-f8fa-49d4-afdb-f6ec59b60f59",
+    "action": "update",
+    "oldPredictedRiseSetId": "94eb8c15-a835-4f42-a8f8-1f61f1d63f29",
+    "predictedRiseSet": {
+      "rise": "2024-04-06T23:40:05.548Z",
+      "riseX": 4985.578966,
+      "riseY": -4328.10889,
+      "riseZ": 1554.549761,
+      "set": "2024-04-06T23:50:14.548Z",
+      "setX": 5084.091658,
+      "setY": -758.77666,
+      "setZ": 4425.219323,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-07T01:16:50.548Z",
+      "riseX": 5304.145912,
+      "riseY": -3129.591197,
+      "riseZ": 2840.676816,
+      "set": "2024-04-07T01:26:52.548Z",
+      "setX": 4491.318199,
+      "setY": 752.6267839,
+      "setZ": 5028.567513,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-07T02:56:32.548Z",
+      "riseX": 4996.02341,
+      "riseY": -541.1787364,
+      "riseZ": 4555.838534,
+      "set": "2024-04-07T03:02:42.548Z",
+      "setX": 3822.315592,
+      "setY": 1917.973416,
+      "setZ": 5268.619385,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-07T04:36:34.548Z",
+      "riseX": 3560.439818,
+      "riseY": 2297.883942,
+      "riseZ": 5300.832576,
+      "set": "2024-04-07T04:39:53.548Z",
+      "setX": 2594.583786,
+      "setY": 3471.496258,
+      "setZ": 5225.466423,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-07T06:12:44.548Z",
+      "riseX": 2600.991887,
+      "riseY": 3470.633726,
+      "riseZ": 5222.85562,
+      "set": "2024-04-07T06:20:34.548Z",
+      "setX": -87.2845269,
+      "setY": 5472.158275,
+      "setZ": 4028.485337,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-07T07:48:40.548Z",
+      "riseX": 1599.773321,
+      "riseY": 4412.684037,
+      "riseZ": 4908.349165,
+      "set": "2024-04-07T07:59:28.548Z",
+      "setX": -2167.1912,
+      "setY": 6019.3902,
+      "setZ": 2306.108002,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-07T09:25:55.548Z",
+      "riseX": 68.42143619,
+      "riseY": 5426.205251,
+      "riseZ": 4089.972851,
+      "set": "2024-04-07T09:35:03.548Z",
+      "setX": -2995.278449,
+      "setY": 5951.192731,
+      "setZ": 1372.707326,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "ae4636c9-fd00-473a-9bdf-acf26b07207a",
+    "predictedRiseSet": {
+      "id": "0184a4c7-de2f-4b2c-8fb2-12d1b5717858",
+      "rise": "2024-04-07T20:00:30.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-07T20:03:30.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "d6d1dcaf-7cbb-40ad-9314-8acc8b0528d6",
+    "predictedRiseSet": {
+      "id": "35d5f21f-81e2-4c30-8b1a-3216c53731e2",
+      "rise": "2024-04-07T21:37:32.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-07T21:40:19.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "06dc6eb2-b620-4cd7-8ff4-99e4cbb8cd4e",
+    "action": "update",
+    "oldPredictedRiseSetId": "989c7a74-0f7f-49a4-a6de-45cabc710574",
+    "predictedRiseSet": {
+      "rise": "2024-04-07T22:51:51.548Z",
+      "riseX": 4549.248967,
+      "riseY": -4822.372886,
+      "riseZ": 1432.1112,
+      "set": "2024-04-07T23:00:58.548Z",
+      "setX": 5089.983052,
+      "setY": -1740.574688,
+      "setZ": 4129.979137,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-08T00:27:35.548Z",
+      "riseX": 4908.13979,
+      "riseY": -4010.40431,
+      "riseZ": 2412.420623,
+      "set": "2024-04-08T00:38:06.548Z",
+      "setX": 4672.458901,
+      "setY": 6.543767361,
+      "setZ": 4917.079371,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-08T02:06:37.548Z",
+      "riseX": 5068.769489,
+      "riseY": -1782.48115,
+      "riseZ": 4138.123835,
+      "set": "2024-04-08T02:14:02.548Z",
+      "setX": 4133.934286,
+      "setY": 1274.865412,
+      "setZ": 5226.507656,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-08T03:47:12.548Z",
+      "riseX": 4067.508366,
+      "riseY": 1398.299616,
+      "riseZ": 5247.246103,
+      "set": "2024-04-08T03:50:21.548Z",
+      "setX": 3325.821573,
+      "setY": 2638.682977,
+      "setZ": 5295.117224,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-08T05:24:04.548Z",
+      "riseX": 3098.350422,
+      "riseY": 2959.873994,
+      "riseZ": 5264.03709,
+      "set": "2024-04-08T05:30:38.548Z",
+      "setX": 1065.878637,
+      "setY": 5007.551692,
+      "setZ": 4465.013558,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-08T06:59:54.548Z",
+      "riseX": 2236.462669,
+      "riseY": 3990.23603,
+      "riseZ": 5017.96596,
+      "set": "2024-04-08T07:10:14.548Z",
+      "setX": -1215.045406,
+      "setY": 6108.122283,
+      "setZ": 2728.349394,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-08T08:36:36.548Z",
+      "riseX": 1003.076518,
+      "riseY": 5082.288499,
+      "riseZ": 4394.883778,
+      "set": "2024-04-08T08:46:50.548Z",
+      "setX": -2390.177456,
+      "setY": 6193.181002,
+      "setZ": 1482.730677,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "cae8cb31-3a6d-41ee-beaf-2267949d8f3f",
+    "predictedRiseSet": {
+      "id": "dcb23a23-5cc3-4251-a148-c593139a7323",
+      "rise": "2024-04-08T19:11:35.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-08T19:14:33.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "baa303c9-5eb4-49b6-a302-ebe59ee9c9bc",
+    "predictedRiseSet": {
+      "id": "e2025f52-a338-466f-861a-3b8beb04e450",
+      "rise": "2024-04-08T20:48:32.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-08T20:51:18.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "fa9415f2-0b1d-4c99-bedc-0a57ed68e026",
+    "action": "update",
+    "oldPredictedRiseSetId": "ee53ae93-2249-4286-b404-b9a1ccdda2c5",
+    "predictedRiseSet": {
+      "rise": "2024-04-08T22:04:03.548Z",
+      "riseX": 4149.11425,
+      "riseY": -5159.543432,
+      "riseZ": 1470.400364,
+      "set": "2024-04-08T22:11:17.548Z",
+      "setX": 4914.368685,
+      "setY": -2853.573462,
+      "setZ": 3700.143683,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-08T23:38:32.548Z",
+      "riseX": 4398.334204,
+      "riseY": -4741.494018,
+      "riseZ": 2040.504922,
+      "set": "2024-04-08T23:49:14.548Z",
+      "setX": 4748.578174,
+      "setY": -790.1042277,
+      "setZ": 4777.270693,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-09T01:16:48.548Z",
+      "riseX": 4879.303837,
+      "riseY": -2943.092558,
+      "riseZ": 3676.158916,
+      "set": "2024-04-09T01:25:20.548Z",
+      "setX": 4352.043899,
+      "setY": 591.5210571,
+      "setZ": 5169.681785,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-09T02:57:21.548Z",
+      "riseX": 4467.84119,
+      "riseY": 229.5854174,
+      "riseZ": 5098.58102,
+      "set": "2024-04-09T03:01:15.548Z",
+      "setX": 3793.757802,
+      "setY": 1873.839776,
+      "setZ": 5304.432582,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-09T04:35:21.548Z",
+      "riseX": 3522.095723,
+      "riseY": 2376.96783,
+      "riseZ": 5291.280671,
+      "set": "2024-04-09T04:40:35.548Z",
+      "setX": 2133.162813,
+      "setY": 4270.831508,
+      "setZ": 4829.319584,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-09T06:11:08.548Z",
+      "riseX": 2794.486818,
+      "riseY": 3491.801679,
+      "riseZ": 5107.147494,
+      "set": "2024-04-09T06:20:46.548Z",
+      "setX": -193.941374,
+      "setY": 6001.10647,
+      "setZ": 3186.659693,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-09T07:47:29.548Z",
+      "riseX": 1793.959331,
+      "riseY": 4644.790886,
+      "riseZ": 4618.975529,
+      "set": "2024-04-09T07:58:15.548Z",
+      "setX": -1662.205782,
+      "setY": 6370.34851,
+      "setZ": 1706.642649,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-09T09:26:59.548Z",
+      "riseX": -326.4070333,
+      "riseY": 6087.14481,
+      "riseZ": 3008.744095,
+      "set": "2024-04-09T09:30:47.548Z",
+      "setX": -1543.219279,
+      "setY": 6374.985125,
+      "setZ": 1797.952778,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "37cff328-71a8-4107-83fd-44b0deef992f",
+    "predictedRiseSet": {
+      "id": "71c080d9-8ddb-47c5-a2f1-8f7549d89283",
+      "rise": "2024-04-09T18:22:47.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-09T18:25:29.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "b7cda224-db71-46e8-8314-669dd415f962",
+    "predictedRiseSet": {
+      "id": "ce15d153-8c23-4f9d-8f17-7cd03f4dde18",
+      "rise": "2024-04-09T19:59:28.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-09T20:02:17.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "deccb48c-3441-44c7-bac2-cbdcba62144d",
+    "action": "update",
+    "oldPredictedRiseSetId": "57802ed0-f82c-4c11-8d3a-adcf15a85bf7",
+    "predictedRiseSet": {
+      "rise": "2024-04-09T21:17:28.548Z",
+      "riseX": 3958.278381,
+      "riseY": -5155.847227,
+      "riseZ": 1933.591697,
+      "set": "2024-04-09T21:20:25.548Z",
+      "setX": 4396.549836,
+      "setY": -4286.125564,
+      "setZ": 2877.604712,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "a755c3b9-698b-417e-8827-b6e3e9f5038d",
+    "action": "update",
+    "oldPredictedRiseSetId": "aa32f564-f352-427a-b22a-e7d19b8f9a0c",
+    "predictedRiseSet": {
+      "rise": "2024-04-09T22:49:41.548Z",
+      "riseX": 3821.86177,
+      "riseY": -5326.496205,
+      "riseZ": 1735.440055,
+      "set": "2024-04-09T23:00:13.548Z",
+      "setX": 4707.297615,
+      "setY": -1642.132294,
+      "setZ": 4596.452769,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-10T00:27:08.548Z",
+      "riseX": 4472.936545,
+      "riseY": -3961.762047,
+      "riseZ": 3205.386256,
+      "set": "2024-04-10T00:36:35.548Z",
+      "setX": 4473.238546,
+      "setY": -126.1337272,
+      "setZ": 5096.545833,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-10T02:07:17.548Z",
+      "riseX": 4632.709198,
+      "riseY": -1068.623685,
+      "riseZ": 4835.781692,
+      "set": "2024-04-10T02:12:23.548Z",
+      "setX": 4088.944283,
+      "setY": 1156.809604,
+      "setZ": 5288.194251,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-10T03:46:30.548Z",
+      "riseX": 3876.11881,
+      "riseY": 1696.759311,
+      "riseZ": 5303.850934,
+      "set": "2024-04-10T03:50:28.548Z",
+      "setX": 3037.134145,
+      "setY": 3297.138357,
+      "setZ": 5097.21593,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-10T05:22:23.548Z",
+      "riseX": 3262.095804,
+      "riseY": 2938.264738,
+      "riseZ": 5176.052523,
+      "set": "2024-04-10T05:31:05.548Z",
+      "setX": 851.4894334,
+      "setY": 5662.624167,
+      "setZ": 3658.766562,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-10T06:58:28.548Z",
+      "riseX": 2466.651688,
+      "riseY": 4128.769916,
+      "riseZ": 4793.092076,
+      "set": "2024-04-10T07:09:23.548Z",
+      "setX": -842.5547855,
+      "setY": 6441.16228,
+      "setZ": 2011.050252,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-10T08:36:21.548Z",
+      "riseX": 1018.0253,
+      "riseY": 5577.532958,
+      "riseZ": 3745.139106,
+      "set": "2024-04-10T08:43:57.548Z",
+      "setX": -1347.200146,
+      "setY": 6515.729546,
+      "setZ": 1411.206482,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "d7c1fbdb-79af-42ea-8c03-fd6a6fc5d87d",
+    "predictedRiseSet": {
+      "id": "43327ef0-8934-4796-b362-cc31c4a1c0ea",
+      "rise": "2024-04-10T17:34:17.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-10T17:36:07.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "7485ea9f-2a6e-45c5-b2ea-a5e8d4d44545",
+    "predictedRiseSet": {
+      "id": "2a6018eb-8aaa-4b66-8a30-8da3810e2c6f",
+      "rise": "2024-04-10T19:10:22.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-10T19:13:17.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "0037a189-9d89-4269-8234-4dbe0eecfca8",
+    "predictedRiseSet": {
+      "id": "61017faf-394d-4614-8ae7-a683d6808c5c",
+      "rise": "2024-04-10T20:47:20.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-10T20:50:11.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "09846bc5-dba6-4d5c-88d4-a014e060ede4",
+    "action": "update",
+    "oldPredictedRiseSetId": "2fe84aec-31a6-402e-86c8-d2dd25f8005f",
+    "predictedRiseSet": {
+      "rise": "2024-04-10T22:01:05.548Z",
+      "riseX": 3228.90589,
+      "riseY": -5766.082716,
+      "riseZ": 1521.790449,
+      "set": "2024-04-10T22:11:02.548Z",
+      "setX": 4527.949702,
+      "setY": -2534.141167,
+      "setZ": 4364.306698,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-10T23:37:37.548Z",
+      "riseX": 3904.021404,
+      "riseY": -4814.993479,
+      "riseZ": 2747.476367,
+      "set": "2024-04-10T23:47:45.548Z",
+      "setX": 4493.258753,
+      "setY": -878.5792044,
+      "setZ": 5002.427169,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-11T01:17:11.548Z",
+      "riseX": 4517.196341,
+      "riseY": -2356.959591,
+      "riseZ": 4473.506524,
+      "set": "2024-04-11T01:23:35.548Z",
+      "setX": 4263.132621,
+      "setY": 447.3703735,
+      "setZ": 5256.574845,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-11T02:57:24.548Z",
+      "riseX": 4151.768148,
+      "riseY": 875.3738604,
+      "riseZ": 5292.50737,
+      "set": "2024-04-11T03:00:30.548Z",
+      "setX": 3686.2316,
+      "setY": 2219.707063,
+      "setZ": 5246.822601,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-11T04:33:38.548Z",
+      "riseX": 3639.157606,
+      "riseY": 2339.153441,
+      "riseZ": 5228.061093,
+      "set": "2024-04-11T04:41:10.548Z",
+      "setX": 1872.876697,
+      "setY": 5060.342811,
+      "setZ": 4126.551669,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-11T06:09:32.548Z",
+      "riseX": 3022.813523,
+      "riseY": 3559.126706,
+      "riseZ": 4927.340051,
+      "set": "2024-04-11T06:20:13.548Z",
+      "setX": 57.7788152,
+      "setY": 6363.205011,
+      "setZ": 2393.768104,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-11T07:46:38.548Z",
+      "riseX": 1965.270574,
+      "riseY": 5000.392222,
+      "riseZ": 4156.149155,
+      "set": "2024-04-11T07:56:01.548Z",
+      "setX": -814.7757008,
+      "setY": 6607.814009,
+      "setZ": 1389.308057,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "1e366356-9d5d-47e2-95f5-e944f463eec7",
+    "predictedRiseSet": {
+      "id": "d221a3e2-4375-4815-9764-c48a96e48d9f",
+      "rise": "2024-04-11T18:21:16.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-11T18:24:15.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "c9032eac-5259-49ec-aacd-f97c962f1916",
+    "predictedRiseSet": {
+      "id": "ef170e35-fc11-46df-bb9c-bd9172aba20e",
+      "rise": "2024-04-11T19:58:16.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-11T20:01:02.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "85740983-3550-4651-a136-452807f74756",
+    "action": "update",
+    "oldPredictedRiseSetId": "a3616e98-ffff-4e36-9924-3bbb85dedf27",
+    "predictedRiseSet": {
+      "rise": "2024-04-11T21:12:48.548Z",
+      "riseX": 2669.324255,
+      "riseY": -6068.478753,
+      "riseZ": 1427.163755,
+      "set": "2024-04-11T21:21:34.548Z",
+      "setX": 4180.195154,
+      "setY": -3481.946018,
+      "setZ": 4045.370709,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-11T22:48:17.548Z",
+      "riseX": 3231.3755,
+      "riseY": -5486.751931,
+      "riseZ": 2329.801575,
+      "set": "2024-04-11T22:58:50.548Z",
+      "setX": 4403.14035,
+      "setY": -1650.848207,
+      "setZ": 4884.569843,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-12T00:27:09.548Z",
+      "riseX": 4139.915427,
+      "riseY": -3533.114119,
+      "riseZ": 4042.35311,
+      "set": "2024-04-12T00:34:47.548Z",
+      "setX": 4331.754635,
+      "setY": -266.1615407,
+      "setZ": 5211.13523,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-12T02:07:47.548Z",
+      "riseX": 4319.908162,
+      "riseY": -199.2496874,
+      "riseZ": 5224.034932,
+      "set": "2024-04-12T02:10:56.548Z",
+      "setX": 4056.838905,
+      "setY": 1221.334948,
+      "setZ": 5298.039217,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-12T03:44:50.548Z",
+      "riseX": 3929.890563,
+      "riseY": 1686.571897,
+      "riseZ": 5266.953432,
+      "set": "2024-04-12T03:51:04.548Z",
+      "setX": 2791.300819,
+      "setY": 4194.199992,
+      "setZ": 4552.285328,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-12T05:20:38.548Z",
+      "riseX": 3474.073562,
+      "riseY": 2941.137843,
+      "riseZ": 5034.23561,
+      "set": "2024-04-12T05:30:49.548Z",
+      "setX": 990.9503428,
+      "setY": 6103.297109,
+      "setZ": 2822.745208,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-12T06:57:14.548Z",
+      "riseX": 2707.222835,
+      "riseY": 4363.240476,
+      "riseZ": 4443.539366,
+      "set": "2024-04-12T07:07:36.548Z",
+      "setX": -143.1557551,
+      "setY": 6626.263814,
+      "setZ": 1523.192052,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "e703e435-3166-4325-a908-dda28ba34e18",
+    "predictedRiseSet": {
+      "id": "44c962ba-46ed-4e11-9e9f-810c1849a58a",
+      "rise": "2024-04-12T17:32:14.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-12T17:35:09.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "38c41b32-e83f-440a-a4d9-9e17a313b26b",
+    "predictedRiseSet": {
+      "id": "69dd775b-e0e2-4a52-b3fc-5a8fe8fabf1e",
+      "rise": "2024-04-12T19:09:08.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-12T19:11:53.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "e34905e5-dbf0-4e31-a6a1-cfd0f5e3aed0",
+    "action": "update",
+    "oldPredictedRiseSetId": "aefa215e-27a4-4496-b3a4-7c73b06cdcd1",
+    "predictedRiseSet": {
+      "rise": "2024-04-12T20:25:01.548Z",
+      "riseX": 2216.219975,
+      "riseY": -6226.87738,
+      "riseZ": 1516.545655,
+      "set": "2024-04-12T20:31:37.548Z",
+      "setX": 3597.516623,
+      "setY": -4503.666883,
+      "setZ": 3568.450644,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-12T21:59:09.548Z",
+      "riseX": 2508.452097,
+      "riseY": -5983.209995,
+      "riseZ": 1971.108165,
+      "set": "2024-04-12T22:09:49.548Z",
+      "setX": 4194.841032,
+      "setY": -2433.164233,
+      "setZ": 4737.424398,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-12T23:37:14.548Z",
+      "riseX": 3551.223244,
+      "riseY": -4534.868142,
+      "riseZ": 3575.103275,
+      "set": "2024-04-12T23:45:57.548Z",
+      "setX": 4298.261765,
+      "setY": -984.6826611,
+      "setZ": 5150.925373,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-13T01:17:44.548Z",
+      "riseX": 4277.732104,
+      "riseY": -1464.325252,
+      "riseZ": 5052.439058,
+      "set": "2024-04-13T01:21:47.548Z",
+      "setX": 4216.518817,
+      "setY": 376.3442461,
+      "setZ": 5298.89665,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-13T02:55:59.548Z",
+      "riseX": 4126.215528,
+      "riseY": 991.8593673,
+      "riseZ": 5291.692934,
+      "set": "2024-04-13T03:00:51.548Z",
+      "setX": 3526.525972,
+      "setY": 3101.991006,
+      "setZ": 4899.892876,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-13T04:31:45.548Z",
+      "riseX": 3822.490167,
+      "riseY": 2286.418399,
+      "riseZ": 5119.016578,
+      "set": "2024-04-13T04:41:10.548Z",
+      "setX": 1922.019407,
+      "setY": 5626.520731,
+      "setZ": 3289.250837,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-13T06:08:01.548Z",
+      "riseX": 3287.940158,
+      "riseY": 3687.382177,
+      "riseZ": 4656.121309,
+      "set": "2024-04-13T06:18:49.548Z",
+      "setX": 620.8279053,
+      "setY": 6535.735795,
+      "setZ": 1769.877542,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-13T07:46:59.548Z",
+      "riseX": 1926.144786,
+      "riseY": 5662.540197,
+      "riseZ": 3224.725606,
+      "set": "2024-04-13T07:51:57.548Z",
+      "setX": 560.2317757,
+      "setY": 6571.655909,
+      "setZ": 1654.525865,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "d993b6b1-3a06-4f88-ae27-e477775a9db3",
+    "predictedRiseSet": {
+      "id": "b3d80bfd-9851-4990-9a3d-b25aee7e409d",
+      "rise": "2024-04-13T16:43:21.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-13T16:45:54.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "d65e3c44-3729-41f7-be39-b21aa884d295",
+    "predictedRiseSet": {
+      "id": "b846c645-3219-4b12-a447-262fc076bb85",
+      "rise": "2024-04-13T18:19:55.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-13T18:22:45.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "8db040b8-c44b-4ad4-a5ce-9772795ed296",
+    "predictedRiseSet": {
+      "id": "3099b150-7f2d-47ea-98c2-7cf277283b7b",
+      "rise": "2024-04-13T19:56:48.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-13T19:59:43.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "964467ac-40bf-4f07-8506-0951adf69479",
+    "action": "update",
+    "oldPredictedRiseSetId": "b98fe130-aa7b-48b7-a78b-8add6d5f798a",
+    "predictedRiseSet": {
+      "rise": "2024-04-13T21:10:13.548Z",
+      "riseX": 1776.849191,
+      "riseY": -6324.193078,
+      "riseZ": 1681.290049,
+      "set": "2024-04-13T21:20:38.548Z",
+      "setX": 3853.392894,
+      "setY": -3231.638847,
+      "setZ": 4545.097395,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-13T22:47:28.548Z",
+      "riseX": 2814.20838,
+      "riseY": -5329.493596,
+      "riseZ": 3103.77751,
+      "set": "2024-04-13T22:57:03.548Z",
+      "setX": 4160.787263,
+      "setY": -1708.532248,
+      "setZ": 5072.630961,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-14T00:27:30.548Z",
+      "riseX": 3962.645266,
+      "riseY": -2747.730833,
+      "riseZ": 4764.527854,
+      "set": "2024-04-14T00:32:50.548Z",
+      "setX": 4239.642114,
+      "setY": -376.8207742,
+      "setZ": 5278.780356,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-14T02:06:59.548Z",
+      "riseX": 4223.763469,
+      "riseY": 222.7495302,
+      "riseZ": 5301.256916,
+      "set": "2024-04-14T02:10:36.548Z",
+      "setX": 4014.785838,
+      "setY": 1861.699655,
+      "setZ": 5142.619694,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-14T03:42:53.548Z",
+      "riseX": 4068.189403,
+      "riseY": 1612.359202,
+      "riseZ": 5184.089023,
+      "set": "2024-04-14T03:51:17.548Z",
+      "setX": 2792.9051,
+      "setY": 4912.700915,
+      "setZ": 3768.57841,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-14T05:18:54.548Z",
+      "riseX": 3732.863769,
+      "riseY": 2982.058003,
+      "riseZ": 4820.417407,
+      "set": "2024-04-14T05:29:45.548Z",
+      "setX": 1432.02817,
+      "setY": 6306.699769,
+      "setZ": 2095.194166,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-14T06:56:33.548Z",
+      "riseX": 2914.221542,
+      "riseY": 4778.12184,
+      "riseZ": 3848.110782,
+      "set": "2024-04-14T07:04:37.548Z",
+      "setX": 897.3127584,
+      "setY": 6595.225648,
+      "setZ": 1392.308475,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "6069395d-eed5-48c1-9624-1fa38f6f5905",
+    "predictedRiseSet": {
+      "id": "31ab4fab-b876-4370-a340-c73d0e575666",
+      "rise": "2024-04-14T15:54:53.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-14T15:56:16.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "70400e26-b023-4626-917f-5ddd969ca8a3",
+    "predictedRiseSet": {
+      "id": "488f7799-9c1e-4a41-ac7a-0d246f0eb5d5",
+      "rise": "2024-04-14T17:30:41.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-14T17:33:36.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "eb7b4136-f45c-49fa-9266-d795f3866336",
+    "predictedRiseSet": {
+      "id": "41c792e1-c73f-4771-beef-b35c5aafb800",
+      "rise": "2024-04-14T19:07:40.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-14T19:10:28.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "ebe9e6a0-6da3-4562-94dd-0ab3feb83238",
+    "action": "update",
+    "oldPredictedRiseSetId": "a617cee8-a85d-4728-8b34-7c854faf9111",
+    "predictedRiseSet": {
+      "rise": "2024-04-14T20:21:33.548Z",
+      "riseX": 1086.702493,
+      "riseY": -6525.38005,
+      "riseZ": 1490.085205,
+      "set": "2024-04-14T20:31:16.548Z",
+      "setX": 3362.498165,
+      "setY": -4022.513285,
+      "setZ": 4295.993017,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-14T21:57:51.548Z",
+      "riseX": 1987.100121,
+      "riseY": -5915.418933,
+      "riseZ": 2649.231963,
+      "set": "2024-04-14T22:08:05.548Z",
+      "setX": 3916.449024,
+      "setY": -2421.631639,
+      "setZ": 4974.64616,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-14T23:37:16.548Z",
+      "riseX": 3390.526463,
+      "riseY": -3904.29097,
+      "riseZ": 4382.184837,
+      "set": "2024-04-14T23:43:54.548Z",
+      "setX": 4154.375118,
+      "setY": -1103.003685,
+      "setZ": 5243.224903,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-15T01:17:39.548Z",
+      "riseX": 4194.13514,
+      "riseY": -689.4838791,
+      "riseZ": 5282.74455,
+      "set": "2024-04-15T01:20:34.548Z",
+      "setX": 4225.32576,
+      "setY": 650.1068922,
+      "setZ": 5265.357084,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-15T02:53:59.548Z",
+      "riseX": 4215.582567,
+      "riseY": 912.3515244,
+      "riseZ": 5234.74567,
+      "set": "2024-04-15T03:01:11.548Z",
+      "setX": 3536.834228,
+      "setY": 3959.571448,
+      "setZ": 4232.242838,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-15T04:29:50.548Z",
+      "riseX": 4055.560718,
+      "riseY": 2254.626651,
+      "riseZ": 4950.789534,
+      "set": "2024-04-15T04:40:24.548Z",
+      "setX": 2259.604088,
+      "setY": 5906.041151,
+      "setZ": 2490.819908,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-15T06:06:48.548Z",
+      "riseX": 3575.122479,
+      "riseY": 3933.186883,
+      "riseZ": 4224.52125,
+      "set": "2024-04-15T06:16:26.548Z",
+      "setX": 1461.678251,
+      "setY": 6488.95546,
+      "setZ": 1410.887521,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "4bf5e306-0199-427e-8781-55c817def0f6",
+    "predictedRiseSet": {
+      "id": "28b3a713-c08d-4e71-ba2c-65eb231301c5",
+      "rise": "2024-04-15T16:41:28.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-15T16:44:26.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "65800f08-94f2-4f77-9ad3-6032cdc0cb14",
+    "predictedRiseSet": {
+      "id": "500e303f-c064-46dd-a993-93f58faff014",
+      "rise": "2024-04-15T18:18:27.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-15T18:21:11.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "67e61d27-2e87-4932-8f2e-05b825cfdd25",
+    "action": "update",
+    "oldPredictedRiseSetId": "98ea621f-045c-49c4-91d7-e7dc6e828bec",
+    "predictedRiseSet": {
+      "rise": "2024-04-15T19:33:13.548Z",
+      "riseX": 481.2101857,
+      "riseY": -6612.289531,
+      "riseZ": 1424.502346,
+      "set": "2024-04-15T19:41:35.548Z",
+      "setX": 2682.563131,
+      "setY": -4811.729244,
+      "setZ": 3948.468589,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-15T21:08:26.548Z",
+      "riseX": 1133.922716,
+      "riseY": -6296.47326,
+      "riseZ": 2243.437794,
+      "set": "2024-04-15T21:19:01.548Z",
+      "setX": 3559.437397,
+      "setY": -3121.402401,
+      "setZ": 4850.40204,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-15T22:47:07.548Z",
+      "riseX": 2618.578223,
+      "riseY": -4855.576287,
+      "riseZ": 3937.672405,
+      "set": "2024-04-15T22:54:58.548Z",
+      "setX": 3968.6198,
+      "setY": -1795.916877,
+      "setZ": 5194.063143,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-16T00:27:47.548Z",
+      "riseX": 3961.371787,
+      "riseY": -1806.243358,
+      "riseZ": 5195.987078,
+      "set": "2024-04-16T00:30:59.548Z",
+      "setX": 4214.71556,
+      "setY": -361.820434,
+      "setZ": 5299.264021,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-16T02:05:04.548Z",
+      "riseX": 4262.573833,
+      "riseY": 207.2851573,
+      "riseZ": 5270.295523,
+      "set": "2024-04-16T02:10:54.548Z",
+      "setX": 4082.582426,
+      "setY": 2793.264565,
+      "setZ": 4646.456023,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-16T03:40:49.548Z",
+      "riseX": 4262.358333,
+      "riseY": 1526.05888,
+      "riseZ": 5052.155563,
+      "set": "2024-04-16T03:50:48.548Z",
+      "setX": 3053.633574,
+      "setY": 5312.76672,
+      "setZ": 2934.704742,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-16T05:17:19.548Z",
+      "riseX": 4037.571546,
+      "riseY": 3093.923768,
+      "riseZ": 4493.876606,
+      "set": "2024-04-16T05:27:47.548Z",
+      "setX": 2124.688989,
+      "setY": 6262.05718,
+      "setZ": 1578.868841,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "cd51a6ac-b91b-45f0-ba32-dcb9a073ba17",
+    "predictedRiseSet": {
+      "id": "56d0133a-3c4d-47b5-8a34-a2efb7db1d2f",
+      "rise": "2024-04-16T15:52:19.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-16T15:55:10.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "2bccf834-81bf-4f30-867d-d93d3217f7f2",
+    "predictedRiseSet": {
+      "id": "c6d4110e-9967-43e8-8f60-7c552bb7c551",
+      "rise": "2024-04-16T17:29:10.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-16T17:31:54.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "3b002259-d16a-4477-b440-e1be28f10dd1",
+    "action": "update",
+    "oldPredictedRiseSetId": "c2a14548-ef75-4438-93b8-d0edfb863506",
+    "predictedRiseSet": {
+      "rise": "2024-04-16T18:45:31.548Z",
+      "riseX": 65.15134993,
+      "riseY": -6591.713644,
+      "riseZ": 1588.976459,
+      "set": "2024-04-16T18:51:18.548Z",
+      "setX": 1719.374462,
+      "setY": -5603.614077,
+      "setZ": 3403.801701,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-16T20:19:12.548Z",
+      "riseX": 292.3075321,
+      "riseY": -6503.813325,
+      "riseZ": 1893.70223,
+      "set": "2024-04-16T20:29:50.548Z",
+      "setX": 3083.335065,
+      "setY": -3794.298093,
+      "setZ": 4693.284679,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-16T21:57:05.548Z",
+      "riseX": 1713.915038,
+      "riseY": -5569.734484,
+      "riseZ": 3461.351942,
+      "set": "2024-04-16T22:06:00.548Z",
+      "setX": 3685.456605,
+      "setY": -2457.551549,
+      "setZ": 5130.232717,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-16T23:37:31.548Z",
+      "riseX": 3455.406901,
+      "riseY": -3005.131361,
+      "riseZ": 4996.529999,
+      "set": "2024-04-16T23:41:47.548Z",
+      "setX": 4070.970104,
+      "setY": -1170.667466,
+      "setZ": 5293.040668,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-17T01:16:04.548Z",
+      "riseX": 4205.584588,
+      "riseY": -519.6184547,
+      "riseZ": 5292.879064,
+      "set": "2024-04-17T01:20:31.548Z",
+      "setX": 4367.476039,
+      "setY": 1488.61571,
+      "setZ": 4972.874723,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-17T02:51:49.548Z",
+      "riseX": 4361.6186,
+      "riseY": 799.4084356,
+      "riseZ": 5132.153274,
+      "set": "2024-04-17T03:00:57.548Z",
+      "setX": 3762.107778,
+      "setY": 4510.046529,
+      "setZ": 3411.02672,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-17T04:28:00.548Z",
+      "riseX": 4341.184728,
+      "riseY": 2271.553724,
+      "riseZ": 4694.458366,
+      "set": "2024-04-17T04:38:49.548Z",
+      "setX": 2821.208403,
+      "setY": 5903.649172,
+      "setZ": 1841.247451,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-17T06:06:32.548Z",
+      "riseX": 3810.319658,
+      "riseY": 4471.815965,
+      "riseZ": 3407.689868,
+      "set": "2024-04-17T06:12:27.548Z",
+      "setX": 2657.994637,
+      "setY": 6061.233936,
+      "setZ": 1552.613479,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "abbe5402-1ff8-463a-8f60-067811b0c067",
+    "predictedRiseSet": {
+      "id": "5b529e47-7946-4ac3-8bc4-a95e706586a2",
+      "rise": "2024-04-17T15:03:23.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-17T15:05:44.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "6d947c7f-837e-4c76-9d96-ce2916515a7b",
+    "predictedRiseSet": {
+      "id": "6612deff-d7bf-4b49-8164-37b01695739b",
+      "rise": "2024-04-17T16:39:49.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-17T16:42:38.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "dd7e9feb-6083-4f5e-8414-54727d61d8d2",
+    "predictedRiseSet": {
+      "id": "83c81e7d-6fcb-4300-8de0-8bddaf85477d",
+      "rise": "2024-04-17T18:16:42.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-17T18:19:35.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "ace656e3-0430-4c71-8544-06f271c90fbd",
+    "action": "update",
+    "oldPredictedRiseSetId": "5f4f866a-2c2f-4147-9866-cd785d03374a",
+    "predictedRiseSet": {
+      "rise": "2024-04-17T19:30:12.548Z",
+      "riseX": -492.3669309,
+      "riseY": -6564.407795,
+      "riseZ": 1625.97426,
+      "set": "2024-04-17T19:40:29.548Z",
+      "setX": 2474.481032,
+      "setY": -4432.723135,
+      "setZ": 4489.135277,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-17T21:07:13.548Z",
+      "riseX": 751.553464,
+      "riseY": -6036.619065,
+      "riseZ": 2989.99762,
+      "set": "2024-04-17T21:16:58.548Z",
+      "setX": 3303.272683,
+      "setY": -3087.542865,
+      "setZ": 5048.320765,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-17T22:47:08.548Z",
+      "riseX": 2694.795942,
+      "riseY": -4089.934423,
+      "riseZ": 4683.534564,
+      "set": "2024-04-17T22:52:43.548Z",
+      "setX": 3829.733494,
+      "setY": -1875.977645,
+      "setZ": 5268.64671,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-18T00:26:54.548Z",
+      "riseX": 4026.520035,
+      "riseY": -1288.933562,
+      "riseZ": 5299.087754,
+      "set": "2024-04-18T00:30:09.548Z",
+      "setX": 4366.622116,
+      "setY": 160.2681918,
+      "setZ": 5185.767505,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-18T02:02:49.548Z",
+      "riseX": 4358.33202,
+      "riseY": 83.16226264,
+      "riseZ": 5194.384288,
+      "set": "2024-04-18T02:10:52.548Z",
+      "setX": 4321.178319,
+      "setY": 3501.382633,
+      "setZ": 3893.478131,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-18T03:38:46.548Z",
+      "riseX": 4510.580159,
+      "riseY": 1463.507582,
+      "riseZ": 4851.105471,
+      "set": "2024-04-18T03:49:32.548Z",
+      "setX": 3517.119277,
+      "setY": 5385.744842,
+      "setZ": 2191.570933,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-18T05:16:12.548Z",
+      "riseX": 4378.49425,
+      "riseY": 3363.419309,
+      "riseZ": 3949.997917,
+      "set": "2024-04-18T05:24:42.548Z",
+      "setX": 3049.502296,
+      "setY": 5915.264502,
+      "setZ": 1386.721728,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "77673bab-b766-4c8b-9358-e07707f1fb0d",
+    "predictedRiseSet": {
+      "id": "965034ec-d7ac-4ad3-b615-ab8ef1cd3f0b",
+      "rise": "2024-04-18T14:15:07.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-18T14:15:39.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "808736c3-8659-4cbf-a962-5c25ad4e2908",
+    "predictedRiseSet": {
+      "id": "9ba13cbb-fbe5-4b3e-baa9-ea94c22fd35d",
+      "rise": "2024-04-18T15:50:26.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-18T15:53:22.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "31b86a3e-1786-4340-a0c4-a84e3ad2bf42",
+    "predictedRiseSet": {
+      "id": "7f336c3f-3836-4d28-8297-b140f62299d4",
+      "rise": "2024-04-18T17:27:25.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-18T17:30:11.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "9f5d5176-284e-4af1-8ccb-607dc3c2962d",
+    "action": "update",
+    "oldPredictedRiseSetId": "7dfb76ec-a2fa-48d6-a07b-a5ce3ba0ebea",
+    "predictedRiseSet": {
+      "rise": "2024-04-18T18:41:28.548Z",
+      "riseX": -1189.545037,
+      "riseY": -6514.735342,
+      "riseZ": 1458.160089,
+      "set": "2024-04-18T18:50:55.548Z",
+      "setX": 1716.785413,
+      "setY": -5017.53777,
+      "setZ": 4218.881176,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-18T20:17:31.548Z",
+      "riseX": -213.7101711,
+      "riseY": -6279.596752,
+      "riseZ": 2544.592162,
+      "set": "2024-04-18T20:27:50.548Z",
+      "setX": 2816.66108,
+      "setY": -3682.326843,
+      "setZ": 4942.389971,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-18T21:56:46.548Z",
+      "riseX": 1744.401209,
+      "riseY": -4955.615686,
+      "riseZ": 4280.239292,
+      "set": "2024-04-18T22:03:40.548Z",
+      "setX": 3498.154132,
+      "setY": -2518.640923,
+      "setZ": 5229.869708,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-18T23:37:19.548Z",
+      "riseX": 3659.36301,
+      "riseY": -2181.950856,
+      "riseZ": 5271.151518,
+      "set": "2024-04-18T23:40:03.548Z",
+      "setX": 4127.192529,
+      "setY": -1015.751418,
+      "setZ": 5281.314418,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-19T01:13:48.548Z",
+      "riseX": 4256.166266,
+      "riseY": -616.1127423,
+      "riseZ": 5241.358639,
+      "set": "2024-04-19T01:20:35.548Z",
+      "setX": 4665.582728,
+      "setY": 2317.816138,
+      "setZ": 4348.733515,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-19T02:49:35.548Z",
+      "riseX": 4559.588903,
+      "riseY": 677.7757939,
+      "riseZ": 4974.909971,
+      "set": "2024-04-19T02:59:59.548Z",
+      "setX": 4158.667321,
+      "setY": 4698.55823,
+      "setZ": 2603.944194,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-19T04:26:24.548Z",
+      "riseX": 4688.507345,
+      "riseY": 2369.604332,
+      "riseZ": 4296.063636,
+      "set": "2024-04-19T04:36:16.548Z",
+      "setX": 3569.539872,
+      "setY": 5601.105627,
+      "setZ": 1445.176401,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "1347e3ca-3f88-49da-985e-82b4ffeecb47",
+    "predictedRiseSet": {
+      "id": "503e1164-fde1-483a-ba6b-70ca44901786",
+      "rise": "2024-04-19T15:01:06.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-19T15:04:03.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "9a517e10-c8ba-439d-9506-c790992e8b3e",
+    "predictedRiseSet": {
+      "id": "7042c54a-2a42-41f8-a5ee-9bda9ffd12e3",
+      "rise": "2024-04-19T16:38:03.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-19T16:40:46.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "26e193be-4fdd-4c1a-9e40-b2ba2ac84f7e",
+    "action": "update",
+    "oldPredictedRiseSetId": "cae1d900-38bf-45f2-a62e-eb143223ac1a",
+    "predictedRiseSet": {
+      "rise": "2024-04-19T17:53:08.548Z",
+      "riseX": -1748.339318,
+      "riseY": -6391.927386,
+      "riseZ": 1439.4871,
+      "set": "2024-04-19T18:00:59.548Z",
+      "setX": 763.6542236,
+      "setY": -5536.412796,
+      "setZ": 3832.782423,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-19T19:28:00.548Z",
+      "riseX": -1135.538213,
+      "riseY": -6330.118711,
+      "riseZ": 2145.824449,
+      "set": "2024-04-19T19:38:37.548Z",
+      "setX": 2231.444012,
+      "setY": -4217.51432,
+      "setZ": 4811.077873,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-19T21:06:30.548Z",
+      "riseX": 687.8579881,
+      "riseY": -5553.758612,
+      "riseZ": 3821.98817,
+      "set": "2024-04-19T21:14:36.548Z",
+      "setX": 3081.315813,
+      "setY": -3102.411752,
+      "setZ": 5177.07901,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-19T22:47:11.548Z",
+      "riseX": 3013.357868,
+      "riseY": -3193.646759,
+      "riseZ": 5161.4683,
+      "set": "2024-04-19T22:50:28.548Z",
+      "setX": 3775.401336,
+      "setY": -1898.751042,
+      "setZ": 5299.049972,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-20T00:24:44.548Z",
+      "riseX": 4053.73099,
+      "riseY": -1300.236895,
+      "riseZ": 5275.125873,
+      "set": "2024-04-20T00:30:08.548Z",
+      "setX": 4741.099968,
+      "setY": 1013.604653,
+      "setZ": 4744.034227,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-20T02:00:27.548Z",
+      "riseX": 4501.317251,
+      "riseY": -68.82802991,
+      "riseZ": 5070.81229,
+      "set": "2024-04-20T02:10:11.548Z",
+      "setX": 4693.292059,
+      "setY": 3837.083054,
+      "setZ": 3060.848982,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-20T03:36:50.548Z",
+      "riseX": 4823.712014,
+      "riseY": 1441.754978,
+      "riseZ": 4547.333894,
+      "set": "2024-04-20T03:47:24.548Z",
+      "setX": 4129.685093,
+      "setY": 5141.825552,
+      "setZ": 1641.102012,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "3b949154-a34a-4fb5-8856-b8158af032a3",
+    "predictedRiseSet": {
+      "id": "18941b5c-16f8-4d2a-91cb-21c4b2965401",
+      "rise": "2024-04-20T14:11:52.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-20T14:14:37.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "ad8908ff-3102-4a7d-b42a-af8556a6e447",
+    "predictedRiseSet": {
+      "id": "136bf6a4-bfd3-4608-a3d0-2aa46b6718dd",
+      "rise": "2024-04-20T15:48:37.000Z",
+      "riseX": 0,
+      "riseY": 0,
+      "riseZ": 0,
+      "set": "2024-04-20T15:51:22.000Z",
+      "setX": 0,
+      "setY": 0,
+      "setZ": 0,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1",
+      "previousPassId": null
+    },
+    "action": "delete"
+  },
+  {
+    "id": "59cf4b69-02d1-48ec-9d9b-4c54d0b9e21f",
+    "action": "update",
+    "oldPredictedRiseSetId": "4de70d2e-9e09-418a-8a19-3dcc9e3cc70b",
+    "predictedRiseSet": {
+      "rise": "2024-04-20T17:05:37.548Z",
+      "riseX": -2035.424882,
+      "riseY": -6237.246372,
+      "riseZ": 1712.768413,
+      "set": "2024-04-20T17:10:17.548Z",
+      "setX": -512.8083995,
+      "setY": -5957.483459,
+      "setZ": 3191.208407,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "8f1f512d-77cc-4680-bd52-e25072becc97",
+    "action": "update",
+    "oldPredictedRiseSetId": "4f30f8e2-fe4b-4324-a650-d03e7eade894",
+    "predictedRiseSet": {
+      "rise": "2024-04-20T18:38:42.548Z",
+      "riseX": -1975.35937,
+      "riseY": -6226.883921,
+      "riseZ": 1816.350382,
+      "set": "2024-04-20T18:49:16.548Z",
+      "setX": 1537.86005,
+      "setY": -4689.005081,
+      "setZ": 4642.959436,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-20T20:16:22.548Z",
+      "riseX": -400.0975882,
+      "riseY": -5883.186117,
+      "riseZ": 3340.880137,
+      "set": "2024-04-20T20:25:29.548Z",
+      "setX": 2579.249989,
+      "setY": -3628.686076,
+      "setZ": 5108.076036,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-20T21:56:42.548Z",
+      "riseX": 2085.172831,
+      "riseY": -4154.046666,
+      "riseZ": 4930.044366,
+      "set": "2024-04-20T22:01:13.548Z",
+      "setX": 3372.319431,
+      "setY": -2569.897601,
+      "setZ": 5286.578766,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-20T23:35:35.548Z",
+      "riseX": 3744.661206,
+      "riseY": -1968.378816,
+      "riseZ": 5295.113933,
+      "set": "2024-04-20T23:39:35.548Z",
+      "setX": 4518.103141,
+      "setY": -322.2994929,
+      "setZ": 5045.474049,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-21T01:11:19.548Z",
+      "riseX": 4341.66435,
+      "riseY": -783.5571958,
+      "riseZ": 5147.616922,
+      "set": "2024-04-21T01:20:08.548Z",
+      "setX": 5064.143208,
+      "setY": 2805.694373,
+      "setZ": 3544.696141,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-21T02:47:25.548Z",
+      "riseX": 4820.321187,
+      "riseY": 579.9392445,
+      "riseZ": 4735.901264,
+      "set": "2024-04-21T02:58:13.548Z",
+      "setX": 4669.984759,
+      "setY": 4541.987753,
+      "setZ": 1930.228166,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "action": "add",
+    "groundStationId": 1,
+    "predictedRiseSet": {
+      "rise": "2024-04-21T04:25:35.548Z",
+      "riseX": 5096.333711,
+      "riseY": 2710.257505,
+      "riseZ": 3572.282247,
+      "set": "2024-04-21T04:32:19.548Z",
+      "setX": 4498.401953,
+      "setY": 4874.229165,
+      "setZ": 1479.942249,
+      "stateElementId": "8c59a44e-54a4-4d2f-a2d6-9a39b0e617a1"
+    }
+  }
+]

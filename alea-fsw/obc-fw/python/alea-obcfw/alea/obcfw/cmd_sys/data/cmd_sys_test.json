@@ -382,5 +382,62 @@
             {"channel_voltage": "u16"},
             {"adc_err_status": "u8"}
         ]
+    },
+    "TEST_LARGE_PAYLOAD_SPLIT": {
+        "id": 220,
+        "args": [
+            {"data": "bytes"}
+        ],
+        "resp": [
+            {"sum": "u32"}
+        ]
+    },
+    "TEST_LOG_2_FLASH": {
+        "id": 215,
+        "args": [
+            {"num_logs": "u32"}
+        ],
+        "resp": []
+    },
+    "TEST_MRAM_RW": {
+        "id": 100,
+        "args": [
+            {"addr": "u16"},
+            {"len": "u16"}
+        ],
+        "resp": [
+            {"erase_err": "s8"},
+            {"write_err": "s8"},
+            {"read_err": "s8"},
+            {"data_match": "bool"}
+        ]
+    },
+    "TEST_MRAM_WRITE": {
+        "id": 101,
+        "args": [
+            {"addr": "u16"},
+            {"write_data": "bytes"}
+        ],
+        "resp": [
+            {"write_err": "s8"}
+        ]
+    },
+    "TEST_MRAM_READ": {
+        "id": 102,
+        "args": [
+            {"addr": "u16"},
+            {"len": "u16"}
+        ],
+        "resp": [
+            {"read_err": "s8"},
+            {"data": "bytes"}
+        ]
+    },
+    "TEST_TELEM_GLV": {
+        "id": 253,
+        "args": [],
+        "resp": [
+            {"epoch": "s32"}
+        ]
     }
 }

@@ -17,10 +17,16 @@
 #include "logger.h"
 #include "tms_adc.h"
 #include "adc.h"
+#include "telem.h"
+#include "telem_gen.h"
+#include "obc_rtc.h"
+#include "obc_time.h"
 
 // Utils
 #include "io_stream.h"
 #include "obc_utils.h"
+#include "obc_rtos.h"
+#include "obc_watchdog.h"
 
 // TMS570
 #include "tms_can.h"
@@ -86,8 +92,56 @@ cmd_sys_err_t cmd_impl_TEST_ECHO(
     return err;
 }
 
+cmd_sys_resp_code_t cmd_impl_TEST_LARGE_PAYLOAD_SPLIT(const cmd_sys_cmd_t *cmd, cmd_TEST_LARGE_PAYLOAD_SPLIT_resp_t *resp) {
+    static uint8_t data[800] = { 0 };
+
+    // Read the message from the input stream
+    uint32_t data_len = cmd->header.data_len;
+    uint32_t bytes_read = 0;
+    uint32_t chunk_size = 800;
+    uint32_t total_sum = 0;
+
+    while (bytes_read != data_len) {
+        obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_EXEC);
+        uint32_t bytes_read_now = io_stream_read(cmd->input, data, chunk_size, pdMS_TO_TICKS(CMD_SYS_INPUT_READ_TIMEOUT_MS), NULL);
+
+        bytes_read += bytes_read_now;
+
+        for (uint16_t i = 0; i < bytes_read_now; i++) {
+            total_sum += data[i];
+        }
+    }
+
+    if (bytes_read != data_len) {
+        LOG_TEST_CMD__ECHO_BAD_ARGS();
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    resp->sum = total_sum;
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
 cmd_sys_resp_code_t cmd_impl_TEST_HANG(const cmd_sys_cmd_t *cmd, cmd_TEST_HANG_args_t *args) {
+    vTaskDelay(pdMS_TO_TICKS(
+                   100)); // This delay is needed to allow for the datalink layer to ACK an incoming test_hang command from obcpy, otherwise obcpy wont accept response header
     obc_delay_us(args->duration_us);
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Generate a specific number of logs (to be saved to flash)
+ */
+cmd_sys_resp_code_t cmd_impl_TEST_LOG_2_FLASH(const cmd_sys_cmd_t *cmd, cmd_TEST_LOG_2_FLASH_args_t *args) {
+    static uint32_t log_num = 0;
+
+    uint32_t num_logs = args->num_logs;
+
+    for (uint32_t x = 0; x < num_logs; x++) {
+        LOG_LOG_SYS__DUMMY(log_num++);
+        vTaskDelay(pdMS_TO_TICKS(200));
+        obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_EXEC);
+    }
+
     return CMD_SYS_RESP_CODE_SUCCESS;
 }
 
@@ -135,6 +189,11 @@ cmd_sys_resp_code_t cmd_impl_TEST_FLASH_RW(const cmd_sys_cmd_t *cmd, cmd_TEST_FL
         return CMD_SYS_RESP_CODE_ERROR;
     }
 
+    // Confirm flash chip is connected properly
+    flash_identify();
+
+    // De-initialize the file system, otherwise we will incur unexpected behaviour
+    fs_deinit();
     LOG_TEST_FLASH_RW_CMD__PERFORMING_TEST(args->addr, args->len);
 
     flash_err_t erase_err = flash_erase(args->addr, FULL_CHIP);
@@ -145,6 +204,10 @@ cmd_sys_resp_code_t cmd_impl_TEST_FLASH_RW(const cmd_sys_cmd_t *cmd, cmd_TEST_FL
     resp->write_err = write_err;
     resp->read_err = read_err;
     resp->data_match = (0 == memcmp(write_data, read_data, args->len));
+
+    // Return flash memory to clean state
+    flash_erase(args->addr, FULL_CHIP);
+    fs_init();
 
     return CMD_SYS_RESP_CODE_SUCCESS;
 }
@@ -176,6 +239,143 @@ cmd_sys_resp_code_t cmd_impl_TEST_ADC_VOLTAGE(const cmd_sys_cmd_t *cmd, cmd_TEST
     //get the response data (testing adcREG1 and desired channel)
     resp->adc_err_status = tms_adc_read_millivolts(adcREG1, args->channel, &channel_val_raw, &voltage);
     resp->channel_voltage = voltage;
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Performs a write, read, and comparison
+ */
+cmd_sys_resp_code_t cmd_impl_TEST_MRAM_RW(const cmd_sys_cmd_t *cmd, cmd_TEST_MRAM_RW_args_t *args, cmd_TEST_MRAM_RW_resp_t *resp) {
+    static uint8_t read_data[1024];
+    static uint8_t write_data[1024];
+
+    if (args->len > sizeof(write_data)) {
+        LOG_TEST_MRAM_RW_CMD__BAD_LEN(args->len, sizeof(write_data));
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    for (uint32_t i = 0; i < sizeof(write_data); i++) {
+        write_data[i] = (i % 256) == 0 ? 1 : (i % 256); // always write something
+        read_data[i]  = 0;                              // clear any old read data
+    }
+
+    LOG_TEST_MRAM_RW_CMD__PERFORMING_TEST(args->addr, args->len);
+
+    mram_err_t write_err = mram_write(args->addr, args->len, write_data);
+    mram_err_t read_err  = mram_read(args->addr, args->len, read_data);
+
+    resp->write_err  = write_err;
+    resp->read_err   = read_err;
+    resp->data_match = (0 == memcmp(write_data, read_data, args->len));
+
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Performs a write at an arbitrary address in the mram chip
+ */
+cmd_sys_resp_code_t cmd_impl_TEST_MRAM_WRITE(const cmd_sys_cmd_t *cmd, cmd_TEST_MRAM_WRITE_args_t *args, uint32_t args_len,
+        cmd_TEST_MRAM_WRITE_resp_t *resp) {
+    uint8_t buf[1024]      = {0};
+    uint32_t data_len = MIN((sizeof(buf)), (cmd->header.data_len - args_len));
+    uint32_t bytes_read  = io_stream_read(cmd->input, buf, data_len, pdMS_TO_TICKS(CMD_SYS_INPUT_READ_TIMEOUT_MS), NULL);
+
+    if (bytes_read != data_len) {
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    mram_err_t write_err = mram_write(args->addr, data_len, buf);
+    resp->write_err  = write_err;
+    return CMD_SYS_RESP_CODE_SUCCESS;
+}
+
+/**
+ * @brief Performs a read at an arbirary address in the mram chip
+ */
+cmd_sys_err_t cmd_impl_TEST_MRAM_READ(const cmd_sys_cmd_t *cmd, cmd_TEST_MRAM_READ_args_t *args, cmd_TEST_MRAM_READ_resp_t *resp,
+                                      const data_fmt_desc_t *resp_desc, uint32_t resp_len, uint8_t *buf) {
+    cmd_sys_resp_code_t resp_code  = CMD_SYS_RESP_CODE_ERROR;
+    static uint32_t read_buff_size = 1024;
+    uint8_t read_buff[1024]        = {0};
+
+    if (args->len > read_buff_size) {
+        resp->read_err = MRAM_INDEX_OUT_OF_BOUND;
+        return CMD_SYS_SUCCESS;
+    }
+
+    mram_err_t read_err = mram_read(args->addr, args->len, read_buff);
+
+    if (read_err == MRAM_OK) {
+        resp_code = CMD_SYS_RESP_CODE_SUCCESS;
+    }
+
+    // Start response
+    cmd_sys_err_t cmd_sys_err = cmd_sys_begin_response(cmd, resp_code, (resp_len + args->len));
+
+    if (cmd_sys_err != CMD_SYS_SUCCESS) {
+        return cmd_sys_err;
+    }
+
+    // Send fixed fields
+    resp->read_err = read_err;
+    cmd_sys_err    = cmd_sys_handle_resp_fields(cmd, resp, resp_desc, resp_len, buf);
+
+    if (cmd_sys_err != CMD_SYS_SUCCESS) {
+        return cmd_sys_err;
+    }
+
+    // Send read data
+
+    if (read_err == MRAM_OK) {
+        bool done = false;
+
+        while (!done) {
+            obc_watchdog_pet(OBC_TASK_ID_CMD_SYS_EXEC);
+
+            // Read buffer of image data from ArduCAM
+            if (args->len > 0) {
+                // Send the data to the output stream
+                uint32_t bytes_written = io_stream_write(cmd->output, read_buff, args->len, pdMS_TO_TICKS(CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS), NULL);
+
+                if (bytes_written != args->len) {
+                    break;
+                }
+            } else {
+                // data_len == 0 indicates all data has been transferred.
+                done = true;
+            }
+        }
+    }
+
+    cmd_sys_err = cmd_sys_finish_response(cmd);
+
+    return cmd_sys_err;
+}
+
+cmd_sys_resp_code_t cmd_impl_TEST_TELEM_GLV(const cmd_sys_cmd_t *cmd, cmd_TEST_TELEM_GLV_resp_t *resp) {
+
+    telem_id_t telem_id = TELEM_ID_TEST_GET_EPOCH;
+    uint8_t buf[4] = { 0 };
+    epoch_t exec_epoch;
+
+    // Trigger a flush of the fs_write queue to ensure all telem is written out to flash
+    if (fs_force_flush(1800) != FS_OK) {
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    telem_err_t err = telem_get_last_value(telem_id, buf, &exec_epoch, 1800);
+
+    if (err != TELEM_SUCCESS) {
+        resp->epoch = err;
+        return CMD_SYS_RESP_CODE_ERROR;
+    }
+
+    const telem_spec_t *telem_spec = &TELEM_SPEC_TABLE[telem_id];
+    telem_TEST_GET_EPOCH_resp_t telem_resp = { 0 };
+    data_fmt_deserialize_struct(&telem_resp, telem_spec->resp, buf, 4);
+
+    resp->epoch = telem_resp.epoch;
 
     return CMD_SYS_RESP_CODE_SUCCESS;
 }

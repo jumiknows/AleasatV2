@@ -1,0 +1,1354 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+// Reminder: NO float only double, due to node floating point precision (IEEE 754 double precision)
+// field name cant be https://github.com/protocolbuffers/protobuf-javascript/blob/main/generator/js_generator.cc#L60-L73
+
+service obc {
+  rpc reset (reset_command_args) returns (reset_command_OBCResponse) {}
+  rpc ping (ping_command_args) returns (ping_command_OBCResponse) {}
+  rpc get_time (get_time_command_args) returns (get_time_command_OBCResponse) {}
+  rpc set_time (set_time_command_args) returns (set_time_command_OBCResponse) {}
+  rpc get_min_stack_space (get_min_stack_space_command_args) returns (get_min_stack_space_command_OBCResponse) {}
+  rpc capture_rtos_trace (capture_rtos_trace_command_args) returns (capture_rtos_trace_command_OBCResponse) {}
+  rpc rtos_state (rtos_state_command_args) returns (rtos_state_command_OBCResponse) {}
+  rpc low_power (low_power_command_args) returns (low_power_command_OBCResponse) {}
+  rpc sys_time (sys_time_command_args) returns (sys_time_command_OBCResponse) {}
+  rpc cpu_usage (cpu_usage_command_args) returns (cpu_usage_command_OBCResponse) {}
+  rpc task_runtime (task_runtime_command_args) returns (task_runtime_command_OBCResponse) {}
+  rpc gpio_exp_reset (gpio_exp_reset_command_args) returns (gpio_exp_reset_command_OBCResponse) {}
+  rpc i2c_reset (i2c_reset_command_args) returns (i2c_reset_command_OBCResponse) {}
+  rpc heartbeat (heartbeat_command_args) returns (heartbeat_command_OBCResponse) {}
+  rpc gps_restart (gps_restart_command_args) returns (gps_restart_command_OBCResponse) {}
+  rpc fw_info (fw_info_command_args) returns (fw_info_command_OBCResponse) {}
+  rpc wmm_init (wmm_init_command_args) returns (wmm_init_command_OBCResponse) {}
+  rpc wmm_is_init (wmm_is_init_command_args) returns (wmm_is_init_command_OBCResponse) {}
+  rpc wmm_get_mag_ref (wmm_get_mag_ref_command_args) returns (wmm_get_mag_ref_command_OBCResponse) {}
+  rpc gps_query_sw_ver (gps_query_sw_ver_command_args) returns (gps_query_sw_ver_command_OBCResponse) {}
+  rpc gps_set_factory_settings (gps_set_factory_settings_command_args) returns (gps_set_factory_settings_command_OBCResponse) {}
+  rpc gps_configure_power_mode (gps_configure_power_mode_command_args) returns (gps_configure_power_mode_command_OBCResponse) {}
+  rpc gps_query_power_mode (gps_query_power_mode_command_args) returns (gps_query_power_mode_command_OBCResponse) {}
+  rpc gps_query_sw_crc (gps_query_sw_crc_command_args) returns (gps_query_sw_crc_command_OBCResponse) {}
+  rpc gps_configure_position_upate_rate (gps_configure_position_upate_rate_command_args) returns (gps_configure_position_upate_rate_command_OBCResponse) {}
+  rpc gps_query_position_update_rate (gps_query_position_update_rate_command_args) returns (gps_query_position_update_rate_command_OBCResponse) {}
+  rpc gps_configure_nmea_messges (gps_configure_nmea_messges_command_args) returns (gps_configure_nmea_messges_command_OBCResponse) {}
+  rpc gps_query_nmea_messges (gps_query_nmea_messges_command_args) returns (gps_query_nmea_messges_command_OBCResponse) {}
+  rpc gps_configure_serial_port (gps_configure_serial_port_command_args) returns (gps_configure_serial_port_command_OBCResponse) {}
+  rpc gps_configure_nav_msg_interval (gps_configure_nav_msg_interval_command_args) returns (gps_configure_nav_msg_interval_command_OBCResponse) {}
+  rpc get_uptime (get_uptime_command_args) returns (get_uptime_command_OBCResponse) {}
+
+  rpc test_echo (test_echo_command_args) returns (test_echo_command_OBCResponse) {}
+  rpc test_hang (test_hang_command_args) returns (test_hang_command_OBCResponse) {}
+  rpc test_comms_tx_rx (test_comms_tx_rx_command_args) returns (test_comms_tx_rx_command_OBCResponse) {}
+  rpc test_comms_stress1 (test_comms_stress1_command_args) returns (test_comms_stress1_command_OBCResponse) {}
+  rpc test_comms_flash_app (test_comms_flash_app_command_args) returns (test_comms_flash_app_command_OBCResponse) {}
+  rpc test_comms_reboot (test_comms_reboot_command_args) returns (test_comms_reboot_command_OBCResponse) {}
+  rpc test_comms_get_telem (test_comms_get_telem_command_args) returns (test_comms_get_telem_command_OBCResponse) {}
+  rpc test_eps_read_float (test_eps_read_float_command_args) returns (test_eps_read_float_command_OBCResponse) {}
+  rpc test_eps_read_float_raw (test_eps_read_float_raw_command_args) returns (test_eps_read_float_raw_command_OBCResponse) {}
+  rpc test_eps_read_int (test_eps_read_int_command_args) returns (test_eps_read_int_command_OBCResponse) {}
+  rpc test_eps_write (test_eps_write_command_args) returns (test_eps_write_command_OBCResponse) {}
+  rpc test_eps_read_sanity (test_eps_read_sanity_command_args) returns (test_eps_read_sanity_command_OBCResponse) {}
+  rpc test_eps_writeread_sanity (test_eps_writeread_sanity_command_args) returns (test_eps_writeread_sanity_command_OBCResponse) {}
+  rpc test_eps_measure_buses (test_eps_measure_buses_command_args) returns (test_eps_measure_buses_command_OBCResponse) {}
+  rpc test_eps_measure_temps (test_eps_measure_temps_command_args) returns (test_eps_measure_temps_command_OBCResponse) {}
+  rpc test_eps_read_counters (test_eps_read_counters_command_args) returns (test_eps_read_counters_command_OBCResponse) {}
+  rpc test_eps_read_status (test_eps_read_status_command_args) returns (test_eps_read_status_command_OBCResponse) {}
+  rpc test_mag (test_mag_command_args) returns (test_mag_command_OBCResponse) {}
+  rpc test_mag_all (test_mag_all_command_args) returns (test_mag_all_command_OBCResponse) {}
+  rpc test_mag_init (test_mag_init_command_args) returns (test_mag_init_command_OBCResponse) {}
+  rpc test_imu (test_imu_command_args) returns (test_imu_command_OBCResponse) {}
+  rpc test_panel_gyro (test_panel_gyro_command_args) returns (test_panel_gyro_command_OBCResponse) {}
+  rpc test_can_gpio (test_can_gpio_command_args) returns (test_can_gpio_command_OBCResponse) {}
+  rpc test_flash_rw (test_flash_rw_command_args) returns (test_flash_rw_command_OBCResponse) {}
+  rpc test_filesystem (test_filesystem_command_args) returns (test_filesystem_command_OBCResponse) {}
+  rpc test_cam_init (test_cam_init_command_args) returns (test_cam_init_command_OBCResponse) {}
+  rpc test_cam_capture (test_cam_capture_command_args) returns (test_cam_capture_command_OBCResponse) {}
+  rpc test_cam_wr_sreg (test_cam_wr_sreg_command_args) returns (test_cam_wr_sreg_command_OBCResponse) {}
+  rpc test_cam_rd_sreg (test_cam_rd_sreg_command_args) returns (test_cam_rd_sreg_command_OBCResponse) {}
+  rpc test_cam_wr_sregs (test_cam_wr_sregs_command_args) returns (test_cam_wr_sregs_command_OBCResponse) {}
+  rpc test_dsplib (test_dsplib_command_args) returns (test_dsplib_command_OBCResponse) {}
+  rpc test_quest (test_quest_command_args) returns (test_quest_command_OBCResponse) {}
+  rpc test_rtc_get_time (test_rtc_get_time_command_args) returns (test_rtc_get_time_command_OBCResponse) {}
+  rpc test_rtc_cap_and_get_timestamp (test_rtc_cap_and_get_timestamp_command_args) returns (test_rtc_cap_and_get_timestamp_command_OBCResponse) {}
+  rpc debug_read_rtc_reg (debug_read_rtc_reg_command_args) returns (debug_read_rtc_reg_command_OBCResponse) {}
+  rpc debug_write_rtc_reg (debug_write_rtc_reg_command_args) returns (debug_write_rtc_reg_command_OBCResponse) {}
+  rpc test_rtc_alarm_n_sec (test_rtc_alarm_n_sec_command_args) returns (test_rtc_alarm_n_sec_command_OBCResponse) {}
+  rpc test_adcs_sun_model (test_adcs_sun_model_command_args) returns (test_adcs_sun_model_command_OBCResponse) {}
+  rpc test_adc_voltage (test_adc_voltage_command_args) returns (test_adc_voltage_command_OBCResponse) {}
+
+}
+
+message reset_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message reset_command_OBCResponse {
+}
+
+
+message ping_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message ping_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  ping_command_OBCResponseData data = 6;
+}
+message ping_command_OBCResponseData {
+}
+
+message get_time_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message get_time_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  get_time_command_OBCResponseData data = 6;
+}
+message get_time_command_OBCResponseData {
+  google.protobuf.Timestamp timestamp = 1;
+}
+
+message set_time_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+message set_time_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  set_time_command_OBCResponseData data = 6;
+}
+message set_time_command_OBCResponseData {
+}
+
+message get_min_stack_space_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message get_min_stack_space_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  get_min_stack_space_command_OBCResponseData data = 6;
+}
+message get_min_stack_space_command_OBCResponseData {
+  bytes min_stack_space = 1;
+}
+
+message capture_rtos_trace_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 length = 3;
+}
+message capture_rtos_trace_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  capture_rtos_trace_command_OBCResponseData data = 6;
+}
+message capture_rtos_trace_command_OBCResponseData {
+  bytes trace = 1;
+}
+
+message rtos_state_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message rtos_state_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  rtos_state_command_OBCResponseData data = 6;
+}
+message rtos_state_command_OBCResponseData {
+}
+
+message low_power_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  bool enable = 3;
+}
+message low_power_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  low_power_command_OBCResponseData data = 6;
+}
+message low_power_command_OBCResponseData {
+}
+
+message sys_time_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message sys_time_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  sys_time_command_OBCResponseData data = 6;
+}
+message sys_time_command_OBCResponseData {
+  uint32 sys_time_us = 1;
+}
+
+message cpu_usage_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 task = 3;
+}
+message cpu_usage_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  cpu_usage_command_OBCResponseData data = 6;
+}
+message cpu_usage_command_OBCResponseData {
+  uint32 usage_pct = 1;
+}
+
+message task_runtime_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 task = 3;
+}
+message task_runtime_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  task_runtime_command_OBCResponseData data = 6;
+}
+message task_runtime_command_OBCResponseData {
+  uint32 runtime = 1;
+}
+
+message gpio_exp_reset_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gpio_exp_reset_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gpio_exp_reset_command_OBCResponseData data = 6;
+}
+message gpio_exp_reset_command_OBCResponseData {
+}
+
+message i2c_reset_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message i2c_reset_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  i2c_reset_command_OBCResponseData data = 6;
+}
+message i2c_reset_command_OBCResponseData {
+}
+
+message heartbeat_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  bool enable = 3;
+}
+message heartbeat_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  heartbeat_command_OBCResponseData data = 6;
+}
+message heartbeat_command_OBCResponseData {
+}
+
+message gps_restart_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 start_mode = 3;
+}
+message gps_restart_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_restart_command_OBCResponseData data = 6;
+}
+message gps_restart_command_OBCResponseData {
+}
+
+message fw_info_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message fw_info_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  fw_info_command_OBCResponseData data = 6;
+}
+message fw_info_command_OBCResponseData {
+  repeated uint32 fw_version = 1 [packed=true];
+  uint32 fw_hash = 2;
+  uint32 flash_address = 3;
+  uint32 platform = 4;
+  uint32 target = 5;
+  uint32 flags = 6;
+  uint32 size = 7;
+  uint32 crc32 = 8;
+}
+
+message wmm_init_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message wmm_init_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  wmm_init_command_OBCResponseData data = 6;
+}
+message wmm_init_command_OBCResponseData {
+}
+
+message wmm_is_init_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message wmm_is_init_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  wmm_is_init_command_OBCResponseData data = 6;
+}
+message wmm_is_init_command_OBCResponseData {
+  bool is_init = 1;
+}
+
+message wmm_get_mag_ref_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  double lon = 3;
+  double lat = 4;
+  double alt = 5;
+  uint32 year = 6;
+  uint32 month = 7;
+  uint32 day = 8;
+}
+message wmm_get_mag_ref_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  wmm_get_mag_ref_command_OBCResponseData data = 6;
+}
+message wmm_get_mag_ref_command_OBCResponseData {
+  repeated double mag_ref = 1 [packed=true];
+}
+
+message gps_query_sw_ver_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_sw_ver_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_sw_ver_command_OBCResponseData data = 6;
+}
+message gps_query_sw_ver_command_OBCResponseData {
+  repeated uint32 gps_software_version = 1 [packed=true];
+}
+
+message gps_set_factory_settings_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_set_factory_settings_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_set_factory_settings_command_OBCResponseData data = 6;
+}
+message gps_set_factory_settings_command_OBCResponseData {
+}
+
+message gps_configure_power_mode_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  bool enable_power_save = 4;
+}
+message gps_configure_power_mode_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_power_mode_command_OBCResponseData data = 6;
+}
+message gps_configure_power_mode_command_OBCResponseData {
+}
+
+message gps_query_power_mode_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_power_mode_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_power_mode_command_OBCResponseData data = 6;
+}
+message gps_query_power_mode_command_OBCResponseData {
+  bool gps_in_power_save_mode = 1;
+}
+
+message gps_query_sw_crc_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_sw_crc_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_sw_crc_command_OBCResponseData data = 6;
+}
+message gps_query_sw_crc_command_OBCResponseData {
+  uint32 software_crc = 1;
+}
+
+message gps_configure_position_upate_rate_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  uint32 position_update_rate = 4;
+}
+message gps_configure_position_upate_rate_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_position_upate_rate_command_OBCResponseData data = 6;
+}
+message gps_configure_position_upate_rate_command_OBCResponseData {
+}
+
+message gps_query_position_update_rate_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_position_update_rate_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_position_update_rate_command_OBCResponseData data = 6;
+}
+message gps_query_position_update_rate_command_OBCResponseData {
+  uint32 update_rate = 1;
+}
+
+message gps_configure_nmea_messges_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  uint32 gga_interval = 4;
+  uint32 gsa_interval = 5;
+  uint32 gsv_interval = 6;
+  uint32 gll_interval = 7;
+  uint32 rmc_interval = 8;
+  uint32 vtg_interval = 9;
+  uint32 zda_interval = 10;
+}
+message gps_configure_nmea_messges_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_nmea_messges_command_OBCResponseData data = 6;
+}
+message gps_configure_nmea_messges_command_OBCResponseData {
+}
+
+message gps_query_nmea_messges_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message gps_query_nmea_messges_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_query_nmea_messges_command_OBCResponseData data = 6;
+}
+message gps_query_nmea_messges_command_OBCResponseData {
+  uint32 gga_interval = 1;
+  uint32 gsa_interval = 2;
+  uint32 gsv_interval = 3;
+  uint32 gll_interval = 4;
+  uint32 rmc_interval = 5;
+  uint32 vtg_interval = 6;
+  uint32 zda_interval = 7;
+}
+
+message gps_configure_serial_port_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 baud_rate = 3;
+}
+message gps_configure_serial_port_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_serial_port_command_OBCResponseData data = 6;
+}
+message gps_configure_serial_port_command_OBCResponseData {
+}
+
+message gps_configure_nav_msg_interval_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_settings = 3;
+  uint32 navigation_msg_int = 4;
+}
+message gps_configure_nav_msg_interval_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  gps_configure_nav_msg_interval_command_OBCResponseData data = 6;
+}
+message gps_configure_nav_msg_interval_command_OBCResponseData {
+}
+
+message get_uptime_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message get_uptime_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  get_uptime_command_OBCResponseData data = 6;
+}
+message get_uptime_command_OBCResponseData {
+  uint32 seconds = 1;
+}
+message test_echo_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 number = 3;
+  uint32_matrix array = 4;
+  double_matrix arrayf = 5;
+  string message = 6;
+}
+message test_echo_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_echo_command_OBCResponseData data = 6;
+}
+message test_echo_command_OBCResponseData {
+  uint32 number = 1;
+  uint32_matrix array = 2;
+  double_matrix arrayf = 3;
+  string message = 4;
+}
+
+message test_hang_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 duration_us = 3;
+}
+message test_hang_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_hang_command_OBCResponseData data = 6;
+}
+message test_hang_command_OBCResponseData {
+}
+
+message test_comms_tx_rx_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_comms_tx_rx_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_comms_tx_rx_command_OBCResponseData data = 6;
+}
+message test_comms_tx_rx_command_OBCResponseData {
+  sint32 comms_err = 1;
+  uint32 command = 2;
+}
+
+message test_comms_stress1_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_comms_stress1_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_comms_stress1_command_OBCResponseData data = 6;
+}
+message test_comms_stress1_command_OBCResponseData {
+  uint32 pass = 1;
+  uint32 fail = 2;
+}
+
+message test_comms_flash_app_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_comms_flash_app_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_comms_flash_app_command_OBCResponseData data = 6;
+}
+message test_comms_flash_app_command_OBCResponseData {
+  sint32 comms_err = 1;
+}
+
+message test_comms_reboot_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_comms_reboot_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_comms_reboot_command_OBCResponseData data = 6;
+}
+message test_comms_reboot_command_OBCResponseData {
+}
+
+message test_comms_get_telem_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_comms_get_telem_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_comms_get_telem_command_OBCResponseData data = 6;
+}
+message test_comms_get_telem_command_OBCResponseData {
+  uint32 uptime = 1;
+  uint32 uart0_rx_count = 2;
+  uint32 uart1_rx_count = 3;
+  uint32 rx_mode = 4;
+  uint32 tx_mode = 5;
+  repeated sint32 adc = 6 [packed=true];
+  sint32 rssi = 7;
+  uint32 last_lqi = 8;
+  sint32 last_frequest = 9;
+  uint32 packets_sent = 10;
+  uint32 cs_count = 11;
+  uint32 packets_good = 12;
+  uint32 packets_rejected_checksum = 13;
+  uint32 packets_rejected_other = 14;
+  uint32 custom0 = 15;
+  uint32 custom1 = 16;
+}
+
+message test_eps_read_float_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 read_cmd = 3;
+}
+message test_eps_read_float_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_read_float_command_OBCResponseData data = 6;
+}
+message test_eps_read_float_command_OBCResponseData {
+  sint32 eps_err = 1;
+  double data = 2;
+}
+
+message test_eps_read_float_raw_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 read_cmd = 3;
+}
+message test_eps_read_float_raw_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_read_float_raw_command_OBCResponseData data = 6;
+}
+message test_eps_read_float_raw_command_OBCResponseData {
+  sint32 eps_err = 1;
+  uint32 data = 2;
+}
+
+message test_eps_read_int_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 read_cmd = 3;
+}
+message test_eps_read_int_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_read_int_command_OBCResponseData data = 6;
+}
+message test_eps_read_int_command_OBCResponseData {
+  sint32 eps_err = 1;
+  uint32 data = 2;
+}
+
+message test_eps_write_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 write_cmd = 3;
+  uint32 state = 4;
+}
+message test_eps_write_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_write_command_OBCResponseData data = 6;
+}
+message test_eps_write_command_OBCResponseData {
+  sint32 eps_err = 1;
+}
+
+message test_eps_read_sanity_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_eps_read_sanity_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_read_sanity_command_OBCResponseData data = 6;
+}
+message test_eps_read_sanity_command_OBCResponseData {
+  uint32 success_counter = 1;
+}
+
+message test_eps_writeread_sanity_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_eps_writeread_sanity_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_writeread_sanity_command_OBCResponseData data = 6;
+}
+message test_eps_writeread_sanity_command_OBCResponseData {
+  uint32 success_counter = 1;
+}
+
+message test_eps_measure_buses_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_eps_measure_buses_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_measure_buses_command_OBCResponseData data = 6;
+}
+message test_eps_measure_buses_command_OBCResponseData {
+  sint32 eps_err = 1;
+  double batt_V = 2;
+  double batt_A = 3;
+  double bcr_V = 4;
+  double bcr_A = 5;
+  double bus_3v3_V = 6;
+  double bus_3v3_A = 7;
+  double bus_5v_V = 8;
+  double bus_5v_A = 9;
+  double lup_3v3_V = 10;
+  double lup_5v_V = 11;
+}
+
+message test_eps_measure_temps_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_eps_measure_temps_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_measure_temps_command_OBCResponseData data = 6;
+}
+message test_eps_measure_temps_command_OBCResponseData {
+  sint32 eps_err = 1;
+  repeated double cell_temps = 2 [packed=true];
+  double mcu_temp = 3;
+}
+
+message test_eps_read_counters_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_eps_read_counters_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_read_counters_command_OBCResponseData data = 6;
+}
+message test_eps_read_counters_command_OBCResponseData {
+  sint32 eps_err = 1;
+  uint32 uptime = 2;
+  uint32 power_on_cycles = 3;
+  uint32 under_voltage = 4;
+  uint32 short_circuit = 5;
+  uint32 over_temp = 6;
+}
+
+message test_eps_read_status_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_eps_read_status_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_eps_read_status_command_OBCResponseData data = 6;
+}
+message test_eps_read_status_command_OBCResponseData {
+  sint32 eps_err = 1;
+  uint32 out_cond_1 = 2;
+  uint32 out_cond_2 = 3;
+}
+
+message test_mag_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 magnetorquer = 3;
+}
+message test_mag_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_mag_command_OBCResponseData data = 6;
+}
+message test_mag_command_OBCResponseData {
+}
+
+message test_mag_all_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_mag_all_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_mag_all_command_OBCResponseData data = 6;
+}
+message test_mag_all_command_OBCResponseData {
+}
+
+message test_mag_init_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_mag_init_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_mag_init_command_OBCResponseData data = 6;
+}
+message test_mag_init_command_OBCResponseData {
+}
+
+message test_imu_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_imu_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_imu_command_OBCResponseData data = 6;
+}
+message test_imu_command_OBCResponseData {
+}
+
+message test_panel_gyro_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 gyro = 3;
+}
+message test_panel_gyro_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_panel_gyro_command_OBCResponseData data = 6;
+}
+message test_panel_gyro_command_OBCResponseData {
+}
+
+message test_can_gpio_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 port = 3;
+  uint32 pin = 4;
+  bool value = 5;
+}
+message test_can_gpio_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_can_gpio_command_OBCResponseData data = 6;
+}
+message test_can_gpio_command_OBCResponseData {
+  sint32 gpio_err = 1;
+}
+
+message test_flash_rw_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 addr = 3;
+  uint32 len = 4;
+}
+message test_flash_rw_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_flash_rw_command_OBCResponseData data = 6;
+}
+message test_flash_rw_command_OBCResponseData {
+  sint32 erase_err = 1;
+  sint32 write_err = 2;
+  sint32 read_err = 3;
+  bool data_match = 4;
+}
+
+message test_filesystem_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_filesystem_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_filesystem_command_OBCResponseData data = 6;
+}
+message test_filesystem_command_OBCResponseData {
+  sint32 fs_err = 1;
+}
+
+message test_cam_init_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_cam_init_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_cam_init_command_OBCResponseData data = 6;
+}
+message test_cam_init_command_OBCResponseData {
+  sint32 arducam_err = 1;
+}
+
+message test_cam_capture_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+}
+message test_cam_capture_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_cam_capture_command_OBCResponseData data = 6;
+}
+message test_cam_capture_command_OBCResponseData {
+  sint32 arducam_err = 1;
+  uint32 image_size = 2;
+  bytes image_data = 3;
+}
+
+message test_cam_wr_sreg_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 addr = 3;
+  uint32 data = 4;
+}
+message test_cam_wr_sreg_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_cam_wr_sreg_command_OBCResponseData data = 6;
+}
+message test_cam_wr_sreg_command_OBCResponseData {
+  sint32 ov5642_err = 1;
+}
+
+message test_cam_rd_sreg_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 addr = 3;
+}
+message test_cam_rd_sreg_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_cam_rd_sreg_command_OBCResponseData data = 6;
+}
+message test_cam_rd_sreg_command_OBCResponseData {
+  sint32 ov5642_err = 1;
+  uint32 data = 2;
+}
+
+message test_cam_wr_sregs_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  bytes reg_data = 3;
+}
+message test_cam_wr_sregs_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_cam_wr_sregs_command_OBCResponseData data = 6;
+}
+message test_cam_wr_sregs_command_OBCResponseData {
+  sint32 ov5642_err = 1;
+}
+
+message test_dsplib_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  double x = 3;
+  double y = 4;
+}
+message test_dsplib_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_dsplib_command_OBCResponseData data = 6;
+}
+message test_dsplib_command_OBCResponseData {
+  double x_abs = 1;
+  double y_abs = 2;
+}
+
+message test_quest_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  repeated double sun_obs = 3 [packed=true];
+  repeated double sun_ref = 4 [packed=true];
+  repeated double mag_obs = 5 [packed=true];
+  repeated double mag_ref = 6 [packed=true];
+  repeated double weights = 7 [packed=true];
+}
+message test_quest_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_quest_command_OBCResponseData data = 6;
+}
+message test_quest_command_OBCResponseData {
+  repeated double quat = 1 [packed=true];
+  sint32 adcs_err = 2;
+  double avg_duration = 3;
+}
+
+message test_rtc_get_time_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 duration_s = 3;
+}
+message test_rtc_get_time_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_rtc_get_time_command_OBCResponseData data = 6;
+}
+message test_rtc_get_time_command_OBCResponseData {
+  uint32 second = 1;
+  uint32 minute = 2;
+  uint32 hour = 3;
+  uint32 day = 4;
+  uint32 month = 5;
+  uint32 year = 6;
+}
+
+message test_rtc_cap_and_get_timestamp_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 duration_s = 3;
+}
+message test_rtc_cap_and_get_timestamp_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_rtc_cap_and_get_timestamp_command_OBCResponseData data = 6;
+}
+message test_rtc_cap_and_get_timestamp_command_OBCResponseData {
+  uint32 init_second = 1;
+  uint32 init_minute = 2;
+  uint32 init_hour = 3;
+  uint32 init_day = 4;
+  uint32 init_month = 5;
+  uint32 init_year = 6;
+  uint32 ts_second = 7;
+  uint32 ts_minute = 8;
+  uint32 ts_hour = 9;
+  uint32 ts_day = 10;
+  uint32 ts_month = 11;
+  uint32 ts_year = 12;
+}
+
+message debug_read_rtc_reg_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 reg = 3;
+}
+message debug_read_rtc_reg_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  debug_read_rtc_reg_command_OBCResponseData data = 6;
+}
+message debug_read_rtc_reg_command_OBCResponseData {
+  uint32 val = 1;
+}
+
+message debug_write_rtc_reg_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 reg = 3;
+  uint32 val = 4;
+}
+message debug_write_rtc_reg_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  debug_write_rtc_reg_command_OBCResponseData data = 6;
+}
+message debug_write_rtc_reg_command_OBCResponseData {
+  uint32 val_after_write = 1;
+}
+
+message test_rtc_alarm_n_sec_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 duration_s = 3;
+}
+message test_rtc_alarm_n_sec_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_rtc_alarm_n_sec_command_OBCResponseData data = 6;
+}
+message test_rtc_alarm_n_sec_command_OBCResponseData {
+}
+
+message test_adcs_sun_model_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  repeated sint32 time = 3 [packed=true];
+}
+message test_adcs_sun_model_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_adcs_sun_model_command_OBCResponseData data = 6;
+}
+message test_adcs_sun_model_command_OBCResponseData {
+  double jul = 1;
+  repeated double pos = 2 [packed=true];
+}
+
+message test_adc_voltage_command_args {
+  uint64 timeout = 1;
+  google.protobuf.Timestamp date_time = 2;
+  uint32 channel = 3;
+}
+message test_adc_voltage_command_OBCResponse {
+  uint64 cmd_inst_id = 1;
+  uint32 cmd_id = 2;
+  google.protobuf.Timestamp date_time = 3;
+  uint32 flags = 4;
+  OBCResponseDataHeader data_header = 5;
+  test_adc_voltage_command_OBCResponseData data = 6;
+}
+message test_adc_voltage_command_OBCResponseData {
+  uint32 channel_voltage = 1;
+  uint32 adc_err_status = 2;
+}
+message uint32_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated uint32 data = 3 [packed=true];
+}
+message uint64_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated uint64 data = 3 [packed=true];
+}
+message sint32_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated sint32 data = 3 [packed=true];
+}
+message sint64_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated sint64 data = 3 [packed=true];
+}
+message double_matrix {
+  uint32 rows = 1;
+  uint32 cols = 2;
+  repeated double data = 3 [packed=true];
+}
+
+message OBCResponseDataHeader {
+  Code code = 1;
+  google.protobuf.Timestamp exec_datetime = 2;
+}
+
+enum Code {
+  NONE          = 0;
+  SUCCESS       = 1;
+  SUCCESS_SCHED = 2;
+  ERROR         = 3;
+  CMD_DNE       = 4;
+  NOT_IMPl      = 5;
+}

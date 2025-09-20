@@ -168,3 +168,74 @@ cmd_sys_resp_code_t cmd_impl_CPU_USAGE(const cmd_sys_cmd_t *cmd, cmd_CPU_USAGE_a
 
     return CMD_SYS_RESP_CODE_SUCCESS;
 }
+
+cmd_sys_err_t cmd_impl_ALL_CPU_USAGE(const cmd_sys_cmd_t *cmd, cmd_ALL_CPU_USAGE_resp_t *resp, const data_fmt_desc_t *resp_desc, uint32_t resp_len,
+                                     uint8_t *buf) {
+    uint64_t all_tasks_run_time = 0;
+    //this is uint64_t as we don't want two nearly overflowing uint32_t's adding and overflowing the uint32_t
+    uint32_t task_run_times[OBC_TASK_COUNT];
+    TaskStatus_t task_details;
+
+    //get task run times array and total run time of all tasks
+    for (uint8_t task_id = 0; task_id < OBC_TASK_COUNT; task_id++) {
+        TaskHandle_t task_handle = obc_rtos_get_task_handle((obc_task_id_t)task_id);
+
+        if (task_handle != NULL) {
+            vTaskGetInfo(task_handle, &task_details, pdFALSE, eRunning);
+            task_run_times[task_id] = task_details.ulRunTimeCounter;
+            all_tasks_run_time += task_run_times[task_id];
+        } else {
+            task_run_times[task_id] = 0; //if task is not active
+        }
+    }
+
+    float all_tasksF = (float)all_tasks_run_time;
+
+    //create an array of usage percent for each task
+    uint8_t usage_data[OBC_TASK_COUNT];
+
+    for (uint8_t task_id = 0; task_id < OBC_TASK_COUNT; task_id++) {
+        float single_taskF = (float)task_run_times[task_id];
+        float ratio = single_taskF / all_tasksF;
+        float usage_pct = ratio * 100;
+        usage_data[task_id] = usage_pct;
+    }
+
+    //respond with number of tasks
+    resp->number_of_tasks = OBC_TASK_COUNT;
+
+    cmd_sys_err_t err = CMD_SYS_SUCCESS;
+
+    //begin variable size response
+    err = cmd_sys_begin_response(cmd, CMD_SYS_RESP_CODE_SUCCESS, (resp_len + OBC_TASK_COUNT));
+
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
+
+    //send fixed size fields
+    err = cmd_sys_handle_resp_fields(cmd, resp, resp_desc, resp_len, buf);
+
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
+
+    //send variable size field
+    uint32_t bytes_written = io_stream_write(cmd->output, usage_data, OBC_TASK_COUNT, pdMS_TO_TICKS(CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS), NULL);
+
+    if (bytes_written != OBC_TASK_COUNT) {
+        return CMD_SYS_ERR_WRITE_TIMEOUT;
+    }
+
+    //finish response
+    err = cmd_sys_finish_response(cmd);
+
+    if (err != CMD_SYS_SUCCESS) {
+        return err;
+    }
+
+    return err;
+}
+
+
+

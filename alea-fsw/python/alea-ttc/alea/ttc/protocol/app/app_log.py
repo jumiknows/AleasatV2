@@ -1,5 +1,6 @@
 from typing import Tuple, Dict, Any
 from enum import IntEnum
+import logging
 
 from alea.common import alea_time
 
@@ -7,6 +8,8 @@ from alea.obcfw.log import log_spec
 
 from alea.ttc.protocol.generic import packet
 from alea.ttc.protocol.generic import layer_impl
+
+logger = logging.getLogger(__name__)
 
 LOG_CMD_SYS_SCHED_RESP_LOG_ID = 67
 
@@ -117,7 +120,7 @@ class OBCAppLogRX(layer_impl.StreamToPacketProtocolLayer[OBCLog]):
                 self._packet.signal_desc = signal_spec.desc
             except log_spec.OBCLogSpecNotFoundError as e:
                 # Should never happen
-                print(f"[OBCLogSpecNotFoundError] {str(e)}")
+                logger.error(f"[OBCLogSpecNotFoundError] {str(e)}", exc_info=True)
 
             # Only continue to PAYLOAD state if there is a payload
             if self._packet.payload_len == 0:

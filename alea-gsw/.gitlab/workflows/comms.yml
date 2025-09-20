@@ -1,0 +1,22 @@
+"software-defined-radio Build Docker Image":
+  stage: build docker image
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: never
+    - changes:
+        paths:
+          - apps/software-defined-radio/**/*
+          - packages/gr-pduencode/**/*
+          - .gitlab/workflows/comms.yml
+  needs: []
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+      --file "${CI_PROJECT_DIR}/apps/software-defined-radio/software-defined-radio.Dockerfile"
+      "${CI_PROJECT_DIR}"

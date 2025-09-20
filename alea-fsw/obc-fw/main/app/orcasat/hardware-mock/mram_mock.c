@@ -1,28 +1,28 @@
 #include "mram_mock.h"
 #include "rtos.h"
 
-static uint8_t MRAM[MOCK_MRAM_SIZE_BYTES] = {0};
+static uint8_t MRAM_MOCK_ARR[MOCK_MRAM_SIZE_BYTES] = {0};
 
 // ------------------------------------ API -----------------------------------
 
-mram_err_t init_mock_mram(void) {
+mram_err_t mram_mock_init(void) {
     return MRAM_OK;
 }
 
-mram_err_t write_mock_mram(uint32_t addr, uint32_t size, const uint8_t *data) {
-    if ((addr + size) > MOCK_MRAM_SIZE_BYTES) {
+mram_err_t mram_mock_write(uint16_t addr, uint16_t size_bytes, const uint8_t *data) {
+    if ((addr + size_bytes) >= MOCK_MRAM_SIZE_BYTES) {
         return MRAM_INDEX_OUT_OF_BOUND;
     }
 
-    memcpy(MRAM + addr, data, size);
+    memcpy(MRAM_MOCK_ARR + addr, data, size_bytes);
     return MRAM_OK;
 }
 
-mram_err_t read_mock_mram(uint32_t addr, uint32_t size, void *data) {
-    if ((addr + size) > MOCK_MRAM_SIZE_BYTES) {
+mram_err_t mram_mock_read(uint16_t addr, uint16_t size_bytes, uint8_t *data) {
+    if ((addr + size_bytes) >= MOCK_MRAM_SIZE_BYTES) {
         return MRAM_INDEX_OUT_OF_BOUND;
     }
 
-    memcpy(data, MRAM + addr, size);
+    memcpy(data, MRAM_MOCK_ARR + addr, size_bytes);
     return MRAM_OK;
 }

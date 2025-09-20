@@ -13,7 +13,7 @@ class OBCSerialDatagram(packet.Packet):
         LOG     = 0
         COMMS   = 1
 
-    MAX_DATA_SIZE = 236
+    MAX_DATA_SIZE = 226
 
     def __init__(self, msg_type: MsgType, data: bytes):
         super().__init__()

@@ -1,0 +1,4 @@
+FROM node:22.9.0-bookworm-slim
+COPY gmatDownloadCache/gmat-ubuntu-x64-R2022a.tar.gz /tmp
+RUN cd /tmp && tar -zxf gmat-ubuntu-x64-R2022a.tar.gz && rm /tmp/gmat-ubuntu-x64-R2022a.tar.gz && rm -r /tmp/GMAT/R2022a/docs && mv /tmp/GMAT /lib && ln -s /lib/GMAT/R2022a/bin/GmatConsole-R2022a /bin/GmatConsole
+COPY gmatDownloadCache/EGM2008.grv /lib/GMAT/R2022a/data/gravity/earth

@@ -101,7 +101,7 @@ static io_ostream_t output_stream = {
 /**
  * @brief Create FreeRTOS infrastructure needed by this module
  */
-void cmd_sys_sched_create_infra(void) {
+void cmd_sys_sched_pre_init(void) {
     cmd_sched_buffer = xStreamBufferCreateStatic(CMD_SYS_SCHED_MAX_DATA_SIZE, STREAM_BUF_DEF_TRIG_LVL, cmd_sched_buffer_storage, &cmd_sched_buffer_buf);
     input_rtos_stream.stream_buf = cmd_sched_buffer;
 }
@@ -109,7 +109,7 @@ void cmd_sys_sched_create_infra(void) {
 /**
  * @brief Start the command system task for scheduled commands
  */
-void cmd_sys_sched_start_task(void) {
+void cmd_sys_sched_post_init(void) {
     obc_rtos_create_task(OBC_TASK_ID_CMD_SYS_SCHED, &cmd_sys_sched_task, NULL, OBC_WATCHDOG_ACTION_ALLOW);
 }
 

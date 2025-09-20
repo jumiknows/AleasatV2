@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+  output          = "../../../node_modules/@prisma/client/launchpad"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model Launchpad {
+  // launchpad info
+  id   String @id @unique @default(uuid()) @db.Uuid
+  name String
+
+  // launchpad location
+  node        String
+  port        String
+  serviceName String
+
+  // launchpad status
+  fwCommit String
+
+  userSession UserSession?
+}
+
+model UserSession {
+  id      String   @id @unique @default(uuid()) @db.Uuid
+  userId  String
+  startAt DateTime @default(now())
+  endAt   DateTime
+
+  launchpadId String    @unique @db.Uuid
+  launchpad   Launchpad @relation(fields: [launchpadId], references: [id])
+}

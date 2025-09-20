@@ -27,8 +27,8 @@
  */
 #define CMD_SYS_TIMESTAMP_IMMEDIATE  ((uint32_t)0U)
 
-#define CMD_SYS_INPUT_READ_TIMEOUT_MS    5000U
-#define CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS  5000U
+#define CMD_SYS_INPUT_READ_TIMEOUT_MS    2000U
+#define CMD_SYS_OUTPUT_WRITE_TIMEOUT_MS  2000U
 
 #define CMD_SYS_EXEC_TIMEOUT_MS          60000U
 
@@ -54,6 +54,7 @@ typedef enum {
     CMD_SYS_ERR_EXEC_Q_TIMEOUT = 11, ///< A timeout occurred sending a command to the cmd_sys_exec task
     CMD_SYS_ERR_EXEC_TIMEOUT   = 12, ///< A timeout occurred waiting for a command to finish executing
     CMD_SYS_ERR_NO_HEADER      = 13, ///< No header was received
+    CMD_SYS_ERR_INVALID_STATE  = 14, ///< OBC cannot perform the request in the current state
 } cmd_sys_err_t;
 
 /**

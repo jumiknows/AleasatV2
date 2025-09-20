@@ -99,9 +99,9 @@ typedef const struct {
 /******************************************************************************/
 
 // Startup Stages
-void gpio_create_infra(void);
+void gpio_pre_init(void);
+void gpio_post_init(void);
 void gpio_init_hw(void);
-void gpio_start_task(void);
 void gpio_init_irq(void);
 void gpio_expander_init(void);
 void gpio_expander_reset(void);

@@ -14,6 +14,9 @@ def normalize(v: np.ndarray) -> np.ndarray:
        return v
     return v / norm
 
+def cross(a: np.ndarray, b:np.ndarray) -> np.ndarray:
+    return skew(a) @ b
+
 #its well documented here
 #https://www.mathworks.com/help/phased/ref/rotx.html
 #https://www.mathworks.com/help/phased/ref/roty.html

@@ -10,12 +10,12 @@ include = ["alea/test/stk/data/*.csv", "alea/test/stk/data/*.json"]
 [tool.poetry.dependencies]
 python = ">=3.10"
 alea-ttc = {path = "../alea-ttc", develop = true}
-xmlrunner = "^1.7.7"
 numpy = "^2.1.1"
 parameterized = "^0.9.0"
 ahrs = "^0.3.1"
 astropy = "^6.1.4"
 pandas = "^2.2.3"
+unittest-xml-reporting = "^3.2.0"
 
 [build-system]
 requires = ["poetry-core"]

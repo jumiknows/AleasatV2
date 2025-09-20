@@ -6,11 +6,13 @@ from  alea.obcfw.util.codegen import CodeGenerator
 from alea.obcfw.cmd_sys.cmd_sys_codegen import CmdSysCodeGen
 from alea.obcfw.log.log_codegen import LogCodeGen
 from alea.obcfw.task.task_codegen import TaskCodeGen
+from alea.obcfw.telem.telem_codegen import TelemCodeGen
 
 CODE_GENERATORS: dict[str, type[CodeGenerator]] = {
     "cmd_sys" : CmdSysCodeGen,
     "log"     : LogCodeGen,
     "task"    : TaskCodeGen,
+    "telem"   : TelemCodeGen,
 }
 
 if __name__ == "__main__":

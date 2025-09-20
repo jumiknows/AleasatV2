@@ -31,8 +31,8 @@
 /*                             F U N C T I O N S                              */
 /******************************************************************************/
 
-void cmd_sys_sched_create_infra(void);
-void cmd_sys_sched_start_task(void);
+void cmd_sys_sched_pre_init(void);
+void cmd_sys_sched_post_init(void);
 
 cmd_sys_err_t cmd_sys_sched_push_cmd(const cmd_sys_msg_header_t *header, uint8_t *header_and_data, uint32_t header_and_data_len);
 

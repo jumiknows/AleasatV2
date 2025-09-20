@@ -10,13 +10,9 @@
 #include "obc_flash.h"
 
 // OBC
+#include "obc_featuredefs.h"
 #include "logger.h"
-#ifdef PLATFORM_LAUNCHPAD_1224
-#include "flash_mock.h"
-#endif
-#ifdef PLATFORM_ALEA_V1
 #include "flash_mt25ql.h"
-#endif
 
 /******************************************************************************/
 /*                               D E F I N E S                                */
@@ -32,12 +28,10 @@
  * @brief Initializes the flash.
  */
 void flash_init(void) {
-#ifdef PLATFORM_LAUNCHPAD_1224
-    // TODO ALEA-855 Enable mock filesystem
-    // flash_init_mock();
-#endif
-#ifdef PLATFORM_ALEA_V1
+#if FEATURE_FLASH_FS
     mt25ql_init();
+#else
+    LOG_FLASH__FLASH_FS_NOT_ENABLED();
 #endif
 }
 
@@ -45,10 +39,7 @@ void flash_init(void) {
  * @brief Prints the identity of the flash
  */
 void flash_identify(void) {
-#ifdef PLATFORM_LAUNCHPAD_1224
-    LOG_FLASH__IDENTIFY_NOT_SUPPORTED();
-#endif
-#ifdef PLATFORM_ALEA_V1
+#if FEATURE_FLASH_FS
     uint8_t device_data[20] = { 0x00 };
     mt25ql_read_id(device_data);
 
@@ -60,6 +51,9 @@ void flash_identify(void) {
         LOG_FLASH__FAILED_TO_IDENTIFY();
     }
 
+#else
+    LOG_FLASH__IDENTIFY_NOT_SUPPORTED();
+    LOG_FLASH__FLASH_FS_NOT_ENABLED();
 #endif
 }
 
@@ -71,13 +65,11 @@ void flash_identify(void) {
  * @return FLASH_OK if no error, error code otherwise
  */
 flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size) {
-#ifdef PLATFORM_LAUNCHPAD_1224
-    // TODO ALEA-855 Enable mock filesystem
-    return FLASH_MOCK_ERR;
-    // return flash_erase_mock(addr, erase_size);
-#endif
-#ifdef PLATFORM_ALEA_V1
+#if FEATURE_FLASH_FS
     return mt25ql_erase(addr, erase_size);
+#else
+    LOG_FLASH__FLASH_FS_NOT_ENABLED();
+    return FLASH_FS_DISABLED_ERR;
 #endif
 }
 
@@ -90,12 +82,7 @@ flash_err_t flash_erase(uint32_t addr, flash_erase_sz_t erase_size) {
  * @return: FLASH_OK if no error, error code otherwise
  */
 flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data) {
-#ifdef PLATFORM_LAUNCHPAD_1224
-    // TODO ALEA-855 Enable mock filesystem
-    return FLASH_MOCK_ERR;
-    // return flash_write_mock(addr, size_bytes, data);
-#endif
-#ifdef PLATFORM_ALEA_V1
+#if FEATURE_FLASH_FS
 
     if (size_bytes == 64) {
         return mt25ql_write_64(addr, data);
@@ -104,6 +91,9 @@ flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data)
         return FLASH_INVALID_SIZE_ERR;
     }
 
+#else
+    LOG_FLASH__FLASH_FS_NOT_ENABLED();
+    return FLASH_FS_DISABLED_ERR;
 #endif
 }
 
@@ -116,12 +106,7 @@ flash_err_t flash_write(uint32_t addr, uint32_t size_bytes, const uint8_t *data)
  * @return: FLASH_OK if no error, error code otherwise
  */
 flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t *data) {
-#ifdef PLATFORM_LAUNCHPAD_1224
-    // TODO ALEA-855 Enable mock filesystem
-    return FLASH_MOCK_ERR;
-    // return flash_read_mock(addr, size_bytes, data);
-#endif
-#ifdef PLATFORM_ALEA_V1
+#if FEATURE_FLASH_FS
 
     if (size_bytes == 64) {
         return mt25ql_read_64(addr, data);
@@ -130,5 +115,32 @@ flash_err_t flash_read(uint32_t addr, uint32_t size_bytes, uint8_t *data) {
         return FLASH_INVALID_SIZE_ERR;
     }
 
+#else
+    LOG_FLASH__FLASH_FS_NOT_ENABLED();
+    return FLASH_FS_DISABLED_ERR;
+#endif
+}
+
+/**
+ * @brief Place flash chip in deep power-down mode.
+ */
+flash_err_t flash_sleep(void) {
+#if FEATURE_FLASH_FS
+    return mt25ql_enter_deep_sleep();
+#else
+    LOG_FLASH__FLASH_FS_NOT_ENABLED();
+    return FLASH_FS_DISABLED_ERR;
+#endif
+}
+
+/**
+ * @brief Wake flash chip from deep power-down mode.
+ */
+flash_err_t flash_wake(void) {
+#if FEATURE_FLASH_FS
+    return mt25ql_exit_deep_sleep();
+#else
+    LOG_FLASH__FLASH_FS_NOT_ENABLED();
+    return FLASH_FS_DISABLED_ERR;
 #endif
 }

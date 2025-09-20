@@ -1,0 +1,768 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "LP Manager Service",
+    "description": "Service to manage LP",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit/"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.aleasat.space/launchpad",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:3000/launchpad",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Launchpad",
+      "description": "Launchpad"
+    }
+  ],
+  "paths": {
+    "/launchpads": {
+      "get": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Get all Launchpads",
+        "operationId": "getLaunchpads",
+        "responses": {
+          "200": {
+            "description": "A list of Launchpads",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadLaunchpad"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Create a Launchpad object",
+        "operationId": "createLaunchpad",
+        "requestBody": {
+          "description": "New Launchpad object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteLaunchpad"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A Launchpad",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadLaunchpad"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/launchpads/{launchpadId}": {
+      "get": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Get a Launchpad",
+        "operationId": "getLaunchpad",
+        "parameters": [
+          {
+            "name": "launchpadId",
+            "in": "path",
+            "required": true,
+            "description": "The Launchpad ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Launchpad",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadLaunchpad"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Launchpad not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Update a Launchpad object by ID",
+        "operationId": "patchLaunchpad",
+        "parameters": [
+          {
+            "name": "launchpadId",
+            "in": "path",
+            "required": true,
+            "description": "The Launchpad ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Launchpad object that needs to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLaunchpad"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A Launchpad",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadLaunchpad"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Launchpad not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Delete a Launchpad by ID",
+        "operationId": "deleteLaunchpad",
+        "parameters": [
+          {
+            "name": "launchpadId",
+            "in": "path",
+            "required": true,
+            "description": "The Launchpad ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Launchpad not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/launchpads/{launchpadId}/userSession": {
+      "get": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Get a Launchpad User Session",
+        "operationId": "getLaunchpadUserSession",
+        "parameters": [
+          {
+            "name": "launchpadId",
+            "in": "path",
+            "required": true,
+            "description": "The Launchpad ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Launchpad User Session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadUserSession",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Launchpad User Session not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Create a Launchpad User Session",
+        "operationId": "createLaunchpadUserSession",
+        "parameters": [
+          {
+            "name": "launchpadId",
+            "in": "path",
+            "required": true,
+            "description": "The Launchpad ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Launchpad User Session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "accessToken",
+                    "userSession"
+                  ],
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "userSession": {
+                      "$ref": "#/components/schemas/ReadUserSession"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/launchpads/{launchpadId}/firmware": {
+      "put": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Update a Launchpad Firmware",
+        "operationId": "updateLaunchpadFirmware",
+        "parameters": [
+          {
+            "name": "launchpadId",
+            "in": "path",
+            "required": true,
+            "description": "The Launchpad ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "fwCommit"
+                ],
+                "properties": {
+                  "fwCommit": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A Launchpad",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "jobName"
+                  ],
+                  "properties": {
+                    "jobName": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Launchpad not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/launchpads/{launchpadId}/firmware/log": {
+      "get": {
+        "tags": [
+          "Launchpad"
+        ],
+        "summary": "Start a stream for Launchpad Firmware deployment Log",
+        "operationId": "getLaunchpadFirmwareLog",
+        "parameters": [
+          {
+            "name": "launchpadId",
+            "in": "path",
+            "required": true,
+            "description": "The Launchpad ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "jobName",
+            "in": "query",
+            "required": true,
+            "description": "The Deployment Job Name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "can be stream",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Launchpad Firmware Log not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReadLaunchpad": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "node",
+          "port",
+          "serviceName",
+          "fwCommit",
+          "userSessionId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The Launchpad ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "The Launchpad name"
+          },
+          "node": {
+            "type": "string"
+          },
+          "port": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "fwCommit": {
+            "type": "string"
+          },
+          "userSessionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "WriteLaunchpad": {
+        "type": "object",
+        "required": [
+          "name",
+          "node",
+          "port",
+          "serviceName",
+          "fwCommit"
+        ],
+        "properties": {
+          "name": {
+            "description": "The Launchpad name",
+            "type": "string"
+          },
+          "node": {
+            "type": "string"
+          },
+          "port": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "fwCommit": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateLaunchpad": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "node": {
+            "type": "string"
+          },
+          "port": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "fwCommit": {
+            "type": "string"
+          }
+        }
+      },
+      "ReadUserSession": {
+        "type": "object",
+        "required": [
+          "id",
+          "userId",
+          "startAt",
+          "endAt",
+          "launchpadId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "launchpadId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "The details of the problem"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code"
+          },
+          "title": {
+            "type": "string",
+            "description": "The type of error (text)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of error (URL)"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

@@ -2,9 +2,12 @@
  * @file obc_main.c
  * @brief Entry point for the application and the main FreeRTOS task
  * that creates all other tasks.
- * @author Richard Arthurs
- * @date April 18, 2020
  */
+
+/******************************************************************************/
+/*                              I N C L U D E S                               */
+/******************************************************************************/
+
 #include "obc_main.h"
 #include "rtos.h"
 #include "sys_core.h"
@@ -14,6 +17,8 @@
 #include "obc_rtos.h"
 #include "obc_featuredefs.h"
 #include "obc_rtc.h"
+#include "system/logging/log_sys.h"
+#include "system/telem/telem.h"
 #include "tms_mibspi.h"
 #include "obc_startup.h"
 #include "obc_flash.h"
@@ -27,6 +32,8 @@
 #include "obc_filesystem.h"
 #include "obc_settings.h"
 #include "obc_mram.h"
+#include "telem.h"
+#include "telem_exec.h"
 
 #include "comms_api.h"
 #include "comms_defs.h"
@@ -48,156 +55,29 @@
 #include "gps_serial_rx.h"
 #include "obc_gps.h"
 
-// Private Functions
+/******************************************************************************/
+/*               P R I V A T E  G L O B A L  V A R I A B L E S                */
+/******************************************************************************/
+
+/* The following symbols are defined at link time (see main/linker.cmd)
+ * Locations and size of asm_utils
+ */
+extern unsigned int asm_utils_load;
+extern unsigned int asm_utils_run;
+extern unsigned int asm_utils_size;
+
+/******************************************************************************/
+/*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
+/******************************************************************************/
+
 static void obc_main_task(void *pvParameters);
 
-/**
- * @brief The main task for the application.
- *
- * This task creates all of the other tasks after initializing hardware and
- * various other RTOS infrastructure, such as queues.
- *
- * @note This task should be created with portPRIVILEGE_BIT because some of
- * the hardware initialization requires privileged mode.
- *
- * @param pvParameters is not used.
- */
-static void obc_main_task(void *pvParameters) {
-    obc_rtos_init();
-
-    // Create FreeRTOS mutexes and queues for all features. Doing this allows future startup steps
-    // to do things like push to the UART TX queue, which is done when logging errors.
-    // None of this code relies on other application features.
-    obc_watchdog_create_infra();
-    obc_serial_rx_create_infra();
-    obc_serial_tx_create_infra();
-    log_sys_create_infra();
-    gps_serial_rx_create_infra();
-    tms_i2c_create_infra();
-    gpio_create_infra();
-    tms_mibspi_create_infra();
-    rtc_create_infra();
-    // telem_create_infra();
-    gps_create_infra();
-    tms_spi_create_infra();
-    rtc_scheduler_create_infra();
-    cmd_sys_exec_create_infra();
-    cmd_sys_sched_create_infra();
-    gndstn_link_create_infra();
-
-    // Start the backup epoch so we have a timestamp before initializing the hardware RTCs.
-    // If errors occur in subsequent steps, they will be able to properly log the error because
-    // the backup epoch is providing a time reference.
-    rtc_init_backup();
-
-    // Initialize low-level hardware for all features, but do not enable interrupts for most
-    // features yet. Interrupts cannot be safely enabled until the tasks that deal with handling the
-    // interrupts have been created. Hardware features where interrupts are enabled during
-    // init are tagged with "_irq" in the init function name.
-    tms_i2c_init();
-    gpio_init_hw();
-    tms_mibspi_init_hw();
-    comms_service_create_infra();
-#if COMMS_OVER_SERIAL
-    comms_obc_serial_create_infra();
-#else
-    comms_mibspi_init();
-#endif
-    hetInit();
-    tms_adc_init();
-    tms_can_init();
-    tms_spi_init();
-
-    // Start the MRAM and load settings from NVCT. This requires that MIBSPI is operational first.
-    // On LaunchPad, provision the NVCT now because it doesn't have a non-volatile NVCT, so we
-    // would otherwise need to provision manually after each reset. The NVCT on OBCs needs to be
-    // provisioned manually, but it's non-volatile.
-    init_mram();
-#ifdef PLATFORM_LAUNCHPAD_1224
-    provision_new_settings_table(0);
-#endif
-#ifdef PLATFORM_ALEA_V1 // TODO after dealing with MRAM (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/57)
-    provision_new_settings_table(0);
-#endif
-    update_settings_from_nvct();
-
-    // Start the tasks that deal with hardware. These tasks process requests from queues, and also
-    // handle interrupts. These tasks must be created before the interrupts are enabled, because
-    // interrupt processing requires that these tasks can run.
-    cmd_sys_exec_start_task();
-    cmd_sys_imm_start_task();
-    cmd_sys_sched_start_task();
-    obc_serial_rx_create_task();
-    log_sys_create_task();
-    gps_serial_rx_start_task();
-    gpio_start_task();
-
-#if COMMS_OVER_SERIAL
-    comms_obc_serial_create_task();
-    comms_dev_handle_t cdev = comms_obc_serial_get_handle();
-#else
-    comms_dev_handle_t cdev = comms_mibspi_get_handle();
-#endif
-    comms_mngr_start_task(cdev);
-
-    gndstn_link_start_task();
-
-    // Start the GPIO blinky task. This is a useful indicator because if anything is really wrong
-    // with startup, it might stop blinking.
-    blinky_start_task();
-
-    // Enable SciDriver. The GPS and Serial drivers require this to be called before their setup functions.
-    // Also needed for logging.
-    sciInit();
-
-    // Initialize the complex external hardware.
-    // The RTC requires MIBSPI to be working before it can be initialized.
-    // The GPIO expander requires I2C to be working before it can be initialized.
-    rtc_init();
-
-    gpio_expander_init();
-
-    // Enable interrupts. This is safe to do now that the interrupt processing tasks have been
-    // started.
-    gpio_init_irq();
-
-    // Enable interrupts for the UART. This should only be done after the scheduler is started,
-    // because the scheduler processes commands received from the UART.
-    obc_serial_rx_init_irq();
-    gps_serial_rx_init_irq();
-
-    // Filesystem initialization requires flash, and takes a couple of seconds because we erase it
-    // at startup.
-    flash_init();
-    fs_init();
-
-    gps_init();
-
-    // Hardware is ready to go now. Print out some information about startup.
-    LOG_PRINT_GENERAL__STARTUP_COMPLETE();
-#if defined(PLATFORM_ALEA_V1)
-    LOG_HW_TYPE__ALEA_V1();
-#elif defined(PLATFORM_LAUNCHPAD_1224)
-    LOG_HW_TYPE__LAUNCHPAD();
-#else // Neither platform is defined: this should never happen
-#error "Invalid platform"
-#endif
-    // TODO: Re-design startup
-    // print_startup_type();
-    // log_PBIST_fails();
-    // obc_startup_logs();
-
-    // Start the watchdog task once all other tasks are running
-    obc_watchdog_start_task();
-
-    while (1) {
-        // Never schedule this again
-        vTaskSuspend(NULL);
-    }
-}
+/******************************************************************************/
+/*                       P U B L I C  F U N C T I O N S                       */
+/******************************************************************************/
 
 /**
- * @brief entry point for the application. Performs any configuration
+ * @brief Entry point for the application. Performs any configuration
  * that must be done before the RTOS is started and then creates the
  * main task and starts the RTOS.
  *
@@ -205,8 +85,42 @@ static void obc_main_task(void *pvParameters) {
  * platforms.
  */
 void obc_main(void) {
+    // Interrupts are disabled during the pre-init sequence
+    _disable_interrupts();
+
+    // The asm_utils.asm functions are moved to RAM to ensure consistent timing behaviour
+    memcpy(&asm_utils_run, &asm_utils_load, (uint32_t)&asm_utils_size);
+
     // Turn off sleep in the idle task by default.
-    idle_sleep_off();
+    idle_sleep_off(); // TODO: Check if this is deprecated
+
+    /******************************************************************************/
+    /*                               P R E - I N I T                              */
+    /******************************************************************************/
+
+    /*
+     * This occurs before the FreeRTOS scheduler starts and runs with the CPU in system mode.
+     *
+     * Pre-Initialization Code Requirements:
+     * --------------------------------------
+     * 1) The scheduler is not running at this point,
+     *    so the pre-init initialization code must not call any blocking FreeRTOS APIs.
+     *
+     * 2) Interrupts will be disabled at the beginning of obc_main,
+     *    meaning the pre-init initialization code must not depend on any interrupts.
+     *
+     * Responsibilities:
+     * -----------------
+     * - HALCoGen-level peripheral initialization.
+     * - Creation of FreeRTOS objects (e.g., queues, mutexes, stream/message buffers, etc.)
+     *   for all tasks.
+     * - Creation of FreeRTOS tasks for modules that do not depend on any later initialization
+     *   or handle their own initialization
+     */
+
+    /******************************************************************************/
+    /*                 HALCoGen-level peripheral initialization                   */
+    /******************************************************************************/
 
     /**
      * RTI needs to be initialized here before @ref vTaskStartScheduler runs. This is
@@ -222,10 +136,72 @@ void obc_main(void) {
      * "Driver Enabled" tab in order for rtiInit to be generated.
      */
     rtiInit();
+    hetInit();
+    sciInit();
 
-    /**
-     * The main task is where all of the top level tasks will be created from.
+    gpio_init_hw();
+    tms_i2c_init_hw();
+    tms_adc_init_hw();
+    tms_can_init_hw();
+    tms_spi_init_hw();
+    tms_mibspi_init_hw();
+
+    /******************************************************************************/
+    /*                          FreeRTOS Infra Creation                           */
+    /******************************************************************************/
+
+    /*
+     * This phase deals with the creation of FreeRTOS mutexes and queues for all features.
+     * Doing this allows future startup steps to do things like push to the UART TX
+     * queue, which is done when logging errors.
      *
+     * Tasks that do not depend on any others may also be created here.
+     */
+
+    obc_watchdog_pre_init();
+
+    log_sys_pre_init();
+
+    obc_serial_rx_pre_init();
+    obc_serial_tx_pre_init();
+    gps_serial_rx_pre_init();
+
+    gpio_pre_init();
+    rtc_pre_init();
+    filesystem_pre_init();
+    telem_exec_pre_init();
+    gps_pre_init();
+    rtc_scheduler_pre_init();
+
+    cmd_sys_exec_pre_init();
+    cmd_sys_imm_pre_init();
+    cmd_sys_sched_pre_init();
+
+    gndstn_link_pre_init();
+    comms_service_pre_init();
+
+    tms_mibspi_pre_init();
+    tms_i2c_pre_init();
+    tms_spi_pre_init();
+    tms_adc_pre_init();
+
+    // Start the GPIO blinky task. This is a useful indicator because if anything is really wrong
+    // with startup, it might stop blinking.
+    blinky_pre_init();
+
+#if COMMS_OVER_SERIAL
+    comms_obc_serial_pre_init();
+    comms_dev_handle_t cdev = comms_obc_serial_get_handle();
+#else
+    comms_dev_handle_t cdev = comms_mibspi_get_handle();
+#endif
+    comms_mngr_pre_init(cdev);
+
+    /******************************************************************************/
+    /*                              Start scheduler                               */
+    /******************************************************************************/
+
+    /*
      * This task is created with portPRIVILEGE_BIT set in order for the processor to
      * remain in Privileged mode. The Memory Protection Unit (MPU) will therefore be
      * disabled for this task, allowing it to do things such as configuring the
@@ -240,5 +216,139 @@ void obc_main(void) {
 
     while (1) {
         // Keep running the scheduler forever.
+    }
+}
+
+/******************************************************************************/
+/*                      P R I V A T E  F U N C T I O N S                      */
+/******************************************************************************/
+
+/**
+ * @brief The main task for the application.
+ *
+ * This task runs the post-init section after initializing hardware and
+ * various other RTOS infrastructure, such as queues.
+ *
+ * @note This task should be created with portPRIVILEGE_BIT because some of
+ * the hardware initialization requires privileged mode.
+ *
+ * @param pvParameters is not used.
+ */
+static void obc_main_task(void *pvParameters) {
+
+    /******************************************************************************/
+    /*                             P O S T - I N I T                              */
+    /******************************************************************************/
+
+    /*
+     * The obc_main_task runs after the scheduler has started.
+     * It will be the highest priority running task and the CPU is in user mode.
+     *
+     * Responsibilities:
+     * -----------------
+     * - Initialize devices that are shared by multiple tasks or block the creation
+     *   of other tasks, and require blocking operations or interrupts for initialization.
+     *   Examples: GPIO expander, flash chip, MRAM, etc.
+     *
+     * - Create any remaining tasks that could not be created during the pre-init phase.
+     *
+     * - Enable interrupts for tasks that were started in pre-init
+     *
+     * Post-Init Phase Actions:
+     * -------------------------
+     * - At the end of the post-init phase:
+     *   - The obc_watchdog will be created and start monitoring all other tasks.
+     *   - The obc_main_task will downgrade its priority and become the main state machine
+     *     of the satellite (so that we can re-use its stack space).
+     *
+     * NOTE: This section should only initialize the core components of the satellite required by the
+     * SAFE state machine mode for the OBC. Other initialization procedures belong in the corresponding
+     * state machine transition functions
+     */
+
+    // Setup FreeRTOS idle task
+    obc_rtos_init();
+
+    // Start the backup epoch so we have a timestamp before initializing the hardware RTCs.
+    // If errors occur in subsequent steps, they will be able to properly log the error because
+    // the backup epoch is providing a time reference.
+    rtc_init_backup();
+
+    /******************************************************************************/
+    /*                               P H A S E 1                                  */
+    /******************************************************************************/
+
+    /*
+     * Initialization of complex external hardware that rely on interrupts
+     */
+
+#ifndef COMMS_OVER_SERIAL
+    comms_mibspi_init();
+#endif
+
+    mram_init();
+    flash_init();
+    fs_init();
+    rtc_init();
+    gpio_expander_init();
+
+    /*
+     * Start the MRAM and load settings from NVCT. This requires that MIBSPI is operational first.
+     * On LaunchPad, provision the NVCT now because it doesn't have a non-volatile NVCT, so we
+     * would otherwise need to provision manually after each reset. The NVCT on OBCs needs to be
+     * provisioned manually, but it's non-volatile.
+     */
+
+#ifdef PLATFORM_LAUNCHPAD_1224
+    provision_new_settings_table(0);
+#endif
+#ifdef PLATFORM_ALEA_V1 // TODO after dealing with MRAM (https://gitlab.com/alea-2020/command-data-handling/obc2-firmware/-/issues/57)
+    provision_new_settings_table(0);
+#endif
+    update_settings_from_nvct();
+
+    /******************************************************************************/
+    /*                               P H A S E 2                                  */
+    /******************************************************************************/
+
+    /*
+     * Do post-init actions for tasks that might require complex external hardware
+     * and/or interrupts.
+     */
+
+    gpio_post_init();
+    obc_serial_rx_post_init();
+    gps_serial_rx_post_init();
+
+    // Start all other tasks
+    log_sys_post_init();
+    cmd_sys_sched_post_init(); // TODO: Move into state machine transition
+    filesystem_post_init();
+    telem_collect_post_init();
+
+    // Start the watchdog task once all other tasks are running
+    obc_watchdog_post_init();
+
+    /******************************************************************************/
+    /*                               C L E A N U P                                */
+    /******************************************************************************/
+
+    // Hardware is ready to go now. Print out some information about startup.
+    LOG_PRINT_GENERAL__STARTUP_COMPLETE();
+#if defined(PLATFORM_ALEA_V1)
+    LOG_HW_TYPE__ALEA_V1();
+#elif defined(PLATFORM_LAUNCHPAD_1224)
+    LOG_HW_TYPE__LAUNCHPAD();
+#else // Neither platform is defined: this should never happen
+#error "Invalid platform"
+#endif
+    // TODO: ALEA-3156
+    // print_startup_type();
+    // log_PBIST_fails();
+    // obc_startup_logs();
+
+    while (1) {
+        // Never schedule this again
+        vTaskSuspend(NULL);
     }
 }

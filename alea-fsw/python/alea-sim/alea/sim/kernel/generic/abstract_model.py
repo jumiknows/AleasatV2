@@ -9,7 +9,6 @@ from typing import TypeVar, Generic
 M = TypeVar("M")
 
 from alea.sim.kernel.scheduler import Scheduler
-from alea.sim.kernel.config_loader import load_config
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -48,11 +47,6 @@ class AbstractModel(abc.ABC):
         if not hasattr(self, '_scheduler'):
             self._scheduler = sim_kernel.scheduler
 
-    @property
-    def config_name(self) -> str:
-        # TODO: Remove this and use Config classes instead
-        raise NotImplementedError
-
     def connect(self):
         """
         Connect models to each other, and obtain references to attributes of other models
@@ -71,6 +65,13 @@ class AbstractModel(abc.ABC):
         
         This method will be invoked as a kernel event at simulation time 0 after all connect events
         but before any other events.
+        """
+        pass
+    
+    def stop(self):
+        """
+        Kill processes that were started in start().
+        This method is invoked by the kernel when kernel.kill() is called.
         """
         pass
 
@@ -238,6 +239,16 @@ class AbstractModel(abc.ABC):
             self._children.pop(child.name)
             self.logger.info(f'Removed child model: {child.name} from Parent model: {self.name}')
     
+    def stop_all(self):
+        """
+        Call stop() for this model and all models in its tree (children).
+        """
+        
+        for child in self._children.values():
+            child.stop_all()
+        
+        self.stop()
+
     def get_config(self, override_cfg_name:str = None) -> dict:
         if override_cfg_name is None:
             return load_config(self.config_name)

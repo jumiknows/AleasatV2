@@ -1,0 +1,44 @@
+spec:
+  inputs:
+    package:
+---
+"$[[ inputs.package ]] E2E Test":
+  stage: test
+  needs:
+    - Build Types and Test
+  image: cypress/browsers:node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+  variables:
+    AUTH_URL: http://localhost:3000
+    CYPRESS_INSTALL_BINARY: ""
+    CYPRESS_CACHE_FOLDER: "$CI_PROJECT_DIR/cache/Cypress"
+  before_script:
+    - cd alea-gsw
+  script:
+    - yarn workspaces focus @aleasat/$[[ inputs.package ]] barbours-cut
+    - yarn build:types --cache-dir=".turbo"
+    - yarn workspace @aleasat/$[[ inputs.package ]] build
+    - cd apps/$[[ inputs.package ]] && NEXTAUTH_SECRET="testsecret" yarn start &
+    - cd apps/$[[ inputs.package ]] && yarn cypress run --config watchForFileChanges=false --browser chrome
+  cache:
+    - key: yarn-cache
+      paths:
+        - "alea-gsw/.yarn/cache"
+      policy: pull
+    - key: turbo-types
+      paths:
+        - "alea-gsw/.turbo"
+      policy: pull
+    - key: $[[ inputs.package ]]-next-cache
+      paths:
+        - "alea-gsw/apps/$[[ inputs.package ]]/.next/cache"
+      when: always
+    - key: cypress
+      paths:
+        - "cache/Cypress"
+      when: always
+  artifacts:
+    when: always
+    paths:
+      - alea-gsw/apps/$[[ inputs.package ]]/cypress/videos/**/*.mp4
+      - alea-gsw/apps/$[[ inputs.package ]]/cypress/screenshots/**/*.png
+    expire_in: 1 day

@@ -23,6 +23,7 @@
 
 // FreeRTOS
 #include "rtos.h"
+#include "asm_utils.h"
 
 // HAL
 #include "i2c.h"
@@ -35,11 +36,16 @@
 /******************************************************************************/
 
 /**
- * @brief Number of attempts before timing out (units are attempts at register check)
- *
- * Typically takes ~3500 for a correct wait
+ * @brief Number of ms to wait for I2C interrupts to fire
  */
-#define I2C_TIMEOUT_MAX 200000
+#define I2C_TIMEOUT_MAX 1000
+
+/**
+ * @brief Delay before attempting a register check
+ *
+ * Typically takes ~150-1000 for a correct wait (usually used within a for loop)
+ */
+#define I2C_REGISTER_TIMEOUT 3000
 
 /**
  * @brief I2C pin function bit value for I2C mode
@@ -78,6 +84,7 @@ typedef enum {
 /******************************************************************************/
 
 static SemaphoreHandle_t xI2CMutex;
+static SemaphoreHandle_t xI2CSemaphoreISR;
 
 /******************************************************************************/
 /*            P R I V A T E  F U N C T I O N  P R O T O T Y P E S             */
@@ -89,10 +96,12 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_da
 static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data, bool ignore_nack);
 
 static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t num_bytes, bool ignore_nack);
-static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data);
-static inline i2c_err_t i2c_send_byte(uint8_t byte);
-static i2c_err_t i2c_receive(uint32_t length, uint8_t *data);
+static i2c_err_t i2c_send(uint32_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data);
 static inline void i2c_clear_nack(void);
+static inline bool i2c_force_stop_cond(void);
+static void i2cReceiveInterrupt(uint32_t length, uint8_t *data);
+static void i2cSendInterrupt(uint32_t reg_length, const uint8_t *reg_data, uint32_t send_length, const uint8_t *send_data);
+
 
 /******************************************************************************/
 /*                       P U B L I C  F U N C T I O N S                       */
@@ -101,9 +110,11 @@ static inline void i2c_clear_nack(void);
 /**
  * @brief Instantiates the mutex used to protect I2C access
  */
-void tms_i2c_create_infra(void) {
+void tms_i2c_pre_init(void) {
     static StaticSemaphore_t xI2CStaticMutex;
+    static StaticSemaphore_t xI2CStaticSemaphoreISR;
     xI2CMutex = xSemaphoreCreateMutexStatic(&xI2CStaticMutex);
+    xI2CSemaphoreISR = xSemaphoreCreateBinaryStatic(&xI2CStaticSemaphoreISR);
 }
 
 /**
@@ -111,13 +122,22 @@ void tms_i2c_create_infra(void) {
  *
  * Function has to be called before using any I2C devices
  */
-void tms_i2c_init(void) {
+void tms_i2c_init_hw(void) {
     /*
      * FIX: voltage levels are low when initializing I2C pins without initializing as GIO pins first
      */
     i2c_init_voltage_levels();
 
     i2cInit();
+}
+
+/**
+ * @brief ISR handler for RX events on the I2C peripheral
+ *
+ * @param xHigherPriorityTaskWoken Pointer to store flag that a higher priority task was woken
+ */
+void tms_i2c_isr(BaseType_t *xHigherPriorityTaskWoken) {
+    xSemaphoreGiveFromISR(xI2CSemaphoreISR, xHigherPriorityTaskWoken);
 }
 
 /**
@@ -231,8 +251,8 @@ static void i2c_init_voltage_levels(void) {
     // Bring I2C out of reset
     i2cREG1->MDR |= (uint32_t)I2C_RESET_OUT;
 
-    // Wait for a single tick. This is necessary, otherwise pin voltage doesn't settle
-    vTaskDelay(pdMS_TO_TICKS(10));
+    // This is necessary, otherwise pin voltage doesn't settle
+    asm_busy_wait(1920000); // Roughly 10ms
 }
 
 /**
@@ -260,9 +280,9 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
 
         for (i = 0; i < 10; i++) {
             I2C->DOUT |= I2C_SCL;   // Set SCL high
-            busy_wait(I2C_RESET_PULSE_WIDTH);
+            asm_busy_wait(I2C_RESET_PULSE_WIDTH);
             I2C->DOUT ^= I2C->DOUT; // Set SCL low
-            busy_wait(I2C_RESET_PULSE_WIDTH);
+            asm_busy_wait(I2C_RESET_PULSE_WIDTH);
         }
 
         I2C->DOUT |= I2C_SCL; // Set SCL high
@@ -302,7 +322,7 @@ static i2c_err_t i2c_reset(uint8_t max_retry) {
  * @returns I2C module status
  */
 static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t rcv_bytes, uint8_t *rcv_data, bool ignore_nack) {
-    i2c_err_t err = I2C_SUCCESS;
+    i2c_err_t status = I2C_SUCCESS;
 
     if (i2cIsBusBusy(I2C)) {
         return I2C_BUS_BUSY;
@@ -310,45 +330,49 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_da
 
     i2c_setup_transaction(addr, I2C_TRANSMITTER, reg_bytes, ignore_nack);
 
+    /*
+     * Although repeat mode is not strictly necessary for repeated starts, there is plenty
+     * of documentation regarding undefined behaviour and quirks when using repeated starts
+     * with interrupts enabled due to poor documentation in the TRM or bugs in the underlying calls.
+     */
+
+    // Enable repeat mode and clear stop bit so that we can send a repeated start
+    I2C->MDR |= (uint32_t)I2C_REPEATMODE;
+    I2C->MDR &= ~((uint32_t)I2C_STOP_COND);
+
     // Send the register to read from
-    I2C->MDR &= ~((uint32_t)I2C_STOP_COND); // Clear STOP condition since this is immediately followed by a read
     i2cSetStart(I2C);
-    err = i2c_send(reg_bytes, reg_data, 0, NULL);
+    status = i2c_send(reg_bytes, reg_data, 0, NULL);
 
-    if (err != I2C_SUCCESS) {
-        i2cSetStop(I2C);
-        i2cClearSCD(I2C);
+    if (status != I2C_SUCCESS) {
+        i2c_force_stop_cond();
 
-        if (err == I2C_ERR_NACK) {
+        if (status == I2C_ERR_NACK) {
             i2c_clear_nack();
         }
 
-        return err;
+        return status;
     }
 
     // Receive the data from the slave
     i2cSetDirection(I2C, I2C_RECEIVER);
-    i2cSetCount(I2C, rcv_bytes);
-    I2C->MDR |= (I2C_STOP_COND | I2C_START_COND);
+    i2cReceiveInterrupt(rcv_bytes, rcv_data);
+    i2cSetStart(I2C);
 
-    err = i2c_receive(rcv_bytes, rcv_data);
-
-    if (err != I2C_SUCCESS) {
-        i2cSetStop(I2C);
-        i2cClearSCD(I2C);
-        return err;
-    }
-
-    // Wait for a stop condition to occur
-    uint32_t timeout_count;
-
-    for (timeout_count = 0; timeout_count < I2C_TIMEOUT_MAX; timeout_count++) {
-        if (i2cIsStopDetected(I2C)) {
-            i2cClearSCD(I2C);
-            return I2C_SUCCESS;
+    if (xSemaphoreTake(xI2CSemaphoreISR, pdMS_TO_TICKS(I2C_TIMEOUT_MAX)) == pdTRUE) { // I2C interrupt happened
+        /*
+         * Interrupt fires when last byte in receive shift register (RSR) is copied into data receive register (DRR)
+         * A small timeout loop is used to ensure that register access is ready (ARDY) before we force a stop condition.
+         */
+        for (uint16_t timeout_count = 0; timeout_count < I2C_REGISTER_TIMEOUT; timeout_count++) {
+            if (I2C->STR & I2C_ARDY) {
+                return i2c_force_stop_cond() ? I2C_SUCCESS : I2C_RX_TIMEOUT;
+            }
         }
     }
 
+    // Receive timed out
+    i2c_force_stop_cond();
     return I2C_RX_TIMEOUT;
 }
 
@@ -368,38 +392,32 @@ static i2c_err_t i2c_read(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_da
  */
 static i2c_err_t i2c_write(uint8_t addr, uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data,
                            bool ignore_nack) {
-    i2c_err_t err = I2C_SUCCESS;
+    i2c_err_t status = I2C_SUCCESS;
 
     if (i2cIsBusBusy(I2C)) {
         return I2C_BUS_BUSY;
     }
 
-    i2c_setup_transaction(addr, I2C_TRANSMITTER, (reg_bytes + send_bytes), ignore_nack);
+    i2c_setup_transaction(addr, I2C_TRANSMITTER, reg_bytes, ignore_nack);
 
-    // Set the stop bit so that a stop condition is generated by the
-    // hardware once all bytes are sent
-    i2cSetStop(I2C);
+    // Enable repeat mode and clear stop bit so that we can send a repeated start
+    I2C->MDR |= (uint32_t)I2C_REPEATMODE;
+    I2C->MDR &= ~((uint32_t)I2C_STOP_COND);
 
-    // Send the data to the slave
     i2cSetStart(I2C);
-    err = i2c_send(reg_bytes, reg_data, send_bytes, send_data);
+    status = i2c_send(reg_bytes, reg_data, send_bytes, send_data);
 
-    if (err != I2C_SUCCESS) {
-        i2cSetStop(I2C);
-        i2cClearSCD(I2C);
+    if (status != I2C_SUCCESS) {
+        i2c_force_stop_cond();
 
-        if (err == I2C_ERR_NACK) {
+        if (status == I2C_ERR_NACK) {
             i2c_clear_nack();
         }
 
-        return err;
+        return status;
     }
 
-    // Clear stop condition, note that the i2c_send function guarantees a stop
-    // condition will occur before it exits successfully when the STP bit is set
-    i2cClearSCD(I2C);
-
-    return I2C_SUCCESS;
+    return i2c_force_stop_cond() ? I2C_SUCCESS : I2C_TX_TIMEOUT;
 }
 
 /**
@@ -425,8 +443,6 @@ static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t nu
 /**
  * @brief Sends a register address followed by data to a slave I2C device
  *
- * @param[in] reg_bytes  Size of the register address in bytes
- * @param[in] reg_data   Pointer to the register address bytes
  * @param[in] send_bytes Size of the data in bytes
  * @param[in] send_data  Pointer to the data bytes
  *
@@ -435,126 +451,26 @@ static inline void i2c_setup_transaction(uint8_t addr, uint32_t dir, uint32_t nu
  *            - I2C_ERR_NACK if NACK was received
  *            - I2C_SUCCESS otherwise
  */
-static i2c_err_t i2c_send(uint8_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data) {
-    // Send register
-    for (; reg_bytes > 0; reg_bytes--) {
-        i2c_err_t status = i2c_send_byte(*reg_data);
+static i2c_err_t i2c_send(uint32_t reg_bytes, const uint8_t *reg_data, uint32_t send_bytes, const uint8_t *send_data) {
+    i2cSendInterrupt(reg_bytes, reg_data, send_bytes, send_data);
 
-        if (status != I2C_SUCCESS) {
-            return status;
-        }
-
-        reg_data++;
-    }
-
-    // Send data
-    for (; send_bytes > 0; send_bytes--) {
-        i2c_err_t status = i2c_send_byte(*send_data);
-
-        if (status != I2C_SUCCESS) {
-            return status;
-        }
-
-        send_data++;
-    }
-
-    // Check if STP bit is set. If it is we wait for stop condition otherwise
-    // we wait for ARDY to be asserted. The first case occurs during i2c_write,
-    // the second case occurs during i2c_read when we write the register address.
-    uint32_t stop_set = I2C->MDR & I2C_STOP_COND;
-
-    // Wait for the send to complete
-    uint32_t timeout_count = 0;
-
-    for (timeout_count = 0; timeout_count < I2C_TIMEOUT_MAX; timeout_count++) {
-        uint32_t status_reg = I2C->STR;
-
-        // Check that slave hasn't NACKed
-        if (status_reg & I2C_NACK) {
-            return I2C_ERR_NACK;
-        }
-
-        // Check that send has completed
-        if (stop_set) {
-            if (status_reg & I2C_SCD) {
-                return I2C_SUCCESS;
-            }
-        } else {
-            if (status_reg & I2C_ARDY) {
-                return I2C_SUCCESS;
+    if (xSemaphoreTake(xI2CSemaphoreISR, pdMS_TO_TICKS(I2C_TIMEOUT_MAX)) == pdTRUE) { // I2C interrupt happened
+        /*
+         * This interrupt is fired when the last byte is shifted into the data transmit
+         * register (DXR) and before it has been copied into the transmit shift register (XSR)
+         * Thus, even if the interrupt was fired, there is a possibility that the slave NACKed the last
+         * byte, and we need to check both inside and outside the interrupt for this.
+         * A small timeout loop to wait for the register values to update before checking them.
+        */
+        for (uint16_t timeout_count = 0; timeout_count < I2C_REGISTER_TIMEOUT; timeout_count++) {
+            if (I2C->STR & I2C_ARDY) {
+                // Check that slave hasn't NACKed
+                return (I2C->STR & I2C_NACK) ? I2C_ERR_NACK : I2C_SUCCESS;
             }
         }
     }
 
-    return I2C_TX_TIMEOUT;
-}
-
-/**
- * @brief Sends a single byte on the I2C interface
- *
- * @param[in] byte The byte to send
- * @returns I2C module status
- *            - I2C_TX_TIMEOUT if timeout occurred waiting for bus to free
- *            - I2C_ERR_NACK if NACK was received
- *            - I2C_SUCCESS otherwise
- */
-static inline i2c_err_t i2c_send_byte(uint8_t byte) {
-    uint32_t timeout_count = 0;
-
-    for (timeout_count = 0; true; timeout_count++) {
-        uint32_t status_reg = I2C->STR;
-
-        // Check that slave hasn't NACKed
-        if (status_reg & I2C_NACK) {
-            return I2C_ERR_NACK;
-        }
-
-        // Check if data register is ready to accept another byte
-        if (status_reg & I2C_TX) {
-            break;
-        }
-
-        // Check timeout
-        if (timeout_count >= I2C_TIMEOUT_MAX) {
-            return I2C_TX_TIMEOUT;
-        }
-    }
-
-    I2C->DXR = byte;
-    return I2C_SUCCESS;
-}
-
-/**
- * @brief Receive a specified number of bytes from a slave I2C device
- *
- * @param[in]  length Number of bytes to wait for
- * @param[out] data   Buffer to store received data
- *
- * @returns I2C module status
- *            - I2C_RX_FAIL if timeout occurred waiting for data
- *            - I2C_SUCCESS otherwise
- */
-static i2c_err_t i2c_receive(uint32_t length, uint8_t *data) {
-    for (; length > 0; length--) {
-        uint32_t timeout_count = 0;
-
-        for (timeout_count = 0; true; timeout_count++) {
-            // Check if we have received the next byte
-            if (I2C->STR & I2C_RX) {
-                break;
-            }
-
-            // Check timeout
-            if (timeout_count >= I2C_TIMEOUT_MAX) {
-                return I2C_RX_TIMEOUT;
-            }
-        }
-
-        *data = I2C->DRR;
-        data++;
-    }
-
-    return I2C_SUCCESS;
+    return (I2C->STR & I2C_NACK) ? I2C_ERR_NACK : I2C_TX_TIMEOUT;
 }
 
 /**
@@ -563,4 +479,150 @@ static i2c_err_t i2c_receive(uint32_t length, uint8_t *data) {
  */
 static inline void i2c_clear_nack(void) {
     I2C->STR |= (I2C_NACK | I2C_TX);
+}
+
+/**
+ * @brief Forces a stop condition and then clears SCD.
+ *
+ * @returns true if stop condition was set and cleared successfully.
+ */
+static inline bool i2c_force_stop_cond(void) {
+    // Enter repeat mode
+    if (!(I2C->MDR & (uint32_t)I2C_REPEATMODE)) {
+        I2C->MDR |= (uint32_t)I2C_REPEATMODE;
+    }
+
+    I2C->MDR |= (uint32_t)I2C_STOP_COND;
+
+    for (uint16_t timeout_count = 0; timeout_count < I2C_REGISTER_TIMEOUT; timeout_count++) {
+        if (I2C->STR & (uint32_t)I2C_SCD_INT) { // SCD detected
+            I2C->STR = (uint32_t)I2C_SCD_INT; // Clear SCD
+            I2C->MDR &= ~((uint32_t)I2C_REPEATMODE); // Repeat mode disabled
+            return true;
+        }
+    }
+
+    // Exit repeat mode
+    I2C->MDR &= ~((uint32_t)I2C_REPEATMODE);
+    return false;
+}
+
+/******************************************************************************/
+/*                      I N T E R R U P T S                                   */
+/******************************************************************************/
+
+/*
+ * This section contains modified HALCoGen code that improves the handling of
+ * TX and RX interrupts
+ */
+
+static struct g_i2cReceive {
+    uint32_t length;
+    uint8_t *data;
+} g_i2cReceive_t;
+
+static struct g_i2cTransmit {
+    uint8_t reg_length;
+    const uint8_t *reg_data;
+    uint32_t send_length;
+    const uint8_t *send_data;
+} g_i2cTransmit_t;
+
+static void i2cReceiveInterrupt(uint32_t length, uint8_t *data) {
+    I2C->STR = (uint32)I2C_AL_INT | (uint32)I2C_NACK_INT;
+
+    g_i2cReceive_t.length = length;
+    g_i2cReceive_t.data = data;
+}
+
+static void i2cSendInterrupt(uint32_t reg_length, const uint8_t *reg_data, uint32_t send_length, const uint8_t *send_data) {
+    g_i2cTransmit_t.send_data = send_data;
+    g_i2cTransmit_t.send_length = send_length;
+    g_i2cTransmit_t.reg_data = reg_data;
+    g_i2cTransmit_t.reg_length = reg_length;
+
+    if (reg_length > 0U) {
+        I2C->DXR = *g_i2cTransmit_t.reg_data;
+        g_i2cTransmit_t.reg_data++;
+        g_i2cTransmit_t.reg_length--;
+    } else if (send_length > 0U) {
+        I2C->DXR = *g_i2cTransmit_t.send_data;
+        g_i2cTransmit_t.send_data++;
+        g_i2cTransmit_t.send_length--;
+    } else {
+        return;
+    }
+
+    I2C->IMR |= (uint32)I2C_TX_INT;
+}
+
+#pragma CODE_STATE(i2cInterrupt, 32)
+#pragma INTERRUPT(i2cInterrupt, IRQ)
+
+void i2cInterrupt(void) {
+    uint32_t vec = (I2C->IVR & 0x00000007U);
+
+    switch (vec) {
+    case 1U:
+        i2cNotification(I2C, (uint32_t)I2C_AL_INT);
+        break;
+
+    case 2U:
+        i2cNotification(I2C, (uint32_t)I2C_NACK_INT);
+        break;
+
+    case 3U:
+        i2cNotification(I2C, (uint32_t)I2C_ARDY_INT);
+        break;
+
+    case 4U:
+        /* receive */
+    {
+        uint8_t byte = I2C->DRR;
+
+        if (g_i2cReceive_t.length > 0U) {
+            *g_i2cReceive_t.data = byte;
+            g_i2cReceive_t.data++;
+            g_i2cReceive_t.length--;
+
+            if (g_i2cReceive_t.length == 0U) {
+                i2cNotification(I2C, (uint32_t)I2C_RX_INT);
+            }
+        }
+
+        break;
+    }
+
+    case 5U:
+
+        /* transmit */
+
+        if (g_i2cTransmit_t.reg_length > 0U) {
+            I2C->DXR = *g_i2cTransmit_t.reg_data;
+            g_i2cTransmit_t.reg_data++;
+            g_i2cTransmit_t.reg_length--;
+        } else if (g_i2cTransmit_t.send_length > 0U) {
+            I2C->DXR = *g_i2cTransmit_t.send_data;
+            g_i2cTransmit_t.send_data++;
+            g_i2cTransmit_t.send_length--;
+        } else {
+            I2C->IMR &= (uint32_t)(~(uint32_t)I2C_TX_INT);
+            i2cNotification(I2C, (uint32_t)I2C_TX_INT);
+        }
+
+        break;
+
+    case 6U:
+        i2cNotification(I2C, (uint32_t)I2C_SCD_INT);
+        break;
+
+    case 7U:
+        i2cNotification(I2C, (uint32_t)I2C_AAS_INT);
+        break;
+
+    default:
+        /* phantom interrupt, clear flags and return */
+        I2C->STR = 0x000007FFU;
+        break;
+    }
 }

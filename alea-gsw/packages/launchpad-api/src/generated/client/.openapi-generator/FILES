@@ -1,0 +1,15 @@
+.openapi-generator-ignore
+apis/LaunchpadApi.ts
+apis/index.ts
+index.ts
+models/CreateLaunchpadUserSession200Response.ts
+models/ModelError.ts
+models/Problem.ts
+models/ReadLaunchpad.ts
+models/ReadUserSession.ts
+models/UpdateLaunchpad.ts
+models/UpdateLaunchpadFirmware200Response.ts
+models/UpdateLaunchpadFirmwareRequest.ts
+models/WriteLaunchpad.ts
+models/index.ts
+runtime.ts

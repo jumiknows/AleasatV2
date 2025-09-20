@@ -1,4 +1,5 @@
 from typing import Callable
+from opentelemetry import trace
 
 from alea.common import alea_time
 
@@ -14,6 +15,8 @@ from alea.ttc.util import data_utils
 
 from . import app_log
 from . import app_cmd_sys
+
+tracer = trace.get_tracer(__name__)
 
 class OBCAppProtocolError(Exception):
     def __init__(self, msg: str = None, cmd: cmd_sys.OBCCmd = None, spec: cmd_sys_spec.OBCCmdSysSpec = None,
@@ -127,7 +130,7 @@ class OBCAppProtocol:
         self._rx_log_multi.remove_dest(listener)
 
     # Send Command + Receive Response ------------------------------------------------------------------
-
+    @tracer.start_as_current_span("send_cmd_recv_resp")
     def send_cmd_recv_resp(self, cmd: cmd_sys.OBCCmd, timeout: float = None, progress_callback: Callable[[data_utils.DataProgress], None] = None) -> cmd_sys.OBCResponse:
         """Sends a command (with automatic argument encoding) and waits for the response (with automatic data decoding).
 
@@ -193,7 +196,7 @@ class OBCAppProtocol:
         return None
 
     # Send Command -------------------------------------------------------------------------------------
-
+    @tracer.start_as_current_span("send_cmd")
     def send_cmd(self, spec: cmd_sys_spec.OBCCmdSysSpec, *args, date_time: alea_time.ALEADateTime = alea_time.IMMEDIATE, timeout: float = None) -> app_cmd_sys.OBCCmdSysMsgHeader:
         """Sends a command with automatic encoding of the command arguments.
 
@@ -219,6 +222,7 @@ class OBCAppProtocol:
         self._tx_app_cmd.flush(timeout=timeout)
         return header
 
+    @tracer.start_as_current_span("send_cmd_raw")
     def send_cmd_raw(self, header: app_cmd_sys.OBCCmdSysMsgHeader, data: bytes = None, timeout: float = None):
         """Sends a raw command (no automatic encoding of arguments).
 
@@ -236,6 +240,7 @@ class OBCAppProtocol:
             self.send_cmd_data(data, timeout=timeout)
         self._cmd_seq_num  = (self._cmd_seq_num + 1) & 0xFF
 
+    @tracer.start_as_current_span("send_cmd_data")
     def send_cmd_data(self, data: bytes, timeout: float = None):
         """Sends data for a command.
 
@@ -248,7 +253,7 @@ class OBCAppProtocol:
         self._tx_app_cmd.write_data(data, timeout=timeout)
 
     # Receive Response ---------------------------------------------------------------------------------
-
+    @tracer.start_as_current_span("recv_resp_header")
     def recv_resp_header(self, timeout: float = None) -> app_cmd_sys.OBCCmdSysMsgHeader:
         """Reads enough bytes from the RX stack to get a command system message header for a response
         and parse it.
@@ -261,6 +266,7 @@ class OBCAppProtocol:
         """
         return self._rx_resp.read_header(timeout=timeout)
 
+    @tracer.start_as_current_span("recv_resp_data")
     def recv_resp_data(self, num_bytes: int, timeout: float = None) -> bytes:
         """Reads num_bytes of response data from the RX stack.
 
