@@ -21,14 +21,6 @@ export interface paths {
     /** Get details for an orbit propagation job */
     get: operations["getOrbitJob"];
   };
-  "/jobs/image-generation": {
-    /** Create and queue an image generation job */
-    post: operations["createImageJob"];
-  };
-  "/jobs/image-generation/{jobId}": {
-    /** Get details for an image generation job */
-    get: operations["getImageJob"];
-  };
   "/jobs/{jobId}": {
     /** Delete a job by ID */
     delete: operations["deleteJob"];
@@ -86,52 +78,11 @@ export interface components {
       tleLine2: string;
       simulationTime: number;
     };
-    ReadImageGenerationJob: {
-      id: string;
-      status: string;
-      requestData: components["schemas"]["ImageRequest"];
-      resultData?: components["schemas"]["ImageGenerationResult"];
-    };
-    ImageRequest: {
-      id: string;
-      userId: string;
-      name: string;
-      description: string;
-      locationTrackId: string;
-      satelliteRotationX: number;
-      satelliteRotationY: number;
-      satelliteRotationZ: number;
-      AROgroundStationId?: number;
-      AROgroundStationPassId?: string;
-      reviewerId?: string;
-      approved?: boolean;
-      reviewComment?: string;
-      thumbnailID?: string;
-      initialPreviewImageId?: string;
-      finalPreviewImageId?: string;
-      imageId?: string;
-      command?: components["schemas"]["Command"];
-    };
-    Command: {
-      id: string;
-      submitedAt: string;
-      userId: string;
-      imageRequestId?: string;
-      command: string;
-      size: number;
-      power: number;
-      passId?: string;
-      sentAt?: string;
-      resultId?: string;
-    };
     GMATResult: {
       result: components["schemas"]["S3Result"];
     };
     OrbitPropagationResult: {
       result: number[];
-    };
-    ImageGenerationResult: {
-      result: components["schemas"]["S3Result"];
     };
     S3Result: {
       bucket: string;
@@ -277,70 +228,6 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["ReadOrbitPropagationJob"];
-        };
-      };
-      /** @description Job not found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["Problem"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Problem"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "application/json": components["schemas"]["Problem"];
-        };
-      };
-    };
-  };
-  /** Create and queue an image generation job */
-  createImageJob: {
-    /** @description New image generation job object */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ImageRequest"];
-      };
-    };
-    responses: {
-      /** @description A job */
-      200: {
-        content: {
-          "application/json": components["schemas"]["ReadImageGenerationJob"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Problem"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "application/json": components["schemas"]["Problem"];
-        };
-      };
-    };
-  };
-  /** Get details for an image generation job */
-  getImageJob: {
-    parameters: {
-      path: {
-        /** @description The job ID */
-        jobId: string;
-      };
-    };
-    responses: {
-      /** @description A job */
-      200: {
-        content: {
-          "application/json": components["schemas"]["ReadImageGenerationJob"];
         };
       };
       /** @description Job not found */

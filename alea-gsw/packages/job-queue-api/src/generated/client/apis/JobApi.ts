@@ -15,25 +15,19 @@
 
 import * as runtime from '../runtime.js';
 import type {
-  ImageRequest,
   Problem,
   PropagationParams,
   ReadGMATJob,
-  ReadImageGenerationJob,
   ReadOrbitPropagationJob,
   SatelliteState,
 } from '../models/index.js';
 import {
-    ImageRequestFromJSON,
-    ImageRequestToJSON,
     ProblemFromJSON,
     ProblemToJSON,
     PropagationParamsFromJSON,
     PropagationParamsToJSON,
     ReadGMATJobFromJSON,
     ReadGMATJobToJSON,
-    ReadImageGenerationJobFromJSON,
-    ReadImageGenerationJobToJSON,
     ReadOrbitPropagationJobFromJSON,
     ReadOrbitPropagationJobToJSON,
     SatelliteStateFromJSON,
@@ -42,10 +36,6 @@ import {
 
 export interface CreateGMATJobRequest {
     satelliteState: SatelliteState;
-}
-
-export interface CreateImageJobRequest {
-    imageRequest: ImageRequest;
 }
 
 export interface CreateOrbitJobRequest {
@@ -57,10 +47,6 @@ export interface DeleteJobRequest {
 }
 
 export interface GetGMATJobRequest {
-    jobId: string;
-}
-
-export interface GetImageJobRequest {
     jobId: string;
 }
 
@@ -114,50 +100,6 @@ export class JobApi extends runtime.BaseAPI {
      */
     async createGMATJob(requestParameters: CreateGMATJobRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReadGMATJob> {
         const response = await this.createGMATJobRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Create and queue an image generation job
-     */
-    async createImageJobRaw(requestParameters: CreateImageJobRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReadImageGenerationJob>> {
-        if (requestParameters['imageRequest'] == null) {
-            throw new runtime.RequiredError(
-                'imageRequest',
-                'Required parameter "imageRequest" was null or undefined when calling createImageJob().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("AccessToken", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/jobs/image-generation`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ImageRequestToJSON(requestParameters['imageRequest']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReadImageGenerationJobFromJSON(jsonValue));
-    }
-
-    /**
-     * Create and queue an image generation job
-     */
-    async createImageJob(requestParameters: CreateImageJobRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReadImageGenerationJob> {
-        const response = await this.createImageJobRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -288,47 +230,6 @@ export class JobApi extends runtime.BaseAPI {
      */
     async getGMATJob(requestParameters: GetGMATJobRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReadGMATJob> {
         const response = await this.getGMATJobRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Get details for an image generation job
-     */
-    async getImageJobRaw(requestParameters: GetImageJobRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReadImageGenerationJob>> {
-        if (requestParameters['jobId'] == null) {
-            throw new runtime.RequiredError(
-                'jobId',
-                'Required parameter "jobId" was null or undefined when calling getImageJob().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("AccessToken", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/jobs/image-generation/{jobId}`.replace(`{${"jobId"}}`, encodeURIComponent(String(requestParameters['jobId']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReadImageGenerationJobFromJSON(jsonValue));
-    }
-
-    /**
-     * Get details for an image generation job
-     */
-    async getImageJob(requestParameters: GetImageJobRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReadImageGenerationJob> {
-        const response = await this.getImageJobRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

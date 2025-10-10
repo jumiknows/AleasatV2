@@ -26,8 +26,6 @@ const getQueue = <TWorkerType extends NonResultsWorkerType>(
       return Queues.gmat();
     case WorkerType.OrbitPropagation:
       return Queues.orbitProp();
-    case WorkerType.ImageGeneration:
-      return Queues.imageGen();
     default:
       throw new Error(`Unsupported job type: ${workerType}`);
   }

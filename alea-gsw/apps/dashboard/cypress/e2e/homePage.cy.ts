@@ -28,7 +28,7 @@ describe("Home Page", () => {
   it("should contain footer", () => {
     cy.get("p").should(
       "contain",
-      "© 2024 UBC Orbit Design Team & SFU Satellite Design Team",
+      "© 2025 UBC Orbit Design Team & SFU Satellite Design Team",
     );
   });
 });

@@ -7,9 +7,7 @@ import logging
 import os
 
 from bullmq import Queue, Worker
-import redis
-from redis import Redis
-from redis.sentinel import Sentinel
+from redis import Sentinel
 import signal
 import traceback
 
@@ -22,51 +20,11 @@ for env in NODE_ENV:
     load_dotenv(dotenv_path=find_dotenv(f".env.{env}"))
 load_dotenv(dotenv_path=find_dotenv(".env"))
 
-host = os.getenv("REDIS_HOST", "localhost")
-port_str = os.getenv("REDIS_PORT", "6379")
-is_sentinel = os.getenv("REDIS_IS_SENTINEL", "false").lower() == "true"
-sentinel_group_name = os.getenv("REDIS_SENTINEL_GROUP_NAME", "redis")
+redis_url = f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}"
+connection = {"connection": redis_url}
 
-port = int(port_str)
-
-if is_sentinel:
-    sentinel = Sentinel([(host, port)], socket_timeout=0.1)
-    master_host, master_port = sentinel.discover_master(sentinel_group_name)
-    redis_client = sentinel.master_for(sentinel_group_name, socket_timeout=0.1)
-    redis_url = f"redis://{master_host}:{master_port}"
-else:
-    redis_client = Redis(host=host, port=port)
-    redis_url = f"redis://{host}:{port}"
-
-
-async def wait_for_redis_connection(redis_client, retries=5, delay=2):
-    for attempt in range(1, retries + 1):
-        try:
-            redis_client.ping()
-            logging.info(f"Connected to Redis on attempt {attempt}")
-            return
-        except Exception as e:
-            logging.warning(f"Redis connection attempt {attempt} failed: {e}")
-            await asyncio.sleep(delay * (2 ** (attempt - 1)))
-    raise RuntimeError("Failed to connect to Redis after multiple retries")
-
-
-async def init_queues():
-    await wait_for_redis_connection(redis_client)
-
-    connection = {"connection": redis_url}
-    queue = Queue("ORBIT_PROPAGATION", connection)
-    results = Queue("results", connection)
-    return queue, results
-
-
-queue = None
-results = None
-
-
-async def initialize():
-    global queue, results
-    queue, results = await init_queues()
+queue = Queue("ORBIT_PROPAGATION", connection)
+results = Queue("results", connection)
 
 
 def init_orbit_dynamics_TLE(kernel, tleLine1, tleLine2) -> OrbitDynamicsModel:
@@ -117,18 +75,19 @@ async def position_process(job, token=None) -> list:
 
 
 async def run_worker():
-    await initialize()
-
+    # Event used to trigger shutdown
     shutdown_event = asyncio.Event()
 
     def signal_handler(sig, frame):
         logging.info(f"Signal {sig} received. Shutting down worker...")
         shutdown_event.set()
 
+    # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    worker = Worker("ORBIT_PROPAGATION", position_process, {"connection": redis_url})
+    # Worker setup
+    worker = Worker("ORBIT_PROPAGATION", position_process, connection)
 
     def on_completed(job, result, *_):
         logging.info(f"Job {job.id} completed with result: {result}")
@@ -142,7 +101,9 @@ async def run_worker():
 
     try:
         logging.info("Worker started. Waiting for jobs...")
+
         await shutdown_event.wait()
+
     finally:
         logging.debug("Cleaning up worker...")
         await worker.close()
@@ -152,13 +113,12 @@ async def run_worker():
 
 
 async def test_code():
-    await initialize()
-
     shutdown_event = asyncio.Event()
 
     def signal_handler(sig, frame):
         shutdown_event.set()
 
+    # Register signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
@@ -166,8 +126,9 @@ async def test_code():
     tleLine2 = "2 63630  45.3984 201.2708 0009520 297.7299  62.2612 14.98214501  4574"
     testData = {"tleLine1": tleLine1, "tleLine2": tleLine2, "simulationTime": 20}
 
-    worker = Worker("ORBIT_PROPAGATION", position_process, {"connection": redis_url})
+    worker = Worker("ORBIT_PROPAGATION", position_process, connection)
 
+    # Event hooks
     worker.on(
         "completed",
         lambda job, result, *_: logging.info(
@@ -180,6 +141,7 @@ async def test_code():
     )
 
     try:
+        # Add job to queue
         job = await queue.add("position", testData)
         logging.info(f"Added job {job.id}")
 
@@ -211,14 +173,9 @@ async def test_code():
         raise
 
     finally:
-        shutdown_event.set()
+        shutdown_event.set()  # In case the loop ends without signal
         logging.debug("Cleaning up worker...")
         await worker.close()
         await queue.close()
         await results.close()
         logging.debug("Worker shut down successfully.")
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    asyncio.run(run_worker())  # or use `test_code()` for local testing

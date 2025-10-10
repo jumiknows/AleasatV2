@@ -25,5 +25,4 @@ model Job {
 enum JobType {
     GMAT
     ORBIT_PROPAGATION
-    IMAGE_GENERATION
 }

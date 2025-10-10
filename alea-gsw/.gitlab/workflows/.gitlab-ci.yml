@@ -3,4 +3,3 @@ include:
   # - local: "alea-gsw/.gitlab/workflows/comms.yml"
   - local: "alea-gsw/.gitlab/workflows/build.yml"
   - local: "alea-gsw/.gitlab/workflows/node-pipeline.yml"
-  - local: "alea-gsw/.gitlab/workflows/aleasim-worker.yml"

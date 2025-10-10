@@ -1,0 +1,202 @@
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import LinkedIn from "@mui/icons-material/LinkedIn";
+import type { SxProps, Theme } from "@mui/material";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid2";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import type { StaticImageData } from "next/image";
+import Image from "../components/Image";
+import Link from "../components/Link";
+
+const Logo = ({ 
+  src, 
+  alt, 
+  sx 
+}: { 
+  src: string | StaticImageData; 
+  alt: string;
+  sx?: SxProps<Theme>;
+}) => {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      sx={{
+        width: { xs: 100, sm: 150 },
+        height: { xs: 100, sm: 120 },
+        transformOrigin: "bottom",
+        transform: { xs: "scale(.8)", sm: "unset" },
+        ...sx,
+      }}
+    />
+  );
+};
+
+const NavLinks = ({
+  sx,
+  links,
+}: {
+  sx: SxProps<Theme>;
+  links?: Array<{ label: string; path: string }>;
+}) => {
+  return (
+    <Grid container size={12} alignItems="end" sx={sx}>
+      <Grid size={12} order={{ xs: 1, md: "unset" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: { xs: "80%", sm: "60%" },
+            ml: "auto",
+            mr: { xs: "auto", md: "unset" },
+          }}
+        >
+          {links?.map(({ label, path }) => (
+            <Link data-testid="footer" key={label} href={path}>
+              <Typography color="white">{label}</Typography>
+            </Link>
+          ))}
+        </Box>
+      </Grid>
+    </Grid>
+  );
+};
+
+export default function Footer({
+  links,
+}: {
+  links?: Array<{ label: string; path: string }>;
+}) {
+  return (
+    <footer>
+      <Grid
+        container
+        height={{ md: "15rem" }}
+        sx={{
+          background: "#000",
+          justifyContent: "space-around",
+          width: "100%",
+          pt: { xs: "10rem", md: "1rem" },
+        }}
+      >
+        <NavLinks sx={{ display: { md: "none" } }} links={links} />
+        <Grid
+          size={{ xs: 12, md: 4 }}
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: { xs: "space-evenly", md: "start" },
+            alignItems: "end",
+            paddingBottom: "2.5vh",
+          }}
+        >
+          {/* UBC */}
+          <Stack>
+            <Logo
+              src="https://artifact.aleasat.space/logos/UBC_Orbit_Logo.png"
+              alt="UBC Orbit Logo"
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Link
+                href="https://www.facebook.com/ubcorbit/"
+                target="_blank"
+                data-testid="facebook-link"
+              >
+                <FacebookIcon
+                  sx={{ color: "gray", fontSize: { xs: 27, sm: 35 } }}
+                />
+              </Link>
+              <Link
+                href="https://www.instagram.com/ubcorbit/"
+                target="_blank"
+                data-testid="instagram-link"
+              >
+                <InstagramIcon
+                  sx={{ color: "gray", fontSize: { xs: 27, sm: 35 } }}
+                />
+              </Link>
+              <Link
+                href="https://www.linkedin.com/company/ubc-orbit/"
+                target="_blank"
+                data-testid="linkedin-link"
+              >
+                <LinkedIn
+                  sx={{ color: "gray", fontSize: { xs: 27, sm: 35 } }}
+                />
+              </Link>
+            </Box>
+          </Stack>
+          {/* SFU */}
+          <Stack marginLeft={{ md: "5rem" }}>
+            <Logo
+              src="https://artifact.aleasat.space/logos/SFUSAT_Hamburger_Logo.png"
+              alt="SFU Sat Logo"
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Link
+                href="https://www.facebook.com/sfu.satellite/"
+                target="_blank"
+              >
+                <FacebookIcon
+                  sx={{ color: "gray", fontSize: { xs: 27, sm: 35 } }}
+                />
+              </Link>
+              <Link
+                href="https://www.instagram.com/sfu.satellite/"
+                target="_blank"
+              >
+                <InstagramIcon
+                  sx={{ color: "gray", fontSize: { xs: 27, sm: 35 } }}
+                />
+              </Link>
+              <Link
+                href="https://www.linkedin.com/company/sfu-satellite-design/?originalSubdomain=ca"
+                target="_blank"
+              >
+                <LinkedIn
+                  sx={{ color: "gray", fontSize: { xs: 27, sm: 35 } }}
+                />
+              </Link>
+            </Box>
+          </Stack>
+        </Grid>
+        <Grid
+          container
+          size={{ xs: 12, md: 5 }}
+          alignItems="end"
+          sx={{ padding: "2.5vh 0" }}
+        >
+          <Grid size={{ md: 12 }} />
+          <NavLinks
+            sx={{ display: { xs: "none", md: "unset" } }}
+            links={links}
+          />
+          <Grid size={12} textAlign="center">
+            <Typography
+              sx={{
+                textAlign: { xs: "center", md: "end" },
+                fontSize: { xs: 12, md: 14, lg: 16 },
+                marginX: { xs: "auto", md: "unset" },
+                width: { xs: "15rem", md: "unset" },
+              }}
+            >
+              © 2025 UBC Orbit Design Team & SFU Satellite Design Team
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+    </footer>
+  );
+}

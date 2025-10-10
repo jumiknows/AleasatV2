@@ -26,8 +26,6 @@ class HILTestsPanel(QtWidgets.QWidget, hil_test_panel_ui.Ui_HILTestsPanel):
 
     hil_test_classes = []
 
-    individual_hil_tests = {}
-
     num_HIL_tests = 0
     num_all_tests = 0
     test_nums = {}
@@ -40,12 +38,6 @@ class HILTestsPanel(QtWidgets.QWidget, hil_test_panel_ui.Ui_HILTestsPanel):
             test_class_start_index = str(tests2._tests).find('t.')
             test_class = str(tests2._tests)[test_class_start_index + 2:test_class_end_index - 4]
             hil_test_classes.append(test_class)
-            individual_hil_tests[test_class] = []
-            for k in range(str(tests2._tests).count('=')):
-                test_end_indexes = [i for i, char in enumerate(str(tests2._tests)) if char == ">"]
-                test_start_indexes = [i for i, char in enumerate(str(tests2._tests)) if char == "="]
-                test_individual = str(tests2._tests)[test_start_indexes[k] + 1:test_end_indexes[k]]
-                individual_hil_tests[test_class].append(test_individual)
             num_HIL_tests += 1
             num_all_tests += len(tests2._tests)
             num_tests = str(len(tests2._tests))
@@ -137,15 +129,22 @@ class HILTestsPanel(QtWidgets.QWidget, hil_test_panel_ui.Ui_HILTestsPanel):
         self.HILTestsListContents : QtWidgets.QWidget
         self.HILTestsTable : QtWidgets.QTableWidget 
 
-        header_labels = ["Name", "Number of tests", "Tests ran", "Time taken (s)", 
-                         "Time last ran (local)", "Previous run", "Status", "Run test", "Run individual test"]
+        header_labels = ["Name", "Number of tests", "Tests ran", "Time taken (seconds)", 
+                         "Time last ran (local)", "Previous run", "Status", "Run test"]
         
         self.HILTestsTable.setColumnCount(len(header_labels))
         self.HILTestsTable.setHorizontalHeaderLabels(header_labels)
 
-        # Resize to contents for all columns
-        for i in range(len(header_labels)):
-            self.HILTestsTable.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # Strech headers  
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # Resize headers 
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.HILTestsTable.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         # Initalized in this for loop:
             # 1st column, names of test file
@@ -153,10 +152,8 @@ class HILTestsPanel(QtWidgets.QWidget, hil_test_panel_ui.Ui_HILTestsPanel):
             # 3rd column, number of tests ran 
             # 4th column, length of time HIL test took 
             # 5th column, last time ran
-            # 6th column, previous test result
-            # 7th column, status of test
-            # 8th column, button to run tests
-            # 9th column, run individual test
+            # 6th column, status of test
+            # 7th column, button to run tests
         for test in self.hil_test_classes:
             test_index = self.hil_test_classes.index(test)
             self.HILTestsTable.insertRow(test_index)
@@ -247,28 +244,7 @@ class HILTestsPanel(QtWidgets.QWidget, hil_test_panel_ui.Ui_HILTestsPanel):
             TestButton = QtWidgets.QPushButton(test_button_text)
             self.HILTestsTable.setCellWidget(test_index, 7, TestButton)
 
-            TestButton.clicked.connect(self.create_test_button(test))
-
-            # 9) Dropdown to run select and run individual hil test
-
-            menu = QtWidgets.QMenuBar(self)
-            self.HILTestsTable.setCellWidget(test_index, 8, menu)
-            
-            # Shorten the Test Name
-            if "Filesystem" in test:
-                test_text = 'Run individual FS test'
-            else:
-                test_text = 'Run individual ' + test + ' test'
-
-            test_menu = menu.addMenu(test_text)
-
-            if test in self.individual_hil_tests:
-                for t in self.individual_hil_tests[test]:
-                    test_item_text = 'Run ' + t + ' test'
-                    action = QtWidgets.QAction(test_item_text, self)
-                    # figure out the connection
-                    action.triggered.connect(self.create_individual_test_button(t, test)) 
-                    test_menu.addAction(action)
+            TestButton.clicked.connect(self.create_test_button(test)) 
         
         self.set_alert.connect(self.handle_set_alert)
 
@@ -282,10 +258,6 @@ class HILTestsPanel(QtWidgets.QWidget, hil_test_panel_ui.Ui_HILTestsPanel):
     @QtCore.pyqtSlot()
     def create_test_button(self, test):
         return lambda : self.run_test(test)  
-
-    @QtCore.pyqtSlot()
-    def create_individual_test_button(self, t, test):
-        return lambda : self.run_individual_test(t, test)  
 
     # run any test given testClass
     # This function and all the functions it links to only works when OBC connected in SA
@@ -304,26 +276,6 @@ class HILTestsPanel(QtWidgets.QWidget, hil_test_panel_ui.Ui_HILTestsPanel):
             self.current_HIL_test = test + ' test'
             if self.running_all_tests:
                 self.current_HIL_test = 'Running all tests'
-                
-            self.set_data_row_text(4, self.current_HIL_test) 
-            # Update status button for test to 'running'
-            self.change_test_button(test, 'yellow', 0)
-
-            self.obc.execute(ttcqt.TTCQTRequest(get_results))
-
-    @QtCore.pyqtSlot()
-    def run_individual_test(self, t, test):
-        if self.obc.connected:
-            # composite function used to pass back results  
-            # get_results called ONLY from execute(), which is why it's local
-            def get_results(obc):
-                red_results, green_results, time_taken = hil_test.runner_for_SA_indiv(obc, test, t)
-                last_time_ran = str(datetime.now())[:-7] # Remove microseconds for YYYY-MM-DD hh:mm:ss format
-
-                self.process_results(test, red_results, green_results, time_taken, last_time_ran)
-
-            # Update current HIL test in DataRow
-            self.current_HIL_test = t + ' test'
                 
             self.set_data_row_text(4, self.current_HIL_test) 
             # Update status button for test to 'running'

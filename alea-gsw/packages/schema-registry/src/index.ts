@@ -1,5 +1,4 @@
 import type {
-  ImageRequest,
   PropagationParams,
   S3Result,
   SatelliteState,
@@ -16,7 +15,6 @@ import {
 export enum WorkerType {
   Gmat = "GMAT",
   OrbitPropagation = "ORBIT_PROPAGATION",
-  ImageGeneration = "IMAGE_GENERATION",
   Results = "results", // Special queue https://docs.bullmq.io/guide/returning-job-data#using-a-results-queue
 }
 
@@ -28,21 +26,15 @@ export type OrbitPropagationResultType = {
   result: number[];
 };
 
-export type ImageGenerationResultType = {
-  result: S3Result;
-};
-
 export type WorkerJobTypes<T extends WorkerType> = {
   [WorkerType.Gmat]: SatelliteState;
   [WorkerType.OrbitPropagation]: PropagationParams;
-  [WorkerType.ImageGeneration]: ImageRequest;
   [WorkerType.Results]: WorkerResultTypes[T];
 };
 
 export type WorkerResultTypes = {
   [WorkerType.Gmat]: GMATResultType;
   [WorkerType.OrbitPropagation]: OrbitPropagationResultType;
-  [WorkerType.ImageGeneration]: ImageGenerationResultType;
   [WorkerType.Results]: null; // Special queue, no return value
 };
 

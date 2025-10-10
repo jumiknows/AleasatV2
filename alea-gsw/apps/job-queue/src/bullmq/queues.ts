@@ -8,7 +8,6 @@ import { defaultJobOptions } from "./config.js";
 
 let gmatQueue: Queue<WorkerType.Gmat> | null = null;
 let orbitPropQueue: Queue<WorkerType.OrbitPropagation> | null = null;
-let imageGenQueue: Queue<WorkerType.ImageGeneration> | null = null;
 let resultsWorker: Worker<WorkerType.Results> | null = null;
 
 async function updateJobStatus(id: string, status: string) {
@@ -89,34 +88,6 @@ function initOrbitPropQueue() {
   }
 }
 
-function initImageGenQueue() {
-  if (!imageGenQueue) {
-    imageGenQueue = new Queue(WorkerType.ImageGeneration, {
-      connection,
-      telemetry: new BullMQOtel("Image Generation Queue"),
-      ...defaultJobOptions,
-    });
-    imageGenQueue.on("error", (e) => {
-      logger.error(e, "Uncaught error in BullMQ");
-    });
-    const imageGenQueueEvents = new QueueEvents(WorkerType.ImageGeneration, {
-      connection,
-    });
-    imageGenQueueEvents.on(
-      "waiting",
-      async ({ jobId }) => await updateJobStatus(jobId, "waiting"),
-    );
-    imageGenQueueEvents.on(
-      "active",
-      async ({ jobId }) => await updateJobStatus(jobId, "active"),
-    );
-    imageGenQueueEvents.on(
-      "failed",
-      async ({ jobId }) => await updateJobStatus(jobId, "failed"),
-    );
-  }
-}
-
 function initResultsWorker() {
   if (resultsWorker) return;
 
@@ -147,18 +118,9 @@ export const Queues = {
     }
     return orbitPropQueue;
   },
-  imageGen(): Queue<WorkerType.ImageGeneration> {
-    if (!imageGenQueue) {
-      throw new Error(
-        "Image generation queue is not initialized. Call initImageGenQueue to initialize.",
-      );
-    }
-    return imageGenQueue;
-  },
   init() {
     initGmatQueue();
     initOrbitPropQueue();
-    initImageGenQueue();
     initResultsWorker();
   },
 };
