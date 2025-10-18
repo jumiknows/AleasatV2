@@ -170,6 +170,7 @@ export default function FeaturedSponsorships() {
                 borderColor: "white",
               },
             }}
+            href="/sponsor"
           >
             Sponsors
           </Button>

@@ -84,7 +84,7 @@ export default function Plan() {
                 borderColor: "white",
               },
             }}
-            href="/cubesat"
+            href="/spaceship"
           >
             Cubesat
           </Button>
@@ -105,7 +105,7 @@ export default function Plan() {
                 borderColor: "white",
               },
             }}
-            href="/telemetry"
+            href="/spaceship"
           >
             Telemetry
           </Button>

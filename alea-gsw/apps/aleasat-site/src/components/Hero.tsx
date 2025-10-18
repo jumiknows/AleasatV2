@@ -71,6 +71,7 @@ export default function Hero({ type, src, title }: HeroProps) {
             color: "white",
             fontWeight: "bold",
             fontSize: { xs: 30, md: 40 },
+            whiteSpace: "pre-line",
           }}
         >
           {title}

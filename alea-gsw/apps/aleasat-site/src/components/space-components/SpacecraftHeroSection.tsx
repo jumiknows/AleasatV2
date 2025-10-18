@@ -108,15 +108,15 @@ export default function SpacecraftHeroSection() {
               sx={{
                 position: "absolute",
                 width: {
-                  xs: "100%",
-                  md: "50%",
+                  xs: "90%",
+                  md: "60%",
                 },
                 top: {
                   xs: "unset",
                   md: "50%",
                 },
                 bottom: {
-                  xs: "0%",
+                  xs: "10%",
                   md: "unset",
                 },
                 left: {
@@ -124,19 +124,67 @@ export default function SpacecraftHeroSection() {
                   md: "25%",
                 },
                 transform: "translate(-50%, -50%)",
+                zIndex: 10,
               }}
             >
               <Typography
                 variant="h1"
                 sx={{
                   textAlign: "center",
-                  fontWeight: 150,
-                  textShadow: "0px 0px 5px #444",
+                  fontWeight: 700,
+                  fontSize: { xs: "3rem", sm: "4rem", md: "5rem", lg: "6rem" },
+                  background: "linear-gradient(135deg, #ffffff8e 0%, #e3f2fd 50%, #4A90E2 100%)",
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  color: "transparent",
+                  textShadow: "none",
+                  letterSpacing: "0.02em",
+                  lineHeight: 1.1,
+                  mb: 3,
+                  animation: "fadeInUp 1.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                  "@keyframes fadeInUp": {
+                    from: {
+                      opacity: 0,
+                      transform: "translateY(50px)",
+                    },
+                    to: {
+                      opacity: 1,
+                      transform: "translateY(0)",
+                    },
+                  },
                 }}
               >
-                ALEASAT
+                {/* ALEASAT */}
                 <br />
-                Design
+                <Box
+                  component="span"
+                  sx={{
+                    fontSize: "0.7em",
+                    fontWeight: 300,
+                    background: "linear-gradient(45deg, #000000ff, #000000ff)",
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    color: "transparent",
+                  }}
+                >
+                  CubeSat Design
+                </Box>
+              </Typography>
+              
+              <Typography
+                variant="h6"
+                sx={{
+                  textAlign: "center",
+                  color: "rgba(255, 255, 255, 0.9)",
+                  fontWeight: 300,
+                  fontSize: { xs: "1rem", md: "1.25rem" },
+                  maxWidth: "600px",
+                  mx: "auto",
+                  textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                  animation: "fadeInUp 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both",
+                }}
+              >
+                {/* Explore our cutting-edge 1U CubeSat designed for Earth observation and disaster relief training */}
               </Typography>
             </Box>
           </Box>

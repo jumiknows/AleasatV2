@@ -1,7 +1,7 @@
 "use client";
 
 import SpacecraftComponent from "@/components/space-components/SpacecraftComponent";
-import { Container } from "@mui/system";
+import { Box, Container, Typography } from "@mui/material";
 
 const components: {
   name: string;
@@ -116,16 +116,44 @@ const components: {
 
 export default function AllSpacecraftComponents() {
   return (
-    <Container maxWidth="xl">
-      {components.map((component, index) => (
-        <SpacecraftComponent
-          key={index}
-          name={component.name}
-          description={component.description}
-          image={component.image}
-          specifications={component.specifications}
-        />
-      ))}
-    </Container>
+    <Box sx={{ py: { xs: "4rem", md: "8rem" } }}>
+      <Container maxWidth="xl">
+        <Typography
+          variant="h2"
+          sx={{
+            textAlign: "center",
+            mb: 6,
+            fontWeight: "bold",
+            letterSpacing: "0.05em",
+          }}
+        >
+          Spacecraft Components
+        </Typography>
+        
+        <Typography
+          variant="body1"
+          sx={{
+            textAlign: "center",
+            mb: 8,
+            color: "rgba(255, 255, 255, 0.8)",
+            maxWidth: "600px",
+            mx: "auto",
+            fontSize: "1.1rem",
+          }}
+        >
+          Explore the advanced components that make ALEASAT a cutting-edge 1U CubeSat
+        </Typography>
+
+        {components.map((component, index) => (
+          <SpacecraftComponent
+            key={index}
+            name={component.name}
+            description={component.description}
+            image={component.image}
+            specifications={component.specifications}
+          />
+        ))}
+      </Container>
+    </Box>
   );
 }

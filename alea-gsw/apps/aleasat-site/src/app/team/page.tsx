@@ -20,17 +20,70 @@ export const metadata: Metadata = {
 export default function AboutUsPage() {
   return (
     <>
-      <Hero
-        type="image"
-        src="https://artifact.aleasat.space/team-photo/team-photo.avif"
-        title="Our Team"
-      />
+      {/* Hero Section with Team Photo */}
       <Box
         sx={{
           position: "relative",
-          backgroundColor: "#000",
+          height: "60vh",
+          minHeight: "400px",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundImage: "url('https://artifact.aleasat.space/team-photo/team-photo.avif')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0, 0, 0, 0.4)",
+            },
+          }}
+        />
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+          <Typography
+            variant="h1"
+            sx={{
+              textAlign: "center",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: { xs: "3rem", sm: "4rem", md: "5rem" },
+              textShadow: "0 4px 20px rgba(0,0,0,0.7)",
+              mb: 2,
+            }}
+          >
+            Our Team
+          </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              textAlign: "center",
+              color: "rgba(255, 255, 255, 0.9)",
+              maxWidth: "600px",
+              mx: "auto",
+              textShadow: "0 2px 10px rgba(0,0,0,0.7)",
+            }}
+          >
+            100+ passionate students united by space exploration and innovation
+          </Typography>
+        </Container>
+      </Box>
+
+      {/* Main Content */}
+      <Box sx={{ backgroundColor: "#000" }}>
         <Container maxWidth="xl">
           <AboutUsSection />
           <ManagementSection />

@@ -62,7 +62,7 @@ export default function BecomeRadioOperator() {
               boxShadow: "0 6px 25px rgba(74, 144, 226, 0.4)",
             },
           }}
-          href="/signup"
+          href="/join-us"
         >
           Sign Up
         </Button>

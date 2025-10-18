@@ -43,234 +43,196 @@ const benefits: { title: string; description: string; iconPath: string }[] = [
 export default function Sponsor() {
   return (
     <Box>
+      {/* Hero Section */}
       <Box sx={{ position: "relative" }}>
         <Hero
           type="image"
-          src="https://artifact.aleasat.space/sponsor-background.jpg"
-          title="Our Sponsorship"
+          src="/sponsor.jpg"
+          title={`LAUNCHING DREAMS
+SPONSORS MAKE IT POSSIBLE`}
         />
-        <Box
-          sx={{
-            padding: "auto",
-            maxWidth: "100%",
-            px: { xs: "5%", md: "10%" },
-            pt: 15,
-            position: "relative",
-            zIndex: 2,
-            background: "#000",
-            pb: 25,
-          }}
-          id="next-section"
-        >
-          {/* New Sponsorship Benefits Section */}
+      </Box>
+
+      {/* Main Content */}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 2,
+          background: "#000",
+          minHeight: "100vh",
+          py: { xs: 6, md: 10 },
+          px: { xs: 3, md: 6 },
+        }}
+      >
+        {/* Welcome Section */}
+        <Container maxWidth="lg" sx={{ mb: 8 }}>
+          <Typography
+            variant="h3"
+            sx={{
+              color: "white",
+              fontWeight: "bold",
+              textAlign: "center",
+              mb: 4,
+              fontSize: { xs: 28, md: 42 },
+            }}
+          >
+            PARTNER WITH ALEASAT
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "#b6bdd6",
+              textAlign: "center",
+              lineHeight: 1.6,
+              maxWidth: "800px",
+              margin: "0 auto",
+              mb: 6,
+            }}
+          >
+            Join us in revolutionizing space technology and disaster relief. 
+            Your sponsorship fuels innovation, educates the next generation of engineers,
+            and creates real-world impact through satellite technology.
+          </Typography>
+        </Container>
+
+        {/* Sponsorship Benefits Section */}
+        <Container maxWidth="lg" sx={{ mb: 10 }}>
           <Typography
             variant="h4"
-            gutterBottom
-            sx={{ mb: 5, fontWeight: "bold", textAlign: "center" }}
+            sx={{
+              color: "white",
+              fontWeight: "bold",
+              textAlign: "center",
+              mb: 2,
+            }}
           >
             SPONSORSHIP BENEFITS
           </Typography>
-          <Typography variant="body1" sx={{ mb: 8, textAlign: "center" }}>
-            Discover the meaningful benefits why your support is essential for
-            the ALEASAT mission&apos;s success.
-          </Typography>
-
-          <Box
+          <Typography
+            variant="body1"
             sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              gap: { xs: 8, md: 3 },
+              color: "#b6bdd6",
+              textAlign: "center",
+              mb: 8,
+              maxWidth: "600px",
+              margin: "0 auto 4rem auto",
             }}
           >
-            {benefits.map((benefit) => {
-              return (
+            Discover the meaningful benefits of supporting the ALEASAT mission
+          </Typography>
+
+          <Grid container spacing={4}>
+            {benefits.map((benefit) => (
+              <Grid size={{ xs: 12, md: 4 }} key={benefit.title}>
                 <Box
-                  key={benefit.title}
-                  sx={{ flex: 1, position: "relative", textAlign: "center" }}
+                  sx={{
+                    textAlign: "center",
+                    p: 4,
+                    borderRadius: 2,
+                    border: "1px solid #333",
+                    background: "linear-gradient(145deg, #0a0a0a, #1a1a1a)",
+                    height: "100%",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      borderColor: "#4A90E2",
+                      transform: "translateY(-5px)",
+                    },
+                  }}
                 >
-                  {/* Icon Container */}
                   <Box
                     sx={{
-                      width: 90,
-                      aspectRatio: "1/1",
+                      width: 80,
+                      height: 80,
                       borderRadius: "50%",
-                      border: "2px solid grey",
-                      overflow: "hidden",
+                      border: "2px solid #4A90E2",
                       display: "flex",
-                      justifyContent: "center",
                       alignItems: "center",
-                      position: "absolute",
-                      top: -45,
-                      left: "50%",
-                      backgroundColor: "black",
-                      transform: "translateX(-50%)",
-                      zIndex: 2,
+                      justifyContent: "center",
+                      margin: "0 auto 2rem auto",
+                      background: "#000",
                     }}
                   >
                     <Image
                       src={benefit.iconPath}
-                      alt="Brand Exposure Image"
-                      width={50}
-                      height={50}
+                      alt={benefit.title}
+                      width={40}
+                      height={40}
                     />
                   </Box>
-
-                  {/* Main Box with Content */}
-                  <Box
-                    sx={{
-                      py: 4,
-                      px: { xs: 0.3, lg: 1 },
-                      border: "0.5px solid grey",
-                      borderRadius: 1,
-                      zIndex: 1,
-                    }}
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "white", fontWeight: "bold", mb: 2 }}
                   >
-                    <Typography variant="h6" sx={{ mt: 5 }}>
-                      {benefit.title}
-                    </Typography>
-                    <Typography variant="body2">
-                      {benefit.description}
-                    </Typography>
-                  </Box>
+                    {benefit.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#b6bdd6", lineHeight: 1.6 }}
+                  >
+                    {benefit.description}
+                  </Typography>
                 </Box>
-              );
-            })}
-          </Box>
-        </Box>
-      </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
 
-      <Container
-        maxWidth={"lg"}
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column-reverse", md: "row" },
-          maxWidth: "1000px",
-          margin: "auto",
-          p: 3,
-        }}
-      >
-        <Box sx={{ flex: 1, pr: { md: 3 }, mt: { xs: 3, md: 0 } }}>
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{ mb: 5, fontWeight: "bold" }}
-          >
-            FLY YOUR SATELLITE
-          </Typography>
-          <Typography variant="body1">
-            A recurring, hands-on programme designed and managed by the ESA
-            Education Office in close collaboration with Universities from{" "}
-            <Link
-              href="https://www.esa.int/Education/Current_ESA_Member_States"
-              target="_blank"
-              sx={{
-                textDecoration: "underline",
-                color: "inherit",
-                fontWeight: "bold",
-              }}
-            >
-              ESA Member States
-            </Link>
-            , with the objective to complement academic education and inspire,
-            engage, and better prepare university students for their future
-            professions in the space sector.
-          </Typography>
-          <Link
-            href="/"
+        {/* Call to Action Section */}
+        <Container maxWidth="md">
+          <Box
             sx={{
-              width: "fit-content",
-              marginTop: "1rem",
-              display: "flex",
-              textDecoration: "none",
-              "&:hover": {
-                ".text": { textDecoration: "underline" },
-                img: { transform: "translateX(30px)" },
-              },
+              textAlign: "center",
+              p: 6,
+              borderRadius: 3,
+              background: "linear-gradient(45deg, #1a1a2e, #16213e)",
+              border: "1px solid #4A90E2",
             }}
           >
             <Typography
-              className="text"
-              fontSize={{ xs: 20, sm: 25 }}
-              fontWeight="bold"
-              color="#82909B"
-              data-cy="sponsor-learnmore"
+              variant="h4"
+              sx={{
+                color: "white",
+                fontWeight: "bold",
+                mb: 3,
+              }}
             >
-              Learn More{" "}
+              READY TO LAUNCH DREAMS?
             </Typography>
-          </Link>
-        </Box>
-
-        <Grid container spacing={1} flex={1} px={{ sm: 5 }} pb={{ sm: 5 }}>
-          <Grid size={12}>
-            <Image
-              src="https://artifact.aleasat.space/sponsor-page/esa_columbus.jpg"
-              alt="Barbour's Cut Main Image"
-              sx={{ width: "100%" }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <Image
-              src="https://artifact.aleasat.space/sponsor-page/satellite_assembly_1.jpg"
-              alt="ALEASAT Pillars"
-              sx={{ width: "100%" }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <Image
-              src="https://artifact.aleasat.space/sponsor-page/satellite_assembly_2.png"
-              alt="Additional Image"
-              sx={{ width: "100%" }}
-            />
-          </Grid>
-        </Grid>
-      </Container>
-
-      <Container
-        maxWidth={"lg"}
-        sx={{
-          maxWidth: "1000px",
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          alignItems: "center",
-          margin: "auto",
-          my: 5,
-          height: "fit-content",
-        }}
-      >
-        <Image
-          src="https://artifact.aleasat.space/sponsor-page/aleasat_team.png"
-          alt="sponsor-image"
-          width={"100%"}
-          sx={{ flex: 1, pr: { md: 3 } }}
-        />
-
-        <Box
-          sx={{
-            flex: 1,
-            height: "100%",
-            mt: { xs: 3, md: 0 },
-            px: { md: 5 },
-          }}
-        >
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              mb: 5,
-              fontWeight: "bold",
-            }}
-          >
-            MAKE A DIFFERENCE
-          </Typography>
-          <Typography variant="body1">
-            We would love to talk about how we can work together! Please reach
-            out to us at <b>captain@ubcorbit.com</b>, and we&apos;ll get in
-            touch with you with you shortly. Thank you for considering
-            supporting our ALEASAT project!
-          </Typography>
-        </Box>
-      </Container>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#b6bdd6",
+                mb: 4,
+                lineHeight: 1.6,
+              }}
+            >
+              Contact us to discuss sponsorship opportunities and learn how we can work together 
+              to advance space technology and disaster relief initiatives.
+            </Typography>
+            <Link
+              href="mailto:captain@ubcorbit.com"
+              sx={{
+                display: "inline-block",
+                background: "linear-gradient(45deg, #4A90E2, #357ABD)",
+                color: "white",
+                px: 4,
+                py: 2,
+                borderRadius: 2,
+                textDecoration: "none",
+                fontWeight: "bold",
+                fontSize: "1.1rem",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  background: "linear-gradient(45deg, #357ABD, #2E6BA8)",
+                  transform: "translateY(-2px)",
+                },
+              }}
+            >
+              Get In Touch
+            </Link>
+          </Box>
+        </Container>
+      </Box>
     </Box>
   );
 }
