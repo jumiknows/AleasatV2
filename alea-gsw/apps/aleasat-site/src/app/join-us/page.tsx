@@ -31,8 +31,8 @@ export default function JoinUs() {
           title="Join Us"
         />
       </Box>
-      <JoinUsDescription />
-      <JoinUsSectionGrid />
+      {/* <JoinUsDescription /> */}
+      {/* <JoinUsSectionGrid /> */}
        <Container
         maxWidth={"lg"}
         sx={{
