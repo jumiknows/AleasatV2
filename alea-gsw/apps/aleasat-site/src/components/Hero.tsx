@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "@aleasat/ui/components/Image";
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
+import { useEffect, useState } from "react";
 import ScrollDownSection from "./ScrollDown";
 
 interface HeroProps {
@@ -10,6 +13,11 @@ interface HeroProps {
 }
 
 export default function Hero({ type, src, title }: HeroProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   return (
     <Box
       sx={{
@@ -33,19 +41,21 @@ export default function Hero({ type, src, title }: HeroProps) {
           cover
         />
       ) : (
-        <video
-          style={{
-            objectFit: "cover",
-            width: "100%",
-            height: "100%",
-          }}
-          loop
-          muted
-          autoPlay
-          playsInline
-        >
-          <source src={src} type="video/mp4" />
-        </video>
+        isClient && (
+          <video
+            style={{
+              objectFit: "cover",
+              width: "100%",
+              height: "100%",
+            }}
+            loop
+            muted
+            autoPlay
+            playsInline
+          >
+            <source src={src} type="video/mp4" />
+          </video>
+        )
       )}
       <Box
         sx={{
@@ -61,6 +71,7 @@ export default function Hero({ type, src, title }: HeroProps) {
             color: "white",
             fontWeight: "bold",
             fontSize: { xs: 30, md: 40 },
+            whiteSpace: "pre-line",
           }}
         >
           {title}

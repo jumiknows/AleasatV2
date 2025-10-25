@@ -2,6 +2,8 @@ import RootProvider from "@/components/providers";
 import Footer from "@aleasat/ui/layout/Footer";
 import Navbar from "@aleasat/ui/layout/Navbar";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import PersonIcon from "@mui/icons-material/Person";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { PublicEnvScript } from "next-runtime-env";
@@ -20,15 +22,19 @@ export const metadata: Metadata = {
 
 const links = [
   {
-    label: "Spacecraft",
+    label: "About",
+    path: "/about",
+  },
+  {
+    label: "Cubesat",
     path: "/spaceship",
   },
   {
-    label: "Team",
+    label: "The Team",
     path: "/team",
   },
   {
-    label: "Sponsor",
+    label: "Sponsors",
     path: "/sponsor",
   },
 ];
@@ -45,7 +51,13 @@ export default async function RootLayout({
       </head>
       <body suppressHydrationWarning={true}>
         <RootProvider>
-          <Navbar links={links} />
+          <Navbar links={links}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <IconButton sx={{ color: "white" }}>
+                <PersonIcon />
+              </IconButton>
+            </Box>
+          </Navbar>
           <Box>{children}</Box>
           <Footer data-testid="footer" links={links} />
         </RootProvider>

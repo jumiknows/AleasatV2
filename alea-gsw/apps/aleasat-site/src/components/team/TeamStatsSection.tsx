@@ -1,20 +1,18 @@
-import { Grid2, Stack, Typography } from "@mui/material";
-import { title } from "process";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Grid2 from "@mui/material/Grid2";
+import Typography from "@mui/material/Typography";
 
 export default function TeamStatsSection() {
   const stats = [
     {
-      title: "Members",
+      title: "Team Members",
       value: "300+",
     },
     {
       title: "Subsystems",
       value: "10",
     },
-    // {
-    //   title: "Student Years",
-    //   value: "Year 1 - Year 5",
-    // },
     {
       title: "Nationalities",
       value: "10+",
@@ -26,40 +24,63 @@ export default function TeamStatsSection() {
   ];
 
   return (
-    <>
-      <Typography
-        variant="h2"
-        sx={{
-          textAlign: "center",
-          mt: 20,
-        }}
-      >
-        Team Statistics
-      </Typography>
-      <Grid2
-        container
-        spacing={4}
-        sx={{
-          mt: 10,
-          mb: 20,
-        }}
-      >
-        {stats.map((stat, i) => (
-          <Grid2 key={i} size={{ xs: 6, lg: 3 }}>
-            <Stack
-              spacing={1}
-              alignItems="center"
-              sx={{
-                width: "100%",
-                p: 2,
-              }}
-            >
-              <Typography variant="h4">{stat.value}</Typography>
-              <Typography variant="h4">{stat.title}</Typography>
-            </Stack>
-          </Grid2>
-        ))}
-      </Grid2>
-    </>
+    <Box sx={{ py: { xs: "4rem", md: "6rem" } }}>
+      <Container maxWidth="lg">
+        <Typography
+          variant="h2"
+          sx={{
+            textAlign: "center",
+            mb: 8,
+            fontWeight: "bold",
+            letterSpacing: "0.05em",
+          }}
+        >
+          Team Statistics
+        </Typography>
+        
+        <Grid2 container spacing={4}>
+          {stats.map((stat, i) => (
+            <Grid2 key={i} size={{ xs: 6, md: 3 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 4,
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    border: "1px solid rgba(74, 144, 226, 0.3)",
+                    transform: "translateY(-4px)",
+                  },
+                }}
+              >
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: "bold",
+                    mb: 2,
+                    background: "linear-gradient(45deg, #4A90E2, #7BB3F0)",
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    color: "transparent",
+                  }}
+                >
+                  {stat.value}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "rgba(255, 255, 255, 0.8)",
+                    fontWeight: 500,
+                  }}
+                >
+                  {stat.title}
+                </Typography>
+              </Box>
+            </Grid2>
+          ))}
+        </Grid2>
+      </Container>
+    </Box>
   );
 }

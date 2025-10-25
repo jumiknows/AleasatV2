@@ -7,7 +7,6 @@ import * as OpenApiValidator from "express-openapi-validator";
 import swaggerUi, { type JsonObject } from "swagger-ui-express";
 import { Queues } from "./bullmq/queues.js";
 import gmatJobQueueRoutes from "./routes/gmatJobQueueRoutes.js";
-import imageGenJobQueueRoutes from "./routes/imageGenJobQueueRoutes.js";
 import jobQueueRoutes from "./routes/jobQueueRoutes.js";
 import orbitPropJobQueueRoutes from "./routes/orbitPropJobQueueRoutes.js";
 
@@ -44,7 +43,6 @@ app.use(
 app.use("/", jobQueueRoutes);
 app.use("/", gmatJobQueueRoutes);
 app.use("/", orbitPropJobQueueRoutes);
-app.use("/", imageGenJobQueueRoutes);
 
 app.use(((err, _req, res, _next) => {
   // format error

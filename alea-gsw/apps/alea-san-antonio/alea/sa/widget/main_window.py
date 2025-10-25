@@ -67,7 +67,6 @@ class MainWindow(QtWidgets.QMainWindow, main_window_ui.Ui_MainWindow, ttc_base.O
 
         with graphics.get_path("ALEASAT_logo.png") as logo_path:
             self.logo = image_label.ImageLabel(str(logo_path.resolve()), self.centralwidget)
-            self.logo.setMinimumSize(100, 60)
         self.gridLayout.addWidget(self.logo, 0, 0, 1, 1)
 
         self.sat_interface = sat_interface.SatInterface(ttcs, self.centralwidget)

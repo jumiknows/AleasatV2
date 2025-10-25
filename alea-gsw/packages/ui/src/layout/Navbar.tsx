@@ -1,21 +1,59 @@
 "use client";
 
-import { Button, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery, useTheme } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
-
+import Typography from "@mui/material/Typography";
+import MenuIcon from "@mui/icons-material/Menu";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useState } from "react";
 
-import Hamburger from "../components/Hamburger";
+import HiddenMenu from "../components/HiddenMenu";
 import Image from "../components/Image";
 import Link from "../components/Link";
+
+const NavLink = ({ href, label, isActive }: { href: string; label: string; isActive: boolean }) => (
+  <Link
+    href={href}
+    data-cy={`navbar-${label.toLowerCase().replace(/\s+/g, "-")}`}
+    sx={{
+      textDecoration: "none",
+      color: isActive ? "white" : "rgba(255, 255, 255, 0.8)",
+      position: "relative",
+      px: 2,
+      py: 1,
+      borderRadius: "8px",
+      backgroundColor: isActive ? "rgba(74, 144, 226, 0.2)" : "transparent",
+      transition: "all 0.3s ease",
+      "&:hover": {
+        color: "white",
+        backgroundColor: "rgba(74, 144, 226, 0.15)",
+      },
+      "&::after": isActive ? {
+        content: '""',
+        position: "absolute",
+        bottom: -2,
+        left: "50%",
+        width: "80%",
+        height: "2px",
+        background: "linear-gradient(45deg, #4A90E2, #357ABD)",
+        transform: "translateX(-50%)",
+        borderRadius: "2px",
+      } : {},
+    }}
+  >
+    <Typography
+      sx={{
+        fontWeight: isActive ? 600 : 500,
+        fontSize: "1rem",
+      }}
+    >
+      {label}
+    </Typography>
+  </Link>
+);
 
 export default function Navbar({
   children,
@@ -29,53 +67,10 @@ export default function Navbar({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
 
-  const JoinBtn = () => (
-    <Button
-      variant="contained"
-      href="/join-us"
-      sx={{ bgcolor: "#333136", color: "white" }}
-    >
-      Join Us!
-    </Button>
-  );
-
-  const NavDrawer = () => (
-    <Box
-      sx={{
-        pt: 8,
-        width: 200,
-        background: "#000",
-        height: "100%",
-        zIndex: 10,
-      }}
-      role="presentation"
-      onClick={() => setDrawerOpen(false)}
-    >
-      <List>
-        {links?.map(({ label, path }) => (
-          <ListItem key={label} component={Link} href={path}>
-            <ListItemText
-              primary={label}
-              sx={{
-                textAlign: "start",
-                color: "white",
-                my: 1,
-                fontWeight: pathname === path ? "bold" : "normal",
-              }}
-            />
-          </ListItem>
-        ))}
-        <ListItem>
-          <JoinBtn />
-        </ListItem>
-      </List>
-    </Box>
-  );
-
   return (
     <AppBar
-      position="static"
-      sx={{ height: 70, background: "#000" }}
+      position="sticky"
+      sx={{ height: 70, background: "transparent", top: 0, zIndex: 1100 }}
       data-cy="navbar"
     >
       <Toolbar
@@ -83,15 +78,16 @@ export default function Navbar({
           position: "relative",
           py: 3,
           display: "flex",
-          justifyContent: "space-between",
+          alignItems: "center",
           height: "100%",
         }}
       >
+        {/* Logo and Navigation Items - Left Side */}
         <Box
           sx={{
-            height: "100%",
             display: "flex",
             alignItems: "center",
+            flex: 1,
           }}
         >
           <Link href="/">
@@ -102,81 +98,57 @@ export default function Navbar({
                 objectFit: "contain",
                 height: { xs: 50, sm: 70 },
                 width: { xs: 100, sm: 150 },
+                mr: 10,
               }}
             />
           </Link>
+          
+          {/* Navigation Items */}
+          {!isMobile && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 4,
+                alignItems: "center",
+              }}
+            >
+              {links?.map(({ label, path }) => (
+                <NavLink
+                  key={label}
+                  href={path}
+                  label={label}
+                  isActive={pathname === path}
+                />
+              ))}
+              
+              <NavLink
+                href="/join-us"
+                label="Join Us"
+                isActive={pathname === "/join-us"}
+              />
+            </Box>
+          )}
         </Box>
-        {isMobile ? (
-          <>
-            <IconButton
-              sx={{ zIndex: 99, position: "relative" }}
-              edge="end"
-              aria-label="menu"
-              onClick={() => setDrawerOpen(!drawerOpen)}
-            >
-              <Hamburger active={drawerOpen} />
-            </IconButton>
-            <Drawer
-              sx={{ positiove: "relative", zIndex: 10 }}
-              anchor="right"
-              open={drawerOpen}
-              onClose={() => setDrawerOpen(!drawerOpen)}
-            >
-              <NavDrawer />
-            </Drawer>
-          </>
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              gap: "5rem",
-              alignItems: "center",
-            }}
+        
+        {/* Right side menu */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {!isMobile && children}
+          <IconButton
+            sx={{ color: "white" }}
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            aria-label="menu"
           >
-            {links?.map(({ label, path }) => (
-              <Link
-                key={label}
-                href={path}
-                data-cy={`navbar-${label}`}
-                data-link={label}
-                sx={{
-                  textDecoration: "none",
-                  color: "white",
-                  position: "relative",
-                  "&:hover": {
-                    color: "primary.main",
-                    "&:before": {
-                      transform: "scaleX(1)",
-                      transformOrigin: "left",
-                    },
-                  },
-                  "&:before": {
-                    content: '""',
-                    position: "absolute",
-                    borderRadius: 2,
-                    width: "100%",
-                    height: "3px",
-                    bottom: "-6px",
-                    left: 1,
-                    backgroundColor: "primary.main",
-                    transform: "scaleX(0)",
-                    transformOrigin: "left",
-                    transition: "transform 0.2s ease-in-out",
-                  },
-                }}
-              >
-                <Typography
-                  color="inherit"
-                  sx={{ fontWeight: pathname === path ? "bold" : "normal" }}
-                >
-                  {label}
-                </Typography>
-              </Link>
-            ))}
-            <JoinBtn />
-          </Box>
+            <MenuIcon />
+          </IconButton>
+        </Box>
+        
+        {/* Hidden Menu */}
+        {drawerOpen && (
+          <HiddenMenu 
+            links={links} 
+            onClose={() => setDrawerOpen(false)} 
+          />
         )}
-        {children}
       </Toolbar>
     </AppBar>
   );
