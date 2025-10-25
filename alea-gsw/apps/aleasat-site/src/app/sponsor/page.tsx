@@ -43,15 +43,65 @@ const benefits: { title: string; description: string; iconPath: string }[] = [
 export default function Sponsor() {
   return (
     <Box>
-      {/* Hero Section */}
-      <Box sx={{ position: "relative" }}>
-        <Hero
-          type="image"
-          src="/sponsor.jpg"
-          title={`LAUNCHING DREAMS
-SPONSORS MAKE IT POSSIBLE`}
-        />
-      </Box>
+{/* ✅ Hero Section (image + gradient + custom title) */}
+<Box sx={{ position: "relative", minHeight: "100vh" }}>
+  {/* Background Image Only */}
+  <Hero type="image" src="/sponsor.jpg" title="" />
+
+  {/* ✅ Gradient overlay (UNDER text, ABOVE image) */}
+  <Box
+    sx={{
+      position: "absolute",
+      inset: 0,
+      pointerEvents: "none",
+      background:
+        "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.9) 100%)",
+      zIndex: 1,
+    }}
+  />
+
+  {/* ✅ Title & Subtitle ABOVE gradient */}
+  <Box
+    sx={{
+      position: "absolute",
+      inset: 0,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      zIndex: 2,
+      px: 2,
+    }}
+  >
+    {/* Main Title — keeps original Hero font */}
+    <Typography
+      variant="h2" // ✅ uses your site's MUI h2 config (font-family retained)
+      sx={{
+        color: "white",
+        fontWeight: 700,
+        fontSize: { xs: "2.3rem", md: "3.7rem" },
+        lineHeight: 1.1,
+        mb: 1,
+      }}
+    >
+      LAUNCHING DREAMS
+    </Typography>
+
+    {/* Subtitle — slightly smaller but SAME font */}
+    <Typography
+      variant="h2"
+      sx={{
+        color: "white",
+        opacity: 1.0,
+        fontSize: { xs: "1.2rem", md: "2.0rem" },
+        fontWeight: 500,
+      }}
+    >
+      SPONSORS MAKE IT POSSIBLE
+    </Typography>
+  </Box>
+</Box>
 
       {/* Main Content */}
       <Box
@@ -73,10 +123,10 @@ SPONSORS MAKE IT POSSIBLE`}
               fontWeight: "bold",
               textAlign: "center",
               mb: 4,
-              fontSize: { xs: 28, md: 42 },
+              fontSize: { xs: 28, md: 50 },
             }}
           >
-            PARTNER WITH ALEASAT
+          PARTNER WITH ALEASAT
           </Typography>
           <Typography
             variant="h6"
