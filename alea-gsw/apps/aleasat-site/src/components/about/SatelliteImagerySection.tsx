@@ -101,7 +101,7 @@ export default function SatelliteImagerySection() {
             pt: { xs: 4, md: 6 },
           }}
         >
-          <Box
+          {/* <Box
             sx={{
               maxWidth: { xs: "90%", sm: "80%", md: "70%" },
               borderRadius: "12px",
@@ -113,12 +113,14 @@ export default function SatelliteImagerySection() {
               src="/map1.png"
               alt="Satellite Map"
               sx={{
-                width: "100%",
+                width: "50%",
                 height: "auto",
                 objectFit: "cover",
+                margin: "0 auto",
+                display: "block",
               }}
             />
-          </Box>
+          </Box> */}
         </Box>
       </Container>
     </Box>
