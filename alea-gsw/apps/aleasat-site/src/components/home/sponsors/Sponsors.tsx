@@ -40,7 +40,7 @@ export default function Sponsors() {
           SPONSORS
         </Typography>
         <Typography component="h2" variant="h6" sx={{ mb: 5 }}>
-          Partner with us to make an impact and support our vision for the
+          Join our group of sponsors to make an impact and support our vision for the
           future.
         </Typography>
       </Box>
