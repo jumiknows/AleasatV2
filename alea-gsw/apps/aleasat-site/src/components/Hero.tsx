@@ -21,11 +21,10 @@ export default function Hero({ type, src, title }: HeroProps) {
   return (
     <Box
       sx={{
-        position: "sticky",
-        top: 0,
+        position: "relative",
         height: "100vh",
         alignItems: "center",
-        overflow: "visible",
+        overflow: "hidden",
         zIndex: 0,
       }}
     >
@@ -71,7 +70,6 @@ export default function Hero({ type, src, title }: HeroProps) {
             color: "white",
             fontWeight: "bold",
             fontSize: { xs: 30, md: 40 },
-            whiteSpace: "pre-line",
           }}
         >
           {title}

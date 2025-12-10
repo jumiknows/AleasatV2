@@ -47,12 +47,10 @@ export const members: Record<
       },
       image: "members-placeholder/Julian-Mentasti.jpg",
     },
-  ],
-  CAPTAIN: [
     {
       firstname: "Jen Jon",
       lastname: "Ma",
-      role: "UBC Orbit Captain",
+      role: "Technical Advisor",
       university: "UBC",
       year: "4",
       major: "MTRL",
@@ -64,23 +62,23 @@ export const members: Record<
       image: "members/IMG_6474.avif",
     },
     {
-      firstname: "Yun",
-      lastname: "Xing",
-      role: "UBC Orbit Captain",
-      university: "UBC",
-      year: "4",
-      major: "ENPH",
-      socialMedia: {
-        linkedin: "https://www.linkedin.com/in/yunxingubc/",
-        github: "https://github.com/yxing6",
-        gitlab: "https://gitlab.com/yxing6",
+        firstname: "Yousif",
+        lastname: "El-Wishahy",
+        role: "Technical Advisor",
+        university: "UBC",
+        year: "5",
+        major: "ENPH",
+        socialMedia: {
+          linkedin: null,
+          github: null,
+          gitlab: null,
+        },
+        image: "members/IMG_6336.avif",
       },
-      image: "members/IMG_1417.avif",
-    },
     {
       firstname: "Dwayne",
       lastname: "Lemos",
-      role: "SFUSat President",
+      role: "Technical Advisor",
       university: "SFU",
       year: "4",
       major: "MSE",
@@ -90,6 +88,50 @@ export const members: Record<
         gitlab: null,
       },
       image: "members-placeholder/Dwayne-Lemos.JPG",
+    },
+  ],
+  CAPTAIN: [
+    {
+      firstname: "Ari",
+      lastname: "Cholakian",
+      role: "UBC Orbit Captain",
+      university: "UBC",
+      year: "2",
+      major: "ENPH",
+      socialMedia: {
+        linkedin: null,
+        github: null,
+        gitlab: null,
+      },
+      image: "members/IMG_1433.avif",
+    },
+    {
+      firstname: "Mihaela",
+      lastname: "Gavrilova",
+      role: "UBC Orbit Captain",
+      university: "UBC",
+      year: "2",
+      major: "MECH",
+      socialMedia: {
+        linkedin: null,
+        github: null,
+        gitlab: null,
+      },
+      image: "members/IMG_6465.avif",
+    },
+    {
+        firstname: "Arseniy",
+        lastname: "Dolgov",
+        role: "SFUSat President",
+        university: "SFU",
+        year: "3",
+        major: "MSE",
+        socialMedia: {
+          linkedin: null,
+          github: null,
+          gitlab: "https://gitlab.com/swftwind",
+        },
+        image: "members-placeholder/Arseniy-Dolgov.JPG",
     },
   ],
   "": {
@@ -255,21 +297,6 @@ export const members: Record<
   },
   "Attitude and Orbit Control Subsystem": {
     lead: [
-      {
-        firstname: "Yousif",
-        lastname: "El-Wishahy",
-        role: "AOCS Lead",
-        team: "Lead",
-        university: "UBC",
-        year: "5",
-        major: "ENPH",
-        socialMedia: {
-          linkedin: null,
-          github: null,
-          gitlab: null,
-        },
-        image: "members/IMG_6336.avif",
-      },
       {
         firstname: "Tommy",
         lastname: "Su",
@@ -909,19 +936,19 @@ export const members: Record<
   Communication: {
     lead: [
       {
-        firstname: "Ari",
-        lastname: "Cholakian",
-        role: "Comms Lead",
-        university: "UBC",
-        year: "2",
-        major: "ENPH",
-        socialMedia: {
-          linkedin: null,
-          github: null,
-          gitlab: null,
-        },
-        image: "members/IMG_1433.avif",
+      firstname: "Yun",
+      lastname: "Xing",
+      role: "Comms Lead",
+      university: "UBC",
+      year: "4",
+      major: "ENPH",
+      socialMedia: {
+        linkedin: "https://www.linkedin.com/in/yunxingubc/",
+        github: "https://github.com/yxing6",
+        gitlab: "https://gitlab.com/yxing6",
       },
+      image: "members/IMG_1417.avif",
+    },
       {
         firstname: "Michael",
         lastname: "Liudeng",
@@ -1205,21 +1232,6 @@ export const members: Record<
         },
         image: "members/IMG_6445.avif",
       },
-      {
-        firstname: "Mihaela",
-        lastname: "Gavrilova",
-        role: "Structure Member",
-        university: "UBC",
-        year: "2",
-        major: "MECH",
-        socialMedia: {
-          linkedin: null,
-          github: null,
-          gitlab: null,
-        },
-        image: "members/IMG_6465.avif",
-      },
-
       {
         firstname: "Rebecca",
         lastname: "Chen",
@@ -1782,20 +1794,6 @@ export const members: Record<
           gitlab: "https://gitlab.com/elytgy",
         },
         image: "members/IMG_1480.avif",
-      },
-      {
-        firstname: "Arseniy",
-        lastname: "Dolgov",
-        role: "Payload Firmware",
-        university: "SFU",
-        year: "3",
-        major: "MSE",
-        socialMedia: {
-          linkedin: null,
-          github: null,
-          gitlab: "https://gitlab.com/swftwind",
-        },
-        image: null,
       },
     ],
     Optics: [
