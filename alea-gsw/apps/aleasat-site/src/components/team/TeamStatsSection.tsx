@@ -5,7 +5,7 @@ export default function TeamStatsSection() {
   const stats = [
     {
       title: "Members",
-      value: "300+",
+      value: "80+",
     },
     {
       title: "Subsystems",
