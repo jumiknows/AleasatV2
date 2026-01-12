@@ -599,7 +599,7 @@ export default function JoinUs() {
                 }}
               >
                 Recruitment is currently open! Please check our info package and
-                submit your application below.
+                submit your application below. If applying from UBC, please visit ubcorbit.com for more information regarding available roles. 
               </Typography>
 
               {/* Buttons Container */}
