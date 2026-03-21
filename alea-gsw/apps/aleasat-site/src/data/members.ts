@@ -1372,7 +1372,7 @@ export const members: Record<
       {
         firstname: "Alvin",
         lastname: "Tsui",
-        role: "",
+        role: "MOps Member",
         university: "UBC",
         year: "2",
         major: "CPSC",
@@ -1386,7 +1386,7 @@ export const members: Record<
       {
         firstname: "Harpeet",
         lastname: "Singh",
-        role: "",
+        role: "MOps Member",
         university: "UBC",
         year: "3",
         major: "CPEN",
@@ -1400,7 +1400,7 @@ export const members: Record<
       {
         firstname: "Jimena",
         lastname: "Montes Aguado",
-        role: "",
+        role: "MOps Member",
         university: "UBC",
         year: "1",
         major: "APSC",
@@ -1472,7 +1472,7 @@ export const members: Record<
       {
         firstname: "Aleandro",
         lastname: "Radja",
-        role: "",
+        role: "MOps Member",
         university: "UBC",
         year: "2",
         major: "APSC",
