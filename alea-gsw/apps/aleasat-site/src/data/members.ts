@@ -1300,7 +1300,7 @@ export const members: Record<
       {
         firstname: "Alexander",
         lastname: "Zhong",
-        role: "",
+        role: "MOps Member",
         university: "UBC",
         year: "2",
         major: "CPSC/CMPT",
@@ -1314,7 +1314,7 @@ export const members: Record<
       {
         firstname: "Isitha",
         lastname: "Tennakoon",
-        role: "",
+        role: "MOps Member",
         university: "SFU",
         year: "2",
         major: "CPSC/CMPT",
@@ -1328,7 +1328,7 @@ export const members: Record<
       {
         firstname: "Edan",
         lastname: "Stasiuk",
-        role: "",
+        role: "MOps Member",
         university: "SFU",
         year: "4",
         major: "CPSC/CMPT",
