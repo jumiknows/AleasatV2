@@ -651,7 +651,7 @@ export const members: Record<
           github: null,
           gitlab: null,
         },
-        image: "null",
+        image: null,
       },
     ],
     MAIV: [
