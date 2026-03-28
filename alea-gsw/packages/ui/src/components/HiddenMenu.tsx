@@ -12,6 +12,8 @@ interface HiddenMenuProps {
   onClose: () => void;
 }
 
+const SHOW_RESOURCES = false;
+
 export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
   const pathname = usePathname();
   const [isClosing, setIsClosing] = useState(false);
@@ -25,23 +27,35 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
 
   // Prevent body scrolling when menu is open
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, []);
 
   return (
     <Box
       sx={{
-        width: "100vw",
-        height: "80vh",
+        width: "100dvw",
+        height: "100dvh",
         background: "#000000",
         position: "fixed",
         top: 0,
         left: 0,
         zIndex: 9999,
-        overflow: "auto",
+        overflowY: "auto",
+        overflowX: "hidden",
+        WebkitOverflowScrolling: "touch",
         transform: isClosing ? "translateY(-100%)" : "translateY(0)",
         transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         borderBottom: "1px solid rgba(74, 144, 226, 0.2)",
@@ -63,12 +77,13 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
     >
       {/* Header with logo and close button */}
       <Box
+        onClick={(event) => event.stopPropagation()}
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          p: 4,
-          pt: 5,
+          p: { xs: 2, sm: 4 },
+          pt: { xs: 2.5, sm: 5 },
           borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
         }}
       >
@@ -77,8 +92,8 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
           alt="AleaSat Logo"
           sx={{
             objectFit: "contain",
-            height: 80,
-            width: 180,
+            height: { xs: 44, sm: 80 },
+            width: { xs: 120, sm: 180 },
             transition: "all 0.3s ease",
             "&:hover": {
               transform: "scale(1.05)",
@@ -100,6 +115,7 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
             },
           }}
           onClick={handleClose}
+          aria-label="Close menu"
         >
           ✕
         </IconButton>
@@ -107,15 +123,17 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
 
       {/* Content Layout */}
       <Box
+        onClick={(event) => event.stopPropagation()}
         sx={{
           display: "flex",
-          minHeight: "calc(80vh - 140px)",
+          minHeight: "calc(100dvh - 96px)",
           position: "relative",
-          alignItems: "flex-start",
+          alignItems: { xs: "stretch", md: "flex-start" },
           justifyContent: "space-between",
-          px: 6,
-          py: 4,
-          gap: 8,
+          flexDirection: { xs: "column", md: "row" },
+          px: { xs: 2, sm: 4, md: 6 },
+          py: { xs: 2, sm: 4 },
+          gap: { xs: 3, md: 8 },
         }}
       >
         {/* Left Column - Main Navigation */}
@@ -123,9 +141,10 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 3,
+            gap: { xs: 1.5, md: 3 },
             justifyContent: "flex-start",
             flex: "0 0 auto",
+            width: { xs: "100%", md: "auto" },
           }}
         >
           {links?.map(({ label, path }, index) => (
@@ -134,13 +153,15 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
               component={Link}
               href={path}
               variant="h4"
+              onClick={handleClose}
               sx={{
                 textDecoration: "none",
                 color: pathname === path ? "white" : "rgba(255, 255, 255, 0.7)",
                 fontWeight: pathname === path ? "700" : "400",
+                fontSize: { xs: "1.2rem", sm: "1.5rem", md: "2rem" },
                 lineHeight: 1.2,
                 position: "relative",
-                padding: "12px 20px",
+                padding: { xs: "10px 14px", sm: "12px 20px" },
                 borderRadius: "12px",
                 backgroundColor: pathname === path ? "rgba(74, 144, 226, 0.15)" : "transparent",
                 border: pathname === path ? "1px solid rgba(74, 144, 226, 0.3)" : "1px solid transparent",
@@ -159,7 +180,7 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
                 "&:hover": {
                   color: "white",
                   backgroundColor: "rgba(74, 144, 226, 0.2)",
-                  transform: "translateX(10px)",
+                  transform: { xs: "none", md: "translateX(10px)" },
                   border: "1px solid rgba(74, 144, 226, 0.4)",
                 },
                 "&::before": pathname === path ? {
@@ -182,17 +203,20 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
           {/* Join Us Button */}
           <Box sx={{ mt: 4 }}>
             <Button
+              component={Link}
               href="/join-us"
+              onClick={handleClose}
               variant="contained"
               sx={{
                 background: "linear-gradient(45deg, #4A90E2, #357ABD)",
                 color: "white",
                 borderRadius: "30px",
                 textTransform: "none",
-                fontSize: "1.1rem",
+                fontSize: { xs: "1rem", md: "1.1rem" },
                 fontWeight: 600,
-                px: 4,
-                py: 2,
+                px: { xs: 3, md: 4 },
+                py: { xs: 1.5, md: 2 },
+                width: { xs: "100%", sm: "auto" },
                 boxShadow: "0 8px 25px rgba(74, 144, 226, 0.3)",
                 border: "1px solid rgba(255, 255, 255, 0.2)",
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -212,88 +236,94 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
           </Box>
         </Box>
 
-        {/* Center Column - Secondary Links */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            justifyContent: "flex-start",
-            flex: "0 0 auto",
-            pt: 2,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              color: "rgba(255, 255, 255, 0.5)",
-              fontWeight: 600,
-              mb: 1,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              fontSize: "0.9rem",
-            }}
-          >
-            Resources
-          </Typography>
-          {[
-            { label: "FAQ", path: "/faq" },
-            { label: "Privacy Policy", path: "/privacy" },
-            { label: "Terms of Service", path: "/terms" },
-            { label: "Contact Us", path: "/contact" },
-          ].map(({ label, path }, index) => (
-            <Typography
-              key={label}
-              component={Link}
-              href={path}
-              variant="body1"
+        {SHOW_RESOURCES && (
+          <>
+            {/* Center Column - Secondary Links */}
+            <Box
               sx={{
-                textDecoration: "none",
-                color: "rgba(255, 255, 255, 0.6)",
                 display: "flex",
-                alignItems: "center",
-                gap: 2,
-                lineHeight: 1.5,
-                padding: "8px 16px",
-                borderRadius: "8px",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                animation: `slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s both`,
-                "@keyframes slideInRight": {
-                  from: {
-                    opacity: 0,
-                    transform: "translateX(30px)",
-                  },
-                  to: {
-                    opacity: 1,
-                    transform: "translateX(0)",
-                  },
-                },
-                "&:hover": {
-                  color: "white",
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
-                  transform: "translateX(-5px)",
-                },
+                flexDirection: "column",
+                gap: { xs: 1.5, md: 3 },
+                justifyContent: "flex-start",
+                flex: "0 0 auto",
+                pt: { xs: 0.5, md: 2 },
+                width: { xs: "100%", md: "auto" },
               }}
             >
-              {label}
-              <Box
-                component="span"
+              <Typography
+                variant="h6"
                 sx={{
-                  fontSize: "0.8rem",
-                  opacity: 0.7,
-                  transition: "all 0.3s ease",
+                  color: "rgba(255, 255, 255, 0.5)",
+                  fontWeight: 600,
+                  mb: 1,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  fontSize: "0.9rem",
                 }}
               >
-                ↗
-              </Box>
-            </Typography>
-          ))}
-        </Box>
+                Resources
+              </Typography>
+              {[
+                { label: "FAQ", path: "/faq" },
+                { label: "Privacy Policy", path: "/privacy" },
+                { label: "Terms of Service", path: "/terms" },
+                { label: "Contact Us", path: "/contact" },
+              ].map(({ label, path }, index) => (
+                <Typography
+                  key={label}
+                  component={Link}
+                  href={path}
+                  variant="body1"
+                  onClick={handleClose}
+                  sx={{
+                    textDecoration: "none",
+                    color: "rgba(255, 255, 255, 0.6)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    lineHeight: 1.5,
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    animation: `slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s both`,
+                    "@keyframes slideInRight": {
+                      from: {
+                        opacity: 0,
+                        transform: "translateX(30px)",
+                      },
+                      to: {
+                        opacity: 1,
+                        transform: "translateX(0)",
+                      },
+                    },
+                    "&:hover": {
+                      color: "white",
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      transform: "translateX(-5px)",
+                    },
+                  }}
+                >
+                  {label}
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: "0.8rem",
+                      opacity: 0.7,
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    ↗
+                  </Box>
+                </Typography>
+              ))}
+            </Box>
+          </>
+        )}
 
         {/* Right Side - Satellite Image */}
         <Box
           sx={{
-            display: "flex",
+            display: { xs: "none", md: "flex" },
             justifyContent: "center",
             alignItems: "flex-start",
             flex: "1 1 auto",
@@ -322,10 +352,13 @@ export default function HiddenMenu({ links, onClose }: HiddenMenuProps) {
             src="/sathd2.png"
             alt="ALEASAT Satellite"
             sx={{
-              width: "650px",
-              height: "650px",
+              width: { md: "520px", lg: "650px" },
+              height: { md: "520px", lg: "650px" },
               objectFit: "contain",
-              transform: "rotate(-25deg) scale(1.3) translateY(-80px) translateX(70px)",
+              transform: {
+                md: "rotate(-25deg) scale(1.2) translateY(-60px) translateX(40px)",
+                lg: "rotate(-25deg) scale(1.3) translateY(-80px) translateX(70px)",
+              },
               filter: "contrast(1.8) brightness(1.1)",
               animation: "float 6s ease-in-out infinite",
               "@keyframes float": {
