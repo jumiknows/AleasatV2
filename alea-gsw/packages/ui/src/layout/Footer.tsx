@@ -3,7 +3,6 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedIn from "@mui/icons-material/LinkedIn";
 import type { SxProps, Theme } from "@mui/material";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { StaticImageData } from "next/image";
@@ -44,6 +43,33 @@ export default function Footer({
 }: {
   links?: Array<{ label: string; path: string }>;
 }) {
+  const SHOW_RESOURCES = true;
+
+  const sectionLabelSx: SxProps<Theme> = {
+    color: "rgba(255,255,255,0.62)",
+    fontSize: { xs: 12, md: 13 },
+    letterSpacing: "0.09em",
+    textTransform: "uppercase",
+    fontWeight: 700,
+    mb: 1,
+    textAlign: { xs: "left", md: "left" },
+  };
+
+  const navLinkSx: SxProps<Theme> = {
+    color: "white",
+    textDecoration: "none",
+    fontSize: { xs: 15, md: 17 },
+    lineHeight: 1.25,
+    px: { xs: 0.2, md: 1.2 },
+    py: { xs: 0.35, md: 0.6 },
+    borderRadius: "8px",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      backgroundColor: "rgba(255,255,255,0.09)",
+      textDecoration: "none",
+    },
+  };
+
   const footerLinks = [
     { label: "FAQ", path: "/faq" },
     { label: "Privacy Policy", path: "/privacy" },
@@ -55,10 +81,10 @@ export default function Footer({
     <footer>
       <Box
         sx={{
-          background: "#000",
+          background: "linear-gradient(180deg, #050505 0%, #000000 100%)",
           color: "white",
-          py: { xs: 3, md: 4 },
-          px: { xs: 2, md: 8 },
+          py: { xs: 4, md: 5 },
+          px: { xs: 2, sm: 3, md: 8 },
         }}
       >
         {/* Main content */}
@@ -67,10 +93,12 @@ export default function Footer({
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
             justifyContent: "space-between",
-            alignItems: { xs: "flex-start", md: "flex-start" },
-            gap: { xs: 4, md: 2 },
-            mb: 3,
+            alignItems: { xs: "stretch", md: "flex-start" },
+            gap: { xs: 3.5, md: 3 },
+            mb: 4,
             minHeight: "120px",
+            maxWidth: "1280px",
+            mx: "auto",
           }}
         >
           {/* Left side - Navigation sections stacked */}
@@ -78,75 +106,56 @@ export default function Footer({
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: 3,
+              gap: 2.5,
               order: { xs: 1, md: 1 },
               flex: 1,
+              minWidth: 0,
             }}
           >
             {/* Top row - Footer Links */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                gap: { xs: 2, sm: 6 },
-                alignItems: { xs: "flex-start", md: "flex-start" },
-              }}
-            >
-              {footerLinks.map(({ label, path }) => (
-                <Link
-                  key={label}
-                  href={path}
+            {SHOW_RESOURCES && (
+              <Box>
+                <Typography sx={sectionLabelSx}>Resources</Typography>
+                <Box
                   sx={{
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: { xs: 16, md: 18 },
-                    "&:hover": {
-                      textDecoration: "underline",
-                    },
+                    display: { xs: "grid", sm: "flex" },
+                    gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", sm: "none" },
+                    columnGap: { xs: 2, sm: 0 },
+                    rowGap: { xs: 0.7, sm: 0 },
+                    flexWrap: { sm: "wrap" },
+                    gap: { sm: 1.5 },
+                    justifyContent: { xs: "flex-start", md: "flex-start" },
                   }}
                 >
-                  {label}
-                </Link>
-              ))}
-            </Box>
+                  {footerLinks.map(({ label, path }) => (
+                    <Link key={label} href={path} sx={navLinkSx}>
+                      {label}
+                    </Link>
+                  ))}
+                </Box>
+              </Box>
+            )}
 
             {/* Bottom row - Main Navigation with separators */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                gap: { xs: 2, sm: 0 },
-                alignItems: { xs: "flex-start", md: "flex-start" },
-              }}
-            >
-              {links.map(({ label, path }, index) => (
-                <Box key={label} sx={{ display: "flex", alignItems: "center" }}>
-                  <Link
-                    href={path}
-                    sx={{
-                      color: "white",
-                      textDecoration: "none",
-                      fontSize: { xs: 16, md: 18 },
-                      "&:hover": {
-                        textDecoration: "underline",
-                      },
-                    }}
-                  >
+            <Box>
+              <Typography sx={sectionLabelSx}>Explore</Typography>
+              <Box
+                sx={{
+                  display: { xs: "grid", sm: "flex" },
+                  gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", sm: "none" },
+                  columnGap: { xs: 2, sm: 0 },
+                  rowGap: { xs: 0.7, sm: 0 },
+                  flexWrap: { sm: "wrap" },
+                  gap: { sm: 1.5 },
+                  justifyContent: { xs: "flex-start", md: "flex-start" },
+                }}
+              >
+                {links.map(({ label, path }) => (
+                  <Link key={label} href={path} sx={navLinkSx}>
                     {label}
                   </Link>
-                  {index < links.length - 1 && (
-                    <Typography
-                      sx={{
-                        mx: 3,
-                        color: "gray",
-                        display: { xs: "none", sm: "block" },
-                      }}
-                    >
-                      |
-                    </Typography>
-                  )}
-                </Box>
-              ))}
+                ))}
+              </Box>
             </Box>
           </Box>
 
@@ -154,10 +163,12 @@ export default function Footer({
           <Box
             sx={{
               display: "flex",
-              gap: { xs: 4, md: 6 },
-              flexDirection: { xs: "column", sm: "row" },
+              gap: { xs: 2.5, md: 6 },
+              flexDirection: "row",
               alignItems: "center",
+              justifyContent: { xs: "space-between", md: "flex-start" },
               order: { xs: 2, md: 2 },
+              width: { xs: "100%", md: "auto" },
             }}
           >
             {/* UBC */}
@@ -182,8 +193,8 @@ export default function Footer({
                   data-testid="facebook-link"
                 >
                   <FacebookIcon
-                    sx={{ 
-                      color: "gray", 
+                    sx={{
+                      color: "gray",
                       fontSize: { xs: 20, md: 24 },
                       "&:hover": { color: "white" },
                     }}
@@ -195,8 +206,8 @@ export default function Footer({
                   data-testid="instagram-link"
                 >
                   <InstagramIcon
-                    sx={{ 
-                      color: "gray", 
+                    sx={{
+                      color: "gray",
                       fontSize: { xs: 20, md: 24 },
                       "&:hover": { color: "white" },
                     }}
@@ -208,8 +219,8 @@ export default function Footer({
                   data-testid="linkedin-link"
                 >
                   <LinkedIn
-                    sx={{ 
-                      color: "gray", 
+                    sx={{
+                      color: "gray",
                       fontSize: { xs: 20, md: 24 },
                       "&:hover": { color: "white" },
                     }}
@@ -239,8 +250,8 @@ export default function Footer({
                   target="_blank"
                 >
                   <FacebookIcon
-                    sx={{ 
-                      color: "gray", 
+                    sx={{
+                      color: "gray",
                       fontSize: { xs: 20, md: 24 },
                       "&:hover": { color: "white" },
                     }}
@@ -251,8 +262,8 @@ export default function Footer({
                   target="_blank"
                 >
                   <InstagramIcon
-                    sx={{ 
-                      color: "gray", 
+                    sx={{
+                      color: "gray",
                       fontSize: { xs: 20, md: 24 },
                       "&:hover": { color: "white" },
                     }}
@@ -263,8 +274,8 @@ export default function Footer({
                   target="_blank"
                 >
                   <LinkedIn
-                    sx={{ 
-                      color: "gray", 
+                    sx={{
+                      color: "gray",
                       fontSize: { xs: 20, md: 24 },
                       "&:hover": { color: "white" },
                     }}
@@ -281,6 +292,8 @@ export default function Footer({
             textAlign: "center",
             pt: 2,
             borderTop: "1px solid #333",
+            maxWidth: "1280px",
+            mx: "auto",
           }}
         >
           <Typography
