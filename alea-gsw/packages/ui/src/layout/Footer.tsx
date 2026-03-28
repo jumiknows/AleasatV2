@@ -302,7 +302,7 @@ export default function Footer({
               color: "gray",
             }}
           >
-            © 2025 UBC Orbit Design Team & SFU Satellite Design Team
+            © 2026 UBC Orbit Design Team & SFU Satellite Design Team
           </Typography>
         </Box>
       </Box>
